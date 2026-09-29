@@ -75,5 +75,28 @@ def tighten(x: np.ndarray, db: float = -35, pad: float = 0.03, max_gap: float = 
     return out, cut_count, removed
 
 
+def trim_edges(x: np.ndarray, rel_db: float = -45, head_pad: float = 0.06, tail_pad: float = 0.12,
+               fade: float = 0.008) -> np.ndarray:
+    """앞뒤 무음만 자른다. 기준은 그 줄의 최대 음량 대비 rel_db (ㅅ·ㅎ 같은 약한 소리 보호).
+    문장 안의 쉼은 건드리지 않고, 자른 끝에는 짧은 페이드를 넣어 '툭' 소리를 막는다."""
+    if len(x) == 0:
+        return x
+    peak = float(np.abs(x).max()) + 1e-9
+    mask = _loud_mask(x, 20 * np.log10(peak) + rel_db)
+    if not mask.any():
+        return x[:0]
+    idx = np.flatnonzero(mask)
+    win = 441
+    a = max(idx[0] * win - int(head_pad * SR), 0)
+    b = min((idx[-1] + 1) * win + int(tail_pad * SR), len(x))
+    y = x[a:b].copy()
+    n = min(int(fade * SR), len(y) // 2)
+    if n:
+        ramp = np.linspace(0, 1, n, dtype=np.float32)
+        y[:n] *= ramp
+        y[-n:] *= ramp[::-1]
+    return y
+
+
 def silence(sec: float) -> np.ndarray:
     return np.zeros(int(sec * SR), dtype=np.float32)

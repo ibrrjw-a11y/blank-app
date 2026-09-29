@@ -216,7 +216,7 @@ def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voi
         echo("… 목소리 합성")
         vs = voice.synthesize(j, s.lines, voice_provider)
         j.mark("voice", "done", **vs)
-        echo(f"  원본 {vs['raw_sec']}초 → 최종 {vs['final_sec']}초 (무음 {vs['cuts']}곳 정리)")
+        echo(f"  음성 {vs['final_sec']}초 ({vs['provider']})" + (f", 무음 {vs['cuts']}곳 정리" if vs["cuts"] else ""))
         echo("… 화면 그리기")
         fr = render_frames(j, s)
         j.mark("frames", "done", count=len(fr))

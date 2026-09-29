@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from . import audio, config
+from .korean_num import to_speech
 from .job import Job
 
 
@@ -198,17 +199,16 @@ def synthesize(job: Job, lines: list[str], provider: str | None = None) -> dict:
     raw_total, cuts_total = 0.0, 0
     for i, line in enumerate(lines):
         # 대본·목소리 설정이 바뀌면 다시 합성, 같으면 재사용
-        key = f"{provider}|{config.get('voice.edge_voice')}|{config.get('voice.rate')}|{line}"
+        key = f"v2|{provider}|{config.get('voice.edge_voice')}|{config.get('voice.rate')}|{line}"
         h = hashlib.sha1(key.encode()).hexdigest()[:8]
         src = tmp / f"line_{i:03d}_{h}.{'mp3' if provider == 'edge' else 'wav'}"
         if not src.exists():
-            fn(_speakable(line), src)
+            fn(to_speech(_speakable(line)), src)
         wav = tmp / f"line_{i:03d}_{h}_n.wav"
         audio.to_wav(src, wav)
         x = audio.read_wav(wav)
         raw_total += len(x) / audio.SR
-        y, cuts, _ = audio.tighten(x, db=db, pad=pad, max_gap=0.18)
-        cuts_total += cuts
+        y = audio.trim_edges(x)
         dur = len(y) / audio.SR
         align.append({"idx": i, "text": line, "start": round(t, 3), "end": round(t + dur, 3)})
         chunks += [y, audio.silence(gap)]
@@ -230,7 +230,7 @@ def _from_single_file(job: Job, lines: list[str], src: Path, db: float, pad: flo
     wav = job.p("voice_parts", "manual_n.wav")
     audio.to_wav(src, wav)
     x = audio.read_wav(wav)
-    y, cuts, removed = audio.tighten(x, db=db, pad=pad, max_gap=0.10)
+    y, cuts, removed = audio.tighten(x, db=db, pad=pad, max_gap=0.25)
     dur = len(y) / audio.SR
     weights = [max(len(ln.replace(" ", "")), 1) for ln in lines]
     total_w = sum(weights)
@@ -256,9 +256,9 @@ def _edge_whole(job: Job, lines: list[str], tail: float) -> dict | None:
     if src.exists() and meta.exists():
         words = json.loads(meta.read_text(encoding="utf-8"))
     else:
-        words = _edge_stream(" ".join(_speakable(ln) for ln in lines), src)
+        words = _edge_stream(" ".join(to_speech(_speakable(ln)) for ln in lines), src)
         meta.write_text(json.dumps(words, ensure_ascii=False), encoding="utf-8")
-    spans = map_words_to_lines(lines, words)
+    spans = map_words_to_lines([to_speech(ln) for ln in lines], words)
     if spans is None:
         return None
     wav = job.p("voice_parts", f"whole_{h}_n.wav")

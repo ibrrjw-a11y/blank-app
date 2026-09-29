@@ -84,3 +84,25 @@ def test_map_words_to_lines():
     assert map_words_to_lines(lines, words) == [(0.1, 1.5), (1.8, 3.0)]
     # 글자 수가 크게 어긋나면 None (줄 단위 합성으로 전환)
     assert map_words_to_lines(lines, words[:3]) is None
+
+
+def test_korean_numbers_for_tts():
+    from hotdeal_shorts.korean_num import to_speech
+    cases = {
+        "지금 39,900원임": "지금 삼만 구천구백원임",
+        "무게가 600그램이라": "무게가 육백그램이라",
+        "리뷰가 2천4백 개인데": "리뷰가 이천사백 개인데",
+        "원래 8만 9천원짜리": "원래 팔만 구천원짜리",
+        "세제 3개 사면": "세제 세개 사면",
+        "24시간 지속": "스물네시간 지속",
+        "20개입": "스무개입",
+        "2개월 썼는데": "이개월 썼는데",
+        "평점 4.7점": "평점 사 점 칠점",
+        "1+1 행사": "원 플러스 원 행사",
+        "55% 할인": "오십오퍼센트 할인",
+        "10000원": "만원",
+        "150,000원": "십오만원",
+        "500ml 두 병": "오백밀리리터 두 병",
+    }
+    for src, want in cases.items():
+        assert to_speech(src) == want, (src, to_speech(src))

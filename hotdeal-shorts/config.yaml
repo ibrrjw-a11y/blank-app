@@ -15,7 +15,7 @@ video:
   width: 1080
   height: 1920
   fps: 30
-  line_gap_sec: 0.08            # 줄과 줄 사이 숨 쉬는 간격
+  line_gap_sec: 0.12            # 줄과 줄 사이 숨 쉬는 간격 (줄 단위 합성일 때)
   tail_sec: 0.6                 # 마지막 줄 뒤 여운
   font: ""                      # 비워두면 자동 탐색 (Pretendard > Noto Sans CJK > 맑은고딕 > 애플고딕)
   price_reveal: true            # 가격표를 가격 말하는 줄부터 표시 (false 면 처음부터)
