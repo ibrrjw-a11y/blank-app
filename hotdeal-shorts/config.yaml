@@ -1,0 +1,51 @@
+# 핫딜 쇼츠 설정. 값만 바꾸면 되고, 코드 수정은 필요 없음.
+
+channel:
+  name: "오늘의 핫딜"          # 화면 상단 배너에 들어가는 채널명 (내 브랜드로 교체)
+  handle: "@my_hotdeal"
+  color: "#FF3B30"              # 브랜드 메인 색
+  accent: "#FFD60A"             # 가격 강조 색
+
+video:
+  width: 1080
+  height: 1920
+  fps: 30
+  line_gap_sec: 0.08            # 줄과 줄 사이 숨 쉬는 간격
+  tail_sec: 0.6                 # 마지막 줄 뒤 여운
+  font: ""                      # 비워두면 자동 탐색 (Pretendard > Noto Sans CJK > 맑은고딕 > 애플고딕)
+
+subtitle:
+  max_chars: 15                 # 자막 한 줄 최대 글자 수
+  max_lines: 2
+  strip_period: true
+  lead_sec: 0.15                # 자막을 목소리보다 먼저 띄우는 시간
+
+voice:
+  provider: edge                # edge(무료) | espeak(오프라인 테스트용) | manual
+  edge_voice: "ko-KR-SunHiNeural"   # 남성: ko-KR-InJoonNeural
+  rate: "+15%"                  # 쇼츠는 약간 빠르게
+  silence_db: -35               # 이 값보다 조용하면 무음으로 보고 잘라냄
+  pad_sec: 0.03
+
+script:
+  provider: claude              # claude | template(키 없을 때 자동 대체)
+  model: "claude-opus-5-5"
+  effort: "medium"
+  lines_min: 6
+  lines_max: 12
+  line_max_chars: 30            # 자막 2줄(15자 x 2) 안에 들어가게
+
+deals:
+  min_discount_pct: 30          # 이 할인율 미만은 후보에서 제외
+  price_range_krw: [5000, 150000]
+  min_reviews: 100              # 리뷰 수를 아는 경우에만 적용
+  coupang_sub_id: "hotdealshorts"
+
+publish:
+  disclosure: "이 영상은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다."
+  price_notice: "가격은 {checked_at} 기준이며 판매처 사정에 따라 변동·품절될 수 있습니다."
+  hashtags: ["#핫딜", "#쇼핑", "#꿀템", "#shorts"]
+
+metrics:
+  buy_intent_keywords: ["어디서", "링크", "사요", "구매", "얼마", "품절", "샀", "주문"]
+  winner_multiplier: 3.0        # 채널 평균 대비 이 배수 이상이면 '터진 영상'
