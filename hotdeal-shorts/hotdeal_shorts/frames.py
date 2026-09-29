@@ -1,4 +1,4 @@
-"""화면 PNG 생성: 줄마다 1장 (제목·상품·가격 고정 + 현재 자막)."""
+"""화면 PNG 생성: 줄마다 1장. 커뮤니티 글 스타일 (배너·프로필·고정 제목·자막·사진)."""
 from __future__ import annotations
 
 import io
@@ -8,45 +8,50 @@ from functools import lru_cache
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 from . import config
 from .job import Job
 from .script import Script
 
-FONT_CANDIDATES = [
-    # 직접 넣은 폰트가 최우선
-    "fonts/Pretendard-ExtraBold.otf", "fonts/Pretendard-Bold.otf",
-    # Linux
-    "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc",
-    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
-    "/usr/share/fonts/noto-cjk/NotoSansCJK-Bold.ttc",
-    # Windows
-    "C:/Windows/Fonts/malgunbd.ttf",
-    # macOS
-    "/System/Library/Fonts/AppleSDGothicNeo.ttc",
-    "/Library/Fonts/AppleGothic.ttf",
-]
+FONT_CANDIDATES = {
+    "bold": [
+        "fonts/Pretendard-ExtraBold.otf", "fonts/Pretendard-Bold.otf",  # 직접 넣은 폰트 우선
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Black.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSansCJK-Bold.ttc",
+        "C:/Windows/Fonts/malgunbd.ttf",
+        "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+        "/Library/Fonts/AppleGothic.ttf",
+    ],
+    "regular": [
+        "fonts/Pretendard-Medium.otf", "fonts/Pretendard-Regular.otf",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+        "C:/Windows/Fonts/malgun.ttf",
+        "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+        "/Library/Fonts/AppleGothic.ttf",
+    ],
+}
 
 
-def find_font() -> str:
-    custom = config.get("video.font")
-    cands = ([custom] if custom else []) + FONT_CANDIDATES
+def find_font(weight: str = "bold") -> str:
+    custom = config.get("video.font") if weight == "bold" else config.get("video.font_regular")
+    cands = ([custom] if custom else []) + FONT_CANDIDATES[weight]
     for c in cands:
         p = Path(c) if Path(c).is_absolute() else config.home() / c
         if p.exists():
             return str(p)
+    if weight != "bold":
+        return find_font("bold")
     raise FileNotFoundError("한글 굵은 폰트를 찾지 못함. fonts/ 폴더에 Pretendard-Bold.otf 를 넣거나 "
                             "config.yaml 의 video.font 에 경로를 적어주세요.")
 
 
 @lru_cache(maxsize=64)
-def font(size: int) -> ImageFont.FreeTypeFont:
-    return ImageFont.truetype(find_font(), size)
-
-
-SUB_TOP, SUB_H = 400, 250
-CARD_TOP, CARD_BOTTOM = 690, 1230
+def font(size: int, weight: str = "bold") -> ImageFont.FreeTypeFont:
+    return ImageFont.truetype(find_font(weight), size)
 
 
 def hex_rgb(h: str) -> tuple[int, int, int]:
@@ -148,90 +153,162 @@ def product_image(job: Job) -> Image.Image | None:
 
 
 def placeholder(size: tuple[int, int], name: str) -> Image.Image:
-    img = Image.new("RGBA", size, (245, 245, 247, 255))
+    """사진이 없을 때: 부드러운 회색 그라데이션 + 상품명."""
+    w, h = size
+    img = Image.new("RGBA", size, (0, 0, 0, 255))
     d = ImageDraw.Draw(img)
-    f = font(56)
-    lines = wrap(d, name, f, size[0] - 120, 3)
-    y = size[1] // 2 - len(lines) * 40
+    for y in range(h):
+        v = int(236 - 26 * y / h)
+        d.line([(0, y), (w, y)], fill=(v, v, v + 3, 255))
+    f = font(58)
+    lines = wrap(d, name, f, w - 120, 2)
+    y = h // 2 - len(lines) * 40
     for ln in lines:
-        centered(d, y, ln, f, (60, 60, 67), size[0])
+        centered(d, y, ln, f, (90, 90, 96), w)
         y += 80
     return img
 
 
-# ------------------------------------------------------------------ 본체
+def cover(img: Image.Image, size: tuple[int, int]) -> Image.Image:
+    """비율 유지하며 꽉 채우고 가운데를 자른다."""
+    w, h = size
+    scale = max(w / img.width, h / img.height)
+    r = img.resize((round(img.width * scale), round(img.height * scale)), Image.LANCZOS)
+    x, y = (r.width - w) // 2, (r.height - h) // 2
+    return r.crop((x, y, x + w, y + h))
+
+
+def contain_on_white(img: Image.Image, size: tuple[int, int], margin: int = 40) -> Image.Image:
+    """상품 누끼 사진용: 흰 바탕 가운데 배치."""
+    bg = Image.new("RGBA", size, (255, 255, 255, 255))
+    im = img.copy()
+    im.thumbnail((size[0] - margin * 2, size[1] - margin * 2), Image.LANCZOS)
+    bg.paste(im, ((size[0] - im.width) // 2, (size[1] - im.height) // 2), im)
+    return bg
+
+
+def line_images(job: Job, n: int, size: tuple[int, int]) -> list[Image.Image]:
+    """줄별 사진: images/line_000.jpg ... 가 있으면 그 줄부터 사용, 없으면 앞 줄 사진 유지.
+    첫 사진이 나오기 전까지는 상품 사진."""
+    prod = product_image(job)
+    base = contain_on_white(prod, size) if prod else placeholder(size, job.deal["name"])
+    out, cur = [], base
+    for i in range(n):
+        for ext in ("jpg", "jpeg", "png", "webp"):
+            p = job.p("images", f"line_{i:03d}.{ext}")
+            if p.exists():
+                cur = cover(Image.open(p).convert("RGBA"), size)
+                break
+        out.append(cur)
+    return out
+
+
+# ------------------------------------------------------------------ 레이아웃 (1080x1920 기준)
+# 배너 0-190 | 프로필 225-365 | 고정 제목 390-470 | 구분선 495 | 자막 525-715 | 사진 745-1450 | 아래는 쇼츠 UI 영역
+
+BANNER_H = 190
+PHOTO_BOX = (65, 745, 1015, 1450)  # 4:3 에 가까운 950x705
+
+
+def _draw_chevrons(d, x: int, y: int, size: int, color) -> None:
+    for k in range(2):
+        ox = x + k * int(size * 0.62)
+        d.line([(ox, y), (ox + size // 2, y + size // 2), (ox, y + size)], fill=color, width=max(8, size // 7),
+               joint="curve")
+
+
+def _draw_tag_icon(d, cx: int, cy: int, size: int, color) -> None:
+    """가격표 아이콘 (브랜드 고유 아이콘)."""
+    s = size
+    body = [(cx - s * 0.5, cy - s * 0.3), (cx + s * 0.15, cy - s * 0.3), (cx + s * 0.5, cy),
+            (cx + s * 0.15, cy + s * 0.3), (cx - s * 0.5, cy + s * 0.3)]
+    d.polygon(body, outline=color, width=max(6, s // 12))
+    r = s * 0.07
+    d.ellipse([cx + s * 0.08 - r, cy - r, cx + s * 0.08 + r, cy + r], fill=color)
+    tf = font(int(s * 0.34))
+    d.text((cx - s * 0.36, cy - s * 0.24), "%", font=tf, fill=color)
+
 
 def base_layer(job: Job, s: Script, W: int, H: int) -> Image.Image:
     deal = job.deal
-    brand = hex_rgb(config.get("channel.color", "#FF3B30"))
-    accent = hex_rgb(config.get("channel.accent", "#FFD60A"))
+    banner_bg = hex_rgb(config.get("channel.color", "#FFE08A"))
+    ink = hex_rgb(config.get("channel.ink", "#1C1C1E"))
+    label_bg = hex_rgb(config.get("channel.label_bg", "#FFF1C2"))
 
-    img = Image.new("RGB", (W, H), (14, 14, 18))
+    img = Image.new("RGB", (W, H), (255, 255, 255))
     d = ImageDraw.Draw(img)
-    # 은은한 세로 그라데이션
-    for y in range(H):
-        v = int(14 + 16 * (y / H))
-        d.line([(0, y), (W, y)], fill=(v, v, v + 6))
 
-    # 레이아웃 (쇼츠 하단 약 400px은 제목·버튼 UI에 가려지므로 비워둔다)
-    # 배너 0-130 | 제목 150-370 | 자막 400-650 | 상품 690-1230 | 가격 1250-1470
-    d.rectangle([0, 0, W, 130], fill=brand)
+    # 1) 상단 배너: 화살표 + 채널명 + 아이콘
+    d.rectangle([0, 0, W, BANNER_H], fill=banner_bg)
+    _draw_chevrons(d, 55, 58, 74, ink)
     name = config.get("channel.name", "오늘의 핫딜")
-    centered(d, 30, f"{name}  »", font(60), (255, 255, 255), W)
+    nf = fit_text(d, name, W - 420, 104, min_size=64)
+    d.text((W / 2 + 10, BANNER_H / 2 + 4), name, font=nf, fill=ink, anchor="mm")
+    _draw_tag_icon(d, W - 115, BANNER_H // 2, 120, ink)
 
-    # 제목(영상 내내 고정)
-    tf = fit_text(d, s.title, W - 100, 80, min_size=64)
-    lines = [s.title] if d.textlength(s.title, font=tf) <= W - 100 else wrap(d, s.title, tf, W - 100, 2)
-    y = 175 if len(lines) == 1 else 155
-    for ln in lines:
-        y = centered(d, y, ln, tf, (255, 255, 255), W, stroke=3) + 26
+    # 2) 프로필 줄: 카테고리 라벨 + 이름 + 한 줄 소개
+    lx, ly, ls = 65, 225, 140
+    d.rectangle([lx, ly, lx + ls, ly + ls], fill=label_bg)
+    label = config.get("channel.label", "得")
+    d.text((lx + ls / 2, ly + ls / 2), label, font=font(92), fill=ink, anchor="mm")
+    cat = deal.get("category") or config.get("channel.label_name", "핫딜")
+    d.text((lx + ls + 32, ly + 12), " ".join(cat), font=font(50), fill=ink)
+    tagline = config.get("channel.tagline", "오늘 올라온 특가만 골라요")
+    d.text((lx + ls + 32, ly + 88), tagline, font=font(30, "regular"), fill=(142, 142, 147))
 
-    # 상품 카드
-    card = (90, CARD_TOP, W - 90, CARD_BOTTOM)
-    cw, ch = card[2] - card[0], card[3] - card[1]
-    shadow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    ImageDraw.Draw(shadow).rounded_rectangle([card[0] + 8, card[1] + 14, card[2] + 8, card[3] + 14], 40,
-                                             fill=(0, 0, 0, 160))
-    blurred = shadow.filter(ImageFilter.GaussianBlur(18))
-    img.paste(blurred, (0, 0), blurred)
-    d = ImageDraw.Draw(img)
-    d.rounded_rectangle(card, 40, fill=(255, 255, 255))
-    prod = product_image(job) or placeholder((cw - 60, ch - 60), deal["name"])
-    prod.thumbnail((cw - 60, ch - 60))
-    img.paste(prod, (card[0] + (cw - prod.width) // 2, card[1] + (ch - prod.height) // 2), prod)
+    # 3) 고정 제목 (영상 내내)
+    tf = fit_text(d, s.title, W - 130, 56, min_size=40)
+    d.text((W / 2, 430), s.title, font=tf, fill=ink, anchor="mm")
+    d.line([(0, 495), (W, 495)], fill=(222, 222, 226), width=3)
 
-    # 할인율 스탬프
-    pct = deal.get("discount_pct")
-    if pct:
-        st = Image.new("RGBA", (260, 260), (0, 0, 0, 0))
-        sd = ImageDraw.Draw(st)
-        sd.ellipse([8, 8, 252, 252], fill=brand + (255,), outline=(255, 255, 255), width=8)
-        centered(sd, 58, f"{pct:.0f}%", font(88), (255, 255, 255), 260)
-        centered(sd, 162, "할인", font(44), (255, 255, 255), 260)
-        st = st.rotate(12, resample=Image.BICUBIC)
-        img.paste(st, (W - 300, CARD_BOTTOM - 230), st)
-
-    # 가격
-    d = ImageDraw.Draw(img)
-    py = CARD_BOTTOM + 25
-    if deal.get("original_price"):
-        of = font(50)
-        txt = fmt_won(deal["original_price"])
-        w = d.textlength(txt, font=of)
-        x0 = (W - w) / 2
-        d.text((x0, py), txt, font=of, fill=(150, 150, 158))
-        mid = py + 34
-        d.line([(x0 - 6, mid), (x0 + w + 6, mid)], fill=(150, 150, 158), width=5)
-        py += 72
-    if deal.get("price"):
-        centered(d, py, fmt_won(deal["price"]), font(116), accent, W, stroke=4)
     return img
+
+
+def rounded_mask(size: tuple[int, int], radius: int = 22) -> Image.Image:
+    m = Image.new("L", size, 0)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, size[0] - 1, size[1] - 1], radius, fill=255)
+    return m
+
+
+def price_chip(deal: dict, max_w: int) -> Image.Image | None:
+    """사진 오른쪽 아래에 얹는 가격표: 정가(취소선) + 할인율 + 할인가."""
+    if not deal.get("price"):
+        return None
+    brand = hex_rgb(config.get("channel.price_color", "#FF3B30"))
+    tmp = ImageDraw.Draw(Image.new("RGB", (1, 1)))
+    pf, of, cf = font(64), font(34, "regular"), font(40)
+    sale = fmt_won(deal["price"])
+    orig = fmt_won(deal["original_price"]) if deal.get("original_price") else ""
+    pct = f"{deal['discount_pct']:.0f}%" if deal.get("discount_pct") else ""
+    pw = tmp.textlength(sale, font=pf)
+    top_w = tmp.textlength(orig, font=of) + (tmp.textlength(pct, font=cf) + 20 if pct else 0)
+    w = int(max(pw, top_w) + 56)
+    h = 150 if (orig or pct) else 100
+    chip = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    cd = ImageDraw.Draw(chip)
+    cd.rounded_rectangle([0, 0, w - 1, h - 1], 22, fill=(255, 255, 255, 245), outline=(225, 225, 230), width=2)
+    y = 18
+    if orig or pct:
+        x = 28
+        if pct:
+            cd.text((x, y - 4), pct, font=cf, fill=brand)
+            x += int(cd.textlength(pct, font=cf)) + 20
+        if orig:
+            cd.text((x, y + 2), orig, font=of, fill=(150, 150, 156))
+            ow = cd.textlength(orig, font=of)
+            cd.line([(x, y + 24), (x + ow, y + 24)], fill=(150, 150, 156), width=3)
+        y += 52
+    cd.text((w - 28, y + 36), sale, font=pf, fill=(20, 20, 22), anchor="rm")
+    if w > max_w:
+        chip = chip.resize((max_w, int(h * max_w / w)), Image.LANCZOS)
+    return chip
 
 
 def render_frames(job: Job, s: Script) -> list[dict]:
     W, H = config.get("video.width", 1080), config.get("video.height", 1920)
     max_chars = config.get("subtitle.max_chars", 15)
     strip = config.get("subtitle.strip_period", True)
+    ink = hex_rgb(config.get("channel.ink", "#1C1C1E"))
     out_dir = job.p("frames")
     out_dir.mkdir(exist_ok=True)
     for old in out_dir.glob("*.png"):
@@ -240,21 +317,30 @@ def render_frames(job: Job, s: Script) -> list[dict]:
     base = base_layer(job, s, W, H)
     base.save(out_dir / "base.png")
     align = json.loads(job.p("align.json").read_text(encoding="utf-8"))["lines"]
+    x0, y0, x1, y1 = PHOTO_BOX
+    photos = line_images(job, len(align), (x1 - x0, y1 - y0))
+    chip = price_chip(job.deal, 560)
+    mask = rounded_mask((x1 - x0, y1 - y0))
+    # 가격표는 가격을 말하는 줄부터 표시 (핫딜 반전 효과). 가격 언급이 없으면 처음부터.
+    price_from = next((a["idx"] for a in align if "원" in display_text(a["text"])
+                       and re.search(r"\d", display_text(a["text"]))), 0)
+    if not config.get("video.price_reveal", True):
+        price_from = 0
+
     frames = []
-    for a in align:
+    for a, photo in zip(align, photos):
         img = base.copy()
+        img.paste(photo.convert("RGB"), (x0, y0), mask)
+        if chip is not None and a["idx"] >= price_from:
+            img.paste(chip, (x1 - chip.width - 24, y1 - chip.height - 24), chip)
         d = ImageDraw.Draw(img)
         shown = display_text(a["text"])
         parts = split_subtitle(shown, max_chars, strip)[: config.get("subtitle.max_lines", 2)]
-        sf = min((fit_text(d, p, W - 140, 84) for p in parts), key=lambda f: f.size)
-        # 흰 상자 + 검은 굵은 글씨: 어떤 배경에서도 읽힘
-        line_h = sf.size + 24
-        box_h = len(parts) * line_h + 36
-        top = SUB_TOP + (SUB_H - box_h) // 2
-        d.rounded_rectangle([50, top, W - 50, top + box_h], 26, fill=(255, 255, 255))
-        y = top + 16
+        sf = min((fit_text(d, p, W - 120, 74) for p in parts), key=lambda f: f.size)
+        line_h = sf.size + 22
+        y = 620 - (len(parts) * line_h) / 2 + line_h / 2
         for p in parts:
-            centered(d, y, p, sf, (10, 10, 12), W)
+            d.text((W / 2, y), p, font=sf, fill=ink, anchor="mm")
             y += line_h
         path = out_dir / f"body_{a['idx']:03d}.png"
         img.save(path)

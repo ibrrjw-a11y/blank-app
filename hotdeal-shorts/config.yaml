@@ -1,10 +1,15 @@
 # 핫딜 쇼츠 설정. 값만 바꾸면 되고, 코드 수정은 필요 없음.
 
 channel:
-  name: "오늘의 핫딜"          # 화면 상단 배너에 들어가는 채널명 (내 브랜드로 교체)
+  name: "오늘의 핫딜"          # 상단 배너 채널명 (내 브랜드로 교체)
   handle: "@my_hotdeal"
-  color: "#FF3B30"              # 브랜드 메인 색
-  accent: "#FFD60A"             # 가격 강조 색
+  color: "#FFE08A"              # 배너 배경색 (채널마다 다르게: 식품 노랑, 뷰티 핑크 등)
+  ink: "#1C1C1E"                # 글자·아이콘 색
+  label: "得"                   # 프로필 네모 안 글자 (한자 한 글자나 이모지 대신 짧은 글자)
+  label_bg: "#FFF1C2"
+  label_name: "핫딜"            # 딜에 카테고리가 없을 때 라벨 옆 이름
+  tagline: "오늘 올라온 특가만 골라요"
+  price_color: "#FF3B30"        # 할인율 색
 
 video:
   width: 1080
@@ -13,6 +18,7 @@ video:
   line_gap_sec: 0.08            # 줄과 줄 사이 숨 쉬는 간격
   tail_sec: 0.6                 # 마지막 줄 뒤 여운
   font: ""                      # 비워두면 자동 탐색 (Pretendard > Noto Sans CJK > 맑은고딕 > 애플고딕)
+  price_reveal: true            # 가격표를 가격 말하는 줄부터 표시 (false 면 처음부터)
 
 subtitle:
   max_chars: 15                 # 자막 한 줄 최대 글자 수
