@@ -198,13 +198,16 @@ def contain_on_white(img: Image.Image, size: tuple[int, int], margin: int = 40) 
     return bg
 
 
-def line_images(job: Job, n: int, size: tuple[int, int]) -> list[Image.Image]:
+def line_images(job: Job, texts: list[str], size: tuple[int, int]) -> list[Image.Image]:
     """줄별 사진: images/line_000.jpg ... 가 있으면 그 줄부터 사용, 없으면 앞 줄 사진 유지.
-    첫 사진이 나오기 전까지는 상품 사진."""
+    첫 사진이 나오기 전, 그리고 가격을 말하는 줄은 실제 상품 사진."""
+    from .images import is_price_line
     prod = product_image(job)
     base = contain_on_white(prod, size) if prod else placeholder(size, job.deal["name"])
     out, cur = [], base
-    for i in range(n):
+    for i, text in enumerate(texts):
+        if is_price_line(text):
+            cur = base
         for ext in ("jpg", "jpeg", "png", "webp"):
             p = job.p("images", f"line_{i:03d}.{ext}")
             if p.exists():
@@ -329,7 +332,7 @@ def render_frames(job: Job, s: Script) -> list[dict]:
     base.save(out_dir / "base.png")
     align = json.loads(job.p("align.json").read_text(encoding="utf-8"))["lines"]
     x0, y0, x1, y1 = PHOTO_BOX
-    photos = line_images(job, len(align), (x1 - x0, y1 - y0))
+    photos = line_images(job, [a["text"] for a in align], (x1 - x0, y1 - y0))
     chip = price_chip(job.deal, 560)
     mask = rounded_mask((x1 - x0, y1 - y0))
     # 가격표는 가격을 말하는 줄부터 표시 (핫딜 반전 효과). 가격 언급이 없으면 처음부터.

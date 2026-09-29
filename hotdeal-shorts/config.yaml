@@ -34,6 +34,12 @@ voice:
   silence_db: -35               # 이 값보다 조용하면 무음으로 보고 잘라냄
   pad_sec: 0.03
 
+images:
+  provider: gemini              # gemini | openai | none   (키가 없으면 자동으로 건너뜀)
+  select: every                 # every(가격 줄 빼고 전부) | marked(줄 앞에 [img] 붙인 줄만) | first(장면마다 첫 줄)
+  gemini_model: "gemini-2.5-flash-image"
+  openai_model: "gpt-image-1"
+
 script:
   provider: claude              # claude | template(키 없을 때 자동 대체)
   model: "claude-opus-5-5"

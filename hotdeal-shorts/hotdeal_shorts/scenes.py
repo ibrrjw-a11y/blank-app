@@ -48,6 +48,7 @@ class Item:
     role: str = "line"      # line | body | comment | msg
     speaker: str = ""       # kakao 화자
     likes: str = ""         # 댓글 좋아요 수 (원글의 실제 값일 때만)
+    marked: bool = False    # 게시글형 줄 앞 [img]: 이 줄에 AI 이미지 생성 (images.select: marked)
 
 
 @dataclass
@@ -83,7 +84,8 @@ def parse(body: str) -> list[Scene]:
             cur = Scene(kind="post")
             scenes.append(cur)
         if cur.kind == "post":
-            cur.items.append(Item(ln))
+            marked = ln.lower().startswith("[img]")
+            cur.items.append(Item(ln[5:].strip() if marked else ln, marked=marked))
         elif cur.kind == "community":
             f = FIELD.match(ln)
             if not f:

@@ -8,7 +8,7 @@ from typing import Optional
 
 import typer
 
-from . import config, db, deals, job as jobmod, metrics, publish, render, script, voice
+from . import config, db, deals, images, job as jobmod, metrics, publish, render, script, voice
 from .frames import find_font, render_frames
 
 app = typer.Typer(help="핫딜 쇼핑 쇼츠 제작·운영 자동화", no_args_is_help=True)
@@ -56,6 +56,9 @@ def doctor():
     echo(f"쿠팡파트너스   {ok(os.environ.get('COUPANG_ACCESS_KEY') and os.environ.get('COUPANG_SECRET_KEY'))}"
          "  (없으면 CSV 수동 입력)")
     echo(f"YouTube API    {ok(os.environ.get('YOUTUBE_API_KEY'))}  (없으면 CSV 수동 입력)")
+    img = config.get("images.provider", "gemini")
+    key = {"gemini": "GEMINI_API_KEY", "openai": "OPENAI_API_KEY"}.get(img)
+    echo(f"AI 이미지      {img} {ok(os.environ.get(key)) if key else ''}  (없으면 상품 사진)")
 
 
 # ================================================================== 딜
@@ -211,7 +214,8 @@ def script_regen(job_id: str, hook: Optional[str] = None, extra: str = ""):
 
 
 @app.command()
-def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual")):
+def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual"),
+          images_provider: Optional[str] = typer.Option(None, "--images", help="gemini | openai | none")):
     """승인된 대본 → 목소리 → 화면 → final.mp4 → 업로드 텍스트."""
     j = jobmod.load(job_id)
     s, approved = script.read(j.p("script.md"))
@@ -226,6 +230,7 @@ def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voi
         vs = voice.synthesize(j, s.lines, voice_provider)
         j.mark("voice", "done", **vs)
         echo(f"  음성 {vs['final_sec']}초 ({vs['provider']})" + (f", 무음 {vs['cuts']}곳 정리" if vs["cuts"] else ""))
+        _make_images(j, images_provider)
         echo("… 화면 그리기")
         fr = render_frames(j, s)
         j.mark("frames", "done", count=len(fr))
@@ -239,6 +244,36 @@ def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voi
         fail(str(e))
     echo(f"✓ 완성: {ri['path']} ({ri['duration']}초)")
     echo(f"  점검표·업로드 문구: {j.p('review.md')}")
+
+
+def _make_images(j: jobmod.Job, provider: Optional[str], force: bool = False) -> None:
+    """줄별 AI 이미지. 키가 없거나 실패해도 영상 제작은 계속 (상품 사진으로 대체)."""
+    if (provider or config.get("images.provider", "gemini")) == "none":
+        return
+    echo("… 줄별 AI 이미지")
+    try:
+        r = images.generate(j, script.read_scenes(j.p("script.md")), provider, force)
+    except images.ImageError as e:
+        typer.secho(f"  ! 이미지 건너뜀: {e}", fg="yellow")
+        return
+    j.mark("images", "done", **{k: v for k, v in r.items() if k != "failed"})
+    msg = f"  새로 {r['made']}장 ({r['provider']}, 프롬프트: {r.get('prompt_by', '-')})"
+    if r.get("skipped"):
+        msg = f"  이미 있음 {r['skipped']}장 (다시 만들려면 hd images {j.id} --force)"
+    echo(msg)
+    if r.get("failed"):
+        typer.secho(f"  ! 실패한 줄 {r['failed']}: 상품 사진으로 대체", fg="yellow")
+
+
+@app.command("images")
+def images_cmd(job_id: str, provider: Optional[str] = typer.Option(None, help="gemini | openai"),
+               force: bool = typer.Option(False, "--force", help="이미 있는 이미지도 다시 생성"),
+               select: Optional[str] = typer.Option(None, help="every | marked | first")):
+    """줄마다 AI 이미지만 따로 생성 (결과: images/line_NNN.png). 마음에 안 드는 파일은 지우고 다시 실행."""
+    j = jobmod.load(job_id)
+    if select:
+        config.cfg()["images"] = {**(config.get("images") or {}), "select": select}
+    _make_images(j, provider, force)
 
 
 @app.command()

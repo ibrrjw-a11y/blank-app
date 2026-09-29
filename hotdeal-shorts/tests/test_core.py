@@ -157,3 +157,62 @@ def test_every_community_style_renders(tmp_path):
         for upto in range(len(sc.items)):
             img = scene_frames.render_community(base, sc, upto)
             assert img.size == (1080, 1920)
+
+
+def _png_bytes(color=(90, 140, 200)):
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.new("RGB", (1024, 768), color).save(buf, "PNG")
+    return buf.getvalue()
+
+
+def test_image_line_selection():
+    from hotdeal_shorts import images, scenes
+    scs = scenes.parse("훅 줄\n[img]장면 줄\n지금 39,900원임\n[community: 더쿠]\nbody: 인용\n[post]\n마지막 장면")
+    assert images.select_lines(scs, "every") == [(0, "훅 줄"), (1, "장면 줄"), (4, "마지막 장면")]
+    assert images.select_lines(scs, "marked") == [(1, "장면 줄")]
+    assert images.select_lines(scs, "first") == [(0, "훅 줄"), (4, "마지막 장면")]
+    assert scenes.narration(scs)[1] == "장면 줄"  # [img] 표시는 읽지 않음
+
+
+def test_image_providers_parse_responses(monkeypatch):
+    import base64
+    from hotdeal_shorts import images
+
+    class Resp:
+        def __init__(self, body): self.status_code, self._b, self.text = 200, body, ""
+        def json(self): return self._b
+
+    png = _png_bytes()
+    b64 = base64.b64encode(png).decode()
+    calls = []
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        calls.append((url, headers, json))
+        if "googleapis" in url:
+            return Resp({"candidates": [{"content": {"parts": [{"text": "ok"}, {"inlineData": {"data": b64}}]}}]})
+        return Resp({"data": [{"b64_json": b64}]})
+
+    monkeypatch.setattr(images.requests, "post", fake_post)
+    monkeypatch.setenv("GEMINI_API_KEY", "g")
+    monkeypatch.setenv("OPENAI_API_KEY", "o")
+    assert images._gemini("p") == png and images._openai("p") == png
+    assert calls[0][1]["x-goog-api-key"] == "g"
+    assert calls[0][2]["generationConfig"]["responseModalities"] == ["IMAGE"]
+    assert calls[1][1]["Authorization"] == "Bearer o"
+
+
+def test_generate_writes_files_and_skips_existing(monkeypatch, tmp_path):
+    from hotdeal_shorts import images, scenes
+    from hotdeal_shorts.job import Job
+    (tmp_path / "deal.json").write_text('{"name": "청소기", "category": "가전"}', encoding="utf-8")
+    job = Job(tmp_path)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setitem(images.PROVIDERS, "gemini", lambda prompt: _png_bytes())
+    scs = scenes.parse("훅 줄\n장면 줄\n지금 39,900원임")
+    r = images.generate(job, scs, "gemini")
+    assert r["made"] == 2 and r["prompt_by"] == "template"
+    assert (tmp_path / "images" / "line_000.png").exists() and not (tmp_path / "images" / "line_002.png").exists()
+    assert images.generate(job, scs, "gemini")["made"] == 0  # 이미 있으면 건너뜀
+    assert images.generate(job, scs, "gemini", force=True)["made"] == 2
