@@ -5,6 +5,7 @@ import asyncio
 import hashlib
 import json
 import os
+import re
 import shutil
 import ssl
 import subprocess
@@ -22,7 +23,7 @@ class TTSError(RuntimeError):
 
 # ------------------------------------------------------------------ 프로바이더
 
-def _edge(text: str, out: Path) -> None:
+def _edge_setup():
     import edge_tts
     import edge_tts.communicate as ec
 
@@ -32,20 +33,72 @@ def _edge(text: str, out: Path) -> None:
         ctx = ssl.create_default_context()
         ctx.load_verify_locations(ca)
         ec._SSL_CTX = ctx
+    return edge_tts
+
+
+def _edge_stream(text: str, out: Path) -> list[dict]:
+    """전체 대본을 한 번에 합성하고 단어별 시각(WordBoundary)을 받는다."""
+    edge_tts = _edge_setup()
 
     async def run():
         c = edge_tts.Communicate(text, config.get("voice.edge_voice", "ko-KR-SunHiNeural"),
-                                 rate=config.get("voice.rate", "+15%"),
+                                 rate=config.get("voice.rate", "+15%"), boundary="WordBoundary",
                                  proxy=os.environ.get("HTTPS_PROXY") or None)
-        await c.save(str(out))
+        words = []
+        with open(out, "wb") as f:
+            async for chunk in c.stream():
+                if chunk["type"] == "audio":
+                    f.write(chunk["data"])
+                elif chunk["type"] == "WordBoundary":
+                    # offset·duration 단위는 100ns
+                    words.append({"text": chunk["text"], "start": chunk["offset"] / 1e7,
+                                  "end": (chunk["offset"] + chunk["duration"]) / 1e7})
+        return words
 
     try:
-        asyncio.run(run())
+        words = asyncio.run(run())
     except Exception as e:  # noqa: BLE001 - 네트워크/인증서 등 원인이 다양함
         raise TTSError(f"edge-tts 실패: {e}. 인터넷 연결을 확인하거나 config.yaml 에서 "
-                       "voice.provider 를 espeak(테스트용) 또는 manual 로 바꾸세요.") from e
+                       "voice.provider 를 sherpa/espeak 또는 manual 로 바꾸세요.") from e
     if not out.exists() or out.stat().st_size == 0:
         raise TTSError("edge-tts 가 빈 파일을 반환함")
+    return words
+
+
+def _edge(text: str, out: Path) -> None:
+    _edge_stream(text, out)
+
+
+def _norm(t: str) -> str:
+    return re.sub(r"[^0-9A-Za-z가-힣]", "", t)
+
+
+def map_words_to_lines(lines: list[str], words: list[dict]) -> list[tuple[float, float]] | None:
+    """단어 시각을 글자 수 누적으로 대본 줄에 배정. 크게 어긋나면 None."""
+    targets, acc = [], 0
+    for ln in lines:
+        acc += len(_norm(ln))
+        targets.append(acc)
+    spans: list[list[float]] = [[] for _ in lines]
+    acc, li = 0, 0
+    for w in words:
+        n = len(_norm(w["text"]))
+        if n == 0:
+            continue
+        # 단어 중간 지점이 속한 줄에 배정
+        mid = acc + n / 2
+        while li < len(lines) - 1 and mid > targets[li]:
+            li += 1
+        spans[li] += [w["start"], w["end"]]
+        acc += n
+    if not targets or abs(acc - targets[-1]) > max(3, 0.1 * targets[-1]) or any(not sp for sp in spans):
+        return None
+    return [(min(sp), max(sp)) for sp in spans]
+
+
+def _speakable(line: str) -> str:
+    """줄 끝에 문장부호가 없으면 마침표를 붙여 문장 억양이 자연스럽게 끝나게 한다."""
+    return line if re.search(r"[.!?~…]$", line) else line + "."
 
 
 def _espeak(text: str, out: Path) -> None:
@@ -55,7 +108,63 @@ def _espeak(text: str, out: Path) -> None:
     subprocess.run([exe, "-v", "ko", "-s", "190", "-w", str(out), text], check=True)
 
 
-PROVIDERS = {"edge": _edge, "espeak": _espeak}
+SHERPA_URL = ("https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/"
+              "vits-mimic3-ko_KO-kss_low.tar.bz2")
+_sherpa_tts = None
+
+
+def sherpa_model_dir() -> Path:
+    return config.home() / "models" / "vits-mimic3-ko_KO-kss_low"
+
+
+def download_sherpa_model() -> Path:
+    """오프라인 한국어 AI 음성 모델(약 60MB) 내려받기."""
+    import tarfile
+
+    import requests
+    d = sherpa_model_dir()
+    if (d / "ko_KO-kss_low.onnx").exists():
+        return d
+    d.parent.mkdir(parents=True, exist_ok=True)
+    tar = d.parent / "model.tar.bz2"
+    with requests.get(SHERPA_URL, stream=True, timeout=60) as r:
+        r.raise_for_status()
+        with open(tar, "wb") as f:
+            for chunk in r.iter_content(1 << 20):
+                f.write(chunk)
+    with tarfile.open(tar) as t:
+        t.extractall(d.parent)
+    tar.unlink()
+    return d
+
+
+def _sherpa(text: str, out: Path) -> None:
+    global _sherpa_tts
+    try:
+        import sherpa_onnx
+    except ImportError as e:
+        raise TTSError("pip install sherpa-onnx 후 `hd voice setup-offline` 을 실행하세요") from e
+    d = sherpa_model_dir()
+    if not (d / "ko_KO-kss_low.onnx").exists():
+        raise TTSError("오프라인 음성 모델이 없음. `hd voice setup-offline` 을 먼저 실행하세요")
+    if _sherpa_tts is None:
+        _sherpa_tts = sherpa_onnx.OfflineTts(sherpa_onnx.OfflineTtsConfig(
+            model=sherpa_onnx.OfflineTtsModelConfig(
+                vits=sherpa_onnx.OfflineTtsVitsModelConfig(
+                    model=str(d / "ko_KO-kss_low.onnx"), tokens=str(d / "tokens.txt"),
+                    data_dir=str(d / "espeak-ng-data")),
+                num_threads=4)))
+    a = _sherpa_tts.generate(text, sid=0, speed=config.get("voice.offline_speed", 1.1))
+    y = (np.clip(np.array(a.samples), -1, 1) * 32767).astype(np.int16)
+    import wave
+    with wave.open(str(out), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(a.sample_rate)
+        w.writeframes(y.tobytes())
+
+
+PROVIDERS = {"edge": _edge, "sherpa": _sherpa, "espeak": _espeak}
 
 
 # ------------------------------------------------------------------ 합성
@@ -75,6 +184,12 @@ def synthesize(job: Job, lines: list[str], provider: str | None = None) -> dict:
             raise TTSError(f"manual 모드: {job.path}/voice_raw.mp3 (또는 .wav) 파일을 넣고 다시 실행하세요.")
         return _from_single_file(job, lines, manual[0], db, pad, tail)
 
+    if provider == "edge" and config.get("voice.whole_script", True):
+        res = _edge_whole(job, lines, tail)
+        if res:
+            return res
+        job.log("단어 시각이 대본과 맞지 않아 줄 단위 합성으로 전환")
+
     fn = PROVIDERS.get(provider)
     if fn is None:
         raise TTSError(f"알 수 없는 voice.provider: {provider}")
@@ -87,7 +202,7 @@ def synthesize(job: Job, lines: list[str], provider: str | None = None) -> dict:
         h = hashlib.sha1(key.encode()).hexdigest()[:8]
         src = tmp / f"line_{i:03d}_{h}.{'mp3' if provider == 'edge' else 'wav'}"
         if not src.exists():
-            fn(line, src)
+            fn(_speakable(line), src)
         wav = tmp / f"line_{i:03d}_{h}_n.wav"
         audio.to_wav(src, wav)
         x = audio.read_wav(wav)
@@ -128,6 +243,38 @@ def _from_single_file(job: Job, lines: list[str], src: Path, db: float, pad: flo
     audio.write_wav(job.p("voice.wav"), out)
     stats = {"provider": "manual", "raw_sec": round(len(x) / audio.SR, 2), "final_sec": round(len(out) / audio.SR, 2),
              "cuts": cuts, "lines": len(lines), "note": "글자 수 비례 타이밍(근사치)"}
+    job.p("align.json").write_text(json.dumps({"lines": align, "stats": stats}, ensure_ascii=False, indent=2),
+                                   encoding="utf-8")
+    return stats
+
+
+def _edge_whole(job: Job, lines: list[str], tail: float) -> dict | None:
+    key = f"{config.get('voice.edge_voice')}|{config.get('voice.rate')}|" + "\n".join(lines)
+    h = hashlib.sha1(key.encode()).hexdigest()[:8]
+    src = job.p("voice_parts", f"whole_{h}.mp3")
+    meta = job.p("voice_parts", f"whole_{h}.json")
+    if src.exists() and meta.exists():
+        words = json.loads(meta.read_text(encoding="utf-8"))
+    else:
+        words = _edge_stream(" ".join(_speakable(ln) for ln in lines), src)
+        meta.write_text(json.dumps(words, ensure_ascii=False), encoding="utf-8")
+    spans = map_words_to_lines(lines, words)
+    if spans is None:
+        return None
+    wav = job.p("voice_parts", f"whole_{h}_n.wav")
+    audio.to_wav(src, wav)
+    x = audio.read_wav(wav)
+    # 앞 무음만 잘라내고 시각을 그만큼 당긴다 (문장 사이 자연스러운 쉼은 유지)
+    lead = max(spans[0][0] - 0.05, 0.0)
+    x = x[int(lead * audio.SR):]
+    end = spans[-1][1] - lead
+    x = x[: int((end + 0.1) * audio.SR)]
+    out = np.concatenate([x, audio.silence(tail)])
+    audio.write_wav(job.p("voice.wav"), out)
+    align = [{"idx": i, "text": ln, "start": round(a - lead, 3), "end": round(b - lead, 3)}
+             for i, (ln, (a, b)) in enumerate(zip(lines, spans))]
+    stats = {"provider": "edge(whole)", "raw_sec": round(len(x) / audio.SR + lead, 2),
+             "final_sec": round(len(out) / audio.SR, 2), "cuts": 0, "lines": len(lines)}
     job.p("align.json").write_text(json.dumps({"lines": align, "stats": stats}, ensure_ascii=False, indent=2),
                                    encoding="utf-8")
     return stats

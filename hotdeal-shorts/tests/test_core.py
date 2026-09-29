@@ -73,3 +73,14 @@ def test_lint_rules():
     assert any("첫 줄에 상품명" in m for m in msgs)
     assert any("구독" in m for m in msgs)
     assert any(level == "ERROR" for level, _ in lint(bad, deal))
+
+
+def test_map_words_to_lines():
+    from hotdeal_shorts.voice import map_words_to_lines
+    lines = ["차 안에 부스러기 보면", "세차장 가면 만 원인데."]
+    words = [{"text": t, "start": s, "end": s + 0.3} for t, s in
+             [("차", 0.1), ("안에", 0.4), ("부스러기", 0.8), ("보면", 1.2),
+              ("세차장", 1.8), ("가면", 2.2), ("만", 2.5), ("원인데", 2.7)]]
+    assert map_words_to_lines(lines, words) == [(0.1, 1.5), (1.8, 3.0)]
+    # 글자 수가 크게 어긋나면 None (줄 단위 합성으로 전환)
+    assert map_words_to_lines(lines, words[:3]) is None

@@ -16,6 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+offline = ["sherpa-onnx>=1.10"]
 
 [project.scripts]
 hd = "hotdeal_shorts.cli:app"

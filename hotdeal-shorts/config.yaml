@@ -21,7 +21,8 @@ subtitle:
   lead_sec: 0.15                # 자막을 목소리보다 먼저 띄우는 시간
 
 voice:
-  provider: edge                # edge(무료) | espeak(오프라인 테스트용) | manual
+  provider: edge                # edge(무료 MS 음성, 가장 자연스러움) | sherpa(오프라인 AI 음성) | espeak(기계음, 테스트용) | manual
+  whole_script: true            # edge: 대본 전체를 한 번에 읽혀 문장 사이 억양이 자연스럽게 이어짐
   edge_voice: "ko-KR-SunHiNeural"   # 남성: ko-KR-InJoonNeural
   rate: "+15%"                  # 쇼츠는 약간 빠르게
   silence_db: -35               # 이 값보다 조용하면 무음으로 보고 잘라냄

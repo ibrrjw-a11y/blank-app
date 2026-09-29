@@ -16,10 +16,18 @@ deals_app = typer.Typer(help="딜 후보 수집·관리", no_args_is_help=True)
 script_app = typer.Typer(help="대본 검사·승인·재생성", no_args_is_help=True)
 video_app = typer.Typer(help="업로드한 영상 등록", no_args_is_help=True)
 metrics_app = typer.Typer(help="성과 수집·분석", no_args_is_help=True)
+voice_app = typer.Typer(help="목소리 설정", no_args_is_help=True)
 app.add_typer(deals_app, name="deals")
 app.add_typer(script_app, name="script")
 app.add_typer(video_app, name="video")
 app.add_typer(metrics_app, name="metrics")
+app.add_typer(voice_app, name="voice")
+
+
+@voice_app.command("setup-offline")
+def voice_setup_offline():
+    """인터넷 없이 쓰는 한국어 AI 음성 모델 내려받기 (config: voice.provider: sherpa)."""
+    echo(f"✓ {voice.download_sherpa_model()}")
 
 
 def echo(msg: str = "") -> None:
@@ -196,7 +204,7 @@ def script_regen(job_id: str, hook: Optional[str] = None, extra: str = ""):
 
 
 @app.command()
-def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | espeak | manual")):
+def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual")):
     """승인된 대본 → 목소리 → 화면 → final.mp4 → 업로드 텍스트."""
     j = jobmod.load(job_id)
     s, approved = script.read(j.p("script.md"))
@@ -227,7 +235,7 @@ def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voi
 @app.command()
 def make(deal_id: int, hook: Optional[str] = None, extra: str = "",
          yes: bool = typer.Option(False, "--yes", help="대본 검사에 ERROR가 없으면 사람 승인 없이 바로 제작"),
-         voice_provider: Optional[str] = typer.Option(None, "--voice")):
+         voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual")):
     """딜 번호 하나로 대본부터 영상까지 한 번에."""
     j = _new_job(deal_id, hook, extra)
     ok = _print_lint(j)
