@@ -16,21 +16,40 @@ from .scenes import Scene
 # 장면 영역 (배너·고정 제목 아래, 쇼츠 하단 UI 위)
 AREA = (40, 330, 1040, 1480)
 
+_BASE = {"page": "#F2F2F5", "card": "#FFFFFF", "title": "#1F1F24", "meta": "#9A9AA2", "body": "#2A2A30",
+         "nick": "#8A8A92", "line": "#ECECF0", "dark": False, "header": "strip", "tag_first": None,
+         "tag_other": ("#F0F0F3", "#77777F"), "tag_brackets": False, "board": False, "author": "meta",
+         "comment": "list", "zebra": False, "highlight": (255, 243, 191)}
+
+
+def _theme(**kw) -> dict:
+    return {**_BASE, **kw}
+
+
 COMMUNITY_THEMES = {
     # 무채색 게시판형
-    "theqoo": {"accent": "#7A6FF0", "page": "#F2F2F5", "card": "#FFFFFF", "title": "#1F1F24", "meta": "#9A9AA2",
-               "body": "#2A2A30", "nick": "#8A8A92", "line": "#ECECF0", "avatar": False, "zebra": False,
-               "header_fill": False},
+    "theqoo": _theme(accent="#7A6FF0"),
     # 파란 헤더 + 줄무늬 댓글
-    "dc": {"accent": "#3B4890", "page": "#E9EBF3", "card": "#FFFFFF", "title": "#1B1E2E", "meta": "#8C90A3",
-           "body": "#23263A", "nick": "#3B4890", "line": "#DADDEA", "avatar": False, "zebra": True,
-           "header_fill": True},
-    # 초록 포인트 + 동그란 프로필
-    "cafe": {"accent": "#03C75A", "page": "#F1F5F2", "card": "#FFFFFF", "title": "#1A1F1C", "meta": "#8F9892",
-             "body": "#242A26", "nick": "#2E3431", "line": "#E6ECE8", "avatar": True, "zebra": False,
-             "header_fill": False},
+    "dc": _theme(accent="#3B4890", page="#E9EBF3", title="#1B1E2E", meta="#8C90A3", body="#23263A",
+                 nick="#3B4890", line="#DADDEA", header="fill", zebra=True),
+    # 초록 포인트 + 동그란 프로필 댓글
+    "cafe": _theme(accent="#03C75A", page="#F1F5F2", nick="#2E3431", line="#E6ECE8", comment="avatar",
+                   tag_first=("#E6F8EE", "#03A04A")),
+    # 주황 말머리 칩 + 회색 카테고리 칩, 메타에 조회·추천·댓글
+    "fmkorea": _theme(accent="#F26522", tag_first=("#F26522", "#FFFFFF"), nick="#5A5A62"),
+    # 연두 [말머리], 익명 · 시간
+    "instiz": _theme(accent="#12B886", tag_first=("#E6FAF3", "#0CA678"), tag_brackets=True),
+    # 파란 게시판 이름 + 하늘색 칩 + 노란 프로필 작성자 줄
+    "daumcafe": _theme(accent="#1B7BF7", tag_first=("#E7F1FF", "#1B7BF7"), board=True, author="avatar",
+                       comment="avatar", avatar_color="#FFD84D"),
+    # 어두운 트윗 카드 + 답글
+    "twitter": _theme(accent="#1D9BF0", dark=True, page="#000000", card="#0F1114", title="#E7E9EA",
+                      meta="#71767B", body="#E7E9EA", nick="#E7E9EA", line="#2F3336", author="tweet",
+                      comment="reply", highlight=(28, 44, 62)),
+    # 유튜브 댓글 목록: 색 동그라미 프로필, @이름, 좋아요 줄
+    "youtube": _theme(accent="#065FD4", nick="#0F0F0F", comment="youtube"),
 }
-HIGHLIGHT = (255, 243, 191)
+AVATAR_PALETTE = ["#7C4DFF", "#EF6C00", "#1565C0", "#4A148C", "#00695C", "#C62828", "#2E7D32", "#AD1457"]
 
 
 def chrome(W: int, H: int, title: str) -> Image.Image:
@@ -51,96 +70,217 @@ def chrome(W: int, H: int, title: str) -> Image.Image:
 
 # ------------------------------------------------------------------ 커뮤니티
 
-def _community_canvas(scene: Scene, upto: int, width: int) -> tuple[Image.Image, int]:
-    """카드 전체를 세로로 긴 캔버스에 그리고, 읽는 중인 항목의 아래 끝 y를 돌려준다."""
-    t = COMMUNITY_THEMES.get(scene.style, COMMUNITY_THEMES["theqoo"])
-    acc, pad = hex_rgb(t["accent"]), 44
-    inner = width - pad * 2
-    canvas = Image.new("RGB", (width, 6000), hex_rgb(t["card"]))
-    d = ImageDraw.Draw(canvas)
-    y = 0
+def _chip(d, x: int, y: int, text: str, colors: tuple[str, str], f) -> int:
+    w = int(d.textlength(text, font=f)) + 32
+    d.rounded_rectangle([x, y, x + w, y + 50], 10, fill=hex_rgb(colors[0]))
+    d.text((x + w / 2, y + 25), text, font=f, fill=hex_rgb(colors[1]), anchor="mm")
+    return x + w + 12
 
-    # 출처 줄
+
+def _avatar(d, x: int, y: int, size: int, color, letter: str = "") -> None:
+    d.ellipse([x, y, x + size, y + size], fill=hex_rgb(color) if isinstance(color, str) else color)
+    if letter:
+        d.text((x + size / 2, y + size / 2), letter, font=font(int(size * 0.42)), fill=(255, 255, 255), anchor="mm")
+
+
+def _paste_image(canvas: Image.Image, img: Image.Image, x: int, y: int, max_w: int, max_h: int = 560) -> int:
+    im = img.convert("RGBA")
+    im.thumbnail((max_w, max_h), Image.LANCZOS)
+    mask = Image.new("L", im.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, im.width - 1, im.height - 1], 18, fill=255)
+    canvas.paste(im.convert("RGB"), (x, y), mask)
+    return y + im.height
+
+
+def _community_canvas(scene: Scene, upto: int, width: int, load_image=None) -> tuple[Image.Image, int, int]:
+    """카드 전체를 세로로 긴 캔버스에 그린다.
+    반환: (캔버스, 읽는 중인 항목의 아래 끝 y, 고정할 출처 줄 높이, 블록 시작 y 목록)."""
+    t = COMMUNITY_THEMES.get(scene.style, COMMUNITY_THEMES["theqoo"])
+    C = {k: hex_rgb(v) for k, v in t.items() if isinstance(v, str) and v.startswith("#")}
+    acc, pad = C["accent"], 44
+    inner = width - pad * 2
+    canvas = Image.new("RGB", (width, 9000), C["card"])
+    d = ImageDraw.Draw(canvas)
+    meta_f = font(30, "regular")
+
+    # 1) 출처 줄 (모든 스타일 공통, 끌 수 없음)
     src = f"출처 · {scene.meta.get('source_name', '')}"
     cap = f"{scene.meta.get('captured', '')} 확인"
-    if t["header_fill"]:
+    if t["header"] == "fill":
         d.rectangle([0, 0, width, 92], fill=acc)
         d.text((pad, 46), src, font=font(34), fill=(255, 255, 255), anchor="lm")
         d.text((width - pad, 46), cap, font=font(28, "regular"), fill=(220, 224, 240), anchor="rm")
-        y = 120
+        y = 124
+        header_h = 100
     else:
         d.rectangle([0, 0, width, 10], fill=acc)
         d.text((pad, 60), src, font=font(34), fill=acc, anchor="lm")
-        d.text((width - pad, 60), cap, font=font(28, "regular"), fill=hex_rgb(t["meta"]), anchor="rm")
-        y = 110
+        d.text((width - pad, 60), cap, font=font(28, "regular"), fill=C["meta"], anchor="rm")
+        y = 112
+        header_h = 96
 
-    # 제목·메타
-    tf = font(50)
-    for ln in wrap(d, scene.meta.get("title", ""), tf, inner, 2):
-        d.text((pad, y), ln, font=tf, fill=hex_rgb(t["title"]))
-        y += 66
-    if scene.meta.get("meta"):
-        d.text((pad, y + 4), scene.meta["meta"], font=font(30, "regular"), fill=hex_rgb(t["meta"]))
-        y += 50
-    y += 16
-    d.line([(pad, y), (width - pad, y)], fill=hex_rgb(t["line"]), width=2)
-    y += 30
+    # 2) 게시판 이름 · 말머리
+    if t["board"] and scene.meta.get("board"):
+        d.text((pad, y), scene.meta["board"], font=font(32), fill=acc)
+        y += 54
+    tags = scene.meta.get("tags", [])
+    title = scene.meta.get("title", "")
+    if tags and t["author"] != "tweet":
+        x, cf = pad, font(28)
+        for k, tg in enumerate(tags):
+            label = f"[{tg}]" if t["tag_brackets"] else tg
+            colors = t["tag_first"] if (k == 0 and t["tag_first"]) else t["tag_other"]
+            x = _chip(d, x, y, label, colors, cf)
+        y += 70
 
-    bf, cf, nf = font(42, "regular"), font(40, "regular"), font(30)
-    current_bottom = y
-    n_comment = 0
-    comments_started = False
+    # 3) 제목 + 작성자 줄
+    if t["author"] == "tweet":
+        _avatar(d, pad, y, 92, (83, 100, 113), "익")
+        d.text((pad + 116, y + 8), "익명", font=font(38), fill=C["title"])
+        d.text((pad + 116, y + 56), "@익명", font=meta_f, fill=C["meta"])
+        y += 118
+        if title:
+            for ln in wrap(d, title, font(46), inner, 2):
+                d.text((pad, y), ln, font=font(46), fill=C["title"])
+                y += 62
+    else:
+        if title:
+            tf = font(50) if t["comment"] != "youtube" else font(36)
+            label = title if t["comment"] != "youtube" else f"영상: {title}"
+            for ln in wrap(d, label, tf, inner, 2):
+                d.text((pad, y), ln, font=tf, fill=C["title"] if t["comment"] != "youtube" else C["meta"])
+                y += tf.size + 16
+        if t["author"] == "avatar":
+            _avatar(d, pad, y + 6, 76, t.get("avatar_color", "#C9CED6"))
+            d.text((pad + 96, y + 4), "익명", font=font(34), fill=C["title"])
+            if scene.meta.get("meta"):
+                d.text((pad + 96, y + 48), scene.meta["meta"], font=meta_f, fill=C["meta"])
+            y += 104
+        else:
+            who = "익명" + (f"   {scene.meta['meta']}" if scene.meta.get("meta") else "")
+            d.text((pad, y + 4), who, font=meta_f, fill=C["meta"])
+            y += 52
+    y += 14
+    if t["author"] != "tweet":
+        d.line([(0, y), (width, y)], fill=C["line"], width=2)
+        y += 32
+
+    # 4) 본문 (문단 사이사이 이미지)
+    images = list(scene.meta.get("images", []))
+    bf = font(44, "regular") if t["author"] == "tweet" else font(42, "regular")
+    body_line_h = bf.size + 16
+    current_bottom, body_seen = y, 0
+    tops = [y]  # 스크롤이 멈출 수 있는 경계 (글줄이 반쯤 잘리지 않게)
+
+    def place_images(after: int, y: int) -> int:
+        nonlocal images
+        for pos, ref in [im for im in images if im[0] == after]:
+            img = load_image(ref) if load_image else None
+            if img is not None:
+                tops.append(y)
+                y = _paste_image(canvas, img, pad, y + 6, int(inner * 0.6), 440) + 26
+        images = [im for im in images if im[0] != after]
+        return y
+
+    y = place_images(0, y)
+    n_comment, comments_started = 0, False
+    cf, nf = font(40, "regular"), font(30)
     for i, it in enumerate(scene.items):
         if it.role == "comment" and i > upto:
             break  # 아직 안 읽은 댓글은 숨김
         text = display_text(it.text)
+        tops.append(y)
         if it.role == "body":
-            lines = wrap(d, text, bf, inner, 12)
-            h = len(lines) * 58 + 18
+            lines = wrap(d, text, bf, inner, 14)
+            h = len(lines) * body_line_h + 20
             if i == upto:
-                d.rounded_rectangle([pad - 16, y - 8, width - pad + 16, y + h - 4], 16, fill=HIGHLIGHT)
+                d.rounded_rectangle([pad - 16, y - 8, width - pad + 16, y + h - 6], 16, fill=t["highlight"])
             for k, ln in enumerate(lines):
-                d.text((pad, y + k * 58), ln, font=bf, fill=hex_rgb(t["body"]))
+                d.text((pad, y + k * body_line_h), ln, font=bf, fill=C["body"])
             y += h
+            body_seen += 1
+            y = place_images(body_seen, y)
         else:
             if not comments_started:
                 comments_started = True
-                y += 14
-                d.rectangle([0, y, width, y + 12], fill=hex_rgb(t["page"]))
-                y += 34
-                d.text((pad, y), "댓글", font=font(34), fill=hex_rgb(t["title"]))
-                y += 62
+                if t["author"] == "tweet" and scene.meta.get("meta"):
+                    d.text((pad, y + 4), scene.meta["meta"], font=meta_f, fill=C["meta"])
+                    y += 56
+                if t["comment"] == "reply":
+                    d.line([(0, y + 8), (width, y + 8)], fill=C["line"], width=2)
+                    y += 36
+                elif t["comment"] != "youtube" or body_seen:
+                    y += 14
+                    d.rectangle([0, y, width, y + 12], fill=C["page"])
+                    y += 34
+                    d.text((pad, y), "댓글", font=font(34), fill=C["title"])
+                    y += 62
             n_comment += 1
-            x_text = pad + (84 if t["avatar"] else 0)
-            lines = wrap(d, text, cf, inner - (x_text - pad), 6)
-            h = 50 + len(lines) * 54 + 26
-            if t["zebra"] and n_comment % 2 == 0:
-                d.rectangle([0, y - 10, width, y + h - 10], fill=(247, 248, 252))
+            tops.append(y)
+            y, bottom = _comment(d, t, C, it, n_comment, text, y, pad, width, inner, i == upto, cf, nf)
             if i == upto:
-                d.rounded_rectangle([pad - 16, y - 10, width - pad + 16, y + h - 14], 16, fill=HIGHLIGHT)
-            if t["avatar"]:
-                d.ellipse([pad, y, pad + 64, y + 64], fill=(214, 222, 217))
-            d.text((x_text, y), f"익명{n_comment}", font=nf, fill=hex_rgb(t["nick"]))
-            for k, ln in enumerate(lines):
-                d.text((x_text, y + 48 + k * 54), ln, font=cf, fill=hex_rgb(t["body"]))
-            y += h
-            d.line([(pad, y - 12), (width - pad, y - 12)], fill=hex_rgb(t["line"]), width=1)
+                current_bottom = bottom
+            continue
         if i == upto:
             current_bottom = y
-    return canvas.crop((0, 0, width, max(y + 30, 200))), current_bottom
+    if t["author"] == "tweet" and not comments_started and scene.meta.get("meta"):
+        d.text((pad, y + 4), scene.meta["meta"], font=meta_f, fill=C["meta"])
+        y += 56
+    return canvas.crop((0, 0, width, max(y + 30, 200))), current_bottom, header_h, tops
 
 
-def render_community(base: Image.Image, scene: Scene, upto: int) -> Image.Image:
+def _comment(d, t, C, it, n, text, y, pad, width, inner, current, cf, nf):
+    style = t["comment"]
+    avatar = style in ("avatar", "youtube", "reply")
+    size = 76 if style != "avatar" else 64
+    x_text = pad + (size + 22 if avatar else 0)
+    lines = wrap(d, text, cf, inner - (x_text - pad), 6)
+    like_row = style == "youtube" or bool(it.likes)
+    h = 50 + len(lines) * 54 + (46 if like_row else 0) + 26
+    if t["zebra"] and n % 2 == 0:
+        d.rectangle([0, y - 10, width, y + h - 10], fill=(247, 248, 252))
+    if current:
+        d.rounded_rectangle([pad - 16, y - 12, width - pad + 16, y + h - 14], 16, fill=t["highlight"])
+    if avatar:
+        color = AVATAR_PALETTE[(n - 1) % len(AVATAR_PALETTE)] if style in ("youtube", "reply") else "#D6DED9"
+        _avatar(d, pad, y, size, color, "익" if style in ("youtube", "reply") else "")
+    name = {"youtube": f"@익명{n}", "reply": f"익명{n}"}.get(style, f"익명{n}")
+    d.text((x_text, y), name, font=nf, fill=C["nick"])
+    if style == "reply":
+        d.text((x_text + d.textlength(name, font=nf) + 14, y + 2), f"@익명{n}", font=font(28, "regular"),
+               fill=C["meta"])
+    for k, ln in enumerate(lines):
+        d.text((x_text, y + 48 + k * 54), ln, font=cf, fill=C["body"])
+    yy = y + 48 + len(lines) * 54
+    if like_row:
+        label = f"좋아요 {it.likes}" if it.likes else "좋아요"
+        d.text((x_text, yy + 8), label + "     답글", font=font(28, "regular"), fill=C["meta"])
+        yy += 46
+    y2 = y + h
+    d.line([(pad, y2 - 12), (width - pad, y2 - 12)], fill=C["line"], width=1)
+    return y2, y2
+
+
+def render_community(base: Image.Image, scene: Scene, upto: int, load_image=None) -> Image.Image:
     t = COMMUNITY_THEMES.get(scene.style, COMMUNITY_THEMES["theqoo"])
     x0, y0, x1, y1 = AREA
     img = base.copy()
     d = ImageDraw.Draw(img)
     d.rectangle([0, 306, img.width, y1 + 20], fill=hex_rgb(t["page"]))
-    card, cur_bottom = _community_canvas(scene, upto, x1 - x0)
+    card, cur_bottom, header_h, tops = _community_canvas(scene, upto, x1 - x0, load_image)
     area_h = y1 - y0
-    # 읽는 중인 항목이 화면 안에 들어오도록 스크롤
-    offset = max(0, min(cur_bottom + 60 - area_h, card.height - area_h))
-    view = card.crop((0, offset, card.width, min(card.height, offset + area_h)))
+    # 출처 줄은 고정, 그 아래만 스크롤해서 읽는 중인 항목이 화면 안에 들어오게 한다
+    view_h = area_h - header_h
+    scroll = max(0, min(cur_bottom + 60 - header_h - view_h, card.height - header_h - view_h))
+    if scroll:  # 가장 가까운 블록 경계까지 더 올려서 윗줄이 잘리지 않게
+        snaps = [tp - header_h - 18 for tp in tops if tp - header_h - 18 >= scroll]
+        scroll = min(snaps) if snaps else scroll
+    body = card.crop((0, header_h + scroll, card.width, min(card.height, header_h + scroll + view_h)))
+    view = Image.new("RGB", (card.width, header_h + body.height), card.getpixel((5, header_h + 5)))
+    view.paste(card.crop((0, 0, card.width, header_h)), (0, 0))
+    view.paste(body, (0, header_h))
+    if scroll:  # 스크롤됐다는 표시로 고정 줄 아래 옅은 그림자
+        ImageDraw.Draw(view).line([(0, header_h), (card.width, header_h)], fill=hex_rgb(t["line"]), width=3)
     mask = Image.new("L", view.size, 0)
     ImageDraw.Draw(mask).rounded_rectangle([0, 0, view.width - 1, view.height - 1], 26, fill=255)
     img.paste(view, (x0, y0), mask)

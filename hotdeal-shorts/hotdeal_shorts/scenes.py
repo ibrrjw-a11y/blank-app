@@ -6,10 +6,15 @@
     [community: 더쿠]              실제 글 옮기기. source·captured 필수, 닉네임은 자동으로 가림
     source: https://theqoo.net/...
     captured: 2026-09-28
+    board: 자유게시판             (선택) 게시판 이름
+    tag: 추천                     (선택, 여러 번 가능) 말머리
     title: 차 청소기 이거 괜찮아?
     meta: 조회 1.2만 · 댓글 34     (선택. 원글의 실제 수치만)
     body: 차에 두고 쓰려는데 흡입력 괜찮은지 궁금함
-    comment: 나 이거 쓰는데 시트 틈 청소 진짜 편함
+    image: product                (선택) 본문 이미지. product = 상품 사진, 또는 작업 폴더 안 파일 경로
+    comment: 나 이거 쓰는데 시트 틈 청소 진짜 편함 || 31     (|| 뒤는 선택: 원글의 실제 좋아요 수)
+
+    스타일: 더쿠, 디시, 네이버카페, 에펨코리아, 인스티즈, 다음카페, 트위터, 유튜브
 
     [kakao: 차 청소 얘기]          채널이 만든 상황극. 화면에 "연출된 대화"가 항상 표시됨
     나: 너 차 청소 뭐로 해?
@@ -27,8 +32,14 @@ COMMUNITY_STYLES = {
     "더쿠": "theqoo", "theqoo": "theqoo",
     "디시": "dc", "디시인사이드": "dc", "dc": "dc",
     "네이버카페": "cafe", "네이버 카페": "cafe", "카페": "cafe", "cafe": "cafe",
+    "에펨": "fmkorea", "에펨코리아": "fmkorea", "펨코": "fmkorea", "fmkorea": "fmkorea",
+    "인티": "instiz", "인스티즈": "instiz", "instiz": "instiz",
+    "다음카페": "daumcafe", "다음 카페": "daumcafe", "daumcafe": "daumcafe",
+    "트위터": "twitter", "x": "twitter", "twitter": "twitter",
+    "유튜브": "youtube", "유튜브 댓글": "youtube", "유튜브댓글": "youtube", "youtube": "youtube",
 }
-SOURCE_NAMES = {"theqoo": "더쿠", "dc": "디시인사이드", "cafe": "네이버 카페"}
+SOURCE_NAMES = {"theqoo": "더쿠", "dc": "디시인사이드", "cafe": "네이버 카페", "fmkorea": "에펨코리아",
+                "instiz": "인스티즈", "daumcafe": "다음 카페", "twitter": "X(트위터)", "youtube": "유튜브 댓글"}
 
 
 @dataclass
@@ -36,6 +47,7 @@ class Item:
     text: str
     role: str = "line"      # line | body | comment | msg
     speaker: str = ""       # kakao 화자
+    likes: str = ""         # 댓글 좋아요 수 (원글의 실제 값일 때만)
 
 
 @dataclass
@@ -47,7 +59,7 @@ class Scene:
 
 
 HEADER = re.compile(r"^\[(post|community|kakao)(?:\s*:\s*(.+?))?\]$", re.I)
-FIELD = re.compile(r"^(source|captured|title|meta|body|comment)\s*:\s*(.*)$", re.I)
+FIELD = re.compile(r"^(source|captured|title|meta|body|comment|image|tag|board)\s*:\s*(.*)$", re.I)
 
 
 def parse(body: str) -> list[Scene]:
@@ -63,7 +75,8 @@ def parse(body: str) -> list[Scene]:
             style = COMMUNITY_STYLES.get(arg.lower(), COMMUNITY_STYLES.get(arg, "theqoo")) if kind == "community" else arg
             cur = Scene(kind=kind, style=style)
             if kind == "community":
-                cur.meta["source_name"] = arg or SOURCE_NAMES[style]
+                known = arg.lower() in COMMUNITY_STYLES or arg in COMMUNITY_STYLES
+                cur.meta["source_name"] = SOURCE_NAMES[style] if known or not arg else arg
             scenes.append(cur)
             continue
         if cur is None:
@@ -74,11 +87,19 @@ def parse(body: str) -> list[Scene]:
         elif cur.kind == "community":
             f = FIELD.match(ln)
             if not f:
-                cur.items.append(Item(ln, "comment"))  # 표시 없는 줄은 댓글로
+                text, _, likes = ln.partition("||")
+                cur.items.append(Item(text.strip(), "comment", likes=likes.strip()))  # 표시 없는 줄은 댓글로
                 continue
             key, val = f.group(1).lower(), f.group(2).strip()
-            if key in ("body", "comment"):
-                cur.items.append(Item(val, key))
+            if key == "comment":
+                text, _, likes = val.partition("||")
+                cur.items.append(Item(text.strip(), "comment", likes=likes.strip()))
+            elif key == "body":
+                cur.items.append(Item(val, "body"))
+            elif key == "image":  # 본문 몇 번째 문단 뒤에 올지 기억
+                cur.meta.setdefault("images", []).append((sum(it.role == "body" for it in cur.items), val))
+            elif key == "tag":
+                cur.meta.setdefault("tags", []).append(val)
             else:
                 cur.meta[key] = val
         else:  # kakao

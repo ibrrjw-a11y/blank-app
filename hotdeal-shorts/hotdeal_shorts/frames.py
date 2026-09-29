@@ -152,6 +152,17 @@ def product_image(job: Job) -> Image.Image | None:
     return None
 
 
+def load_ref(job: Job, ref: str) -> Image.Image | None:
+    """커뮤니티 본문 이미지: 'product' = 상품 사진, 그 외는 작업 폴더 기준 파일 경로."""
+    if ref.strip().lower() == "product":
+        return product_image(job) or placeholder((900, 675), job.deal["name"])
+    p = job.p(ref.strip())
+    if p.exists():
+        return Image.open(p).convert("RGBA")
+    job.log(f"본문 이미지 없음: {ref}")
+    return None
+
+
 def placeholder(size: tuple[int, int], name: str) -> Image.Image:
     """사진이 없을 때: 부드러운 회색 그라데이션 + 상품명."""
     w, h = size
@@ -342,7 +353,7 @@ def render_frames(job: Job, s: Script) -> list[dict]:
         sc = scs[si]
         path = out_dir / f"body_{a['idx']:03d}.png"
         if sc.kind == "community":
-            scene_frames.render_community(chrome, sc, ii).save(path)
+            scene_frames.render_community(chrome, sc, ii, lambda ref: load_ref(job, ref)).save(path)
             frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": [a["text"]]})
             continue
         if sc.kind == "kakao":

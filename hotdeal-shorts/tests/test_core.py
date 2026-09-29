@@ -127,3 +127,33 @@ comment: 댓글 하나
     assert any("원글 주소" in m for m in errs) and any("captured" in m for m in errs)
     ok = scenes.parse("[community: 디시]\nsource: https://x.test/1\ncaptured: 2026-09-29\nbody: 본문")
     assert ok[0].style == "dc" and not scenes.lint(ok)
+
+
+def test_community_fields_and_style_names():
+    from hotdeal_shorts import scenes
+    sc = scenes.parse("""[community: 펨코]
+source: https://x.test/1
+captured: 2026-09-29
+tag: 포텐
+tag: 자동차
+body: 첫 문단
+image: product
+body: 둘째 문단
+comment: 댓글 || 31
+그냥 줄도 댓글""")[0]
+    assert sc.style == "fmkorea" and sc.meta["source_name"] == "에펨코리아"
+    assert sc.meta["tags"] == ["포텐", "자동차"] and sc.meta["images"] == [(1, "product")]
+    assert [(i.role, i.likes) for i in sc.items] == [("body", ""), ("body", ""), ("comment", "31"), ("comment", "")]
+    for name, key in [("인스티즈", "instiz"), ("다음카페", "daumcafe"), ("트위터", "twitter"), ("유튜브", "youtube")]:
+        assert scenes.parse(f"[community: {name}]\nbody: x")[0].style == key
+
+
+def test_every_community_style_renders(tmp_path):
+    from hotdeal_shorts import scene_frames, scenes
+    base = scene_frames.chrome(1080, 1920, "제목")
+    for key in scene_frames.COMMUNITY_THEMES:
+        sc = scenes.parse(f"[community: {key}]\nsource: https://x.test\ncaptured: 2026-09-29\ntitle: 제목\n"
+                          "body: 본문\ncomment: 댓글1\ncomment: 댓글2")[0]
+        for upto in range(len(sc.items)):
+            img = scene_frames.render_community(base, sc, upto)
+            assert img.size == (1080, 1920)
