@@ -149,11 +149,18 @@ def _new_job(deal_id: int, hook: Optional[str], extra: str) -> jobmod.Job:
 
 def _print_lint(j: jobmod.Job) -> bool:
     s, approved = script.read(j.p("script.md"))
-    issues = script.lint(s, j.deal)
+    scs = script.read_scenes(j.p("script.md"))
+    issues = script.lint(s, j.deal, scs)
     echo("")
     echo(f"  제목: {s.title}")
-    for i, ln in enumerate(s.lines, 1):
-        echo(f"  {i:>2}. {ln}")
+    n = 0
+    for sc in scs:
+        tag = {"post": "게시글", "community": f"커뮤니티·{sc.meta.get('source_name', '')}", "kakao": "카톡(연출)"}[sc.kind]
+        echo(f"  [{tag}]")
+        for it in sc.items:
+            n += 1
+            who = f"{it.speaker}: " if it.speaker else ("댓글: " if it.role == "comment" else "")
+            echo(f"  {n:>2}. {who}{it.text}")
     echo("")
     for level, msg in issues:
         typer.secho(f"  {level:<5} {msg}", fg="red" if level == "ERROR" else "yellow")
@@ -210,6 +217,8 @@ def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voi
     s, approved = script.read(j.p("script.md"))
     if not approved:
         fail(f"대본 미승인. script.md 확인 후 `hd script approve {j.id}`")
+    if not _print_lint(j):  # 승인 뒤에 고친 경우 대비
+        fail("대본 검사 ERROR. 고친 뒤 다시 build")
     with db.connect() as conn:  # 사람이 고친 최종 제목·훅을 기록
         conn.execute("UPDATE videos SET title=?, hook_type=? WHERE job=?", (s.title, s.hook_type, j.id))
     try:

@@ -327,8 +327,28 @@ def render_frames(job: Job, s: Script) -> list[dict]:
     if not config.get("video.price_reveal", True):
         price_from = 0
 
+    from . import scene_frames
+    from .scenes import index as scene_index
+    from .script import read_scenes
+    scs = read_scenes(job.p("script.md"))
+    where = scene_index(scs)
+    if len(where) != len(align):
+        raise ValueError("대본과 음성 줄 수가 다름. 대본을 고쳤다면 hd build 를 다시 실행하세요")
+    chrome = scene_frames.chrome(W, H, s.title) if any(sc.kind != "post" for sc in scs) else None
+
     frames = []
     for a, photo in zip(align, photos):
+        si, ii = where[a["idx"]]
+        sc = scs[si]
+        path = out_dir / f"body_{a['idx']:03d}.png"
+        if sc.kind == "community":
+            scene_frames.render_community(chrome, sc, ii).save(path)
+            frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": [a["text"]]})
+            continue
+        if sc.kind == "kakao":
+            scene_frames.render_kakao(chrome, sc, ii).save(path)
+            frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": [a["text"]]})
+            continue
         img = base.copy()
         img.paste(photo.convert("RGB"), (x0, y0), mask)
         if chip is not None and a["idx"] >= price_from:
@@ -342,7 +362,6 @@ def render_frames(job: Job, s: Script) -> list[dict]:
         for p in parts:
             d.text((W / 2, y), p, font=sf, fill=ink, anchor="mm")
             y += line_h
-        path = out_dir / f"body_{a['idx']:03d}.png"
         img.save(path)
         frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": parts})
     (out_dir / "frames.json").write_text(json.dumps(frames, ensure_ascii=False, indent=2), encoding="utf-8")

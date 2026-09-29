@@ -7,7 +7,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from . import config
+from . import config, scenes as scenes_mod
 
 HOOK_TYPES = ["가격역설", "결과먼저", "금지명령", "숫자증거", "상황공감", "궁금증"]
 
@@ -34,16 +34,25 @@ def to_markdown(s: Script, approved: bool = False) -> str:
             + "\n".join(s.lines) + "\n")
 
 
-def read(path: Path) -> tuple[Script, bool]:
+def _split(path: Path) -> tuple[dict, str]:
     text = path.read_text(encoding="utf-8")
     m = re.match(r"---\n(.*?)\n---\n(.*)", text, re.S)
     if not m:
         raise ValueError(f"{path}: 맨 위에 --- 로 감싼 머리말(title/approved)이 필요합니다")
     meta = dict(line.split(":", 1) for line in m.group(1).splitlines() if ":" in line)
-    meta = {k.strip(): v.strip() for k, v in meta.items()}
-    lines = [ln.strip() for ln in m.group(2).splitlines() if ln.strip() and not ln.strip().startswith("#")]
+    return {k.strip(): v.strip() for k, v in meta.items()}, m.group(2)
+
+
+def read(path: Path) -> tuple[Script, bool]:
+    """lines 는 모든 장면의 나레이션을 순서대로 편 것."""
+    meta, body = _split(path)
+    lines = scenes_mod.narration(scenes_mod.parse(body))
     s = Script(title=meta.get("title", ""), hook_type=meta.get("hook_type", ""), lines=lines)
     return s, meta.get("approved", "false").lower() == "true"
+
+
+def read_scenes(path: Path) -> list[scenes_mod.Scene]:
+    return scenes_mod.parse(_split(path)[1])
 
 
 def set_approved(path: Path, value: bool = True) -> None:
@@ -157,9 +166,15 @@ def generate(deal: dict, hook_type: str | None = None, extra: str = "") -> tuple
 
 # ------------------------------------------------------------------ 린트
 
-def lint(s: Script, deal: dict) -> list[tuple[str, str]]:
-    """(수준, 메시지) 목록. 수준: ERROR(진행 불가) / WARN."""
+def lint(s: Script, deal: dict, scenes: list | None = None) -> list[tuple[str, str]]:
+    """(수준, 메시지) 목록. 수준: ERROR(진행 불가) / WARN.
+    길이·말투 규칙은 내가 쓴 줄(post·kakao)에만, 정책 단어는 전부에 적용."""
     out: list[tuple[str, str]] = []
+    own = set(range(len(s.lines)))
+    if scenes:
+        out += scenes_mod.lint(scenes)
+        pos = [sc.kind for sc in scenes for _ in sc.items]
+        own = {i for i, k in enumerate(pos) if k != "community"}
     lmin, lmax = config.get("script.lines_min", 6), config.get("script.lines_max", 12)
     max_chars = config.get("script.line_max_chars", 30)
     if not s.lines:
@@ -169,6 +184,11 @@ def lint(s: Script, deal: dict) -> list[tuple[str, str]]:
     if not lmin <= len(s.lines) <= lmax:
         out.append(("WARN", f"본문 {len(s.lines)}줄 (권장 {lmin}~{lmax}줄)"))
     for i, ln in enumerate(s.lines, 1):
+        if i - 1 not in own:
+            for w in POLICY_WORDS:
+                if w in ln:
+                    out.append(("ERROR", f"{i}줄(인용) 정책 위험 단어 '{w}'"))
+            continue
         if len(ln) > max_chars:
             out.append(("WARN", f"{i}줄 {len(ln)}자 > {max_chars}자: 둘로 나누기 권장"))
         if ln.count(",") >= 2:

@@ -106,3 +106,24 @@ def test_korean_numbers_for_tts():
     }
     for src, want in cases.items():
         assert to_speech(src) == want, (src, to_speech(src))
+
+
+def test_scene_parsing_and_guardrails():
+    from hotdeal_shorts import scenes
+    body = """
+첫 줄 훅
+[community: 더쿠]
+title: 제목
+comment: 댓글 하나
+[kakao: 방]
+친구: 뭐 써?
+나: 이거 씀
+"""
+    scs = scenes.parse(body)
+    assert [s.kind for s in scs] == ["post", "community", "kakao"]
+    assert scenes.narration(scs) == ["첫 줄 훅", "댓글 하나", "뭐 써?", "이거 씀"]
+    assert scenes.index(scs)[2] == (2, 0)
+    errs = [m for lv, m in scenes.lint(scs) if lv == "ERROR"]
+    assert any("원글 주소" in m for m in errs) and any("captured" in m for m in errs)
+    ok = scenes.parse("[community: 디시]\nsource: https://x.test/1\ncaptured: 2026-09-29\nbody: 본문")
+    assert ok[0].style == "dc" and not scenes.lint(ok)

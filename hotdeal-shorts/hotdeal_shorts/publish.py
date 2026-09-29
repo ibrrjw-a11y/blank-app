@@ -5,7 +5,7 @@ import json
 
 from . import config
 from .job import Job
-from .script import Script
+from .script import Script, read_scenes
 
 
 def build(job: Job, s: Script, render_info: dict | None = None) -> dict:
@@ -51,11 +51,22 @@ def build(job: Job, s: Script, render_info: dict | None = None) -> dict:
     md = [f"# 올리기 전 5분 점검: {job.id}", "",
           "## 자동 확인"]
     md += [f"- [{'x' if ok else ' '}] {label}" for label, ok in checks]
+    scs = read_scenes(job.p("script.md"))
+    quoted = [sc for sc in scs if sc.kind == "community"]
+    if quoted:
+        md += ["", "## 인용한 원글 (영상 설명란에도 출처를 적는 것을 권장)"]
+        md += [f"- {sc.meta.get('source_name')}: {sc.meta.get('source')} ({sc.meta.get('captured')} 확인)" for sc in quoted]
     md += ["", "## 사람이 확인",
            "- [ ] 소리 끄고 첫 3초만 봐도 뭔지 알겠다 (`render/preview_3s.gif`)",
            "- [ ] 가격이 지금 판매 페이지 가격과 같다",
            "- [ ] 대본을 입으로 읽었을 때 걸리는 줄이 없다",
-           "- [ ] 가장 센 문장이 끝 쪽에 있다", ""]
+           "- [ ] 가장 센 문장이 끝 쪽에 있다"]
+    if quoted:
+        md += ["- [ ] 커뮤니티 장면의 제목·본문·댓글이 원글에 실제로 있는 문장 그대로다 (지어낸 후기 금지)",
+               "- [ ] 조회수·댓글 수는 원글의 실제 수치다 (모르면 meta 줄을 지운다)"]
+    if any(sc.kind == "kakao" for sc in scs):
+        md += ["- [ ] 카톡 장면은 상황극이며, 실제 구매자 후기처럼 보이는 문장이 없다"]
+    md += [""]
     if render_info:
         md += [f"길이 {render_info['duration']}초 · 화면 {render_info['frames']}장", ""]
     md += ["## 업로드 텍스트", "", "### 유튜브 제목", yt_title, "", "### 설명", "```", description, "```",
