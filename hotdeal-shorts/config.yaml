@@ -98,10 +98,11 @@ voice:
   pad_sec: 0.03
 
 images:
-  provider: gemini              # gemini | openai | none   (키가 없으면 자동으로 건너뜀)
+  provider: gemini              # gemini | openai | pollinations(무료) | none   (키가 없으면 자동으로 건너뜀)
   select: every                 # every(가격 줄 빼고 전부) | marked(줄 앞에 [img] 붙인 줄만) | first(장면마다 첫 줄)
   gemini_model: "gemini-2.5-flash-image"
   openai_model: "gpt-image-1"
+  pollinations_model: "flux"    # 무료(키 없음) 이미지 — 작업 화면에서 "무료" 선택
 
 script:
   provider: claude              # claude | template(키 없을 때 자동 대체)

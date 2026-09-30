@@ -103,8 +103,10 @@ def make_images(j: jobmod.Job, provider: str | None, force: bool = False, log: L
         r = images.generate(j, script.read_scenes(j.p("script.md")), provider, force)
     except images.ImageError as e:
         log(f"  ! 이미지 건너뜀: {e}")
+        j.mark("images", "error", error=str(e)[:500])
         return
-    j.mark("images", "done", **{k: v for k, v in r.items() if k != "failed"})
+    status = "error" if r.get("made") == 0 and r.get("failed") else "done"
+    j.mark("images", status, **{k: v for k, v in r.items() if k != "failed"})
     if r.get("skipped"):
         log(f"  이미 있음 {r['skipped']}장 (다시 만들려면 hd images {j.id} --force)")
     else:

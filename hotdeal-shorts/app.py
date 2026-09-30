@@ -397,10 +397,15 @@ def section_build(j: jobmod.Job) -> None:
     vkeys = list(voices)
     v = st.selectbox("목소리", vkeys, index=vkeys.index(default_v) if default_v in vkeys else 0,
                      format_func=lambda k: voices[k])
-    img_opts = ["none"] + [p for p, env in (("gemini", "GEMINI_API_KEY"), ("openai", "OPENAI_API_KEY")) if has(env)]
+    img_opts = (["none"] + [p for p, env in (("gemini", "GEMINI_API_KEY"), ("openai", "OPENAI_API_KEY")) if has(env)]
+                + ["pollinations"])
     default_im = config.get("images.provider", "gemini")
     im = st.selectbox("AI 이미지", img_opts, index=img_opts.index(default_im) if default_im in img_opts else 0,
-                      format_func=lambda k: {"none": "안 씀 (올린 사진·상품 사진)"}.get(k, k))
+                      format_func=lambda k: {"none": "안 씀 (올린 사진·상품 사진)",
+                                             "pollinations": "무료 (pollinations · 키 없음)"}.get(k, k))
+    ist = j.state.get("steps", {}).get("images", {})
+    if ist.get("status") == "error":
+        st.error(f"지난번 AI 이미지 실패: {ist.get('error') or '모든 줄 실패'}")
     if not has_product_photo(j):
         st.warning("상품 사진이 없어요. 가격·링크를 말하는 줄은 원래 상품 사진이 나오는 자리라, "
                    "지금은 앞뒤 AI 이미지로 채워요. 위 '상품 정보'에서 사진을 올리면 더 좋아요.")

@@ -79,16 +79,19 @@ def write_prompts(lines: list[str], deal: dict) -> tuple[list[str], str]:
               "Keep the same characters and setting consistent across lines. Never depict the product itself or "
               "any packaging, never include text, logos or brand names, and never invent product claims. "
               f"Every prompt must end with: {STYLE}")
-    resp = anthropic.Anthropic().beta.messages.parse(
-        model=config.get("script.model", "claude-opus-5-5"),
-        max_tokens=16000,
-        system=system,
-        output_config={"effort": "low"},
-        betas=["server-side-fallback-2026-07-01"],
-        fallbacks="default",
-        messages=[{"role": "user", "content": f"상품 분야: {deal.get('category') or deal['name']}\n\n{numbered}"}],
-        output_format=ShotList,
-    )
+    try:
+        resp = anthropic.Anthropic().beta.messages.parse(
+            model=config.get("script.model", "claude-opus-5-5"),
+            max_tokens=16000,
+            system=system,
+            output_config={"effort": "low"},
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",
+            messages=[{"role": "user", "content": f"상품 분야: {deal.get('category') or deal['name']}\n\n{numbered}"}],
+            output_format=ShotList,
+        )
+    except Exception:  # noqa: BLE001 - 프롬프트는 템플릿으로라도
+        return [_template_prompt(ln, deal) for ln in lines], "template"
     shots = resp.parsed_output
     if resp.stop_reason == "refusal" or shots is None or len(shots.prompts) != len(lines):
         return [_template_prompt(ln, deal) for ln in lines], "template"
@@ -110,7 +113,17 @@ def _gemini(prompt: str) -> bytes:
         timeout=120,
     )
     if r.status_code != 200:
-        raise ImageError(f"Gemini {r.status_code}: {r.text[:300]}")
+        hint = ""
+        if r.status_code == 429 or "RESOURCE_EXHAUSTED" in r.text:
+            hint = (" → Gemini 무료 키는 이미지 생성 한도가 0이거나 금방 차요. Google AI Studio 에서 결제를 등록하거나, "
+                    "작업 화면 'AI 이미지'에서 '무료(pollinations)'를 고르세요")
+        elif r.status_code in (400, 403) and ("API key" in r.text or "PERMISSION" in r.text):
+            hint = " → GEMINI_API_KEY 가 틀렸거나 이 키로 Gemini API 를 쓸 수 없어요"
+        elif r.status_code == 404:
+            hint = " → config.yaml 의 images.gemini_model 이름이 바뀌었을 수 있어요"
+        elif "location" in r.text.lower() and "not supported" in r.text.lower():
+            hint = " → 이 지역에서는 이 모델을 못 써요"
+        raise ImageError(f"Gemini {r.status_code}{hint}: {r.text[:300]}")
     for cand in r.json().get("candidates", []):
         for part in cand.get("content", {}).get("parts", []):
             data = (part.get("inlineData") or part.get("inline_data") or {}).get("data")
@@ -135,7 +148,20 @@ def _openai(prompt: str) -> bytes:
     return base64.b64decode(r.json()["data"][0]["b64_json"])
 
 
-PROVIDERS = {"gemini": _gemini, "openai": _openai}
+def _pollinations(prompt: str) -> bytes:
+    """키 없이 쓰는 무료 이미지 (pollinations.ai). 품질·속도는 들쭉날쭉할 수 있음."""
+    import random
+    from urllib.parse import quote
+    r = requests.get(f"https://image.pollinations.ai/prompt/{quote(prompt[:900])}",
+                     params={"width": 1024, "height": 768, "nologo": "true", "seed": random.randint(1, 10**6),
+                             "model": config.get("images.pollinations_model", "flux")},
+                     timeout=180)
+    if r.status_code != 200 or not r.headers.get("content-type", "").startswith("image"):
+        raise ImageError(f"pollinations {r.status_code}: {r.text[:200]}")
+    return r.content
+
+
+PROVIDERS = {"gemini": _gemini, "openai": _openai, "pollinations": _pollinations}
 
 
 def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: bool = False,
@@ -156,7 +182,7 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
     prompts, by = write_prompts([t for _, t in todo], job.deal)
     log_path = out_dir / "prompts.json"
     log = json.loads(log_path.read_text(encoding="utf-8")) if log_path.exists() else {}
-    made, failed = 0, []
+    made, failed, last_err = 0, [], ""
     for (i, text), prompt in zip(todo, prompts):
         data = None
         for attempt in range(3):  # 일시 오류·안전 필터 대비 최대 3번
@@ -164,10 +190,10 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
                 data = fn(prompt)
                 break
             except (ImageError, requests.RequestException) as e:
-                err = str(e)
+                err = last_err = str(e)
                 job.log(f"이미지 {i}줄 실패({attempt + 1}/3): {err}")
-                if "API_KEY" in err:  # 키 문제는 재시도해도 소용없음
-                    raise
+                if "API_KEY" in err or "→" in err:  # 키·한도 문제는 재시도해도 소용없음
+                    raise ImageError(err)
         if data is None:
             failed.append(i)
             continue
@@ -175,7 +201,7 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
         log[f"{i:03d}"] = {"text": text, "prompt": prompt, "provider": provider, "prompt_by": by}
         made += 1
     log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
-    return {"provider": provider, "made": made, "failed": failed, "prompt_by": by}
+    return {"provider": provider, "made": made, "failed": failed, "prompt_by": by, "error": last_err}
 
 
 # ------------------------------------------------------------------ 내가 준 사진을 대본에 맞게 자동 배치

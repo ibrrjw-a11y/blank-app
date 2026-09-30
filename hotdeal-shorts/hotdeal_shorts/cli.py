@@ -307,7 +307,7 @@ def _make_images(j: jobmod.Job, provider: Optional[str], force: bool = False) ->
 
 
 @app.command("images")
-def images_cmd(job_id: str, provider: Optional[str] = typer.Option(None, help="gemini | openai"),
+def images_cmd(job_id: str, provider: Optional[str] = typer.Option(None, help="gemini | openai | pollinations(무료)"),
                force: bool = typer.Option(False, "--force", help="이미 있는 이미지도 다시 생성"),
                select: Optional[str] = typer.Option(None, help="every | marked | first"),
                photos: Optional[Path] = typer.Option(None, "--photos",
