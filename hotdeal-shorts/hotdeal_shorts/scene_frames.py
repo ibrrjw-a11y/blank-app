@@ -93,18 +93,33 @@ def _community_canvas(scene: Scene, upto: int, width: int, load_image=None) -> t
     meta_f = font(30, "regular")
 
     # 1) 출처 줄 (모든 스타일 공통, 끌 수 없음)
-    src = f"출처 · {scene.meta.get('source_name', '')}"
+    skit = bool(scene.meta.get("skit"))
+    src = (f"{scene.meta.get('source_name', '')} 스타일" if skit else f"출처 · {scene.meta.get('source_name', '')}")
     cap = f"{scene.meta.get('captured', '')} 확인"
+
+    def skit_badge(cy: int) -> None:  # 상황극 표시 (끌 수 없음)
+        bf = font(30)
+        label = "연출된 상황극"
+        bw = d.textlength(label, font=bf) + 40
+        d.rounded_rectangle([width - pad - bw, cy - 23, width - pad, cy + 23], 23, fill=(235, 64, 52))
+        d.text((width - pad - bw / 2, cy), label, font=bf, fill=(255, 255, 255), anchor="mm")
+
     if t["header"] == "fill":
         d.rectangle([0, 0, width, 92], fill=acc)
         d.text((pad, 46), src, font=font(34), fill=(255, 255, 255), anchor="lm")
-        d.text((width - pad, 46), cap, font=font(28, "regular"), fill=(220, 224, 240), anchor="rm")
+        if skit:
+            skit_badge(46)
+        else:
+            d.text((width - pad, 46), cap, font=font(28, "regular"), fill=(220, 224, 240), anchor="rm")
         y = 124
         header_h = 100
     else:
         d.rectangle([0, 0, width, 10], fill=acc)
         d.text((pad, 60), src, font=font(34), fill=acc, anchor="lm")
-        d.text((width - pad, 60), cap, font=font(28, "regular"), fill=C["meta"], anchor="rm")
+        if skit:
+            skit_badge(60)
+        else:
+            d.text((width - pad, 60), cap, font=font(28, "regular"), fill=C["meta"], anchor="rm")
         y = 112
         header_h = 96
 

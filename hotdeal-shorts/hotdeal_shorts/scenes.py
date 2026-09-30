@@ -3,9 +3,12 @@
     [post]                         내 채널이 말하는 게시글형 (블록 표시가 없으면 전부 post)
     차 안에 과자 부스러기 보면 한숨부터 나오잖음
 
-    [community: 더쿠]              실제 글 옮기기. source·captured 필수, 닉네임은 자동으로 가림
-    source: https://theqoo.net/...
-    captured: 2026-09-28
+    [community: 더쿠]              커뮤니티 모양으로 썰 풀기. 두 가지 방식:
+                                   ① 상황극(기본): source 없이 쓰면 "연출된 상황극" 표시가 붙음 (끌 수 없음)
+                                      조회수·좋아요 같은 수치는 표시 안 함, 상품을 써 본 척하는 후기는 금지
+                                   ② 실제 글 옮기기: source·captured 를 적으면 "출처" 표시 + 실제 수치 표시
+    source: https://theqoo.net/... (②일 때만)
+    captured: 2026-09-28           (②일 때만)
     board: 자유게시판             (선택) 게시판 이름
     tag: 추천                     (선택, 여러 번 가능) 말머리
     title: 차 청소기 이거 괜찮아?
@@ -110,7 +113,24 @@ def parse(body: str) -> list[Scene]:
                 cur.items.append(Item(msg.strip(), "msg", who.strip()))
             else:
                 cur.items.append(Item(ln, "msg", "나"))
-    return [s for s in scenes if s.items]
+    scenes = [s for s in scenes if s.items]
+    for sc in scenes:
+        if sc.kind == "community" and not is_quote(sc):
+            sc.meta["skit"] = True
+            sc.meta.pop("meta", None)  # 상황극에는 가짜 조회수·좋아요를 붙이지 않는다
+            for it in sc.items:
+                it.likes = ""
+    return scenes
+
+
+def is_quote(scene: Scene) -> bool:
+    """실제 글을 옮긴 장면인지 (원글 주소가 있으면)."""
+    return bool(re.match(r"https?://\S+", scene.meta.get("source", "")))
+
+
+# 상황극에서 금지: 상품을 직접 써 본/산 척하는 후기 (광고에서 가짜 후기는 표시광고법 위반)
+FAKE_REVIEW = re.compile(r"써\s?봤|써\s?보니|써\s?봄|쓰는\s?중|쓰고\s?있|써\s?왔|샀는데|샀음|사\s?봤|사서\s?써|구매했|구매함|"
+                         r"재구매|후기|인생템|강추|효과\s?(봤|있|좋)|직접\s?써")
 
 
 def narration(scenes: list[Scene]) -> list[str]:
@@ -128,9 +148,12 @@ def lint(scenes: list[Scene]) -> list[tuple[str, str]]:
         if s.kind != "community":
             continue
         where = f"{n}번째 장면(커뮤니티)"
-        if not re.match(r"https?://\S+", s.meta.get("source", "")):
-            out.append(("ERROR", f"{where}: source 에 원글 주소가 없음. 실제 글만 옮길 수 있음"))
-        if not s.meta.get("captured"):
+        if s.meta.get("skit"):
+            for it in s.items:
+                if FAKE_REVIEW.search(it.text):
+                    out.append(("ERROR", f"{where}·상황극: '{it.text}' — 상품을 써 본 후기처럼 보임. 상황극에서는 "
+                                         "상황·고민·질문만 (실제 후기는 source 를 적어 원글을 옮기기)"))
+        elif not s.meta.get("captured"):
             out.append(("ERROR", f"{where}: captured(원글 확인 날짜)가 없음"))
         if not any(it.role in ("body", "comment") for it in s.items):
             out.append(("ERROR", f"{where}: body/comment 가 없음"))
