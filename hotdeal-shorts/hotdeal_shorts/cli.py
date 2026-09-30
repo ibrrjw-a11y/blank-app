@@ -305,6 +305,26 @@ def images_cmd(job_id: str, provider: Optional[str] = typer.Option(None, help="g
 
 
 @app.command()
+def capcut(job_id: str,
+           drafts_dir: Optional[Path] = typer.Option(None, "--dir", help="캡컷 초안 폴더 (기본: 자동 탐색)"),
+           baked: bool = typer.Option(False, "--baked", help="자막을 화면에 구워 넣은 판으로 (자막 편집 불가)")):
+    """캡컷 프로젝트로 내보내기 → 캡컷을 다시 켜면 목록에 '상품명_MMDD' 로 보임."""
+    from . import capcut as cc_mod
+    j = jobmod.load(job_id)
+    try:
+        path = cc_mod.export(j, drafts_dir, editable_subtitles=not baked)
+    except cc_mod.CapCutError as e:
+        fail(str(e))
+    j.mark("capcut", "done", path=str(path))
+    echo(f"✓ 캡컷 초안: {path}")
+    if j.path in path.parents:
+        echo("  캡컷 초안 폴더를 못 찾아 작업 폴더에 만들었어요. 이 폴더를 캡컷의 초안 폴더로 복사하거나,")
+        echo("  config.yaml 의 capcut.drafts_dir 에 캡컷 초안 폴더 경로를 적고 다시 실행하세요.")
+    else:
+        echo("  캡컷을 완전히 껐다 켜면 프로젝트 목록 맨 앞에 보입니다.")
+
+
+@app.command()
 def make(deal_id: int, hook: Optional[str] = None, extra: str = "",
          yes: bool = typer.Option(False, "--yes", help="대본 검사에 ERROR가 없으면 사람 승인 없이 바로 제작"),
          voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual")):

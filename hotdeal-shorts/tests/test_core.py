@@ -270,3 +270,36 @@ def test_affiliate_source_picks_disclosure():
     assert affiliate_source({"source": "manual", "affiliate_url": "https://link.coupang.com/a/x"}) == "coupang"
     assert affiliate_source({"source": "manual", "url": "https://toss.im/_s/abc"}) == "toss"
     assert affiliate_source({"source": "manual", "url": "https://smartstore.naver.com/x"}) == "default"
+
+
+def test_capcut_export_structure(monkeypatch, tmp_path):
+    import json
+    import numpy as np
+    import pytest
+    pytest.importorskip("pycapcut")
+    from PIL import Image
+    from hotdeal_shorts import audio, capcut
+    from hotdeal_shorts.job import Job
+    monkeypatch.setenv("HD_HOME", str(tmp_path))
+    job = Job(tmp_path / "job")
+    (job.path / "frames").mkdir(parents=True)
+    (job.path / "deal.json").write_text('{"name": "무선 청소기"}', encoding="utf-8")
+    audio.write_wav(job.p("voice.wav"), np.zeros(audio.SR * 4, dtype=np.float32))
+    frames = []
+    for i, (start, clean) in enumerate([(0.0, True), (2.0, False)]):  # 게시글형 / 커뮤니티형
+        path = job.p("frames", f"body_{i:03d}.png")
+        Image.new("RGB", (1080, 1920)).save(path)
+        f = {"path": str(path), "start": start, "end": start + 1.8, "sub": [f"자막{i}"]}
+        if clean:
+            Image.new("RGB", (1080, 1920)).save(job.p("frames", f"body_{i:03d}_clean.png"))
+            f.update(clean=str(job.p("frames", f"body_{i:03d}_clean.png")), sub_y=620)
+        frames.append(f)
+    job.p("frames", "frames.json").write_text(json.dumps(frames), encoding="utf-8")
+    out = capcut.export(job, tmp_path / "drafts")
+    d = json.loads((out / "draft_content.json").read_text(encoding="utf-8"))
+    tracks = {t["name"]: t["segments"] for t in d["tracks"]}
+    assert len(tracks["화면"]) == 2 and len(tracks["자막"]) == 1 and len(tracks["목소리"]) == 1
+    assert tracks["효과음"] == []
+    assert abs(d["duration"] / 1e6 - 4.0) < 0.01
+    assert all((out / "materials").joinpath(p.split("/")[-1]).exists() for p in
+               [m["path"].replace("\\", "/") for m in d["materials"]["videos"]])

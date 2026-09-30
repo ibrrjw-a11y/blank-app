@@ -367,6 +367,7 @@ def render_frames(job: Job, s: Script) -> list[dict]:
         img.paste(photo.convert("RGB"), (x0, y0), mask)
         if chip is not None and a["idx"] >= price_from:
             img.paste(chip, (x1 - chip.width - 24, y1 - chip.height - 24), chip)
+        img.save(out_dir / f"body_{a['idx']:03d}_clean.png")  # 자막 없는 판 (캡컷에서 자막을 따로 편집할 때)
         d = ImageDraw.Draw(img)
         shown = display_text(a["text"])
         parts = split_subtitle(shown, max_chars, strip)[: config.get("subtitle.max_lines", 2)]
@@ -377,6 +378,7 @@ def render_frames(job: Job, s: Script) -> list[dict]:
             d.text((W / 2, y), p, font=sf, fill=ink, anchor="mm")
             y += line_h
         img.save(path)
-        frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": parts})
+        frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": parts,
+                       "clean": str(out_dir / f"body_{a['idx']:03d}_clean.png"), "sub_y": 620})
     (out_dir / "frames.json").write_text(json.dumps(frames, ensure_ascii=False, indent=2), encoding="utf-8")
     return frames

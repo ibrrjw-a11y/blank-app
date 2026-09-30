@@ -48,6 +48,9 @@ script:
   lines_max: 12
   line_max_chars: 30            # 자막 2줄(15자 x 2) 안에 들어가게
 
+capcut:
+  drafts_dir: ""                # 비우면 자동 탐색 (Win: %LOCALAPPDATA%\CapCut\User Data\Projects\com.lveditor.draft)
+
 deals:
   min_discount_pct: 30          # 이 할인율 미만은 후보에서 제외
   price_range_krw: [5000, 150000]

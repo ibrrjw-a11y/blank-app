@@ -56,6 +56,23 @@ hd report                                  # 주간 리포트: 배수·진단·�
 
 **학습 루프**: 리포트의 훅 유형별 평균 배수가 다음 `hd new` 때 훅 선택 가중치로 쓰인다(20%는 무작위 탐색).
 
+## 캡컷으로 넘겨서 손보기
+
+자동으로 만든 영상을 캡컷 프로젝트로 내보내서 효과음·전환·자막만 사람이 손본다.
+
+```bash
+pip install -e ".[capcut]"     # 처음 한 번 (pycapcut)
+hd build <작업>
+hd capcut <작업>               # 캡컷을 껐다 켜면 목록 맨 앞에 '상품명_MMDD'
+hd capcut <작업> --baked       # 자막을 화면에 구운 판 (자막 편집 불필요할 때)
+```
+
+- 트랙: `목소리` / `효과음`(빈 트랙) / `화면`(줄마다 이미지) / `자막`(게시글형 줄, 글자 편집 가능 · 캡컷 기본 글꼴)
+- 커뮤니티·카톡 장면은 화면 자체가 글이라 구운 이미지 그대로 들어감
+- 소재는 초안 폴더 안 `materials/` 로 복사되므로 작업 폴더를 지워도 괜찮음
+- 초안 폴더 자동 탐색: Windows `%LOCALAPPDATA%\CapCut\User Data\Projects\com.lveditor.draft`, Mac `~/Movies/CapCut/User Data/Projects/com.lveditor.draft`. 다르면 `config.yaml` 의 `capcut.drafts_dir`
+- **캡컷 초안 형식은 비공개**라 오픈소스 pycapcut 으로 만든다. 캡컷 버전에 따라 안 열릴 수 있으니 첫 한 번은 직접 열어 확인
+
 ## 줄마다 AI 이미지
 
 `.env` 에 `GEMINI_API_KEY`(기본) 또는 `OPENAI_API_KEY` 를 넣으면 `hd build` 때 게시글형 줄마다 실사풍 이미지를 만들어 사진 칸에 넣는다.

@@ -17,6 +17,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 offline = ["sherpa-onnx>=1.10"]
+capcut = ["pycapcut>=0.0.3"]
 
 [project.scripts]
 hd = "hotdeal_shorts.cli:app"
