@@ -186,15 +186,44 @@ class Coupang:
 
 
 # ---------------------------------------------------------------- 토스쇼핑 쉐어링크
-# Open API: 결제 금액의 10% 수익. 링크 클릭 후 24시간 안 결제분이 집계된다.
-# 구조 출처: 쉐어링크 Open API 를 사용하는 공개 구현 (공식 문서 https://sharelink-docs.toss.im 로 최종 확인 권장)
+# Open API (공식 문서 https://sharelink-docs.toss.im). 결제 금액의 10% 수익, 링크 클릭 후 24시간 안 결제분 집계.
+# 사람이 먼저 할 것: API 사용 승인 신청 · 키 발급 · publisherId 확인 · **호출하는 PC의 공인 IP 등록** ·
+# 활동 채널(유튜브 채널) 등록. 공인 IP 가 등록 안 돼 있으면 모든 호출이 ACCESS_DENIED.
+# 하루 한도: 응답으로 받은 상품 수 10,000개 + 새로 발급한 링크 10,000개 (호출 횟수 아님).
 
 TOSS_API = "https://sharelink.toss.im/openapi/"
 TOSS_TOKEN_URL = "https://oauth2.cert.toss.im/token"
+TOSS_ENDING_MARGIN_MIN = 10          # 종료 10분 이내 특가는 버림 (눌렀을 때 정상가)
+TOSS_SAME_ITEM_HOURS = 24            # 같은 상품이 24시간 안에 이미 들어왔으면 버림
 
 
 class TossError(RuntimeError):
     pass
+
+
+class TossQuotaExceeded(TossError):
+    pass
+
+
+class TossLinkBlocked(TossError):
+    """링크 발급이 막힌 상품 (200 + FAIL + errorCode 없이 reason 만 옴)."""
+
+
+def _kst_today() -> str:
+    from datetime import datetime, timedelta, timezone
+    return datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d")
+
+
+def _parse_end(value: str | None):
+    """endAt(ISO 8601, 시간대 없으면 한국 시간) → aware datetime."""
+    from datetime import datetime, timedelta, timezone
+    if not value:
+        return None
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone(timedelta(hours=9)))
 
 
 class Toss:
@@ -204,15 +233,16 @@ class Toss:
         self.publisher = os.environ.get("TOSS_PUBLISHER_ID")
         if not (self.access and self.secret and self.publisher):
             raise TossError("TOSS_ACCESS_KEY / TOSS_SECRET_KEY / TOSS_PUBLISHER_ID 가 .env 에 없습니다. "
-                            "키가 없으면 쉐어링크 사이트에서 링크를 복사해 CSV 의 affiliate_url 에 넣으세요.")
+                            "키가 없으면 쉐어링크 사이트에서 링크를 복사해 딜의 수익 링크 칸에 넣으세요.")
         self.token_file = config.data_dir() / "toss_token.json"
+        self.sleep = time.sleep  # 테스트에서 바꿔 끼움
 
-    # 토큰은 약 1년 유효. 매번 재발급하면 제한되므로 파일에 저장해 재사용한다.
+    # ---------------------------------------------------------- 토큰: 약 1년 유효, 파일에 저장해 재사용
     def _token(self, refresh: bool = False) -> str:
         import json
         if not refresh and self.token_file.exists():
             saved = json.loads(self.token_file.read_text(encoding="utf-8"))
-            if saved.get("expires_at", 0) - 7 * 86400 > time.time():
+            if saved.get("access_key") == self.access and saved.get("expires_at", 0) - 86400 > time.time():
                 return saved["access_token"]
         r = requests.post(TOSS_TOKEN_URL, timeout=20, data={
             "grant_type": "client_credentials", "client_id": self.access, "client_secret": self.secret,
@@ -221,63 +251,178 @@ class Toss:
             raise TossError(f"토스 토큰 발급 실패 (HTTP {r.status_code}): {r.text[:200]}")
         data = r.json()
         self.token_file.write_text(json.dumps({
-            "access_token": data["access_token"],
+            "access_key": self.access, "access_token": data["access_token"],
             "expires_at": time.time() + int(data.get("expires_in", 0))}), encoding="utf-8")
         return data["access_token"]
 
-    def _call(self, method: str, path: str, params: dict | None = None, body: dict | None = None, _retry=True):
-        r = requests.request(method, TOSS_API + path, params=params, json=body, timeout=20,
-                             headers={"Authorization": f"Bearer {self._token()}"})
-        if r.status_code == 401 and _retry:  # 토큰 만료 → 한 번만 재발급
-            self._token(refresh=True)
-            return self._call(method, path, params, body, _retry=False)
-        try:
-            env = r.json()
-        except ValueError:
-            raise TossError(f"토스 API 응답 형식 아님 (HTTP {r.status_code}): {r.text[:200]}")
-        # HTTP 200 이어도 resultType 이 SUCCESS 가 아니면 실패
-        if env.get("resultType") != "SUCCESS":
-            err = env.get("error") or {}
-            raise TossError(f"토스 API 실패 (HTTP {r.status_code}, {err.get('errorCode')}): {err.get('reason')}")
-        return env.get("success") or {}
+    # ---------------------------------------------------------- 하루 사용량 (한국 날짜별)
+    def _usage(self, **inc) -> dict:
+        from . import db
+        with db.connect() as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS toss_usage (day TEXT PRIMARY KEY, items_fetched INTEGER "
+                         "DEFAULT 0, links_issued INTEGER DEFAULT 0, items_quota_hit INTEGER DEFAULT 0, "
+                         "links_quota_hit INTEGER DEFAULT 0, last_error TEXT)")
+            day = _kst_today()
+            conn.execute("INSERT OR IGNORE INTO toss_usage (day) VALUES (?)", (day,))
+            for k, v in inc.items():
+                if k == "last_error":
+                    conn.execute("UPDATE toss_usage SET last_error=? WHERE day=?", (v, day))
+                elif k.endswith("_hit"):
+                    conn.execute(f"UPDATE toss_usage SET {k}=1 WHERE day=?", (day,))
+                else:
+                    conn.execute(f"UPDATE toss_usage SET {k}={k}+? WHERE day=?", (v, day))
+            return dict(conn.execute("SELECT * FROM toss_usage WHERE day=?", (day,)).fetchone())
 
-    @staticmethod
-    def _to_deal(p: dict, category: str) -> dict:
+    # ---------------------------------------------------------- 공통 호출 (공통 응답 규약·재시도)
+    def _call(self, method: str, path: str, params: dict | None = None, body: dict | None = None):
+        refreshed = False
+        last = "NETWORK"
+        for attempt in range(4):
+            try:
+                r = requests.request(method, TOSS_API + path, params=params, json=body, timeout=20,
+                                     headers={"Authorization": f"Bearer {self._token()}"})
+            except requests.RequestException as e:
+                last = f"NETWORK {type(e).__name__}"
+                self.sleep(2 ** attempt)
+                continue
+            if r.status_code == 401 and not refreshed:  # 토큰 만료 → 한 번만 재발급
+                refreshed = True
+                self._token(refresh=True)
+                continue
+            if r.status_code == 429:
+                self.sleep(float(r.headers.get("Retry-After", 2 ** attempt)))
+                continue
+            if r.status_code >= 500:
+                last = f"HTTP {r.status_code}"
+                self.sleep(2 ** attempt)
+                continue
+            try:
+                env = r.json()
+            except ValueError:
+                raise TossError(f"토스 API 응답 형식 아님 (HTTP {r.status_code}): {r.text[:200]}")
+            if env.get("resultType") == "SUCCESS":  # HTTP 200 이어도 FAIL 이면 실패
+                return env.get("success") or {}
+            err = env.get("error") or {}
+            code, reason = str(err.get("errorCode") or ""), err.get("reason") or ""
+            if code == "500":
+                last = "토스 서버 오류"
+                self.sleep(2 ** attempt)
+                continue
+            if code == "SHARELINK_OPENAPI_QUOTA_EXCEEDED":
+                self._usage(**{("links_quota_hit" if path == "links" else "items_quota_hit"): 1,
+                               "last_error": code})
+                raise TossQuotaExceeded("토스 하루 한도 초과 — 한국 시간 자정까지 멈춥니다")
+            if not code and path == "links":
+                raise TossLinkBlocked(reason or "링크 발급이 제한된 상품")
+            hint = " (공인 IP 등록·키·publisherId 확인)" if code == "SHARELINK_OPENAPI_ACCESS_DENIED" else ""
+            self._usage(last_error=f"{code} {reason}"[:200])
+            raise TossError(f"토스 API 실패 {code}{hint}: {reason}")
+        raise TossError(f"토스 API 재시도 실패: {last}")
+
+    # ---------------------------------------------------------- 상품 목록
+    def _to_deal(self, p: dict, category: str, source_kind: str) -> dict:
         pct = p.get("discountRate")
-        if pct is not None and 0 < float(pct) <= 1:  # 0.35 형태로 올 경우 대비
-            pct = float(pct) * 100
-        return normalize({
+        use_thumb = config.get("deals.toss_use_thumbnails", False)
+        d = normalize({
             "source": "toss",
             "source_id": str(p.get("tacaItemId")),
-            "name": p.get("displayName", ""),
-            "price": p.get("displayPrice"),
+            "name": (p.get("displayName") or "").strip(),
+            "price": p.get("displayPrice"),            # 배송비 포함 가격
             "original_price": p.get("originalPrice"),
-            "discount_pct": pct,
-            "url": p.get("productUrl"),        # 추적 없는 일반 링크. 수익 링크는 작업 만들 때 발급
-            "image_url": p.get("imageUrl") or p.get("thumbnailUrl"),
-            "reviews": p.get("reviewCount"),
-            "rating": p.get("reviewScore"),
+            "discount_pct": pct if isinstance(pct, (int, float)) and not isinstance(pct, bool) else None,
+            "url": p.get("productUrl"),                # 추적 없는 일반 링크 (수익 안 잡힘). 수익 링크는 따로 발급
+            # 토스 썸네일을 외부(영상)에 쓰는 건 사전 확인 대상 → 기본은 저장 안 함
+            "image_url": p.get("thumbnailUrl") if use_thumb else None,
+            "reviews": p.get("reviewCount") if isinstance(p.get("reviewCount"), int) else None,
+            "rating": p.get("reviewScore") if isinstance(p.get("reviewScore"), (int, float)) else None,
             "category": category,
             "ends_at": p.get("endAt"),
-            "evergreen": 1 if category == "토스 베스트" else 0,
+            "evergreen": 1 if source_kind == "best" else 0,
+            "note": "토스 가격은 배송비 포함",
         })
+        return d
 
-    def _list(self, path: str, size: int, category: str) -> list[dict]:
-        items = self._call("GET", path, {"size": size}).get("items", [])
-        return [self._to_deal(p, category) for p in items if not p.get("isSoldOut")]
+    def _keep(self, p: dict) -> bool:
+        from datetime import datetime, timedelta, timezone
+        tid = p.get("tacaItemId")
+        if not isinstance(tid, int) and not str(tid or "").isdigit():
+            return False
+        if p.get("isSoldOut") or not (p.get("displayName") or "").strip():
+            return False
+        end = _parse_end(p.get("endAt"))
+        if end and end <= datetime.now(timezone.utc) + timedelta(minutes=TOSS_ENDING_MARGIN_MIN):
+            return False
+        return True
 
-    def best(self, size: int = 50) -> list[dict]:
-        return self._list("products/best-selling", size, "토스 베스트")
+    def _recent_ids(self) -> set[str]:
+        from datetime import datetime, timedelta
+        from . import db
+        since = (datetime.now() - timedelta(hours=TOSS_SAME_ITEM_HOURS)).isoformat(timespec="seconds")
+        with db.connect() as conn:
+            rows = conn.execute("SELECT source_id FROM deals WHERE source='toss' AND fetched_at>=?", (since,))
+            return {r["source_id"] for r in rows}
 
-    def today_deals(self, size: int = 30) -> list[dict]:
-        return self._list("products/today-deals", size, "토스 하루특가")
+    def _list(self, path: str, size: int, category: str, kind: str, max_pages: int = 1) -> list[dict]:
+        if self._usage().get("items_quota_hit"):
+            raise TossQuotaExceeded("오늘 토스 상품 조회 한도를 이미 다 썼어요 (한국 시간 자정에 풀림)")
+        items, cursor = [], None
+        for _ in range(max_pages):
+            params = {"size": size, **({"cursor": cursor} if cursor else {})}
+            page = self._call("GET", path, params)
+            got = page.get("items", [])
+            self._usage(items_fetched=len(got))
+            items += got
+            if not page.get("hasNext") or not page.get("nextCursor"):
+                break
+            cursor = page["nextCursor"]
+        recent = self._recent_ids()
+        return [self._to_deal(p, category, kind) for p in items
+                if self._keep(p) and str(p.get("tacaItemId")) not in recent]
 
-    def link(self, taca_item_id: str) -> str:
-        """쉐어링크 발급. 같은 상품을 다시 요청하면 기존 링크가 오고 한도를 쓰지 않는다."""
-        out = self._call("POST", "links", body={"tacaItemId": int(taca_item_id), "publisherId": self.publisher})
+    def best(self, size: int = 30) -> list[dict]:
+        return self._list("products/best-selling", min(size, 100), "토스 베스트", "best")
+
+    def today_deals(self, size: int = 30, pages: int = 1) -> list[dict]:
+        return self._list("products/today-deals", min(size, 30), "토스 하루특가", "today", pages)
+
+    def category_best(self, category_id: str, size: int = 10) -> list[dict]:
+        return self._list(f"products/best-categories/{category_id}", size, f"토스 카테고리 {category_id}", "best")
+
+    # ---------------------------------------------------------- 쉐어링크 발급 (채널별 subTag, 캐시)
+    def link(self, taca_item_id: str, subtag: str | None = None) -> str:
+        """같은 (상품, publisherId, subTag) 는 기존 링크 재사용 → 한도 안 씀. subTag 로 채널별 실적 구분."""
+        from . import db
+        with db.connect() as conn:
+            conn.execute("CREATE TABLE IF NOT EXISTS toss_links (taca_item_id TEXT, subtag TEXT, short_url TEXT, "
+                         "origin_url TEXT, PRIMARY KEY (taca_item_id, subtag))")
+            row = conn.execute("SELECT short_url, origin_url FROM toss_links WHERE taca_item_id=? AND subtag=?",
+                               (str(taca_item_id), subtag or "")).fetchone()
+        if row:
+            return row["short_url"] or row["origin_url"]
+        if self._usage().get("links_quota_hit"):
+            raise TossQuotaExceeded("오늘 토스 링크 발급 한도를 이미 다 썼어요 (한국 시간 자정에 풀림)")
+        body = {"tacaItemId": int(taca_item_id), "publisherId": self.publisher,
+                **({"subTagId": subtag} if subtag else {})}
+        try:
+            out = self._call("POST", "links", body=body)
+        except TossLinkBlocked:
+            with db.connect() as conn:
+                conn.execute("UPDATE deals SET status='link_blocked' WHERE source='toss' AND source_id=?",
+                             (str(taca_item_id),))
+            raise
+        except TossError as e:
+            if not subtag or "ACCESS_DENIED" not in str(e):
+                raise
+            self._call("POST", "sub-tags/create", body={"subTagId": subtag, "label": subtag,
+                                                         "publisherId": self.publisher})
+            out = self._call("POST", "links", body=body)
         url = out.get("shortUrl") or out.get("originUrl")
         if not url:
             raise TossError("토스가 링크를 돌려주지 않음")
+        with db.connect() as conn:
+            conn.execute("INSERT OR REPLACE INTO toss_links VALUES (?,?,?,?)",
+                         (str(taca_item_id), subtag or "", out.get("shortUrl"), out.get("originUrl")))
+        self._usage(links_issued=1)
         return url
 
 

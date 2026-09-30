@@ -167,13 +167,16 @@ def deals_coupang(goldbox: bool = typer.Option(False, "--goldbox", help="골드�
 @deals_app.command("toss")
 def deals_toss(best: bool = typer.Option(False, "--best", help="토스 베스트 (1시간마다 갱신, 상시형)"),
                today: bool = typer.Option(False, "--today", help="토스 하루특가 (그날만)"),
+               category: str = typer.Option("", "--category", help="카테고리 베스트 (카테고리 ID)"),
+               pages: int = typer.Option(1, "--pages", help="하루특가 몇 페이지까지 (페이지당 최대 30개)"),
                size: int = 30):
-    """토스쇼핑 쉐어링크 API로 딜 가져오기 (수익 링크는 hd new 할 때 발급)."""
-    if not (best or today):
-        fail("--best 또는 --today 를 지정하세요")
+    """토스쇼핑 쉐어링크 API로 딜 가져오기 (수익 링크는 hd new 할 때 채널별 subTag 로 발급)."""
+    if not (best or today or category):
+        fail("--best, --today, --category 중 하나를 지정하세요")
     try:
         t = deals.Toss()
-        items = (t.best(size) if best else []) + (t.today_deals(size) if today else [])
+        items = ((t.best(size) if best else []) + (t.today_deals(size, pages) if today else [])
+                 + (t.category_best(category, size) if category else []))
     except (deals.TossError, requests.RequestException) as e:
         fail(str(e))
     _save_deals(items)

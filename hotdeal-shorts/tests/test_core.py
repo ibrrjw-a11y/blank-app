@@ -219,16 +219,22 @@ def test_generate_writes_files_and_skips_existing(monkeypatch, tmp_path):
 
 
 def test_toss_sharelink_client(monkeypatch, tmp_path):
+    from datetime import datetime, timedelta, timezone
     from hotdeal_shorts import deals
     monkeypatch.setenv("HD_HOME", str(tmp_path))
     for k, v in {"TOSS_ACCESS_KEY": "ak", "TOSS_SECRET_KEY": "sk", "TOSS_PUBLISHER_ID": "pub"}.items():
         monkeypatch.setenv(k, v)
 
     class Resp:
-        def __init__(self, status, body): self.status_code, self._b, self.text = status, body, str(body)
+        def __init__(self, status, body, headers=None):
+            self.status_code, self._b, self.text, self.headers = status, body, str(body), headers or {}
         def json(self): return self._b
 
-    calls = {"token": 0, "api": []}
+    calls = {"token": 0, "api": [], "links": 0, "rate_limited": False}
+    soon = (datetime.now(timezone.utc) + timedelta(minutes=3)).isoformat()
+    later = (datetime.now(timezone.utc) + timedelta(hours=5)).isoformat()
+
+    def ok(success): return Resp(200, {"resultType": "SUCCESS", "success": success})
 
     def fake_post(url, data=None, timeout=None):
         calls["token"] += 1
@@ -238,30 +244,70 @@ def test_toss_sharelink_client(monkeypatch, tmp_path):
     def fake_request(method, url, params=None, json=None, timeout=None, headers=None):
         calls["api"].append((method, url, params, json, headers["Authorization"]))
         if url.endswith("best-selling"):
-            return Resp(200, {"resultType": "SUCCESS", "success": {"items": [
+            return ok({"items": [
                 {"tacaItemId": 11, "displayName": "세제", "displayPrice": 18900, "originalPrice": 32000,
-                 "discountRate": 41, "reviewCount": 1520, "reviewScore": 4.8, "productUrl": "https://toss.im/p/11"},
-                {"tacaItemId": 12, "displayName": "품절템", "isSoldOut": True}]}})
+                 "discountRate": 41, "reviewCount": 1520, "reviewScore": 4.8, "productUrl": "https://toss.im/p/11",
+                 "thumbnailUrl": "https://img/11.jpg"},
+                {"tacaItemId": 12, "displayName": "품절템", "isSoldOut": True}], "hasNext": False})
+        if url.endswith("today-deals"):
+            if not calls["rate_limited"]:  # 429 는 Retry-After 만큼 쉬고 다시
+                calls["rate_limited"] = True
+                return Resp(429, {}, {"Retry-After": "1"})
+            if not (params or {}).get("cursor"):
+                return ok({"items": [{"tacaItemId": 21, "displayName": "곧끝남", "endAt": soon},
+                                     {"tacaItemId": 22, "displayName": "특가A", "endAt": later}],
+                           "hasNext": True, "nextCursor": "c2"})
+            return ok({"items": [{"tacaItemId": 23, "displayName": "특가B"}], "hasNext": False})
+        if url.endswith("best-categories/7"):
+            return Resp(200, {"resultType": "FAIL", "error": {"errorCode": "SHARELINK_OPENAPI_QUOTA_EXCEEDED",
+                                                             "reason": "한도 초과"}})
         if url.endswith("links"):
-            return Resp(200, {"resultType": "SUCCESS", "success": {"shortUrl": "https://toss.im/_s/abc"}})
-        return Resp(200, {"resultType": "FAIL", "error": {"errorCode": "SHARELINK_OPENAPI_QUOTA_EXCEEDED",
-                                                         "reason": "한도 초과"}})
+            if json["tacaItemId"] == 99:  # errorCode 없는 FAIL = 링크 막힌 상품
+                return Resp(200, {"resultType": "FAIL", "error": {"reason": "링크 생성 불가 상품"}})
+            calls["links"] += 1
+            return ok({"shortUrl": f"https://toss.im/_s/{json['tacaItemId']}{json.get('subTagId', '')}"})
+        raise AssertionError(url)
 
     monkeypatch.setattr(deals.requests, "post", fake_post)
     monkeypatch.setattr(deals.requests, "request", fake_request)
+    slept = []
     t = deals.Toss()
+    t.sleep = slept.append
+
     best = t.best(10)
-    assert [d["name"] for d in best] == ["세제"] and best[0]["source"] == "toss"
+    assert [d["name"] for d in best] == ["세제"] and best[0]["source"] == "toss"  # 품절 제외
     assert best[0]["discount_pct"] == 41 and best[0]["reviews"] == 1520 and best[0]["evergreen"] == 1
-    assert t.link("11") == "https://toss.im/_s/abc"
-    assert calls["api"][-1][3] == {"tacaItemId": 11, "publisherId": "pub"}
-    assert calls["token"] == 1  # 토큰은 파일에 저장해 재사용
-    assert deals.Toss().best(1) and calls["token"] == 1
+    assert best[0]["price"] == 18900 and not best[0].get("image_url")  # 썸네일은 기본 저장 안 함
+    assert calls["token"] == 1 and calls["api"][-1][4] == "Bearer tok1"
+
+    today = t.today_deals(pages=3)  # 커서 페이지 넘김 + 종료 10분 이내 제외
+    assert [d["name"] for d in today] == ["특가A", "특가B"]
+    assert slept == [1.0] and calls["api"][-1][2] == {"size": 30, "cursor": "c2"}
+
+    assert t.link("11", "yt-salim") == "https://toss.im/_s/11yt-salim"
+    assert calls["api"][-1][3] == {"tacaItemId": 11, "publisherId": "pub", "subTagId": "yt-salim"}
+    assert t.link("11", "yt-salim") == "https://toss.im/_s/11yt-salim" and calls["links"] == 1  # 캐시
+    assert t.link("11") == "https://toss.im/_s/11" and calls["links"] == 2  # subTag 다르면 새 링크
+    assert t._usage()["links_issued"] == 2
     try:
-        t.today_deals()
-        raise AssertionError("FAIL 응답은 예외여야 함")
-    except deals.TossError as e:
-        assert "QUOTA_EXCEEDED" in str(e)
+        t.link("99")
+        raise AssertionError("막힌 상품은 예외여야 함")
+    except deals.TossLinkBlocked as e:
+        assert "링크 생성 불가" in str(e)
+
+    assert deals.Toss().best(1) and calls["token"] == 1  # 토큰은 파일에 저장해 재사용
+    try:
+        t.category_best("7")
+        raise AssertionError("한도 초과는 예외여야 함")
+    except deals.TossQuotaExceeded:
+        pass
+    assert t._usage()["items_quota_hit"] == 1
+    n = len(calls["api"])
+    try:
+        t.best(5)  # 한도 걸린 날은 호출도 안 함
+        raise AssertionError
+    except deals.TossQuotaExceeded:
+        assert len(calls["api"]) == n
 
 
 def test_affiliate_source_picks_disclosure():

@@ -19,24 +19,24 @@ def build(job: Job, s: Script, render_info: dict | None = None) -> dict:
     notice = config.get("publish.price_notice", "").format(checked_at=deal.get("checked_at", ""))
     tags = " ".join(config.get("publish.hashtags", []))
     price = f"{int(deal['price']):,}원" if deal.get("price") else ""
+    if price and src == "toss":
+        price += "(배송비 포함)"  # 토스 displayPrice 는 배송비 포함 — 따로 더하면 실제보다 비싸 보임
     orig = f" (정가 {int(deal['original_price']):,}원)" if deal.get("original_price") else ""
 
     yt_title = f"{s.title} #shorts"
-    description = "\n".join(filter(None, [
+    first = [disclosure] if src == "toss" else []  # 토스: 대가성 문구가 반드시 링크 가까이 첫 줄
+    description = "\n".join(filter(None, first + [
         f"{deal['name']}  {price}{orig}",
         f"구매 링크: {link}",
         f"딜 종료: {deal['ends_at']}" if deal.get("ends_at") else "",
         "",
         notice,
-        disclosure,
+        "" if src == "toss" else disclosure,
         "",
         tags,
     ]))
-    pinned = "\n".join([
-        f"👉 {deal['name']} 특가 링크: {link}",
-        notice,
-        disclosure,
-    ])
+    pinned = "\n".join([disclosure, f"👉 {deal['name']} {price} 링크: {link}", notice] if src == "toss" else
+                       [f"👉 {deal['name']} 특가 링크: {link}", notice, disclosure])
     reels_caption = "\n".join([s.lines[0], "", f"{deal['name']} {price}", "링크는 프로필에 있어요", "", disclosure, tags])
 
     pack = {"youtube_title": yt_title, "description": description, "pinned_comment": pinned,

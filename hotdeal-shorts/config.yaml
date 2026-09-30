@@ -14,6 +14,7 @@ channels:
     voice: {provider: edge, edge_voice: "ko-KR-SunHiNeural", rate: "+12%"}
     hashtags: ["#살림템", "#주방꿀템", "#생활용품", "#shorts"]
     upload_time: "19:30"
+    toss_subtag: "yt-salim"     # 토스 링크를 채널별로 구분 (영문·숫자·-_. 만, 등록 후 변경 불가)
   tech:                         # 소형가전·디지털·차량
     name: "GEARLOG 기어로그"
     handle: "@gearlog.kr"
@@ -25,6 +26,7 @@ channels:
     voice: {provider: edge, edge_voice: "ko-KR-InJoonNeural", rate: "+18%"}
     hashtags: ["#가전추천", "#전자기기", "#테크", "#shorts"]
     upload_time: "12:10"
+    toss_subtag: "yt-gearlog"
   beauty:                       # 뷰티·헤어·바디
     name: "파우치노트"
     handle: "@pouch.note"
@@ -36,6 +38,7 @@ channels:
     voice: {provider: supertonic, supertonic: {voice: "F3", speed: 1.1, steps: 10}}   # 무료 오프라인 음성 (다른 채널과 다른 목소리)
     hashtags: ["#뷰티템", "#화장품추천", "#스킨케어", "#shorts"]
     upload_time: "21:40"
+    toss_subtag: "yt-pouchnote"
 
 # 아래 channel 은 channels 가 비어 있을 때만 쓰는 기본값
 
@@ -116,11 +119,12 @@ deals:
   price_range_krw: [5000, 150000]
   min_reviews: 100              # 리뷰 수를 아는 경우에만 적용
   coupang_sub_id: "hotdealshorts"
+  toss_use_thumbnails: false    # 토스 썸네일을 영상에 쓰는 건 토스 사전 확인 대상 → 확인받기 전엔 false
 
 publish:
   disclosures:                  # 판매처별 제휴 고지 (비우면 제작 거부)
     coupang: "이 영상은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다."
-    toss: "이 영상은 토스쇼핑 쉐어링크 활동의 일환으로, 구매 시 일정액의 수수료를 제공받습니다."
+    toss: "[광고] 토스쇼핑 쉐어링크 활동으로, 링크 구매 시 수수료를 지급받습니다."   # 설명란·고정댓글 첫 줄에 자동
     default: "이 영상에는 제휴 링크가 포함되어 있으며, 구매 시 일정액의 수수료를 받을 수 있습니다."
   price_notice: "가격은 {checked_at} 기준이며 판매처 사정에 따라 변동·품절될 수 있습니다."
   hashtags: ["#핫딜", "#쇼핑", "#꿀템", "#shorts"]

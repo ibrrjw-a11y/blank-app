@@ -33,7 +33,7 @@ def new_job(deal_id: int, hook: str | None = None, extra: str = "", log: Log = p
         except deals.TossError as e:
             log(f"! 토스 링크 발급 실패, 나중에 deal.json 의 affiliate_url 을 채우세요: {e}")
     j = jobmod.create(deal)
-    set_channel(j, channel or profiles.default_id())
+    set_channel(j, channel)
     s, provider = script.generate(deal, hook, extra)
     j.p("script.md").write_text(script.to_markdown(s), encoding="utf-8")
     j.mark("script", "draft", provider=provider, hook_type=s.hook_type)
