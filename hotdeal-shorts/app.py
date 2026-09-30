@@ -416,6 +416,12 @@ def section_build(j: jobmod.Job) -> None:
                 st.error(str(e))
     final = j.p("render", "final.mp4")
     if final.exists():
+        from datetime import datetime
+        built = datetime.fromtimestamp(final.stat().st_mtime).strftime("%m/%d %H:%M")
+        n_ai = len(list(j.path.glob("images/line_*.*")))
+        chan = (profiles.all_profiles().get(j.state.get("channel") or "") or {}).get("name", "기본")
+        st.caption(f"아래 영상: {built}에 만든 것 · 채널 {chan} · 줄별 사진 {n_ai}장 — "
+                   "설정을 바꿨으면 위 버튼으로 다시 만들어야 반영돼요")
         st.video(str(final))
         a, b = st.columns(2)
         a.download_button("영상 파일 받기", final.read_bytes(), file_name=f"{j.id}.mp4", width="stretch")
