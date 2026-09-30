@@ -100,7 +100,7 @@ def make_images(j: jobmod.Job, provider: str | None, force: bool = False, log: L
         return
     log("… 줄별 AI 이미지")
     try:
-        r = images.generate(j, script.read_scenes(j.p("script.md")), provider, force)
+        r = images.generate(j, script.read_scenes(j.p("script.md")), provider, force, log=log)
     except images.ImageError as e:
         log(f"  ! 이미지 건너뜀: {e}")
         j.mark("images", "error", error=str(e)[:500])
@@ -112,7 +112,7 @@ def make_images(j: jobmod.Job, provider: str | None, force: bool = False, log: L
     else:
         log(f"  새로 {r['made']}장 ({r['provider']}, 프롬프트: {r.get('prompt_by', '-')})")
     if r.get("failed"):
-        log(f"  ! 실패한 줄 {r['failed']}: 상품 사진으로 대체")
+        log(f"  ! 못 만든 줄 {[i + 1 for i in r['failed']]} → 앞 사진을 이어서 씀. 이유: {r.get('error', '')[:200]}")
 
 
 def build(j: jobmod.Job, voice_provider: str | None = None, images_provider: str | None = None,

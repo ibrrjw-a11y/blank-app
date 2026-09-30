@@ -28,7 +28,20 @@ STYLE = ("Photorealistic smartphone photo, natural light, everyday life in South
 
 
 class ImageError(RuntimeError):
-    pass
+    def __init__(self, msg: str, retry_after: float | None = None, fatal: bool = False):
+        super().__init__(msg)
+        self.retry_after = retry_after  # 몇 초 뒤 다시 하면 되는 오류 (분당 한도 등)
+        self.fatal = fatal              # 다시 해도 소용없는 오류 (키·결제·모델 이름)
+
+
+def _sleep(sec: float) -> None:  # 테스트에서 바꿔 끼움
+    import time
+    time.sleep(sec)
+
+
+def _gemini_retry_delay(text: str) -> float:
+    m = re.search(r'"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"', text)
+    return float(m.group(1)) + 1 if m else 30.0
 
 
 # ------------------------------------------------------------------ 어떤 줄에 그릴지
@@ -103,7 +116,7 @@ def write_prompts(lines: list[str], deal: dict) -> tuple[list[str], str]:
 def _gemini(prompt: str) -> bytes:
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
-        raise ImageError("GEMINI_API_KEY 가 .env 에 없습니다")
+        raise ImageError("GEMINI_API_KEY 가 .env 에 없습니다", fatal=True)
     model = config.get("images.gemini_model", "gemini-2.5-flash-image")
     r = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
@@ -112,18 +125,25 @@ def _gemini(prompt: str) -> bytes:
               "generationConfig": {"responseModalities": ["IMAGE"], "imageConfig": {"aspectRatio": "4:3"}}},
         timeout=120,
     )
+    if r.status_code == 429 or (r.status_code != 200 and "RESOURCE_EXHAUSTED" in r.text):
+        if re.search(r"limit:\s*0\b", r.text) or "billing" in r.text.lower():
+            raise ImageError("Gemini 429 → 이 키는 이미지 생성 한도가 0이에요 (무료 등급). Google AI Studio 에서 결제를 "
+                             "등록하거나, 작업 화면 'AI 이미지'에서 '무료(pollinations)'를 고르세요: " + r.text[:200],
+                             fatal=True)
+        raise ImageError(f"Gemini 429 (분당 한도, 잠깐 쉬고 다시): {r.text[:150]}",
+                         retry_after=_gemini_retry_delay(r.text))
     if r.status_code != 200:
-        hint = ""
-        if r.status_code == 429 or "RESOURCE_EXHAUSTED" in r.text:
-            hint = (" → Gemini 무료 키는 이미지 생성 한도가 0이거나 금방 차요. Google AI Studio 에서 결제를 등록하거나, "
-                    "작업 화면 'AI 이미지'에서 '무료(pollinations)'를 고르세요")
-        elif r.status_code in (400, 403) and ("API key" in r.text or "PERMISSION" in r.text):
+        hint, fatal = "", True
+        if r.status_code in (400, 403) and ("API key" in r.text or "PERMISSION" in r.text):
             hint = " → GEMINI_API_KEY 가 틀렸거나 이 키로 Gemini API 를 쓸 수 없어요"
         elif r.status_code == 404:
             hint = " → config.yaml 의 images.gemini_model 이름이 바뀌었을 수 있어요"
         elif "location" in r.text.lower() and "not supported" in r.text.lower():
             hint = " → 이 지역에서는 이 모델을 못 써요"
-        raise ImageError(f"Gemini {r.status_code}{hint}: {r.text[:300]}")
+        else:
+            fatal = False
+        raise ImageError(f"Gemini {r.status_code}{hint}: {r.text[:300]}", fatal=fatal,
+                         retry_after=10 if r.status_code >= 500 else None)
     for cand in r.json().get("candidates", []):
         for part in cand.get("content", {}).get("parts", []):
             data = (part.get("inlineData") or part.get("inline_data") or {}).get("data")
@@ -135,7 +155,7 @@ def _gemini(prompt: str) -> bytes:
 def _openai(prompt: str) -> bytes:
     key = os.environ.get("OPENAI_API_KEY")
     if not key:
-        raise ImageError("OPENAI_API_KEY 가 .env 에 없습니다")
+        raise ImageError("OPENAI_API_KEY 가 .env 에 없습니다", fatal=True)
     r = requests.post(
         "https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {key}"},
@@ -143,8 +163,10 @@ def _openai(prompt: str) -> bytes:
               "size": "1536x1024", "n": 1},
         timeout=180,
     )
+    if r.status_code == 429:
+        raise ImageError(f"OpenAI 429: {r.text[:200]}", retry_after=float(r.headers.get("retry-after", 20)))
     if r.status_code != 200:
-        raise ImageError(f"OpenAI {r.status_code}: {r.text[:300]}")
+        raise ImageError(f"OpenAI {r.status_code}: {r.text[:300]}", fatal=r.status_code in (401, 403))
     return base64.b64decode(r.json()["data"][0]["b64_json"])
 
 
@@ -156,8 +178,10 @@ def _pollinations(prompt: str) -> bytes:
                      params={"width": 1024, "height": 768, "nologo": "true", "seed": random.randint(1, 10**6),
                              "model": config.get("images.pollinations_model", "flux")},
                      timeout=180)
+    if r.status_code == 429:
+        raise ImageError("pollinations 429 (잠깐 쉬고 다시)", retry_after=15)
     if r.status_code != 200 or not r.headers.get("content-type", "").startswith("image"):
-        raise ImageError(f"pollinations {r.status_code}: {r.text[:200]}")
+        raise ImageError(f"pollinations {r.status_code}: {r.text[:200]}", retry_after=5)
     return r.content
 
 
@@ -165,7 +189,8 @@ PROVIDERS = {"gemini": _gemini, "openai": _openai, "pollinations": _pollinations
 
 
 def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: bool = False,
-             mode: str | None = None) -> dict:
+             mode: str | None = None, log=None) -> dict:
+    say = log or (lambda m: None)
     provider = provider or config.get("images.provider", "gemini")
     if provider == "none":
         return {"provider": "none", "made": 0}
@@ -183,17 +208,33 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
     log_path = out_dir / "prompts.json"
     log = json.loads(log_path.read_text(encoding="utf-8")) if log_path.exists() else {}
     made, failed, last_err = 0, [], ""
-    for (i, text), prompt in zip(todo, prompts):
+    stop = False
+    for n, ((i, text), prompt) in enumerate(zip(todo, prompts), 1):
+        say(f"  {n}/{len(todo)} · {i + 1}번째 줄: {text[:24]}")
+        if stop:
+            failed.append(i)
+            continue
         data = None
-        for attempt in range(3):  # 일시 오류·안전 필터 대비 최대 3번
+        for attempt in range(6):  # 분당 한도(429)는 기다렸다 다시, 일시 오류도 다시
             try:
                 data = fn(prompt)
                 break
-            except (ImageError, requests.RequestException) as e:
-                err = last_err = str(e)
-                job.log(f"이미지 {i}줄 실패({attempt + 1}/3): {err}")
-                if "API_KEY" in err or "→" in err:  # 키·한도 문제는 재시도해도 소용없음
-                    raise ImageError(err)
+            except requests.RequestException as e:
+                last_err = f"네트워크: {e}"
+                job.log(f"이미지 {i}줄 실패({attempt + 1}/6): {last_err}")
+                _sleep(3)
+            except ImageError as e:
+                last_err = str(e)
+                job.log(f"이미지 {i}줄 실패({attempt + 1}/6): {last_err}")
+                if e.fatal:
+                    if made == 0:
+                        raise
+                    stop = True  # 이미 만든 건 살리고 나머지는 앞 사진으로
+                    break
+                wait = min(e.retry_after or 3, 90)
+                if e.retry_after and e.retry_after >= 5:
+                    say(f"    분당 한도 → {int(wait)}초 기다렸다 다시")
+                _sleep(wait)
         if data is None:
             failed.append(i)
             continue

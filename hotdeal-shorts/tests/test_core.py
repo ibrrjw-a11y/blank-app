@@ -571,3 +571,33 @@ def test_apply_photos_places_user_photos_per_line(tmp_path, monkeypatch):
     assert (tmp_path / "product.jpg").exists()
     px = Image.open(tmp_path / "images" / "line_000.jpg").getpixel((20, 15))
     assert px[1] > 200 and px[0] < 50  # 2번(초록) 사진
+
+
+def test_image_rate_limit_waits_and_continues(tmp_path, monkeypatch):
+    import json
+    from hotdeal_shorts import images, job as jobmod, scenes
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    (tmp_path / "deal.json").write_text(json.dumps({"name": "티슈"}), encoding="utf-8")
+    j = jobmod.Job(tmp_path)
+    scs = scenes.parse("코 풀려는데 티슈 없음\n감기 걸린 날\n휴지 대신 두루마리\n마지막 줄")
+    calls, slept = {"n": 0}, []
+
+    def flaky(prompt):
+        calls["n"] += 1
+        if calls["n"] in (2, 3):  # 두 번째 장에서 분당 한도 두 번
+            raise images.ImageError("Gemini 429", retry_after=31)
+        return b"\x89PNG fake"
+
+    monkeypatch.setitem(images.PROVIDERS, "gemini", flaky)
+    monkeypatch.setattr(images, "_sleep", slept.append)
+    r = images.generate(j, scs, "gemini")
+    assert r["made"] == 4 and not r["failed"] and slept == [31, 31]  # 포기하지 않고 기다렸다 계속
+
+    def no_quota(prompt):
+        raise images.ImageError("limit 0", fatal=True)
+    monkeypatch.setitem(images.PROVIDERS, "gemini", no_quota)
+    try:
+        images.generate(j, scs, "gemini", force=True)
+        raise AssertionError
+    except images.ImageError as e:
+        assert e.fatal
