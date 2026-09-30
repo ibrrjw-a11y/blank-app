@@ -183,3 +183,111 @@ class Coupang:
     def deeplink(self, urls: list[str]) -> dict[str, str]:
         data = self._call("POST", "/deeplink", body={"coupangUrls": urls, "subId": self.sub_id}) or []
         return {d["originalUrl"]: d["shortenUrl"] for d in data}
+
+
+# ---------------------------------------------------------------- 토스쇼핑 쉐어링크
+# Open API: 결제 금액의 10% 수익. 링크 클릭 후 24시간 안 결제분이 집계된다.
+# 구조 출처: 쉐어링크 Open API 를 사용하는 공개 구현 (공식 문서 https://sharelink-docs.toss.im 로 최종 확인 권장)
+
+TOSS_API = "https://sharelink.toss.im/openapi/"
+TOSS_TOKEN_URL = "https://oauth2.cert.toss.im/token"
+
+
+class TossError(RuntimeError):
+    pass
+
+
+class Toss:
+    def __init__(self):
+        self.access = os.environ.get("TOSS_ACCESS_KEY")
+        self.secret = os.environ.get("TOSS_SECRET_KEY")
+        self.publisher = os.environ.get("TOSS_PUBLISHER_ID")
+        if not (self.access and self.secret and self.publisher):
+            raise TossError("TOSS_ACCESS_KEY / TOSS_SECRET_KEY / TOSS_PUBLISHER_ID 가 .env 에 없습니다. "
+                            "키가 없으면 쉐어링크 사이트에서 링크를 복사해 CSV 의 affiliate_url 에 넣으세요.")
+        self.token_file = config.data_dir() / "toss_token.json"
+
+    # 토큰은 약 1년 유효. 매번 재발급하면 제한되므로 파일에 저장해 재사용한다.
+    def _token(self, refresh: bool = False) -> str:
+        import json
+        if not refresh and self.token_file.exists():
+            saved = json.loads(self.token_file.read_text(encoding="utf-8"))
+            if saved.get("expires_at", 0) - 7 * 86400 > time.time():
+                return saved["access_token"]
+        r = requests.post(TOSS_TOKEN_URL, timeout=20, data={
+            "grant_type": "client_credentials", "client_id": self.access, "client_secret": self.secret,
+            "scope": "sharelink:read sharelink:write"})
+        if r.status_code != 200 or not r.json().get("access_token"):
+            raise TossError(f"토스 토큰 발급 실패 (HTTP {r.status_code}): {r.text[:200]}")
+        data = r.json()
+        self.token_file.write_text(json.dumps({
+            "access_token": data["access_token"],
+            "expires_at": time.time() + int(data.get("expires_in", 0))}), encoding="utf-8")
+        return data["access_token"]
+
+    def _call(self, method: str, path: str, params: dict | None = None, body: dict | None = None, _retry=True):
+        r = requests.request(method, TOSS_API + path, params=params, json=body, timeout=20,
+                             headers={"Authorization": f"Bearer {self._token()}"})
+        if r.status_code == 401 and _retry:  # 토큰 만료 → 한 번만 재발급
+            self._token(refresh=True)
+            return self._call(method, path, params, body, _retry=False)
+        try:
+            env = r.json()
+        except ValueError:
+            raise TossError(f"토스 API 응답 형식 아님 (HTTP {r.status_code}): {r.text[:200]}")
+        # HTTP 200 이어도 resultType 이 SUCCESS 가 아니면 실패
+        if env.get("resultType") != "SUCCESS":
+            err = env.get("error") or {}
+            raise TossError(f"토스 API 실패 (HTTP {r.status_code}, {err.get('errorCode')}): {err.get('reason')}")
+        return env.get("success") or {}
+
+    @staticmethod
+    def _to_deal(p: dict, category: str) -> dict:
+        pct = p.get("discountRate")
+        if pct is not None and 0 < float(pct) <= 1:  # 0.35 형태로 올 경우 대비
+            pct = float(pct) * 100
+        return normalize({
+            "source": "toss",
+            "source_id": str(p.get("tacaItemId")),
+            "name": p.get("displayName", ""),
+            "price": p.get("displayPrice"),
+            "original_price": p.get("originalPrice"),
+            "discount_pct": pct,
+            "url": p.get("productUrl"),        # 추적 없는 일반 링크. 수익 링크는 작업 만들 때 발급
+            "image_url": p.get("imageUrl") or p.get("thumbnailUrl"),
+            "reviews": p.get("reviewCount"),
+            "rating": p.get("reviewScore"),
+            "category": category,
+            "ends_at": p.get("endAt"),
+            "evergreen": 1 if category == "토스 베스트" else 0,
+        })
+
+    def _list(self, path: str, size: int, category: str) -> list[dict]:
+        items = self._call("GET", path, {"size": size}).get("items", [])
+        return [self._to_deal(p, category) for p in items if not p.get("isSoldOut")]
+
+    def best(self, size: int = 50) -> list[dict]:
+        return self._list("products/best-selling", size, "토스 베스트")
+
+    def today_deals(self, size: int = 30) -> list[dict]:
+        return self._list("products/today-deals", size, "토스 하루특가")
+
+    def link(self, taca_item_id: str) -> str:
+        """쉐어링크 발급. 같은 상품을 다시 요청하면 기존 링크가 오고 한도를 쓰지 않는다."""
+        out = self._call("POST", "links", body={"tacaItemId": int(taca_item_id), "publisherId": self.publisher})
+        url = out.get("shortUrl") or out.get("originUrl")
+        if not url:
+            raise TossError("토스가 링크를 돌려주지 않음")
+        return url
+
+
+def affiliate_source(deal: dict) -> str:
+    """제휴 고지 문구를 고르기 위한 판매처 판별."""
+    if deal.get("source") in ("coupang", "toss"):
+        return deal["source"]
+    link = f"{deal.get('affiliate_url') or ''} {deal.get('url') or ''}"
+    if "coupang" in link:
+        return "coupang"
+    if "toss" in link:
+        return "toss"
+    return "default"

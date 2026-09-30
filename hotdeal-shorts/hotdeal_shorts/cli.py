@@ -6,6 +6,7 @@ import shutil
 from pathlib import Path
 from typing import Optional
 
+import requests
 import typer
 
 from . import config, db, deals, images, job as jobmod, metrics, publish, render, script, voice
@@ -55,6 +56,8 @@ def doctor():
     echo(f"Claude 대본    {ok(os.environ.get('ANTHROPIC_API_KEY'))}  (없으면 템플릿 대본)")
     echo(f"쿠팡파트너스   {ok(os.environ.get('COUPANG_ACCESS_KEY') and os.environ.get('COUPANG_SECRET_KEY'))}"
          "  (없으면 CSV 수동 입력)")
+    toss_ok = all(os.environ.get(k) for k in ("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID"))
+    echo(f"토스 쉐어링크  {ok(toss_ok)}  (없으면 CSV 수동 입력)")
     echo(f"YouTube API    {ok(os.environ.get('YOUTUBE_API_KEY'))}  (없으면 CSV 수동 입력)")
     img = config.get("images.provider", "gemini")
     key = {"gemini": "GEMINI_API_KEY", "openai": "OPENAI_API_KEY"}.get(img)
@@ -108,6 +111,22 @@ def deals_coupang(goldbox: bool = typer.Option(False, "--goldbox", help="골드�
     echo(f"✓ {len(items)}건 저장")
 
 
+@deals_app.command("toss")
+def deals_toss(best: bool = typer.Option(False, "--best", help="토스 베스트 (1시간마다 갱신, 상시형)"),
+               today: bool = typer.Option(False, "--today", help="토스 하루특가 (그날만)"),
+               size: int = 30):
+    """토스쇼핑 쉐어링크 API로 딜 가져오기 (수익 링크는 hd new 할 때 발급)."""
+    if not (best or today):
+        fail("--best 또는 --today 를 지정하세요")
+    try:
+        t = deals.Toss()
+        items = (t.best(size) if best else []) + (t.today_deals(size) if today else [])
+    except (deals.TossError, requests.RequestException) as e:
+        fail(str(e))
+    _save_deals(items)
+    echo(f"✓ {len(items)}건 저장")
+
+
 @deals_app.command("list")
 def deals_list(top: int = 20, all_: bool = typer.Option(False, "--all", help="탈락 포함")):
     """점수순 딜 후보."""
@@ -138,6 +157,15 @@ def _new_job(deal_id: int, hook: Optional[str], extra: str) -> jobmod.Job:
         dup = conn.execute("SELECT job FROM videos WHERE deal_id=?", (deal_id,)).fetchone()
     if dup:
         typer.secho(f"! 같은 딜로 만든 영상이 이미 있음: {dup['job']} (재사용 소재 주의)", fg="yellow")
+    if deal["source"] == "toss" and not deal.get("affiliate_url"):
+        # 토스는 영상으로 만들 상품에만 수익 링크를 발급 (발급 한도 절약)
+        try:
+            deal["affiliate_url"] = deals.Toss().link(deal["source_id"])
+            with db.connect() as conn:
+                conn.execute("UPDATE deals SET affiliate_url=? WHERE id=?", (deal["affiliate_url"], deal_id))
+            echo(f"✓ 토스 쉐어링크 발급: {deal['affiliate_url']}")
+        except deals.TossError as e:
+            typer.secho(f"! 토스 링크 발급 실패, 나중에 deal.json 의 affiliate_url 을 채우세요: {e}", fg="yellow")
     j = jobmod.create(deal)
     s, provider = script.generate(deal, hook, extra)
     j.p("script.md").write_text(script.to_markdown(s), encoding="utf-8")

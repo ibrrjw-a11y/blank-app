@@ -25,6 +25,7 @@ hd deals template                 # deals.csv 양식 생성 → 핫딜 게시판
 hd deals import deals.csv
 hd deals coupang --goldbox        # 쿠팡파트너스 키가 있으면: 오늘의 특가 + 수익 링크 자동
 hd deals coupang --search "무선 청소기"
+hd deals toss --best              # 토스쇼핑 쉐어링크 키가 있으면: 토스 베스트(상시형) / --today 하루특가
 
 hd deals list                     # 점수순 후보 (할인율·가격대·리뷰 수·상시형 여부로 채점, 탈락 사유 표시)
 
@@ -130,7 +131,7 @@ jobs/20260929_무선핸디청소기/
 | `voice.provider` | `edge` | 무료 MS 음성(인터넷 필요). `espeak` 은 오프라인 테스트용(기계음), `manual` 은 파일 직접 넣기 |
 | `script.provider` | `claude` | `ANTHROPIC_API_KEY` 가 없으면 자동으로 템플릿 대본 (사람이 채워야 함) |
 | `deals.min_discount_pct` | 30 | |
-| `publish.disclosure` | 쿠팡 파트너스 문구 | **비우면 제작 거부** (공정위 경제적 이해관계 표시 의무) |
+| `publish.disclosures` | 쿠팡 / 토스 / 기타 판매처별 문구 | 링크 주소로 판매처를 판별해 자동 선택. **비우면 제작 거부** (공정위 경제적 이해관계 표시 의무) |
 
 ## 안전장치
 
@@ -146,6 +147,7 @@ jobs/20260929_무선핸디청소기/
 |---|---|---|
 | Claude 대본 생성 | 구현 (구조화 출력, 거절 시 자동 대체 모델) | 템플릿 대본 |
 | 쿠팡파트너스 (골드박스·검색·딥링크) | 구현, **실제 키로 첫 호출 확인 필요** | CSV |
+| 토스쇼핑 쉐어링크 (베스트·하루특가·링크 발급, 수익 10%) | 구현, **실제 키로 첫 호출 확인 필요**. 수익 링크는 `hd new` 때 그 상품만 발급 | CSV (쉐어링크 사이트에서 복사한 링크를 affiliate_url 에) |
 | YouTube Data API (조회수·댓글) | 구현, **실제 키로 첫 호출 확인 필요** | CSV |
 | edge-tts 음성 (대본 전체 한 번에 합성, 단어 시각으로 자막 정렬) | 구현, **실제 호출 확인 필요** | `hd voice setup-offline` 후 sherpa(오프라인 AI 음성) / 파일 |
 | Gemini / OpenAI 이미지 생성 | 구현 (응답 처리는 가짜 서버로 테스트), **실제 키로 첫 호출 확인 필요** | 상품 사진 |

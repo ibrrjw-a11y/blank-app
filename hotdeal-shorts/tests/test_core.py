@@ -216,3 +216,57 @@ def test_generate_writes_files_and_skips_existing(monkeypatch, tmp_path):
     assert (tmp_path / "images" / "line_000.png").exists() and not (tmp_path / "images" / "line_002.png").exists()
     assert images.generate(job, scs, "gemini")["made"] == 0  # 이미 있으면 건너뜀
     assert images.generate(job, scs, "gemini", force=True)["made"] == 2
+
+
+def test_toss_sharelink_client(monkeypatch, tmp_path):
+    from hotdeal_shorts import deals
+    monkeypatch.setenv("HD_HOME", str(tmp_path))
+    for k, v in {"TOSS_ACCESS_KEY": "ak", "TOSS_SECRET_KEY": "sk", "TOSS_PUBLISHER_ID": "pub"}.items():
+        monkeypatch.setenv(k, v)
+
+    class Resp:
+        def __init__(self, status, body): self.status_code, self._b, self.text = status, body, str(body)
+        def json(self): return self._b
+
+    calls = {"token": 0, "api": []}
+
+    def fake_post(url, data=None, timeout=None):
+        calls["token"] += 1
+        assert data["grant_type"] == "client_credentials" and data["scope"] == "sharelink:read sharelink:write"
+        return Resp(200, {"access_token": f"tok{calls['token']}", "expires_in": 31_000_000})
+
+    def fake_request(method, url, params=None, json=None, timeout=None, headers=None):
+        calls["api"].append((method, url, params, json, headers["Authorization"]))
+        if url.endswith("best-selling"):
+            return Resp(200, {"resultType": "SUCCESS", "success": {"items": [
+                {"tacaItemId": 11, "displayName": "세제", "displayPrice": 18900, "originalPrice": 32000,
+                 "discountRate": 41, "reviewCount": 1520, "reviewScore": 4.8, "productUrl": "https://toss.im/p/11"},
+                {"tacaItemId": 12, "displayName": "품절템", "isSoldOut": True}]}})
+        if url.endswith("links"):
+            return Resp(200, {"resultType": "SUCCESS", "success": {"shortUrl": "https://toss.im/_s/abc"}})
+        return Resp(200, {"resultType": "FAIL", "error": {"errorCode": "SHARELINK_OPENAPI_QUOTA_EXCEEDED",
+                                                         "reason": "한도 초과"}})
+
+    monkeypatch.setattr(deals.requests, "post", fake_post)
+    monkeypatch.setattr(deals.requests, "request", fake_request)
+    t = deals.Toss()
+    best = t.best(10)
+    assert [d["name"] for d in best] == ["세제"] and best[0]["source"] == "toss"
+    assert best[0]["discount_pct"] == 41 and best[0]["reviews"] == 1520 and best[0]["evergreen"] == 1
+    assert t.link("11") == "https://toss.im/_s/abc"
+    assert calls["api"][-1][3] == {"tacaItemId": 11, "publisherId": "pub"}
+    assert calls["token"] == 1  # 토큰은 파일에 저장해 재사용
+    assert deals.Toss().best(1) and calls["token"] == 1
+    try:
+        t.today_deals()
+        raise AssertionError("FAIL 응답은 예외여야 함")
+    except deals.TossError as e:
+        assert "QUOTA_EXCEEDED" in str(e)
+
+
+def test_affiliate_source_picks_disclosure():
+    from hotdeal_shorts.deals import affiliate_source
+    assert affiliate_source({"source": "toss"}) == "toss"
+    assert affiliate_source({"source": "manual", "affiliate_url": "https://link.coupang.com/a/x"}) == "coupang"
+    assert affiliate_source({"source": "manual", "url": "https://toss.im/_s/abc"}) == "toss"
+    assert affiliate_source({"source": "manual", "url": "https://smartstore.naver.com/x"}) == "default"

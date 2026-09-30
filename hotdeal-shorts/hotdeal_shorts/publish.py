@@ -11,9 +11,11 @@ from .script import Script, read_scenes
 def build(job: Job, s: Script, render_info: dict | None = None) -> dict:
     deal = job.deal
     link = deal.get("affiliate_url") or deal.get("url") or "(제휴 링크를 여기에)"
-    disclosure = config.get("publish.disclosure")
+    from .deals import affiliate_source
+    src = affiliate_source(deal)
+    disclosure = (config.get("publish.disclosures") or {}).get(src) or config.get("publish.disclosure")
     if not disclosure:
-        raise ValueError("config.yaml 의 publish.disclosure(제휴 고지 문구)가 비어 있어 진행할 수 없습니다.")
+        raise ValueError(f"config.yaml 의 publish.disclosures.{src}(제휴 고지 문구)가 비어 있어 진행할 수 없습니다.")
     notice = config.get("publish.price_notice", "").format(checked_at=deal.get("checked_at", ""))
     tags = " ".join(config.get("publish.hashtags", []))
     price = f"{int(deal['price']):,}원" if deal.get("price") else ""
