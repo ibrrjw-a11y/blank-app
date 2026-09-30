@@ -12,8 +12,10 @@ import subprocess
 from pathlib import Path
 
 import numpy as np
+import requests
 
 from . import audio, config
+from . import tts_providers
 from .korean_num import to_speech
 from .job import Job
 
@@ -165,7 +167,27 @@ def _sherpa(text: str, out: Path) -> None:
         w.writeframes(y.tobytes())
 
 
-PROVIDERS = {"edge": _edge, "sherpa": _sherpa, "espeak": _espeak}
+def _cloud(fn):
+    """클라우드 TTS 오류를 TTSError 로 바꿔 build 가 깔끔하게 멈추게 한다."""
+    def run(text: str, out: Path):
+        try:
+            return fn(text, out)
+        except (tts_providers.CloudTTSError, requests.RequestException) as e:
+            raise TTSError(str(e)) from e
+    return run
+
+
+PROVIDERS = {"edge": _edge, "sherpa": _sherpa, "espeak": _espeak,
+             **{k: _cloud(f) for k, f in tts_providers.LINE.items()}}
+# 대본 전체를 한 번에 합성 + 단어 시각을 주는 프로바이더 (억양이 자연스럽게 이어짐)
+WHOLE = {"edge": _edge_stream, **{k: _cloud(f) for k, f in tts_providers.WHOLE.items()}}
+
+
+def voice_key(provider: str) -> str:
+    """캐시 키: 프로바이더와 그 목소리 설정이 바뀌면 다시 합성."""
+    c = config.get("voice") or {}
+    detail = c.get(provider) if isinstance(c.get(provider), dict) else {}
+    return json.dumps([provider, c.get("edge_voice"), c.get("rate"), detail], sort_keys=True, ensure_ascii=False)
 
 
 # ------------------------------------------------------------------ 합성
@@ -185,8 +207,8 @@ def synthesize(job: Job, lines: list[str], provider: str | None = None) -> dict:
             raise TTSError(f"manual 모드: {job.path}/voice_raw.mp3 (또는 .wav) 파일을 넣고 다시 실행하세요.")
         return _from_single_file(job, lines, manual[0], db, pad, tail)
 
-    if provider == "edge" and config.get("voice.whole_script", True):
-        res = _edge_whole(job, lines, tail)
+    if provider in WHOLE and config.get("voice.whole_script", True):
+        res = _whole(job, lines, tail, provider)
         if res:
             return res
         job.log("단어 시각이 대본과 맞지 않아 줄 단위 합성으로 전환")
@@ -199,9 +221,9 @@ def synthesize(job: Job, lines: list[str], provider: str | None = None) -> dict:
     raw_total, cuts_total = 0.0, 0
     for i, line in enumerate(lines):
         # 대본·목소리 설정이 바뀌면 다시 합성, 같으면 재사용
-        key = f"v2|{provider}|{config.get('voice.edge_voice')}|{config.get('voice.rate')}|{line}"
+        key = f"v3|{voice_key(provider)}|{line}"
         h = hashlib.sha1(key.encode()).hexdigest()[:8]
-        src = tmp / f"line_{i:03d}_{h}.{'mp3' if provider == 'edge' else 'wav'}"
+        src = tmp / f"line_{i:03d}_{h}.{'wav' if provider in ('sherpa', 'espeak') else 'mp3'}"
         if not src.exists():
             fn(to_speech(_speakable(line)), src)
         wav = tmp / f"line_{i:03d}_{h}_n.wav"
@@ -248,15 +270,15 @@ def _from_single_file(job: Job, lines: list[str], src: Path, db: float, pad: flo
     return stats
 
 
-def _edge_whole(job: Job, lines: list[str], tail: float) -> dict | None:
-    key = f"{config.get('voice.edge_voice')}|{config.get('voice.rate')}|" + "\n".join(lines)
+def _whole(job: Job, lines: list[str], tail: float, provider: str) -> dict | None:
+    key = voice_key(provider) + "|" + "\n".join(lines)
     h = hashlib.sha1(key.encode()).hexdigest()[:8]
     src = job.p("voice_parts", f"whole_{h}.mp3")
     meta = job.p("voice_parts", f"whole_{h}.json")
     if src.exists() and meta.exists():
         words = json.loads(meta.read_text(encoding="utf-8"))
     else:
-        words = _edge_stream(" ".join(to_speech(_speakable(ln)) for ln in lines), src)
+        words = WHOLE[provider](" ".join(to_speech(_speakable(ln)) for ln in lines), src)
         meta.write_text(json.dumps(words, ensure_ascii=False), encoding="utf-8")
     spans = map_words_to_lines([to_speech(ln) for ln in lines], words)
     if spans is None:
@@ -273,7 +295,7 @@ def _edge_whole(job: Job, lines: list[str], tail: float) -> dict | None:
     audio.write_wav(job.p("voice.wav"), out)
     align = [{"idx": i, "text": ln, "start": round(a - lead, 3), "end": round(b - lead, 3)}
              for i, (ln, (a, b)) in enumerate(zip(lines, spans))]
-    stats = {"provider": "edge(whole)", "raw_sec": round(len(x) / audio.SR + lead, 2),
+    stats = {"provider": f"{provider}(whole)", "raw_sec": round(len(x) / audio.SR + lead, 2),
              "final_sec": round(len(out) / audio.SR, 2), "cuts": 0, "lines": len(lines)}
     job.p("align.json").write_text(json.dumps({"lines": align, "stats": stats}, ensure_ascii=False, indent=2),
                                    encoding="utf-8")

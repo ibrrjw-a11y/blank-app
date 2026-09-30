@@ -303,3 +303,82 @@ def test_capcut_export_structure(monkeypatch, tmp_path):
     assert abs(d["duration"] / 1e6 - 4.0) < 0.01
     assert all((out / "materials").joinpath(p.split("/")[-1]).exists() for p in
                [m["path"].replace("\\", "/") for m in d["materials"]["videos"]])
+
+
+def _mp3_bytes(sec=3.0):
+    import subprocess
+    return subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "lavfi", "-i", f"sine=frequency=300:duration={sec}",
+                           "-f", "mp3", "-"], capture_output=True, check=True).stdout
+
+
+def test_cloud_tts_request_shapes(monkeypatch, tmp_path):
+    import base64
+    from hotdeal_shorts import config, tts_providers as tp
+
+    class Resp:
+        def __init__(self, body=None, content=b""): self.status_code, self._b, self.content, self.text = 200, body, content, ""
+        def json(self): return self._b
+
+    mp3 = _mp3_bytes(1)
+    calls = []
+
+    def fake_post(url, json=None, params=None, timeout=None, headers=None):
+        calls.append((url, json, params, headers))
+        if "with-timestamps" in url and "typecast" in url:
+            return Resp({"audio": base64.b64encode(mp3).decode(), "audio_format": "mp3", "audio_duration": 1,
+                         "words": [{"text": "안녕", "start": 0.1, "end": 0.4}]})
+        if "with-timestamps" in url:
+            return Resp({"audio_base64": base64.b64encode(mp3).decode(), "alignment": {
+                "characters": list("안녕 하세요"), "character_start_times_seconds": [0, .1, .2, .3, .4, .5],
+                "character_end_times_seconds": [.1, .2, .3, .4, .5, .6]}})
+        if "googleapis" in url:
+            return Resp({"audioContent": base64.b64encode(mp3).decode()})
+        return Resp(content=mp3)
+
+    monkeypatch.setattr(tp.requests, "post", fake_post)
+    for k in ("TYPECAST_API_KEY", "ELEVENLABS_API_KEY", "OPENAI_API_KEY", "GOOGLE_TTS_API_KEY"):
+        monkeypatch.setenv(k, "k")
+    monkeypatch.setitem(config.cfg(), "voice", {"typecast": {"voice_id": "tc_1"}, "elevenlabs": {"voice_id": "el_1"}})
+
+    assert tp.typecast_whole("안녕", tmp_path / "a.mp3") == [{"text": "안녕", "start": 0.1, "end": 0.4}]
+    url, body, params, headers = calls[-1]
+    assert url.endswith("/v1/text-to-speech/with-timestamps") and params == {"granularity": "word"}
+    assert headers["X-API-KEY"] == "k" and body["voice_id"] == "tc_1" and body["language"] == "kor"
+    assert body["output"]["audio_format"] == "mp3"
+
+    assert tp.eleven_whole("안녕 하세요", tmp_path / "b.mp3") == [
+        {"text": "안녕", "start": 0, "end": .2}, {"text": "하세요", "start": .3, "end": .6}]
+    assert calls[-1][0].endswith("/text-to-speech/el_1/with-timestamps") and calls[-1][3]["xi-api-key"] == "k"
+
+    tp.openai_line("안녕", tmp_path / "c.mp3")
+    assert calls[-1][1]["model"] == "gpt-4o-mini-tts" and calls[-1][3]["Authorization"] == "Bearer k"
+    tp.google_line("안녕", tmp_path / "d.mp3")
+    assert calls[-1][1]["voice"]["languageCode"] == "ko-KR" and (tmp_path / "d.mp3").read_bytes() == mp3
+    monkeypatch.setitem(config.cfg(), "voice", {"typecast": {}})
+    try:
+        tp.typecast_line("x", tmp_path / "e.mp3")
+        raise AssertionError("voice_id 없으면 오류여야 함")
+    except tp.CloudTTSError as e:
+        assert "voice_id" in str(e)
+
+
+def test_whole_script_provider_gives_line_timings(monkeypatch, tmp_path):
+    import json
+    from hotdeal_shorts import config, voice
+    from hotdeal_shorts.job import Job
+    job = Job(tmp_path)
+    (tmp_path / "voice_parts").mkdir()
+    lines = ["차 안에 부스러기 보면", "세차장 가면 만 원인데"]
+
+    def fake_whole(text, out):
+        out.write_bytes(_mp3_bytes(3.5))
+        return [{"text": t, "start": s, "end": s + 0.3} for t, s in
+                [("차", 0.2), ("안에", 0.5), ("부스러기", 0.9), ("보면", 1.3),
+                 ("세차장", 1.9), ("가면", 2.3), ("만", 2.6), ("원인데", 2.8)]]
+
+    monkeypatch.setitem(voice.WHOLE, "typecast", fake_whole)
+    monkeypatch.setitem(config.cfg(), "voice", {"whole_script": True, "typecast": {"voice_id": "tc_1"}})
+    stats = voice.synthesize(job, lines, "typecast")
+    assert stats["provider"] == "typecast(whole)"
+    al = json.loads((tmp_path / "align.json").read_text(encoding="utf-8"))["lines"]
+    assert [round(a["start"], 2) for a in al] == [0.05, 1.75] and round(al[1]["end"], 2) == 2.95

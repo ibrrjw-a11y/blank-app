@@ -25,6 +25,23 @@ app.add_typer(metrics_app, name="metrics")
 app.add_typer(voice_app, name="voice")
 
 
+@voice_app.command("list")
+def voice_list(provider: str = typer.Argument(..., help="typecast | elevenlabs"), search: str = ""):
+    """쓸 수 있는 목소리 목록 → 고른 id 를 config.yaml 의 voice.<provider>.voice_id 에."""
+    from . import tts_providers
+    fn = tts_providers.VOICES.get(provider)
+    if fn is None:
+        fail("목록 조회는 typecast, elevenlabs 만 지원 (openai 는 alloy·nova 등 고정 이름, google 은 ko-KR-Neural2-A 등)")
+    try:
+        voices = fn()
+    except (tts_providers.CloudTTSError, requests.RequestException) as e:
+        fail(str(e))
+    for v in voices:
+        line = f"  {v['id']:<32} {v['name'] or '':<16} {v.get('gender') or '':<7} {v.get('age') or '':<12} {v.get('use_cases') or ''}"
+        if search in line:
+            echo(line)
+
+
 @voice_app.command("setup-offline")
 def voice_setup_offline():
     """인터넷 없이 쓰는 한국어 AI 음성 모델 내려받기 (config: voice.provider: sherpa)."""
@@ -52,7 +69,10 @@ def doctor():
         echo(f"한글 폰트      {typer.style('OK', fg='green')} {find_font()}")
     except FileNotFoundError as e:
         echo(f"한글 폰트      {typer.style('없음', fg='red')} {e}")
-    echo(f"TTS            {config.get('voice.provider')} (espeak 설치: {ok(shutil.which('espeak-ng'))})")
+    vp = config.get("voice.provider")
+    vkey = {"typecast": "TYPECAST_API_KEY", "elevenlabs": "ELEVENLABS_API_KEY", "openai": "OPENAI_API_KEY",
+            "google": "GOOGLE_TTS_API_KEY"}.get(vp)
+    echo(f"목소리         {vp}" + (f" 키 {ok(os.environ.get(vkey))}" if vkey else "  (무료)"))
     echo(f"Claude 대본    {ok(os.environ.get('ANTHROPIC_API_KEY'))}  (없으면 템플릿 대본)")
     echo(f"쿠팡파트너스   {ok(os.environ.get('COUPANG_ACCESS_KEY') and os.environ.get('COUPANG_SECRET_KEY'))}"
          "  (없으면 CSV 수동 입력)")
@@ -242,7 +262,7 @@ def script_regen(job_id: str, hook: Optional[str] = None, extra: str = ""):
 
 
 @app.command()
-def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual"),
+def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | typecast | elevenlabs | openai | google | sherpa | espeak | manual"),
           images_provider: Optional[str] = typer.Option(None, "--images", help="gemini | openai | none")):
     """승인된 대본 → 목소리 → 화면 → final.mp4 → 업로드 텍스트."""
     j = jobmod.load(job_id)
@@ -347,7 +367,7 @@ def demo(voice_provider: Optional[str] = typer.Option(None, "--voice", help="edg
 @app.command()
 def make(deal_id: int, hook: Optional[str] = None, extra: str = "",
          yes: bool = typer.Option(False, "--yes", help="대본 검사에 ERROR가 없으면 사람 승인 없이 바로 제작"),
-         voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual")):
+         voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | typecast | elevenlabs | openai | google | sherpa | espeak | manual")):
     """딜 번호 하나로 대본부터 영상까지 한 번에."""
     j = _new_job(deal_id, hook, extra)
     ok = _print_lint(j)

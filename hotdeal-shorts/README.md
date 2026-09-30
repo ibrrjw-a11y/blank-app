@@ -56,6 +56,22 @@ hd report                                  # 주간 리포트: 배수·진단·�
 
 **학습 루프**: 리포트의 훅 유형별 평균 배수가 다음 `hd new` 때 훅 선택 가중치로 쓰인다(20%는 무작위 탐색).
 
+## 목소리 바꾸기
+
+`config.yaml` 의 `voice.provider` 만 바꾸면 된다.
+
+| provider | 비용 | 특징 | 준비 |
+|---|---|---|---|
+| `edge` (기본) | 무료 | MS 음성. 대본 전체를 한 번에 읽어 억양이 자연스러움 | 없음 |
+| `typecast` | 유료 | 한국어 AI 성우, 쇼츠에서 가장 많이 씀. 감정·속도 조절. 대본 전체 한 번에 + 단어 시각 | `.env` 에 `TYPECAST_API_KEY`, `hd voice list typecast` 로 고른 id 를 `voice.typecast.voice_id` 에 |
+| `elevenlabs` | 유료 | 감정 표현 좋음, 목소리 복제. 대본 전체 한 번에 + 글자 시각 | `ELEVENLABS_API_KEY`, `hd voice list elevenlabs` → `voice.elevenlabs.voice_id` |
+| `openai` | 유료(저렴) | 말투를 문장으로 지시 가능 (`voice.openai.instructions`) | `OPENAI_API_KEY` |
+| `google` | 유료(저렴) | 안정적인 아나운서 톤 | `GOOGLE_TTS_API_KEY` |
+| `sherpa` / `espeak` | 무료 | 인터넷 없이 (품질 낮음) | `hd voice setup-offline` |
+| `manual` | - | 직접 녹음·다른 곳에서 만든 파일을 `voice_raw.mp3` 로 | - |
+
+한 번만 다른 목소리로 만들려면 `hd build <작업> --voice typecast`.
+
 ## 캡컷으로 넘겨서 손보기
 
 자동으로 만든 영상을 캡컷 프로젝트로 내보내서 효과음·전환·자막만 사람이 손본다.
@@ -166,6 +182,7 @@ jobs/20260929_무선핸디청소기/
 | 쿠팡파트너스 (골드박스·검색·딥링크) | 구현, **실제 키로 첫 호출 확인 필요** | CSV |
 | 토스쇼핑 쉐어링크 (베스트·하루특가·링크 발급, 수익 10%) | 구현, **실제 키로 첫 호출 확인 필요**. 수익 링크는 `hd new` 때 그 상품만 발급 | CSV (쉐어링크 사이트에서 복사한 링크를 affiliate_url 에) |
 | YouTube Data API (조회수·댓글) | 구현, **실제 키로 첫 호출 확인 필요** | CSV |
+| 타입캐스트 / 일레븐랩스 / OpenAI / 구글 음성 | 구현 (요청·응답 처리는 가짜 서버로 테스트), **실제 키로 첫 호출 확인 필요** | edge(무료) |
 | edge-tts 음성 (대본 전체 한 번에 합성, 단어 시각으로 자막 정렬) | 구현, **실제 호출 확인 필요** | `hd voice setup-offline` 후 sherpa(오프라인 AI 음성) / 파일 |
 | Gemini / OpenAI 이미지 생성 | 구현 (응답 처리는 가짜 서버로 테스트), **실제 키로 첫 호출 확인 필요** | 상품 사진 |
 | 유튜브 자동 업로드 | 아직 (OAuth 필요) | review.md 문구 복붙 |
