@@ -325,6 +325,26 @@ def capcut(job_id: str,
 
 
 @app.command()
+def demo(voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak"),
+         no_capcut: bool = typer.Option(False, "--no-capcut", help="캡컷 내보내기 생략")):
+    """설치 확인용: 샘플 딜 → 샘플 대본 → 영상 → 캡컷 초안까지 한 번에."""
+    root = Path(__file__).resolve().parent.parent / "samples"
+    items = deals.import_csv(root / "deals.csv")[:1]
+    _save_deals(items)
+    deal_id = items[0]["id"]
+    with db.connect() as conn:
+        deal = db.get_deal(conn, deal_id)
+    j = jobmod.create(deal, slug="demo")
+    shutil.copy(root / "demo_script.md", j.p("script.md"))
+    with db.connect() as conn:
+        conn.execute("INSERT OR REPLACE INTO videos (job, deal_id, title, hook_type) VALUES (?,?,?,?)",
+                     (j.id, deal_id, "세차장 사장님이 몰래 쓴다는 청소기", "상황공감"))
+    build(j.id, voice_provider, "none")
+    if not no_capcut:
+        capcut(j.id, None, False)
+
+
+@app.command()
 def make(deal_id: int, hook: Optional[str] = None, extra: str = "",
          yes: bool = typer.Option(False, "--yes", help="대본 검사에 ERROR가 없으면 사람 승인 없이 바로 제작"),
          voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | sherpa | espeak | manual")):
