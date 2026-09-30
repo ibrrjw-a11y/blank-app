@@ -201,9 +201,9 @@ def deals_list(top: int = 20, all_: bool = typer.Option(False, "--all", help="�
 
 # ================================================================== 제작
 
-def _new_job(deal_id: int, hook: Optional[str], extra: str) -> jobmod.Job:
+def _new_job(deal_id: int, hook: Optional[str], extra: str, channel: Optional[str] = None) -> jobmod.Job:
     try:
-        j = pipeline.new_job(deal_id, hook, extra, log=echo)
+        j = pipeline.new_job(deal_id, hook, extra, log=echo, channel=channel)
     except pipeline.PipelineError as e:
         fail(str(e))
     echo(f"  대본 파일: {j.p('script.md')}")
@@ -234,9 +234,10 @@ def _print_lint(j: jobmod.Job) -> bool:
 
 @app.command()
 def new(deal_id: int, hook: Optional[str] = typer.Option(None, help=f"훅 유형: {', '.join(script.HOOK_TYPES)}"),
-        extra: str = typer.Option("", help="대본에 추가로 요청할 것")):
+        extra: str = typer.Option("", help="대본에 추가로 요청할 것"),
+        channel: Optional[str] = typer.Option(None, help="채널 id (config.yaml 의 channels, 예: salim·tech·beauty)")):
     """딜로 작업을 만들고 대본 초안 생성 → 사람이 script.md 수정 후 `hd script approve`."""
-    j = _new_job(deal_id, hook, extra)
+    j = _new_job(deal_id, hook, extra, channel)
     _print_lint(j)
     echo(f"\n다음: script.md 를 다듬고 → `hd script approve {j.id}` → `hd build {j.id}`")
 
@@ -275,9 +276,12 @@ def script_regen(job_id: str, hook: Optional[str] = None, extra: str = ""):
 
 @app.command()
 def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | typecast | elevenlabs | openai | google | sherpa | espeak | manual"),
-          images_provider: Optional[str] = typer.Option(None, "--images", help="gemini | openai | none")):
+          images_provider: Optional[str] = typer.Option(None, "--images", help="gemini | openai | none"),
+          channel: Optional[str] = typer.Option(None, help="이 작업의 채널을 바꿔서 만들기 (salim·tech·beauty)")):
     """승인된 대본 → 목소리 → 화면 → final.mp4 → 업로드 텍스트."""
     j = jobmod.load(job_id)
+    if channel:
+        pipeline.set_channel(j, channel)
     _, approved = script.read(j.p("script.md"))
     if not approved:
         fail(f"대본 미승인. script.md 확인 후 `hd script approve {j.id}`")
@@ -351,7 +355,7 @@ def demo(voice_provider: Optional[str] = typer.Option(None, "--voice", help="edg
     with db.connect() as conn:
         conn.execute("INSERT OR REPLACE INTO videos (job, deal_id, title, hook_type) VALUES (?,?,?,?)",
                      (j.id, deal_id, "세차장 사장님이 몰래 쓴다는 청소기", "상황공감"))
-    build(j.id, voice_provider, "none")
+    build(j.id, voice_provider, "none", None)
     if not no_capcut:
         capcut(j.id, None, False)
 
@@ -359,9 +363,10 @@ def demo(voice_provider: Optional[str] = typer.Option(None, "--voice", help="edg
 @app.command()
 def make(deal_id: int, hook: Optional[str] = None, extra: str = "",
          yes: bool = typer.Option(False, "--yes", help="대본 검사에 ERROR가 없으면 사람 승인 없이 바로 제작"),
-         voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | typecast | elevenlabs | openai | google | sherpa | espeak | manual")):
+         voice_provider: Optional[str] = typer.Option(None, "--voice", help="edge | typecast | elevenlabs | openai | google | sherpa | espeak | manual"),
+         channel: Optional[str] = typer.Option(None, help="채널 id (salim·tech·beauty)")):
     """딜 번호 하나로 대본부터 영상까지 한 번에."""
-    j = _new_job(deal_id, hook, extra)
+    j = _new_job(deal_id, hook, extra, channel)
     ok = _print_lint(j)
     if not yes:
         echo(f"\n대본을 확인하세요: {j.p('script.md')}\n승인 후 `hd script approve {j.id}` → `hd build {j.id}`")
@@ -370,7 +375,7 @@ def make(deal_id: int, hook: Optional[str] = None, extra: str = "",
         fail("대본에 ERROR가 있어 자동 제작을 멈춤. script.md 수정 후 approve → build")
     script.set_approved(j.p("script.md"), True)
     j.mark("script", "approved", auto=True)
-    build(j.id, voice_provider)
+    build(j.id, voice_provider, None, None)
 
 
 # ================================================================== 영상·성과

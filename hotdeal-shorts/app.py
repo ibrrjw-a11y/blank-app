@@ -12,8 +12,8 @@ from PIL import Image
 
 os.environ.setdefault("HD_HOME", str(Path(__file__).resolve().parent))
 
-from hotdeal_shorts import (config, db, deals, job as jobmod, pipeline, scene_frames, scenes,  # noqa: E402
-                            script, themes)
+from hotdeal_shorts import (config, db, deals, job as jobmod, pipeline, profiles, scene_frames,  # noqa: E402
+                            scenes, script, themes)
 from hotdeal_shorts.frames import preview  # noqa: E402
 
 st.set_page_config(page_title="핫딜 쇼츠", page_icon="🔥", layout="wide")
@@ -46,7 +46,12 @@ SCENE_KINDS = ["게시글 (내 채널이 말하기)", "카톡 상황극"] + [f"�
 # ------------------------------------------------------------------ 미리보기 이미지 (한 번 만들어 재사용)
 
 @st.cache_data(show_spinner=False)
-def style_preview(kind: str) -> Image.Image:
+def style_preview(kind: str, channel: str | None = None) -> Image.Image:
+    with profiles.applied(channel):
+        return _style_preview(kind)
+
+
+def _style_preview(kind: str) -> Image.Image:
     base = scene_frames.chrome(1080, 1920, "제목이 들어가는 자리")
     if kind == "카톡 상황극":
         sc = scenes.parse("[kakao: 대화방]\n친구: 상대가 한 말\n나: 내가 한 말\n친구: 또 다른 말")[0]
@@ -58,9 +63,9 @@ def style_preview(kind: str) -> Image.Image:
     return img.crop((0, 300, 1080, 1500)).resize((270, 300))
 
 
-def theme_preview(j: jobmod.Job, name: str) -> Image.Image:
+def theme_preview(j: jobmod.Job, name: str | None, channel: str | None = None) -> Image.Image:
     s, _ = script.read(j.p("script.md"))
-    with themes.applied(name):
+    with profiles.applied(channel or j.state.get("channel")), themes.applied(name):
         img = preview(j, s)
     return img.crop((0, 0, 1080, 1500)).resize((216, 300))
 
@@ -132,14 +137,17 @@ def page_deals() -> None:
     options = {f"#{t['번호']} {t['상품명']} ({(t['할인가'] or 0):,}원)": t["번호"] for t in table}
     if not options:
         return
-    a, b, c = st.columns([3, 1, 1])
+    a, ch, b, c = st.columns([3, 1.3, 1, 1])
     pick = a.selectbox("영상으로 만들 딜", list(options))
+    chans = profiles.all_profiles()
+    channel = ch.selectbox("어느 채널용?", list(chans) or [None], format_func=lambda k: chans.get(k, {}).get("name", "기본"),
+                           index=list(chans).index(profiles.default_id()) if chans else 0)
     hook = b.selectbox("첫 문장(훅) 유형", ["자동"] + script.HOOK_TYPES)
     c.write("")
     if c.button("이 딜로 영상 만들기 →", type="primary"):
         logs = []
         try:
-            j = pipeline.new_job(options[pick], None if hook == "자동" else hook, log=logs.append)
+            j = pipeline.new_job(options[pick], None if hook == "자동" else hook, log=logs.append, channel=channel)
         except pipeline.PipelineError as e:
             st.error(str(e))
             return
@@ -236,16 +244,28 @@ def section_deal(j: jobmod.Job) -> None:
 
 
 def section_theme(j: jobmod.Job) -> None:
-    st.subheader("테마")
-    names = list(themes.THEMES)
-    cur = j.state.get("theme") or names[0]
-    cols = st.columns(len(names))
-    for c, n in zip(cols, names):
-        c.image(theme_preview(j, n), caption=n, width="stretch")
-    pick = st.radio("게시글형 화면 색", names, index=names.index(cur) if cur in names else 0, horizontal=True,
-                    label_visibility="collapsed")
-    if pick != j.state.get("theme"):
-        pipeline.set_theme(j, pick)
+    chans = profiles.all_profiles()
+    if chans:
+        st.subheader("채널")
+        ids = list(chans)
+        cur = j.state.get("channel") or profiles.default_id()
+        cols = st.columns(len(ids))
+        for c, cid in zip(cols, ids):
+            c.image(theme_preview(j, None, cid), caption=chans[cid].get("name"), width="stretch")
+        pick = st.radio("채널", ids, index=ids.index(cur) if cur in ids else 0, horizontal=True,
+                        format_func=lambda k: chans[k].get("name", k), label_visibility="collapsed")
+        if pick != j.state.get("channel"):
+            pipeline.set_channel(j, pick)
+    with st.expander("색 바꾸기 (선택 · 기본은 채널 색)"):
+        names = ["채널 기본"] + list(themes.THEMES)
+        cur_t = j.state.get("theme") or "채널 기본"
+        pick_t = st.radio("색", names, index=names.index(cur_t) if cur_t in names else 0, horizontal=True,
+                          label_visibility="collapsed")
+        chosen = None if pick_t == "채널 기본" else pick_t
+        if chosen != j.state.get("theme"):
+            pipeline.set_theme(j, chosen)
+        if chosen:
+            st.image(theme_preview(j, chosen), width=220)
 
 
 def section_script(j: jobmod.Job) -> None:
@@ -259,7 +279,8 @@ def section_script(j: jobmod.Job) -> None:
     with st.expander("장면 추가 · 레이아웃 고르기"):
         kind = st.selectbox("장면 종류", SCENE_KINDS, key=f"kind_{j.id}")
         a, b = st.columns([1, 2])
-        a.image(style_preview(kind) if kind != SCENE_KINDS[0] else theme_preview(j, j.state.get("theme") or "노랑"),
+        a.image(style_preview(kind, j.state.get("channel")) if kind != SCENE_KINDS[0]
+                else theme_preview(j, j.state.get("theme")),
                 width="stretch")
         b.caption("커뮤니티 장면에는 실제 원글만 옮길 수 있어요 (원글 주소·확인 날짜 필수, 닉네임은 자동으로 가림). "
                   "카톡 장면은 '연출된 대화' 표시가 붙는 상황극이에요.")
@@ -355,6 +376,6 @@ if "goto" in st.session_state:
 with st.sidebar:
     st.title("🔥 핫딜 쇼츠")
     page = st.radio("화면", list(PAGES), key="page", label_visibility="collapsed")
-    st.caption(f"채널: {config.get('channel.name')}")
+    st.caption("채널: " + " · ".join(p.get("name", k) for k, p in profiles.all_profiles().items()))
     st.caption("목소리 기본값·채널명 등은 config.yaml 에서 바꿔요.")
 PAGES[page]()

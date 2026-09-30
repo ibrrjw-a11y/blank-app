@@ -66,6 +66,7 @@ def _read(m: re.Match) -> str:
 
 
 def to_speech(text: str) -> str:
+    text = text.replace("*", "")  # 화면 강조 표시는 읽지 않음
     text = re.sub(r"(?<!\d)1\s*\+\s*1(?!\d)", "원 플러스 원", text)
     text = re.sub(r"(?<!\d)2\s*\+\s*1(?!\d)", "투 플러스 원", text)
     for pat, word in UNITS:

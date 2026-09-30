@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from . import config, db, deals, images, job as jobmod, publish, render, script, themes, voice
+from . import config, db, deals, images, job as jobmod, profiles, publish, render, script, themes, voice
 from .frames import render_frames
 
 Log = Callable[[str], None]
@@ -13,7 +13,8 @@ class PipelineError(RuntimeError):
     pass
 
 
-def new_job(deal_id: int, hook: str | None = None, extra: str = "", log: Log = print) -> jobmod.Job:
+def new_job(deal_id: int, hook: str | None = None, extra: str = "", log: Log = print,
+            channel: str | None = None) -> jobmod.Job:
     """딜 → 작업 폴더 + 대본 초안. 토스 딜은 이때 수익 링크를 발급한다."""
     with db.connect() as conn:
         deal = db.get_deal(conn, deal_id)
@@ -32,6 +33,7 @@ def new_job(deal_id: int, hook: str | None = None, extra: str = "", log: Log = p
         except deals.TossError as e:
             log(f"! 토스 링크 발급 실패, 나중에 deal.json 의 affiliate_url 을 채우세요: {e}")
     j = jobmod.create(deal)
+    set_channel(j, channel or profiles.default_id())
     s, provider = script.generate(deal, hook, extra)
     j.p("script.md").write_text(script.to_markdown(s), encoding="utf-8")
     j.mark("script", "draft", provider=provider, hook_type=s.hook_type)
@@ -73,6 +75,13 @@ def build(j: jobmod.Job, voice_provider: str | None = None, images_provider: str
     with db.connect() as conn:  # 사람이 고친 최종 제목·훅을 기록
         conn.execute("UPDATE videos SET title=?, hook_type=? WHERE job=?", (s.title, s.hook_type, j.id))
     theme = j.state.get("theme")
+    with profiles.applied(j.state.get("channel")) as prof:
+        if prof:
+            log(f"채널: {prof.get('name')} ({prof.get('layout', 'card')})")
+        return _build(j, s, theme, voice_provider, images_provider, log)
+
+
+def _build(j, s, theme, voice_provider, images_provider, log) -> dict:
     try:
         log("… 목소리 합성")
         vs = voice.synthesize(j, s.lines, voice_provider)
@@ -95,8 +104,16 @@ def build(j: jobmod.Job, voice_provider: str | None = None, images_provider: str
     return ri
 
 
-def set_theme(j: jobmod.Job, name: str | None) -> None:
-    st = j.state
-    st["theme"] = name
+def _set(j: jobmod.Job, key: str, value) -> None:
     import json
+    st = j.state
+    st[key] = value
     j.p("job.json").write_text(json.dumps(st, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def set_theme(j: jobmod.Job, name: str | None) -> None:
+    _set(j, "theme", name)
+
+
+def set_channel(j: jobmod.Job, channel_id: str | None) -> None:
+    _set(j, "channel", channel_id)

@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from PIL import Image, ImageDraw
 
-from . import config
 from .frames import display_text, font, hex_rgb, wrap
 from .scenes import Scene
 
@@ -53,19 +52,9 @@ AVATAR_PALETTE = ["#7C4DFF", "#EF6C00", "#1565C0", "#4A148C", "#00695C", "#C6282
 
 
 def chrome(W: int, H: int, title: str) -> Image.Image:
-    """모든 인용·카톡 장면 공통: 채널 배너 + 고정 제목 (게시글형과 같은 브랜드 머리)."""
-    from .frames import BANNER_H, _draw_chevrons, _draw_tag_icon, fit_text
-    ink = hex_rgb(config.get("channel.ink", "#1C1C1E"))
-    img = Image.new("RGB", (W, H), (255, 255, 255))
-    d = ImageDraw.Draw(img)
-    d.rectangle([0, 0, W, BANNER_H], fill=hex_rgb(config.get("channel.color", "#FFE08A")))
-    _draw_chevrons(d, 55, 58, 74, ink)
-    name = config.get("channel.name", "오늘의 핫딜")
-    d.text((W / 2 + 10, BANNER_H / 2 + 4), name, font=fit_text(d, name, W - 420, 104, 64), fill=ink, anchor="mm")
-    _draw_tag_icon(d, W - 115, BANNER_H // 2, 120, ink)
-    d.text((W / 2, 258), title, font=fit_text(d, title, W - 130, 52, 38), fill=ink, anchor="mm")
-    d.line([(0, 305), (W, 305)], fill=(222, 222, 226), width=3)
-    return img
+    """인용·카톡 장면 공통 머리: 채널 레이아웃과 같은 톤."""
+    from .layouts import current
+    return current().chrome(W, H, title)
 
 
 # ------------------------------------------------------------------ 커뮤니티

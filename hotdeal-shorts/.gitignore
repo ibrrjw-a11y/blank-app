@@ -2,8 +2,6 @@
 jobs/
 data/
 reports/
-fonts/*.otf
-fonts/*.ttf
 /deals.csv
 *.egg-info/
 __pycache__/

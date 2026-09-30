@@ -49,9 +49,14 @@ def find_font(weight: str = "bold") -> str:
                             "config.yaml 의 video.font 에 경로를 적어주세요.")
 
 
-@lru_cache(maxsize=64)
 def font(size: int, weight: str = "bold") -> ImageFont.FreeTypeFont:
-    return ImageFont.truetype(find_font(weight), size)
+    """채널마다 폰트가 달라서 경로까지 캐시 키로 쓴다."""
+    return _font(find_font(weight), int(size))
+
+
+@lru_cache(maxsize=256)
+def _font(path: str, size: int) -> ImageFont.FreeTypeFont:
+    return ImageFont.truetype(path, size)
 
 
 def hex_rgb(h: str) -> tuple[int, int, int]:
@@ -80,7 +85,7 @@ def split_subtitle(text: str, max_chars: int = 15, strip_period: bool = True) ->
     t = text.strip()
     if strip_period:
         t = t.rstrip(".。")
-    if len(t) <= max_chars:
+    if len(t.replace("*", "")) <= max_chars:
         return [t]
     words = t.split(" ")
     if len(words) == 1:
@@ -90,7 +95,8 @@ def split_subtitle(text: str, max_chars: int = 15, strip_period: bool = True) ->
     for i in range(1, len(words)):
         top, bottom = " ".join(words[:i]), " ".join(words[i:])
         # 두 줄 중 긴 쪽을 최소화, 같으면 윗줄이 짧은 쪽 선호
-        cost = (max(len(top), len(bottom)), len(top) > len(bottom))
+        lt, lb = len(top.replace("*", "")), len(bottom.replace("*", ""))
+        cost = (max(lt, lb), lt > lb)
         if best_cost is None or cost < best_cost:
             best, best_cost = [top, bottom], cost
     return best  # type: ignore[return-value]
@@ -193,21 +199,24 @@ def cover(img: Image.Image, size: tuple[int, int]) -> Image.Image:
     return r.crop((x, y, x + w, y + h))
 
 
-def contain_on_white(img: Image.Image, size: tuple[int, int], margin: int = 40) -> Image.Image:
-    """상품 누끼 사진용: 흰 바탕 가운데 배치."""
-    bg = Image.new("RGBA", size, (255, 255, 255, 255))
+def contain_on_white(img: Image.Image, size: tuple[int, int], margin: int = 40,
+                     bg_color=(255, 255, 255, 255)) -> Image.Image:
+    """상품 누끼 사진용: 단색 바탕 가운데 배치."""
+    bg = Image.new("RGBA", size, bg_color)
     im = img.copy()
     im.thumbnail((size[0] - margin * 2, size[1] - margin * 2), Image.LANCZOS)
     bg.paste(im, ((size[0] - im.width) // 2, (size[1] - im.height) // 2), im)
     return bg
 
 
-def line_images(job: Job, texts: list[str], size: tuple[int, int]) -> list[Image.Image]:
+def line_images(job: Job, texts: list[str], size: tuple[int, int],
+                bg_color=(255, 255, 255, 255)) -> list[Image.Image]:
     """줄별 사진: images/line_000.jpg ... 가 있으면 그 줄부터 사용, 없으면 앞 줄 사진 유지.
     첫 사진이 나오기 전, 그리고 가격을 말하는 줄은 실제 상품 사진."""
     from .images import is_price_line
     prod = product_image(job)
-    base = contain_on_white(prod, size) if prod else placeholder(size, job.deal["name"])
+    margin = 40 if size[0] < 1080 else 140
+    base = contain_on_white(prod, size, margin, bg_color) if prod else placeholder(size, job.deal["name"])
     out, cur = [], base
     for i, text in enumerate(texts):
         if is_price_line(text):
@@ -248,38 +257,8 @@ def _draw_tag_icon(d, cx: int, cy: int, size: int, color) -> None:
 
 
 def base_layer(job: Job, s: Script, W: int, H: int) -> Image.Image:
-    deal = job.deal
-    banner_bg = hex_rgb(config.get("channel.color", "#FFE08A"))
-    ink = hex_rgb(config.get("channel.ink", "#1C1C1E"))
-    label_bg = hex_rgb(config.get("channel.label_bg", "#FFF1C2"))
-
-    img = Image.new("RGB", (W, H), (255, 255, 255))
-    d = ImageDraw.Draw(img)
-
-    # 1) 상단 배너: 화살표 + 채널명 + 아이콘
-    d.rectangle([0, 0, W, BANNER_H], fill=banner_bg)
-    _draw_chevrons(d, 55, 58, 74, ink)
-    name = config.get("channel.name", "오늘의 핫딜")
-    nf = fit_text(d, name, W - 420, 104, min_size=64)
-    d.text((W / 2 + 10, BANNER_H / 2 + 4), name, font=nf, fill=ink, anchor="mm")
-    _draw_tag_icon(d, W - 115, BANNER_H // 2, 120, ink)
-
-    # 2) 프로필 줄: 카테고리 라벨 + 이름 + 한 줄 소개
-    lx, ly, ls = 65, 225, 140
-    d.rectangle([lx, ly, lx + ls, ly + ls], fill=label_bg)
-    label = config.get("channel.label", "得")
-    d.text((lx + ls / 2, ly + ls / 2), label, font=font(92), fill=ink, anchor="mm")
-    cat = deal.get("category") or config.get("channel.label_name", "핫딜")
-    d.text((lx + ls + 32, ly + 12), " ".join(cat), font=font(50), fill=ink)
-    tagline = config.get("channel.tagline", "오늘 올라온 특가만 골라요")
-    d.text((lx + ls + 32, ly + 88), tagline, font=font(30, "regular"), fill=(142, 142, 147))
-
-    # 3) 고정 제목 (영상 내내)
-    tf = fit_text(d, s.title, W - 130, 56, min_size=40)
-    d.text((W / 2, 430), s.title, font=tf, fill=ink, anchor="mm")
-    d.line([(0, 495), (W, 495)], fill=(222, 222, 226), width=3)
-
-    return img
+    from .layouts import current
+    return current().base(job, s, W, H)
 
 
 def rounded_mask(size: tuple[int, int], radius: int = 22) -> Image.Image:
@@ -288,71 +267,42 @@ def rounded_mask(size: tuple[int, int], radius: int = 22) -> Image.Image:
     return m
 
 
-def price_chip(deal: dict, max_w: int) -> Image.Image | None:
-    """사진 오른쪽 아래에 얹는 가격표: 정가(취소선) + 할인율 + 할인가."""
-    if not deal.get("price"):
-        return None
-    brand = hex_rgb(config.get("channel.price_color", "#FF3B30"))
-    tmp = ImageDraw.Draw(Image.new("RGB", (1, 1)))
-    pf, of, cf = font(64), font(34, "regular"), font(40)
-    sale = fmt_won(deal["price"])
-    orig = fmt_won(deal["original_price"]) if deal.get("original_price") else ""
-    pct = f"{deal['discount_pct']:.0f}%" if deal.get("discount_pct") else ""
-    pw = tmp.textlength(sale, font=pf)
-    top_w = tmp.textlength(orig, font=of) + (tmp.textlength(pct, font=cf) + 20 if pct else 0)
-    w = int(max(pw, top_w) + 56)
-    h = 150 if (orig or pct) else 100
-    chip = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    cd = ImageDraw.Draw(chip)
-    cd.rounded_rectangle([0, 0, w - 1, h - 1], 22, fill=(255, 255, 255, 245), outline=(225, 225, 230), width=2)
-    y = 18
-    if orig or pct:
-        x = 28
-        if pct:
-            cd.text((x, y - 4), pct, font=cf, fill=brand)
-            x += int(cd.textlength(pct, font=cf)) + 20
-        if orig:
-            cd.text((x, y + 2), orig, font=of, fill=(150, 150, 156))
-            ow = cd.textlength(orig, font=of)
-            cd.line([(x, y + 24), (x + ow, y + 24)], fill=(150, 150, 156), width=3)
-        y += 52
-    cd.text((w - 28, y + 36), sale, font=pf, fill=(20, 20, 22), anchor="rm")
-    if w > max_w:
-        chip = chip.resize((max_w, int(h * max_w / w)), Image.LANCZOS)
-    return chip
+def _photo_bg() -> tuple[int, int, int, int]:
+    from .layouts import current
+    return (21, 23, 27, 255) if current().name == "fullbleed" else (255, 255, 255, 255)
 
 
 def render_frames(job: Job, s: Script) -> list[dict]:
+    from . import scene_frames
+    from .layouts import current
+    from .scenes import index as scene_index
+    from .script import read_scenes
+
+    L = current()
     W, H = config.get("video.width", 1080), config.get("video.height", 1920)
     max_chars = config.get("subtitle.max_chars", 15)
     strip = config.get("subtitle.strip_period", True)
-    ink = hex_rgb(config.get("channel.ink", "#1C1C1E"))
     out_dir = job.p("frames")
     out_dir.mkdir(exist_ok=True)
     for old in out_dir.glob("*.png"):
         old.unlink()
 
-    base = base_layer(job, s, W, H)
-    base.save(out_dir / "base.png")
+    base = L.base(job, s, W, H)
     align = json.loads(job.p("align.json").read_text(encoding="utf-8"))["lines"]
-    x0, y0, x1, y1 = PHOTO_BOX
-    photos = line_images(job, [a["text"] for a in align], (x1 - x0, y1 - y0))
-    chip = price_chip(job.deal, 560)
-    mask = rounded_mask((x1 - x0, y1 - y0))
+    x0, y0, x1, y1 = L.photo_box
+    photos = line_images(job, [a["text"] for a in align], (x1 - x0, y1 - y0), _photo_bg())
+    chip = L.price_chip(job.deal)
     # 가격표는 가격을 말하는 줄부터 표시 (핫딜 반전 효과). 가격 언급이 없으면 처음부터.
     price_from = next((a["idx"] for a in align if "원" in display_text(a["text"])
                        and re.search(r"\d", display_text(a["text"]))), 0)
     if not config.get("video.price_reveal", True):
         price_from = 0
 
-    from . import scene_frames
-    from .scenes import index as scene_index
-    from .script import read_scenes
     scs = read_scenes(job.p("script.md"))
     where = scene_index(scs)
     if len(where) != len(align):
         raise ValueError("대본과 음성 줄 수가 다름. 대본을 고쳤다면 hd build 를 다시 실행하세요")
-    chrome = scene_frames.chrome(W, H, s.title) if any(sc.kind != "post" for sc in scs) else None
+    chrome = L.chrome(W, H, s.title) if any(sc.kind != "post" for sc in scs) else None
 
     frames = []
     for a, photo in zip(align, photos):
@@ -367,39 +317,25 @@ def render_frames(job: Job, s: Script) -> list[dict]:
             scene_frames.render_kakao(chrome, sc, ii).save(path)
             frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": [a["text"]]})
             continue
-        img = base.copy()
-        img.paste(photo.convert("RGB"), (x0, y0), mask)
-        if chip is not None and a["idx"] >= price_from:
-            img.paste(chip, (x1 - chip.width - 24, y1 - chip.height - 24), chip)
+        img = L.compose(base, photo, chip if a["idx"] >= price_from else None)
         img.save(out_dir / f"body_{a['idx']:03d}_clean.png")  # 자막 없는 판 (캡컷에서 자막을 따로 편집할 때)
-        d = ImageDraw.Draw(img)
-        shown = display_text(a["text"])
-        parts = split_subtitle(shown, max_chars, strip)[: config.get("subtitle.max_lines", 2)]
-        sf = min((fit_text(d, p, W - 120, 74) for p in parts), key=lambda f: f.size)
-        line_h = sf.size + 22
-        y = 620 - (len(parts) * line_h) / 2 + line_h / 2
-        for p in parts:
-            d.text((W / 2, y), p, font=sf, fill=ink, anchor="mm")
-            y += line_h
+        parts = split_subtitle(display_text(a["text"]), max_chars, strip)[: config.get("subtitle.max_lines", 2)]
+        L.subtitle(img, parts)
         img.save(path)
-        frames.append({"path": str(path), "start": a["start"], "end": a["end"], "sub": parts,
-                       "clean": str(out_dir / f"body_{a['idx']:03d}_clean.png"), "sub_y": 620})
+        frames.append({"path": str(path), "start": a["start"], "end": a["end"],
+                       "sub": [p.replace("*", "") for p in parts],
+                       "clean": str(out_dir / f"body_{a['idx']:03d}_clean.png"), "sub_y": L.sub_y})
     (out_dir / "frames.json").write_text(json.dumps(frames, ensure_ascii=False, indent=2), encoding="utf-8")
     return frames
 
 
 def preview(job: Job, s: Script, W: int = 1080, H: int = 1920) -> Image.Image:
-    """테마 고르기용 미리보기: 첫 줄 장면 (사진 + 자막)."""
-    base = base_layer(job, s, W, H)
-    x0, y0, x1, y1 = PHOTO_BOX
-    photo = line_images(job, s.lines[:1] or [""], (x1 - x0, y1 - y0))[0]
-    base.paste(photo.convert("RGB"), (x0, y0), rounded_mask((x1 - x0, y1 - y0)))
-    d = ImageDraw.Draw(base)
-    parts = split_subtitle(display_text(s.lines[0] if s.lines else s.title), config.get("subtitle.max_chars", 15))[:2]
-    sf = min((fit_text(d, p, W - 120, 74) for p in parts), key=lambda f: f.size)
-    line_h = sf.size + 22
-    y = 620 - (len(parts) * line_h) / 2 + line_h / 2
-    for p in parts:
-        d.text((W / 2, y), p, font=sf, fill=hex_rgb(config.get("channel.ink", "#1C1C1E")), anchor="mm")
-        y += line_h
-    return base
+    """테마·채널 고르기용 미리보기: 첫 줄 장면 (사진 + 자막 + 가격)."""
+    from .layouts import current
+    L = current()
+    x0, y0, x1, y1 = L.photo_box
+    photo = line_images(job, s.lines[:1] or [""], (x1 - x0, y1 - y0), _photo_bg())[0]
+    img = L.compose(L.base(job, s, W, H), photo, L.price_chip(job.deal))
+    text = s.lines[0] if s.lines else s.title
+    L.subtitle(img, split_subtitle(display_text(text), config.get("subtitle.max_chars", 15))[:2])
+    return img

@@ -1,5 +1,44 @@
 # 핫딜 쇼츠 설정. 값만 바꾸면 되고, 코드 수정은 필요 없음.
 
+# ── 채널 3개: 서로 관련 없어 보이도록 이름 규칙·레이아웃·글꼴·색·목소리·올리는 시간을 전부 다르게 ──
+default_channel: salim
+channels:
+  salim:                        # 생활·주방·식품
+    name: "오늘도살림"
+    handle: "@oneuldosalim"
+    logo: "살"
+    tagline: "살림 고수가 장바구니에 넣은 것만"
+    layout: card                # 따뜻한 카드형
+    colors: {color: "#F2A541", sub: "#FFE8C2", accent: "#D9480F", bg: "#FFF8EE", ink: "#2B2118"}
+    fonts: {bold: "fonts/Pretendard-ExtraBold.otf", regular: "fonts/Pretendard-Medium.otf"}
+    voice: {provider: edge, edge_voice: "ko-KR-SunHiNeural", rate: "+12%"}
+    hashtags: ["#살림템", "#주방꿀템", "#생활용품", "#shorts"]
+    upload_time: "19:30"
+  tech:                         # 소형가전·디지털·차량
+    name: "GEARLOG 기어로그"
+    handle: "@gearlog.kr"
+    tag: "GEARLOG"
+    tagline: "살 가치 있는 전자기기만 기록합니다"
+    layout: fullbleed           # 사진 꽉 찬 다크형
+    colors: {color: "#111317", sub: "#2A2E36", accent: "#B6FF3B", bg: "#0E0F12", ink: "#FFFFFF"}
+    fonts: {bold: "fonts/WantedSans-Black.otf", regular: "fonts/WantedSans-Medium.otf"}
+    voice: {provider: edge, edge_voice: "ko-KR-InJoonNeural", rate: "+18%"}
+    hashtags: ["#가전추천", "#전자기기", "#테크", "#shorts"]
+    upload_time: "12:10"
+  beauty:                       # 뷰티·헤어·바디
+    name: "파우치노트"
+    handle: "@pouch.note"
+    tag: "POUCH NOTE"
+    tagline: "화장대 위에 남는 것들의 기록"
+    layout: magazine            # 여백 많은 잡지형
+    colors: {color: "#E9D7CF", sub: "#F3E6E0", accent: "#B5485D", bg: "#F6F1EC", ink: "#231F1C"}
+    fonts: {bold: "fonts/IBMPlexSansKR-Bold.otf", regular: "fonts/IBMPlexSansKR-Light.otf"}
+    voice: {provider: supertonic, supertonic: {voice: "F3", speed: 1.1, steps: 10}}   # 무료 오프라인 음성 (다른 채널과 다른 목소리)
+    hashtags: ["#뷰티템", "#화장품추천", "#스킨케어", "#shorts"]
+    upload_time: "21:40"
+
+# 아래 channel 은 channels 가 비어 있을 때만 쓰는 기본값
+
 channel:
   name: "오늘의 핫딜"          # 상단 배너 채널명 (내 브랜드로 교체)
   handle: "@my_hotdeal"
