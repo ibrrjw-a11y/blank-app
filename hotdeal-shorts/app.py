@@ -28,7 +28,7 @@ STYLE_NAMES = ["더쿠", "디시", "네이버카페", "에펨코리아", "인스
 
 
 def has(*keys: str) -> bool:
-    config.load_env(config.home() / ".env")  # 화면을 켜 둔 채 .env 를 저장해도 바로 반영
+    config.load_env(config.home() / ".env", override=True)  # 화면을 켜 둔 채 .env 를 고쳐도 바로 반영
     return all(os.environ.get(k) for k in keys)
 
 

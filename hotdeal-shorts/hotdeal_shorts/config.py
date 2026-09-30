@@ -32,8 +32,8 @@ def read_text_any(path: Path) -> str:
     return raw.decode("utf-8", errors="replace")
 
 
-def load_env(path: Path) -> None:
-    """최소 .env 파서. 이미 설정된 환경변수는 덮어쓰지 않는다."""
+def load_env(path: Path, override: bool = False) -> None:
+    """최소 .env 파서. 기본은 이미 설정된 환경변수를 덮어쓰지 않고, override=True 면 .env 값으로 바꾼다."""
     if not path.exists():
         return
     for raw in read_text_any(path).splitlines():
@@ -45,7 +45,10 @@ def load_env(path: Path) -> None:
         key, val = line.split("=", 1)
         val = val.strip().strip('"').strip("'").strip()
         if val:
-            os.environ.setdefault(key.strip(), val)
+            if override:
+                os.environ[key.strip()] = val
+            else:
+                os.environ.setdefault(key.strip(), val)
 
 
 @lru_cache(maxsize=1)
