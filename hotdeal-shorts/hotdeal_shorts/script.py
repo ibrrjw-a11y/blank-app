@@ -160,7 +160,10 @@ def generate(deal: dict, hook_type: str | None = None, extra: str = "") -> tuple
     use_claude = config.get("script.provider", "claude") == "claude" and (
         os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
     if use_claude:
-        return generate_claude(deal, hook_type, extra), "claude"
+        try:
+            return generate_claude(deal, hook_type, extra), "claude"
+        except Exception as e:  # noqa: BLE001 - 키·잔액·네트워크 문제여도 작업은 템플릿 대본으로 계속
+            return generate_template(deal, hook_type), f"template (Claude 실패: {type(e).__name__}: {str(e)[:150]})"
     return generate_template(deal, hook_type), "template"
 
 

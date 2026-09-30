@@ -154,9 +154,12 @@ def page_deals() -> None:
         logs = []
         try:
             j = pipeline.new_job(options[pick], None if hook == "자동" else hook, log=logs.append, channel=channel)
-        except pipeline.PipelineError as e:
-            st.error(str(e))
+        except Exception as e:  # noqa: BLE001 - 무엇이 실패했는지 화면에 그대로
+            st.error(f"작업을 못 만들었어요: {e}")
+            for m in logs:
+                st.caption(m)
             return
+        st.session_state["new_job_log"] = logs
         st.session_state["job"] = j.id
         st.session_state["goto"] = "② 영상 만들기"  # 사이드바 위젯 값은 다음 실행 때 바꾼다
         st.rerun()
@@ -216,6 +219,28 @@ def page_make() -> None:
     job_id = st.selectbox("작업", ids, index=ids.index(cur) if cur in ids else 0)
     st.session_state["job"] = job_id
     j = jobmod.load(job_id)
+    for m in st.session_state.pop("new_job_log", []):
+        (st.warning if m.startswith("!") else st.caption)(m)
+    if not j.p("script.md").exists():
+        st.error("이 작업은 만들다가 멈춰서 대본이 없어요.")
+        a, b = st.columns(2)
+        if a.button("대본 다시 만들기", type="primary"):
+            logs = []
+            try:
+                pipeline.regen_script(j, log=logs.append)
+            except Exception as e:  # noqa: BLE001
+                st.error(str(e))
+                return
+            st.session_state["new_job_log"] = logs
+            st.rerun()
+        if b.button("이 작업 지우기"):
+            import shutil
+            shutil.rmtree(j.path, ignore_errors=True)
+            with db.connect() as conn:
+                conn.execute("DELETE FROM videos WHERE job=?", (j.id,))
+            st.session_state.pop("job", None)
+            st.rerun()
+        return
     left, right = st.columns([3, 2], gap="large")
     with left:
         section_deal(j)
@@ -264,7 +289,10 @@ def section_theme(j: jobmod.Job) -> None:
         pick = st.radio("채널", ids, index=ids.index(cur) if cur in ids else 0, horizontal=True,
                         format_func=lambda k: chans[k].get("name", k), label_visibility="collapsed")
         if pick != j.state.get("channel"):
-            pipeline.set_channel(j, pick)
+            msgs = []
+            pipeline.set_channel(j, pick, log=msgs.append)
+            for m in msgs:
+                st.toast(m)
     with st.expander("색 바꾸기 (선택 · 기본은 채널 색)"):
         names = ["채널 기본"] + list(themes.THEMES)
         cur_t = j.state.get("theme") or "채널 기본"

@@ -278,13 +278,7 @@ def script_approve(job_id: str):
 def script_regen(job_id: str, hook: Optional[str] = None, extra: str = ""):
     """대본 다시 생성 (기존 파일은 script.prev.md 로 보관)."""
     j = jobmod.load(job_id)
-    if j.p("script.md").exists():
-        shutil.copy(j.p("script.md"), j.p("script.prev.md"))
-    s, provider = script.generate(j.deal, hook, extra)
-    j.p("script.md").write_text(script.to_markdown(s), encoding="utf-8")
-    j.mark("script", "draft", provider=provider, hook_type=s.hook_type)
-    with db.connect() as conn:
-        conn.execute("UPDATE videos SET title=?, hook_type=? WHERE job=?", (s.title, s.hook_type, j.id))
+    pipeline.regen_script(j, hook, extra, log=echo)
     _print_lint(j)
 
 

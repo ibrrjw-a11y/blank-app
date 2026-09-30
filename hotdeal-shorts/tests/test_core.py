@@ -468,6 +468,13 @@ def test_ui_pages_render(tmp_path, monkeypatch):
     assert not at.exception and at.header[0].value == "① 딜 고르기"
     at.sidebar.radio[0].set_value("② 영상 만들기").run()
     assert not at.exception and "먼저" in at.info[0].value
+    broken = tmp_path / "jobs" / "20260930_broken"
+    broken.mkdir(parents=True)
+    (broken / "deal.json").write_text('{"name": "세제", "price": 1000, "source": "manual"}', encoding="utf-8")
+    at.run()
+    assert not at.exception and "대본이 없어요" in at.error[0].value
+    next(b for b in at.button if b.label == "대본 다시 만들기").click().run()
+    assert not at.exception and (broken / "script.md").exists()
 
 
 def test_env_file_any_encoding(monkeypatch, tmp_path):
@@ -480,3 +487,42 @@ def test_env_file_any_encoding(monkeypatch, tmp_path):
         f.write_bytes((body + f"{key}=v{i}\n").encode(enc))
         config.load_env(f)
         assert config.os.environ[key] == f"v{i}"
+
+
+def test_new_job_toss_link_per_channel_and_cleanup(monkeypatch, tmp_path):
+    from hotdeal_shorts import db, deals, pipeline, script
+    monkeypatch.setenv("HD_HOME", str(tmp_path))
+    issued = []
+
+    class FakeToss:
+        def link(self, item, subtag=None):
+            issued.append((item, subtag))
+            url = f"https://toss.shopping/_m/{item}-{subtag}"
+            with db.connect() as conn:
+                conn.execute("CREATE TABLE IF NOT EXISTS toss_links (taca_item_id TEXT, subtag TEXT, short_url TEXT, "
+                             "origin_url TEXT, PRIMARY KEY (taca_item_id, subtag))")
+                conn.execute("INSERT OR REPLACE INTO toss_links VALUES (?,?,?,?)", (item, subtag or "", url, None))
+            return url
+
+    monkeypatch.setattr(deals, "Toss", FakeToss)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
+    monkeypatch.setattr(script, "generate_claude", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("잔액 부족")))
+    with db.connect() as conn:
+        did = db.upsert_deal(conn, deals.normalize({"source": "toss", "source_id": "77", "name": "장조림",
+                                                    "price": 8900, "original_price": 20000}))
+    logs = []
+    j = pipeline.new_job(did, log=logs.append, channel="salim")
+    assert j.p("script.md").exists() and j.state["channel"] == "salim"
+    assert j.deal["affiliate_url"].endswith("77-yt-salim") and issued == [("77", "yt-salim")]
+    assert any("잔액 부족" in m for m in logs)  # Claude 가 실패해도 템플릿 대본으로 계속
+    pipeline.set_channel(j, "tech", log=logs.append)  # 채널 바꾸면 링크도 그 채널 것으로
+    assert j.deal["affiliate_url"].endswith("77-yt-gearlog")
+
+    monkeypatch.setattr(script, "to_markdown", lambda s: (_ for _ in ()).throw(OSError("디스크")))
+    before = {p.name for p in (tmp_path / "jobs").iterdir()}
+    try:
+        pipeline.new_job(did, log=logs.append, channel="beauty")
+        raise AssertionError
+    except OSError:
+        pass
+    assert {p.name for p in (tmp_path / "jobs").iterdir()} == before  # 반쯤 만든 폴더 안 남김
