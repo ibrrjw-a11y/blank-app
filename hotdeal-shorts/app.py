@@ -78,13 +78,15 @@ def theme_preview(j: jobmod.Job, name: str | None, channel: str | None = None) -
 def page_deals() -> None:
     st.header("① 딜 고르기")
     c1, c2, c3 = st.columns(3)
-    if c1.button("쿠팡 골드박스 가져오기", disabled=not has("COUPANG_ACCESS_KEY", "COUPANG_SECRET_KEY"),
-                 help="쿠팡파트너스 API 키가 .env 에 있어야 해요"):
+    coupang_ok = has("COUPANG_ACCESS_KEY", "COUPANG_SECRET_KEY")
+    toss_ok = has("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID")
+    no_toss = None if toss_ok else "토스 쉐어링크 API 키가 .env 에 없어요"
+    if c1.button("쿠팡 골드박스 가져오기", disabled=not coupang_ok,
+                 help=None if coupang_ok else "쿠팡파트너스 API 키가 .env 에 없어요"):
         fetch(lambda: deals.Coupang().goldbox())
-    if c2.button("토스 베스트 가져오기", disabled=not has("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID"),
-                 help="토스 쉐어링크 API 키가 .env 에 있어야 해요"):
+    if c2.button("토스 베스트 가져오기", disabled=not toss_ok, help=no_toss):
         fetch(lambda: deals.Toss().best(30))
-    if c3.button("토스 하루특가 가져오기", disabled=not has("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID")):
+    if c3.button("토스 하루특가 가져오기", disabled=not toss_ok, help=no_toss):
         fetch(lambda: deals.Toss().today_deals(30))
     toss_missing = [k for k in ("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID") if not os.environ.get(k)]
     if 0 < len(toss_missing) < 3:
