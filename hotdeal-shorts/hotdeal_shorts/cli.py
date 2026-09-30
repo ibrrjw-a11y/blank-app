@@ -9,8 +9,8 @@ from typing import Optional
 import requests
 import typer
 
-from . import config, db, deals, images, job as jobmod, metrics, publish, render, script, voice
-from .frames import find_font, render_frames
+from . import config, db, deals, job as jobmod, metrics, pipeline, script, voice
+from .frames import find_font
 
 app = typer.Typer(help="핫딜 쇼핑 쇼츠 제작·운영 자동화", no_args_is_help=True)
 deals_app = typer.Typer(help="딜 후보 수집·관리", no_args_is_help=True)
@@ -40,6 +40,39 @@ def voice_list(provider: str = typer.Argument(..., help="typecast | elevenlabs")
         line = f"  {v['id']:<32} {v['name'] or '':<16} {v.get('gender') or '':<7} {v.get('age') or '':<12} {v.get('use_cases') or ''}"
         if search in line:
             echo(line)
+
+
+FREE_VOICES = [("edge", "edge_voice", v) for v in
+               ("ko-KR-SunHiNeural", "ko-KR-InJoonNeural", "ko-KR-HyunsuMultilingualNeural")] + \
+              [("supertonic", "supertonic.voice", v) for v in
+               ("F1", "F2", "F3", "F4", "F5", "M1", "M2", "M3", "M4", "M5")]
+
+
+@voice_app.command("sample")
+def voice_sample(text: str = typer.Option("근데 이게 지금 삼만 구천구백원임. 특가 끝나기 전에 링크는 고정 댓글에 둠.",
+                                          help="들어볼 문장"),
+                 only: Optional[str] = typer.Option(None, help="edge 또는 supertonic 만")):
+    """무료 목소리를 전부 같은 문장으로 만들어 voice_samples/ 에 저장 → 들어보고 config.yaml 에 고르기."""
+    out_dir = config.home() / "voice_samples"
+    out_dir.mkdir(exist_ok=True)
+    cfg = config.cfg()
+    saved = {k: (dict(v) if isinstance(v, dict) else v) for k, v in (cfg.get("voice") or {}).items()}
+    for provider, key, name in FREE_VOICES:
+        if only and provider != only:
+            continue
+        v = cfg.setdefault("voice", {})
+        if "." in key:
+            v.setdefault("supertonic", {})["voice"] = name
+        else:
+            v[key] = name
+        path = out_dir / f"{provider}_{name}.{'mp3' if provider == 'edge' else 'wav'}"
+        try:
+            voice.PROVIDERS[provider](text, path)
+            echo(f"  ✓ {path.name}")
+        except voice.TTSError as e:
+            typer.secho(f"  ✗ {provider} {name}: {e}", fg="yellow")
+    cfg["voice"] = saved
+    echo(f"\n{out_dir} 에서 들어보고 config.yaml 의 voice.provider 와 목소리 이름을 바꾸세요.")
 
 
 @voice_app.command("setup-offline")
@@ -169,31 +202,10 @@ def deals_list(top: int = 20, all_: bool = typer.Option(False, "--all", help="�
 # ================================================================== 제작
 
 def _new_job(deal_id: int, hook: Optional[str], extra: str) -> jobmod.Job:
-    with db.connect() as conn:
-        deal = db.get_deal(conn, deal_id)
-        if not deal:
-            fail(f"딜 #{deal_id} 없음 (`hd deals list` 로 번호 확인)")
-        conn.execute("UPDATE deals SET status='made' WHERE id=?", (deal_id,))
-        dup = conn.execute("SELECT job FROM videos WHERE deal_id=?", (deal_id,)).fetchone()
-    if dup:
-        typer.secho(f"! 같은 딜로 만든 영상이 이미 있음: {dup['job']} (재사용 소재 주의)", fg="yellow")
-    if deal["source"] == "toss" and not deal.get("affiliate_url"):
-        # 토스는 영상으로 만들 상품에만 수익 링크를 발급 (발급 한도 절약)
-        try:
-            deal["affiliate_url"] = deals.Toss().link(deal["source_id"])
-            with db.connect() as conn:
-                conn.execute("UPDATE deals SET affiliate_url=? WHERE id=?", (deal["affiliate_url"], deal_id))
-            echo(f"✓ 토스 쉐어링크 발급: {deal['affiliate_url']}")
-        except deals.TossError as e:
-            typer.secho(f"! 토스 링크 발급 실패, 나중에 deal.json 의 affiliate_url 을 채우세요: {e}", fg="yellow")
-    j = jobmod.create(deal)
-    s, provider = script.generate(deal, hook, extra)
-    j.p("script.md").write_text(script.to_markdown(s), encoding="utf-8")
-    j.mark("script", "draft", provider=provider, hook_type=s.hook_type)
-    with db.connect() as conn:
-        conn.execute("INSERT OR REPLACE INTO videos (job, deal_id, title, hook_type) VALUES (?,?,?,?)",
-                     (j.id, deal_id, s.title, s.hook_type))
-    echo(f"✓ 작업 {j.id} (대본: {provider}, 훅: {s.hook_type})")
+    try:
+        j = pipeline.new_job(deal_id, hook, extra, log=echo)
+    except pipeline.PipelineError as e:
+        fail(str(e))
     echo(f"  대본 파일: {j.p('script.md')}")
     return j
 
@@ -266,51 +278,20 @@ def build(job_id: str, voice_provider: Optional[str] = typer.Option(None, "--voi
           images_provider: Optional[str] = typer.Option(None, "--images", help="gemini | openai | none")):
     """승인된 대본 → 목소리 → 화면 → final.mp4 → 업로드 텍스트."""
     j = jobmod.load(job_id)
-    s, approved = script.read(j.p("script.md"))
+    _, approved = script.read(j.p("script.md"))
     if not approved:
         fail(f"대본 미승인. script.md 확인 후 `hd script approve {j.id}`")
     if not _print_lint(j):  # 승인 뒤에 고친 경우 대비
         fail("대본 검사 ERROR. 고친 뒤 다시 build")
-    with db.connect() as conn:  # 사람이 고친 최종 제목·훅을 기록
-        conn.execute("UPDATE videos SET title=?, hook_type=? WHERE job=?", (s.title, s.hook_type, j.id))
     try:
-        echo("… 목소리 합성")
-        vs = voice.synthesize(j, s.lines, voice_provider)
-        j.mark("voice", "done", **vs)
-        echo(f"  음성 {vs['final_sec']}초 ({vs['provider']})" + (f", 무음 {vs['cuts']}곳 정리" if vs["cuts"] else ""))
-        _make_images(j, images_provider)
-        echo("… 화면 그리기")
-        fr = render_frames(j, s)
-        j.mark("frames", "done", count=len(fr))
-        echo("… 영상 조립")
-        ri = render.render(j)
-        j.mark("render", "done", **ri)
-        publish.build(j, s, ri)
-        j.mark("publish_text", "done")
-    except (voice.TTSError, FileNotFoundError, ValueError) as e:
-        j.error("build", str(e))
+        pipeline.build(j, voice_provider, images_provider, log=echo)
+    except pipeline.PipelineError as e:
         fail(str(e))
-    echo(f"✓ 완성: {ri['path']} ({ri['duration']}초)")
     echo(f"  점검표·업로드 문구: {j.p('review.md')}")
 
 
 def _make_images(j: jobmod.Job, provider: Optional[str], force: bool = False) -> None:
-    """줄별 AI 이미지. 키가 없거나 실패해도 영상 제작은 계속 (상품 사진으로 대체)."""
-    if (provider or config.get("images.provider", "gemini")) == "none":
-        return
-    echo("… 줄별 AI 이미지")
-    try:
-        r = images.generate(j, script.read_scenes(j.p("script.md")), provider, force)
-    except images.ImageError as e:
-        typer.secho(f"  ! 이미지 건너뜀: {e}", fg="yellow")
-        return
-    j.mark("images", "done", **{k: v for k, v in r.items() if k != "failed"})
-    msg = f"  새로 {r['made']}장 ({r['provider']}, 프롬프트: {r.get('prompt_by', '-')})"
-    if r.get("skipped"):
-        msg = f"  이미 있음 {r['skipped']}장 (다시 만들려면 hd images {j.id} --force)"
-    echo(msg)
-    if r.get("failed"):
-        typer.secho(f"  ! 실패한 줄 {r['failed']}: 상품 사진으로 대체", fg="yellow")
+    pipeline.make_images(j, provider, force, log=echo)
 
 
 @app.command("images")
@@ -342,6 +323,17 @@ def capcut(job_id: str,
         echo("  config.yaml 의 capcut.drafts_dir 에 캡컷 초안 폴더 경로를 적고 다시 실행하세요.")
     else:
         echo("  캡컷을 완전히 껐다 켜면 프로젝트 목록 맨 앞에 보입니다.")
+
+
+@app.command()
+def ui(port: int = 8501):
+    """작업 화면 열기 (브라우저에서 딜 고르기·대본·테마·사진·영상 만들기·캡컷 보내기)."""
+    import subprocess
+    import sys
+    app_path = Path(__file__).resolve().parent.parent / "app.py"
+    env = {**os.environ, "HD_HOME": str(config.home())}
+    subprocess.run([sys.executable, "-m", "streamlit", "run", str(app_path), "--server.port", str(port),
+                    "--browser.gatherUsageStats", "false"], env=env, cwd=str(app_path.parent))
 
 
 @app.command()

@@ -9,3 +9,4 @@ fonts/*.ttf
 __pycache__/
 .pytest_cache/
 models/
+voice_samples/

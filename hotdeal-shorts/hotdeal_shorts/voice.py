@@ -167,6 +167,28 @@ def _sherpa(text: str, out: Path) -> None:
         w.writeframes(y.tobytes())
 
 
+_supertonic_tts = None
+
+
+def _supertonic(text: str, out: Path) -> None:
+    """슈퍼톤 Supertonic 3: 무료·오프라인 한국어 AI 음성 (첫 실행 때 모델 약 400MB 자동 다운로드)."""
+    global _supertonic_tts
+    try:
+        from supertonic import TTS
+    except ImportError as e:
+        raise TTSError('pip install -e ".[free-voice]" (또는 pip install supertonic) 후 다시 실행하세요') from e
+    c = config.get("voice.supertonic") or {}
+    try:
+        if _supertonic_tts is None:
+            _supertonic_tts = TTS(auto_download=True)
+        style = _supertonic_tts.get_voice_style(voice_name=c.get("voice", "F1"))
+        wav, _ = _supertonic_tts.synthesize(text, voice_style=style, lang="ko", speed=c.get("speed", 1.15),
+                                            total_steps=c.get("steps", 10))
+        _supertonic_tts.save_audio(wav, str(out))
+    except Exception as e:  # noqa: BLE001 - 모델 다운로드·추론 오류를 한 메시지로
+        raise TTSError(f"Supertonic 실패: {e}") from e
+
+
 def _cloud(fn):
     """클라우드 TTS 오류를 TTSError 로 바꿔 build 가 깔끔하게 멈추게 한다."""
     def run(text: str, out: Path):
@@ -177,7 +199,7 @@ def _cloud(fn):
     return run
 
 
-PROVIDERS = {"edge": _edge, "sherpa": _sherpa, "espeak": _espeak,
+PROVIDERS = {"edge": _edge, "supertonic": _supertonic, "sherpa": _sherpa, "espeak": _espeak,
              **{k: _cloud(f) for k, f in tts_providers.LINE.items()}}
 # 대본 전체를 한 번에 합성 + 단어 시각을 주는 프로바이더 (억양이 자연스럽게 이어짐)
 WHOLE = {"edge": _edge_stream, **{k: _cloud(f) for k, f in tts_providers.WHOLE.items()}}
@@ -223,7 +245,7 @@ def synthesize(job: Job, lines: list[str], provider: str | None = None) -> dict:
         # 대본·목소리 설정이 바뀌면 다시 합성, 같으면 재사용
         key = f"v3|{voice_key(provider)}|{line}"
         h = hashlib.sha1(key.encode()).hexdigest()[:8]
-        src = tmp / f"line_{i:03d}_{h}.{'wav' if provider in ('sherpa', 'espeak') else 'mp3'}"
+        src = tmp / f"line_{i:03d}_{h}.{'wav' if provider in ('sherpa', 'espeak', 'supertonic') else 'mp3'}"
         if not src.exists():
             fn(to_speech(_speakable(line)), src)
         wav = tmp / f"line_{i:03d}_{h}_n.wav"

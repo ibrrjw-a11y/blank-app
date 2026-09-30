@@ -382,3 +382,43 @@ def test_whole_script_provider_gives_line_timings(monkeypatch, tmp_path):
     assert stats["provider"] == "typecast(whole)"
     al = json.loads((tmp_path / "align.json").read_text(encoding="utf-8"))["lines"]
     assert [round(a["start"], 2) for a in al] == [0.05, 1.75] and round(al[1]["end"], 2) == 2.95
+
+
+def test_fetch_url_meta_reads_og_and_jsonld(monkeypatch):
+    from hotdeal_shorts import deals
+
+    class Resp:
+        status_code = 200
+        text = ('<meta property="og:title" content="무선 청소기 &amp; 거치대">'
+                '<meta content="https://img/x.jpg" property="og:image">'
+                '<script type="application/ld+json">{"@graph":[{"@type":"Product","name":"무선 핸디 청소기",'
+                '"offers":{"@type":"Offer","price":"39900"}}]}</script>')
+
+    monkeypatch.setattr(deals.requests, "get", lambda *a, **k: Resp())
+    m = deals.fetch_url_meta("https://shop.test/p/1")
+    assert m["name"] == "무선 핸디 청소기" and m["price"] == 39900 and m["image_url"] == "https://img/x.jpg"
+    assert "error" not in m
+
+    class Blocked:
+        status_code = 403
+        text = ""
+
+    monkeypatch.setattr(deals.requests, "get", lambda *a, **k: Blocked())
+    assert "직접 입력" in deals.fetch_url_meta("https://shop.test/p/2")["error"]
+
+
+def test_ui_pages_render(tmp_path, monkeypatch):
+    import shutil
+    from pathlib import Path
+    import pytest
+    pytest.importorskip("streamlit")
+    from streamlit.testing.v1 import AppTest
+    root = Path(__file__).resolve().parent.parent
+    for name in ("config.yaml", "app.py"):
+        shutil.copy(root / name, tmp_path / name)
+    shutil.copytree(root / "prompts", tmp_path / "prompts")
+    monkeypatch.setenv("HD_HOME", str(tmp_path))
+    at = AppTest.from_file(str(tmp_path / "app.py"), default_timeout=120).run()
+    assert not at.exception and at.header[0].value == "① 딜 고르기"
+    at.sidebar.radio[0].set_value("② 영상 만들기").run()
+    assert not at.exception and "먼저" in at.info[0].value

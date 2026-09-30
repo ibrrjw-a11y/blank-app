@@ -104,7 +104,7 @@ def eleven_line(text: str, out: Path) -> None:
 
 def chars_to_words(chars: list[str], starts: list[float], ends: list[float]) -> list[dict]:
     """글자 단위 시각 → 띄어쓰기 기준 단어 시각."""
-    words, cur, s = [], "", None
+    words, cur, s, last = [], "", None, 0.0
     for ch, a, b in zip(chars, starts, ends):
         if ch.isspace():
             if cur:

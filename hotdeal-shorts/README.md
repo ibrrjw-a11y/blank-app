@@ -17,7 +17,19 @@ UI 없음. 명령어 + 폴더 + 마크다운으로 운영한다.
    ```
 3. (선택) 폰트: [Pretendard](https://github.com/orioncactus/pretendard) 의 `Pretendard-ExtraBold.otf` 를 `fonts/` 에 넣으면 우선 사용. 없으면 맑은고딕/애플고딕/Noto 자동 사용.
 
-## 하루 작업 흐름
+## 작업 화면 (추천)
+
+```bash
+pip install -e ".[ui,capcut,free-voice]"   # 처음 한 번
+hd ui                                      # 브라우저에 작업 화면이 열림 (내 PC 안에서만)
+```
+
+- **① 딜 고르기**: 수집한 딜 표(점수·탈락 사유), 쿠팡·토스 가져오기 버튼(키 있을 때), **상품 URL 붙여넣기 → 이름·이미지·가격 자동 채움**(막힌 쇼핑몰은 직접 입력), 수익 링크·이미지 파일 직접 넣기
+- **② 영상 만들기**: 상품 정보·가격 수정, 상품 사진 바꾸기, **테마 6가지 미리보기로 고르기**, 대본 편집 + 실시간 검사, **장면 추가**(게시글 / 카톡 / 커뮤니티 8종 미리보기), **줄별 사진 올리기**, 목소리 고르기, 영상 만들기·재생·받기, **캡컷으로 보내기**, 유튜브 제목·설명·고정 댓글 복사
+
+아래 명령어들은 같은 기능을 터미널에서 쓰는 방법이다.
+
+## 하루 작업 흐름 (명령어)
 
 ```bash
 # 1) 딜 모으기 (둘 중 편한 것)
@@ -62,7 +74,8 @@ hd report                                  # 주간 리포트: 배수·진단·�
 
 | provider | 비용 | 특징 | 준비 |
 |---|---|---|---|
-| `edge` (기본) | 무료 | MS 음성. 대본 전체를 한 번에 읽어 억양이 자연스러움 | 없음 |
+| `edge` (기본) | 무료 | MS 음성(인터넷 필요). 대본 전체를 한 번에 읽어 억양이 자연스러움 | 없음 |
+| `supertonic` | 무료 | 슈퍼톤 공개 AI 음성, **오프라인**. 여성 F1~F5 / 남성 M1~M5 | `pip install -e ".[free-voice]"`, 첫 실행 때 모델(약 400MB) 자동 다운로드 |
 | `typecast` | 유료 | 한국어 AI 성우, 쇼츠에서 가장 많이 씀. 감정·속도 조절. 대본 전체 한 번에 + 단어 시각 | `.env` 에 `TYPECAST_API_KEY`, `hd voice list typecast` 로 고른 id 를 `voice.typecast.voice_id` 에 |
 | `elevenlabs` | 유료 | 감정 표현 좋음, 목소리 복제. 대본 전체 한 번에 + 글자 시각 | `ELEVENLABS_API_KEY`, `hd voice list elevenlabs` → `voice.elevenlabs.voice_id` |
 | `openai` | 유료(저렴) | 말투를 문장으로 지시 가능 (`voice.openai.instructions`) | `OPENAI_API_KEY` |
@@ -70,7 +83,9 @@ hd report                                  # 주간 리포트: 배수·진단·�
 | `sherpa` / `espeak` | 무료 | 인터넷 없이 (품질 낮음) | `hd voice setup-offline` |
 | `manual` | - | 직접 녹음·다른 곳에서 만든 파일을 `voice_raw.mp3` 로 | - |
 
-한 번만 다른 목소리로 만들려면 `hd build <작업> --voice typecast`.
+무료 목소리 비교: `hd voice sample` → `voice_samples/` 폴더에서 13가지 목소리를 같은 문장으로 들어보고 고른다.
+유료 목소리는 **선택 사항**이다 (안 쓰면 키도 필요 없음).
+한 번만 다른 목소리로 만들려면 `hd build <작업> --voice supertonic`.
 
 ## 캡컷으로 넘겨서 손보기
 

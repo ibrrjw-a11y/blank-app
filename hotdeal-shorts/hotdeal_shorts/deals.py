@@ -291,3 +291,68 @@ def affiliate_source(deal: dict) -> str:
     if "toss" in link:
         return "toss"
     return "default"
+
+
+# ---------------------------------------------------------------- 상품 URL 에서 정보 읽기 (최선 노력)
+
+def _meta(html: str, *names: str) -> str | None:
+    import re
+    for n in names:
+        for pat in (rf'<meta[^>]+(?:property|name|itemprop)=["\']{re.escape(n)}["\'][^>]*content=["\']([^"\']+)',
+                    rf'<meta[^>]+content=["\']([^"\']+)["\'][^>]*(?:property|name|itemprop)=["\']{re.escape(n)}["\']'):
+            m = re.search(pat, html, re.I)
+            if m:
+                return m.group(1).strip()
+    return None
+
+
+def _jsonld_product(html: str) -> dict:
+    import json
+    import re
+    for block in re.findall(r'<script[^>]+application/ld\+json[^>]*>(.*?)</script>', html, re.S | re.I):
+        try:
+            data = json.loads(block.strip())
+        except ValueError:
+            continue
+        stack = data if isinstance(data, list) else [data]
+        while stack:
+            d = stack.pop()
+            if isinstance(d, dict):
+                if "@graph" in d:
+                    stack += d["@graph"]
+                if str(d.get("@type", "")).lower() == "product":
+                    return d
+    return {}
+
+
+def fetch_url_meta(url: str) -> dict:
+    """상품 페이지의 og 태그·구조화 데이터로 이름·이미지·가격을 읽는다.
+    쇼핑몰이 막으면 빈 값 → 사람이 직접 입력. 반환: {name, image_url, price, original_price, error}"""
+    import html as html_mod
+    out: dict = {"url": url}
+    try:
+        r = requests.get(url, timeout=15, headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/126.0 Safari/537.36", "Accept-Language": "ko-KR,ko;q=0.9"})
+        if r.status_code != 200:
+            out["error"] = f"페이지를 못 읽었어요 (HTTP {r.status_code}). 직접 입력해 주세요."
+            return out
+        page = r.text
+    except requests.RequestException as e:
+        out["error"] = f"페이지를 못 읽었어요 ({type(e).__name__}). 직접 입력해 주세요."
+        return out
+    prod = _jsonld_product(page)
+    offers = prod.get("offers") or {}
+    if isinstance(offers, list):
+        offers = offers[0] if offers else {}
+    name = prod.get("name") or _meta(page, "og:title", "twitter:title")
+    image = prod.get("image") or _meta(page, "og:image", "twitter:image")
+    if isinstance(image, list):
+        image = image[0] if image else None
+    price = offers.get("price") or offers.get("lowPrice") or _meta(page, "product:price:amount", "og:price:amount", "price")
+    orig = _meta(page, "product:original_price:amount", "product:sale_price:amount") if price else None
+    out.update({"name": html_mod.unescape(name) if name else None, "image_url": image,
+                "price": _int(price) if price else None, "original_price": _int(orig) if orig else None})
+    if not (out["name"] or out["price"]):
+        out["error"] = "상품 정보를 찾지 못했어요. 직접 입력해 주세요."
+    return out

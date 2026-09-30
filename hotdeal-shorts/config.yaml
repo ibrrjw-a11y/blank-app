@@ -27,12 +27,16 @@ subtitle:
   lead_sec: 0.15                # 자막을 목소리보다 먼저 띄우는 시간
 
 voice:
-  # 무료: edge(MS 음성) | sherpa(오프라인) | espeak(기계음, 테스트용) | manual(파일 직접)
-  # 유료: typecast | elevenlabs | openai | google   (키는 .env, 목소리는 아래 각 항목)
+  # 무료: edge(MS 음성, 인터넷) | supertonic(슈퍼톤 AI 음성, 오프라인) | sherpa·espeak(테스트용) | manual(파일 직접)
+  # 유료(선택, 안 써도 됨): typecast | elevenlabs | openai | google
   provider: edge
   whole_script: true            # edge·typecast·elevenlabs: 대본 전체를 한 번에 읽혀 억양이 자연스럽게 이어짐
   edge_voice: "ko-KR-SunHiNeural"   # 남성: ko-KR-InJoonNeural
   rate: "+15%"                  # 쇼츠는 약간 빠르게
+  supertonic:                   # 무료. pip install -e ".[free-voice]" 필요, 첫 실행 때 모델 자동 다운로드
+    voice: "F1"                 # 여성 F1~F5, 남성 M1~M5  (hd voice sample 로 비교)
+    speed: 1.15
+    steps: 10                   # 5(빠름)~12(고품질)
   typecast:                     # hd voice list typecast 로 목소리 id 찾기
     voice_id: ""
     model: "ssfm-v30"

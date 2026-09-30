@@ -140,6 +140,10 @@ def product_image(job: Job) -> Image.Image | None:
         if p.exists():
             return Image.open(p).convert("RGBA")
     url = job.deal.get("image_url")
+    if url and Path(url).exists():  # 작업 화면에서 올린 파일
+        img = Image.open(url).convert("RGBA")
+        img.convert("RGB").save(job.p("product.jpg"), quality=92)
+        return img
     if url:
         try:
             r = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
@@ -382,3 +386,20 @@ def render_frames(job: Job, s: Script) -> list[dict]:
                        "clean": str(out_dir / f"body_{a['idx']:03d}_clean.png"), "sub_y": 620})
     (out_dir / "frames.json").write_text(json.dumps(frames, ensure_ascii=False, indent=2), encoding="utf-8")
     return frames
+
+
+def preview(job: Job, s: Script, W: int = 1080, H: int = 1920) -> Image.Image:
+    """테마 고르기용 미리보기: 첫 줄 장면 (사진 + 자막)."""
+    base = base_layer(job, s, W, H)
+    x0, y0, x1, y1 = PHOTO_BOX
+    photo = line_images(job, s.lines[:1] or [""], (x1 - x0, y1 - y0))[0]
+    base.paste(photo.convert("RGB"), (x0, y0), rounded_mask((x1 - x0, y1 - y0)))
+    d = ImageDraw.Draw(base)
+    parts = split_subtitle(display_text(s.lines[0] if s.lines else s.title), config.get("subtitle.max_chars", 15))[:2]
+    sf = min((fit_text(d, p, W - 120, 74) for p in parts), key=lambda f: f.size)
+    line_h = sf.size + 22
+    y = 620 - (len(parts) * line_h) / 2 + line_h / 2
+    for p in parts:
+        d.text((W / 2, y), p, font=sf, fill=hex_rgb(config.get("channel.ink", "#1C1C1E")), anchor="mm")
+        y += line_h
+    return base
