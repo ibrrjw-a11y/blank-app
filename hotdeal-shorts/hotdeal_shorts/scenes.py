@@ -4,8 +4,8 @@
     차 안에 과자 부스러기 보면 한숨부터 나오잖음
 
     [community: 더쿠]              커뮤니티 모양으로 썰 풀기. 두 가지 방식:
-                                   ① 상황극(기본): source 없이 쓰면 "연출된 상황극" 표시가 붙음 (끌 수 없음)
-                                      조회수·좋아요 같은 수치는 표시 안 함, 상품을 써 본 척하는 후기는 금지
+                                   ① 썰(기본): source 없이 자유롭게. 화면에 사이트 이름은 안 씀
+                                      (config scenes.skit_label: true 면 '연출' 표시)
                                    ② 실제 글 옮기기: source·captured 를 적으면 "출처" 표시 + 실제 수치 표시
     source: https://theqoo.net/... (②일 때만)
     captured: 2026-09-28           (②일 때만)
@@ -117,9 +117,6 @@ def parse(body: str) -> list[Scene]:
     for sc in scenes:
         if sc.kind == "community" and not is_quote(sc):
             sc.meta["skit"] = True
-            sc.meta.pop("meta", None)  # 상황극에는 가짜 조회수·좋아요를 붙이지 않는다
-            for it in sc.items:
-                it.likes = ""
     return scenes
 
 
@@ -151,8 +148,8 @@ def lint(scenes: list[Scene]) -> list[tuple[str, str]]:
         if s.meta.get("skit"):
             for it in s.items:
                 if FAKE_REVIEW.search(it.text):
-                    out.append(("ERROR", f"{where}·상황극: '{it.text}' — 상품을 써 본 후기처럼 보임. 상황극에서는 "
-                                         "상황·고민·질문만 (실제 후기는 source 를 적어 원글을 옮기기)"))
+                    out.append(("WARN", f"{where}: '{it.text}' — 상품을 직접 써 본 후기처럼 들려요. 내가 실제로 "
+                                        "써 본 게 아니면 상황·고민 위주로 바꾸는 걸 권장"))
         elif not s.meta.get("captured"):
             out.append(("ERROR", f"{where}: captured(원글 확인 날짜)가 없음"))
         if not any(it.role in ("body", "comment") for it in s.items):

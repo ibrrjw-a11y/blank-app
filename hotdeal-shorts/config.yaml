@@ -133,3 +133,6 @@ publish:
 metrics:
   buy_intent_keywords: ["어디서", "링크", "사요", "구매", "얼마", "품절", "샀", "주문"]
   winner_multiplier: 3.0        # 채널 평균 대비 이 배수 이상이면 '터진 영상'
+
+scenes:
+  skit_label: false             # true 면 카톡·커뮤니티 썰에 '연출' 표시를 붙임

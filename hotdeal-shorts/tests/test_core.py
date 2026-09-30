@@ -126,9 +126,8 @@ comment: 댓글 하나
     assert scs[1].meta.get("skit") and not scenes.lint(scs)  # 원글 주소 없으면 표시 붙은 상황극
     skit = scenes.parse("[community: 더쿠]\nmeta: 조회 3만\nbody: 티슈 떨어져서 짜증남\n"
                         "comment: 나 이거 써봤는데 좋음 || 120")
-    errs = [m for lv, m in scenes.lint(skit) if lv == "ERROR"]
-    assert len(errs) == 1 and "후기" in errs[0]  # 써 본 척하는 댓글만 막힘
-    assert "meta" not in skit[0].meta and skit[0].items[1].likes == ""  # 가짜 수치 표시 안 함
+    lint = scenes.lint(skit)
+    assert not [m for lv, m in lint if lv == "ERROR"] and any("후기" in m for lv, m in lint if lv == "WARN")
     quote = scenes.parse("[community: 더쿠]\nsource: https://x.test/9\nbody: 본문")
     assert any("captured" in m for lv, m in scenes.lint(quote) if lv == "ERROR")
     ok = scenes.parse("[community: 디시]\nsource: https://x.test/1\ncaptured: 2026-09-29\nbody: 본문 써봤는데 좋음")

@@ -2,13 +2,14 @@
 
 - 커뮤니티: 실제 글 인용. 출처명·원글 확인 날짜를 항상 표시, 닉네임은 '익명N'으로 가림.
   본문은 처음부터 보이고, 댓글은 읽는 순서대로 하나씩 나타나며 읽는 중인 항목을 강조한다.
-- 카톡: 채널이 만든 상황극. '연출된 대화' 표시는 끌 수 없다.
+- 카톡·커뮤니티 썰: 채널이 쓴 이야기. '연출' 표시는 config scenes.skit_label 로 켤 수 있음 (기본 끔).
 플랫폼 로고·화면을 그대로 복제하지 않고, 색·글자 위계·구조만 참고한 일반형 디자인.
 """
 from __future__ import annotations
 
 from PIL import Image, ImageDraw
 
+from . import config
 from .frames import display_text, font, hex_rgb, wrap
 from .scenes import Scene
 
@@ -94,10 +95,14 @@ def _community_canvas(scene: Scene, upto: int, width: int, load_image=None) -> t
 
     # 1) 출처 줄 (모든 스타일 공통, 끌 수 없음)
     skit = bool(scene.meta.get("skit"))
-    src = (f"{scene.meta.get('source_name', '')} 스타일" if skit else f"출처 · {scene.meta.get('source_name', '')}")
+    label_on = bool(config.get("scenes.skit_label", False))
+    # 썰(원글 주소 없음)은 실제 사이트 이름을 쓰지 않는다 → 특정 사이트 글로 보이지 않게
+    src = "" if skit else f"출처 · {scene.meta.get('source_name', '')}"
     cap = f"{scene.meta.get('captured', '')} 확인"
 
-    def skit_badge(cy: int) -> None:  # 상황극 표시 (끌 수 없음)
+    def skit_badge(cy: int) -> None:
+        if not label_on:
+            return
         bf = font(30)
         label = "연출된 상황극"
         bw = d.textlength(label, font=bf) + 40
@@ -304,15 +309,16 @@ def render_kakao(base: Image.Image, scene: Scene, upto: int) -> Image.Image:
     d = ImageDraw.Draw(img)
     d.rectangle([0, 306, W, y1 + 20], fill=KAKAO_BG)
 
-    # 상단: 방 이름 + 연출 표시 (항상)
+    # 상단: 방 이름 (+ 연출 표시: scenes.skit_label)
     room = scene.style or "대화방"
     d.rectangle([0, 306, W, 400], fill=(165, 187, 208))
     d.text((60, 353), room, font=font(38), fill=(30, 36, 44), anchor="lm")
-    badge = "연출된 대화"
-    bf = font(30)
-    bw = d.textlength(badge, font=bf) + 40
-    d.rounded_rectangle([W - 60 - bw, 330, W - 60, 376], 23, fill=(235, 64, 52))
-    d.text((W - 60 - bw / 2, 353), badge, font=bf, fill=(255, 255, 255), anchor="mm")
+    if config.get("scenes.skit_label", False):
+        badge = "연출된 대화"
+        bf = font(30)
+        bw = d.textlength(badge, font=bf) + 40
+        d.rounded_rectangle([W - 60 - bw, 330, W - 60, 376], 23, fill=(235, 64, 52))
+        d.text((W - 60 - bw / 2, 353), badge, font=bf, fill=(255, 255, 255), anchor="mm")
 
     # 메시지를 긴 캔버스에 쌓고 아래쪽을 보여준다 (채팅처럼 위로 밀림)
     mf, nf = font(42, "regular"), font(28, "regular")

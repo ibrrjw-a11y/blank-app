@@ -40,9 +40,9 @@ def scene_template(kind: str) -> str:
         return "[kakao: 대화방 이름]\n친구: 상대 말\n나: 내 말\n"
     style = kind.replace("커뮤니티 · ", "")
     return (f"[community: {style}]\n"
-            f"# 실제 글을 옮길 땐 아래 두 줄 앞의 # 를 지우고 채우기 (없으면 '연출된 상황극' 표시)\n"
+            f"# 실제 글을 옮길 때만 아래 두 줄 앞의 # 를 지우고 채우기\n"
             f"# source: https://원글주소\n# captured: {today}\n"
-            "title: 글 제목 (상황)\nbody: 썰 본문 — 겪은 상황·고민\ncomment: 공감하는 댓글\n")
+            "title: 글 제목\nbody: 썰 본문\ncomment: 댓글\n")
 
 
 SCENE_KINDS = ["게시글 (내 채널이 말하기)", "카톡 상황극"] + [f"커뮤니티 · {s}" for s in STYLE_NAMES]
@@ -323,10 +323,8 @@ def section_script(j: jobmod.Job) -> None:
         a.image(style_preview(kind, j.state.get("channel")) if kind != SCENE_KINDS[0]
                 else theme_preview(j, j.state.get("theme")),
                 width="stretch")
-        b.caption("커뮤니티 모양으로 썰을 풀 수 있어요. 그냥 쓰면 '연출된 상황극' 표시가 붙고, "
-                  "상황·고민·공감 위주로 써요 (상품을 써 본 척하는 후기는 막혀요). "
-                  "실제 글을 옮길 땐 원글 주소(source)·확인 날짜(captured)를 적으면 '출처'로 표시돼요. "
-                  "카톡 장면도 '연출된 대화' 표시가 붙는 상황극이에요.")
+        b.caption("커뮤니티·카톡 모양으로 상황에 맞게 썰을 자유롭게 쓰면 돼요. "
+                  "실제 글을 옮길 때만 원글 주소(source)·날짜(captured)를 적으면 '출처'로 표시돼요.")
         if b.button("대본 끝에 이 장면 추가"):
             st.session_state[body_key] = st.session_state[body_key].rstrip() + "\n\n" + scene_template(kind)
             st.rerun()
