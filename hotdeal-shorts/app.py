@@ -16,6 +16,8 @@ from hotdeal_shorts import (config, db, deals, job as jobmod, pipeline, profiles
                             scenes, script, themes)
 from hotdeal_shorts.frames import preview  # noqa: E402
 
+config.load_env(config.home() / ".env")  # 키를 찾기 전에 .env 먼저
+
 st.set_page_config(page_title="핫딜 쇼츠", page_icon="🔥", layout="wide")
 
 FREE_VOICES = {"edge": "MS 음성 (무료·인터넷)", "supertonic": "슈퍼톤 AI 음성 (무료·오프라인)",

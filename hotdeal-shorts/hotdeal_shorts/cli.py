@@ -18,6 +18,12 @@ script_app = typer.Typer(help="대본 검사·승인·재생성", no_args_is_hel
 video_app = typer.Typer(help="업로드한 영상 등록", no_args_is_help=True)
 metrics_app = typer.Typer(help="성과 수집·분석", no_args_is_help=True)
 voice_app = typer.Typer(help="목소리 설정", no_args_is_help=True)
+
+
+@app.callback()
+def _load_settings():
+    """모든 명령 전에 config.yaml·.env 를 먼저 읽는다 (키를 찾기 전에)."""
+    config.cfg()
 app.add_typer(deals_app, name="deals")
 app.add_typer(script_app, name="script")
 app.add_typer(video_app, name="video")
