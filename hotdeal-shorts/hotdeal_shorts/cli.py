@@ -342,8 +342,19 @@ def ui(port: int = 8501):
     """작업 화면 열기 (브라우저에서 딜 고르기·대본·테마·사진·영상 만들기·캡컷 보내기)."""
     import subprocess
     import sys
+    import socket
     app_path = Path(__file__).resolve().parent.parent / "app.py"
     env = {**os.environ, "HD_HOME": str(config.home())}
+
+    def busy(p: int) -> bool:
+        with socket.socket() as sock:
+            return sock.connect_ex(("127.0.0.1", p)) == 0
+
+    if busy(port):
+        echo(f"! {port}번에 작업 화면이 이미 켜져 있어요 (예전 코드일 수 있음). "
+             "그 명령 프롬프트 창에서 Ctrl+C 로 끄는 걸 권장해요.")
+        port = next(p for p in range(port + 1, port + 20) if not busy(p))
+        echo(f"  새 작업 화면은 http://localhost:{port} 에서 열어요")
     subprocess.run([sys.executable, "-m", "streamlit", "run", str(app_path), "--server.port", str(port),
                     "--browser.gatherUsageStats", "false"], env=env, cwd=str(app_path.parent))
 
