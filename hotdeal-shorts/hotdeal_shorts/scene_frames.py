@@ -127,6 +127,11 @@ def _community_canvas(scene: Scene, upto: int, width: int, load_image=None) -> t
             d.text((width - pad, 60), cap, font=font(28, "regular"), fill=C["meta"], anchor="rm")
         y = 112
         header_h = 96
+    if skit and not label_on:  # 사이트 이름·표시가 없으면 머리줄 여백을 없앤다
+        if t["header"] == "fill":
+            d.rectangle([0, 0, width, 92], fill=C["card"])
+            d.rectangle([0, 0, width, 10], fill=acc)
+        y, header_h = 56, 14
 
     # 2) 게시판 이름 · 말머리
     if t["board"] and scene.meta.get("board"):
