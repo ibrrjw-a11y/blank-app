@@ -468,3 +468,15 @@ def test_ui_pages_render(tmp_path, monkeypatch):
     assert not at.exception and at.header[0].value == "① 딜 고르기"
     at.sidebar.radio[0].set_value("② 영상 만들기").run()
     assert not at.exception and "먼저" in at.info[0].value
+
+
+def test_env_file_any_encoding(monkeypatch, tmp_path):
+    from hotdeal_shorts import config
+    body = "# 토스 키\nTOSS_ACCESS_KEY = ak1\nexport TOSS_SECRET_KEY=\"sk1\"\n"
+    for i, enc in enumerate(["utf-8-sig", "utf-16", "cp949"]):
+        key = f"HD_TEST_KEY_{i}"
+        monkeypatch.delenv(key, raising=False)
+        f = tmp_path / f"{i}.env"
+        f.write_bytes((body + f"{key}=v{i}\n").encode(enc))
+        config.load_env(f)
+        assert config.os.environ[key] == f"v{i}"

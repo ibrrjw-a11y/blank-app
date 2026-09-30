@@ -19,16 +19,31 @@ def home() -> Path:
     return cur
 
 
+def read_text_any(path: Path) -> str:
+    """메모장이 어떤 인코딩(UTF-8/BOM, 유니코드=UTF-16, ANSI=CP949)으로 저장해도 읽는다."""
+    raw = path.read_bytes()
+    if raw.startswith((b"\xff\xfe", b"\xfe\xff")):
+        return raw.decode("utf-16")
+    for enc in ("utf-8-sig", "cp949"):
+        try:
+            return raw.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="replace")
+
+
 def load_env(path: Path) -> None:
     """최소 .env 파서. 이미 설정된 환경변수는 덮어쓰지 않는다."""
     if not path.exists():
         return
-    for raw in path.read_text(encoding="utf-8").splitlines():
+    for raw in read_text_any(path).splitlines():
         line = raw.strip()
+        if line.lower().startswith("export "):
+            line = line[7:].strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, val = line.split("=", 1)
-        val = val.strip().strip('"').strip("'")
+        val = val.strip().strip('"').strip("'").strip()
         if val:
             os.environ.setdefault(key.strip(), val)
 

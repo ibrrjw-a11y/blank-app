@@ -96,7 +96,10 @@ def fail(msg: str) -> None:
 def doctor():
     """필요한 도구·키가 준비됐는지 점검."""
     ok = lambda b: typer.style("OK", fg="green") if b else typer.style("없음", fg="yellow")  # noqa: E731
+    config.cfg()  # .env 읽기
+    env = config.home() / ".env"
     echo(f"작업 폴더      {config.home()}")
+    echo(f".env 파일      {ok(env.exists())} {env}")
     echo(f"ffmpeg         {ok(shutil.which('ffmpeg'))}")
     try:
         echo(f"한글 폰트      {typer.style('OK', fg='green')} {find_font()}")
@@ -110,7 +113,9 @@ def doctor():
     echo(f"쿠팡파트너스   {ok(os.environ.get('COUPANG_ACCESS_KEY') and os.environ.get('COUPANG_SECRET_KEY'))}"
          "  (없으면 CSV 수동 입력)")
     toss_ok = all(os.environ.get(k) for k in ("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID"))
-    echo(f"토스 쉐어링크  {ok(toss_ok)}  (없으면 CSV 수동 입력)")
+    toss_missing = [k for k in ("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID") if not os.environ.get(k)]
+    echo(f"토스 쉐어링크  {ok(toss_ok)}" + (f"  빠진 칸: {', '.join(toss_missing)}" if toss_missing and
+                                           len(toss_missing) < 3 else "  (없으면 CSV 수동 입력)"))
     echo(f"YouTube API    {ok(os.environ.get('YOUTUBE_API_KEY'))}  (없으면 CSV 수동 입력)")
     img = config.get("images.provider", "gemini")
     key = {"gemini": "GEMINI_API_KEY", "openai": "OPENAI_API_KEY"}.get(img)
@@ -180,7 +185,7 @@ def deals_toss(best: bool = typer.Option(False, "--best", help="토스 베스트
     except (deals.TossError, requests.RequestException) as e:
         fail(str(e))
     _save_deals(items)
-    echo(f"✓ {len(items)}건 저장")
+    echo(f"✓ {len(items)}건 저장" + ("" if items else "  (품절·곧 끝나는 특가·24시간 안에 이미 가져온 상품은 뺌)"))
 
 
 @deals_app.command("list")

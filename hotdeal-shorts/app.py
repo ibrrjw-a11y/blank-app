@@ -26,6 +26,7 @@ STYLE_NAMES = ["더쿠", "디시", "네이버카페", "에펨코리아", "인스
 
 
 def has(*keys: str) -> bool:
+    config.load_env(config.home() / ".env")  # 화면을 켜 둔 채 .env 를 저장해도 바로 반영
     return all(os.environ.get(k) for k in keys)
 
 
@@ -83,6 +84,9 @@ def page_deals() -> None:
         fetch(lambda: deals.Toss().best(30))
     if c3.button("토스 하루특가 가져오기", disabled=not has("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID")):
         fetch(lambda: deals.Toss().today_deals(30))
+    toss_missing = [k for k in ("TOSS_ACCESS_KEY", "TOSS_SECRET_KEY", "TOSS_PUBLISHER_ID") if not os.environ.get(k)]
+    if 0 < len(toss_missing) < 3:
+        st.warning(f".env 에 토스 키가 덜 들어갔어요: {', '.join(toss_missing)}")
 
     with st.expander("➕ 딜 직접 추가 — 상품 URL 붙여넣기", expanded=True):
         url = st.text_input("상품 페이지 URL", placeholder="https://www.coupang.com/vp/products/...")
@@ -166,7 +170,10 @@ def fetch(fn) -> None:
         for d in items:
             d["score"], _ = deals.score(d)
             db.upsert_deal(conn, d)
-    st.success(f"{len(items)}건 가져왔어요")
+    if items:
+        st.success(f"{len(items)}건 가져왔어요")
+    else:
+        st.info("0건이에요 — 품절·곧 끝나는 특가·24시간 안에 이미 가져온 상품은 빼요.")
 
 
 def save_manual_deal(key, name, price, original, reviews, category, aff, image_url, upload, ends_at, evergreen,
