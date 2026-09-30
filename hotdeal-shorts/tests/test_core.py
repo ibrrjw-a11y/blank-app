@@ -526,3 +526,17 @@ def test_new_job_toss_link_per_channel_and_cleanup(monkeypatch, tmp_path):
     except OSError:
         pass
     assert {p.name for p in (tmp_path / "jobs").iterdir()} == before  # 반쯤 만든 폴더 안 남김
+
+
+def test_line_images_without_product_photo_use_ai(tmp_path, monkeypatch):
+    import json
+    from PIL import Image
+    from hotdeal_shorts import frames, job as jobmod
+    (tmp_path / "images").mkdir()
+    (tmp_path / "deal.json").write_text(json.dumps({"name": "세제", "source": "toss"}), encoding="utf-8")
+    Image.new("RGB", (40, 30), (255, 0, 0)).save(tmp_path / "images" / "line_001.png")
+    Image.new("RGB", (40, 30), (0, 0, 255)).save(tmp_path / "images" / "line_003.png")
+    j = jobmod.Job(tmp_path)
+    ims = frames.line_images(j, ["훅", "상황", "리뷰", "장면", "지금 5,740원 링크는 고정 댓글"], (40, 30))
+    px = [im.convert("RGB").getpixel((20, 15)) for im in ims]
+    assert px == [(255, 0, 0)] * 3 + [(0, 0, 255)] * 2  # 회색 빈 화면 없음

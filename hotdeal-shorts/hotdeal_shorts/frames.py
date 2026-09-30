@@ -212,20 +212,31 @@ def contain_on_white(img: Image.Image, size: tuple[int, int], margin: int = 40,
 def line_images(job: Job, texts: list[str], size: tuple[int, int],
                 bg_color=(255, 255, 255, 255)) -> list[Image.Image]:
     """줄별 사진: images/line_000.jpg ... 가 있으면 그 줄부터 사용, 없으면 앞 줄 사진 유지.
-    첫 사진이 나오기 전, 그리고 가격을 말하는 줄은 실제 상품 사진."""
+    첫 사진이 나오기 전, 그리고 가격을 말하는 줄은 실제 상품 사진.
+    상품 사진이 없으면 (토스 썸네일 미사용 등) 빈 회색 화면 대신 가까운 AI 이미지를 쓴다."""
     from .images import is_price_line
-    prod = product_image(job)
-    margin = 40 if size[0] < 1080 else 140
-    base = contain_on_white(prod, size, margin, bg_color) if prod else placeholder(size, job.deal["name"])
-    out, cur = [], base
-    for i, text in enumerate(texts):
-        if is_price_line(text):
-            cur = base
+
+    def ai(i: int) -> Image.Image | None:
         for ext in ("jpg", "jpeg", "png", "webp"):
             p = job.p("images", f"line_{i:03d}.{ext}")
             if p.exists():
-                cur = cover(Image.open(p).convert("RGBA"), size)
-                break
+                return cover(Image.open(p).convert("RGBA"), size)
+        return None
+
+    prod = product_image(job)
+    margin = 40 if size[0] < 1080 else 140
+    per_line = [ai(i) for i in range(len(texts))]
+    first_ai = next((im for im in per_line if im is not None), None)
+    if prod:
+        base = contain_on_white(prod, size, margin, bg_color)
+    else:
+        base = first_ai or placeholder(size, job.deal["name"])
+    out, cur = [], base
+    for i, text in enumerate(texts):
+        if is_price_line(text) and prod:
+            cur = base
+        if per_line[i] is not None:
+            cur = per_line[i]
         out.append(cur)
     return out
 

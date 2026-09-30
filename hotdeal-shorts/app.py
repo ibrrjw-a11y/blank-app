@@ -360,6 +360,11 @@ def section_images(j: jobmod.Job) -> None:
                 st.rerun()
 
 
+def has_product_photo(j: jobmod.Job) -> bool:
+    url = j.deal.get("image_url")
+    return any(j.p(f"product.{e}").exists() for e in ("png", "jpg", "jpeg", "webp")) or bool(url)
+
+
 def section_build(j: jobmod.Job) -> None:
     st.subheader("만들기")
     voices = dict(FREE_VOICES)
@@ -369,7 +374,12 @@ def section_build(j: jobmod.Job) -> None:
     v = st.selectbox("목소리", vkeys, index=vkeys.index(default_v) if default_v in vkeys else 0,
                      format_func=lambda k: voices[k])
     img_opts = ["none"] + [p for p, env in (("gemini", "GEMINI_API_KEY"), ("openai", "OPENAI_API_KEY")) if has(env)]
-    im = st.selectbox("AI 이미지", img_opts, format_func=lambda k: {"none": "안 씀 (올린 사진·상품 사진)"}.get(k, k))
+    default_im = config.get("images.provider", "gemini")
+    im = st.selectbox("AI 이미지", img_opts, index=img_opts.index(default_im) if default_im in img_opts else 0,
+                      format_func=lambda k: {"none": "안 씀 (올린 사진·상품 사진)"}.get(k, k))
+    if not has_product_photo(j):
+        st.warning("상품 사진이 없어요. 가격·링크를 말하는 줄은 원래 상품 사진이 나오는 자리라, "
+                   "지금은 앞뒤 AI 이미지로 채워요. 위 '상품 정보'에서 사진을 올리면 더 좋아요.")
     if st.button("승인하고 영상 만들기", type="primary", width="stretch"):
         script.set_approved(j.p("script.md"), True)
         with st.status("만드는 중…", expanded=True) as status:
