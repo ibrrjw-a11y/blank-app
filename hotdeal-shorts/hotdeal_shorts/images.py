@@ -176,3 +176,98 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
         made += 1
     log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
     return {"provider": provider, "made": made, "failed": failed, "prompt_by": by}
+
+
+# ------------------------------------------------------------------ 내가 준 사진을 대본에 맞게 자동 배치
+
+class Placement(BaseModel):
+    product_image: int = Field(description="상품 자체(제품·패키지)가 가장 잘 보이는 사진 번호(1부터). 없으면 0")
+    lines: list[int] = Field(description="대본 줄마다 가장 어울리는 사진 번호(1부터), 어울리는 게 없으면 0. "
+                                         "입력한 줄 수와 정확히 같은 길이")
+
+
+def _thumb_b64(path, side: int = 768) -> str:
+    import io
+    from PIL import Image
+    img = Image.open(path).convert("RGB")
+    img.thumbnail((side, side))
+    buf = io.BytesIO()
+    img.save(buf, "JPEG", quality=85)
+    return base64.b64encode(buf.getvalue()).decode()
+
+
+def _spread(n_photos: int, lines: list[str]) -> Placement:
+    """Claude 없이: 가격 줄은 비워 두고, 나머지 줄에 올린 순서대로 고르게 나눠 배치."""
+    slots = [i for i, t in enumerate(lines) if not is_price_line(t)] or list(range(len(lines)))
+    out = [0] * len(lines)
+    for k, i in enumerate(slots):
+        out[i] = min(n_photos, k * n_photos // len(slots) + 1)
+    return Placement(product_image=0, lines=out)
+
+
+def place_photos(lines: list[str], photos: list, deal: dict) -> tuple[Placement, str]:
+    """사진들을 보고 줄마다 어울리는 사진을 고른다 (Claude 키가 있으면 사진 내용을 보고, 없으면 순서대로)."""
+    if not photos:
+        return Placement(product_image=0, lines=[0] * len(lines)), "none"
+    if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")):
+        return _spread(len(photos), lines), "order"
+    import anthropic
+    content: list[dict] = []
+    for k, p in enumerate(photos, 1):
+        content += [{"type": "text", "text": f"사진 {k}"},
+                    {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg",
+                                                 "data": _thumb_b64(p)}}]
+    numbered = "\n".join(f"{i + 1}. {t}" for i, t in enumerate(lines))
+    content.append({"type": "text", "text": f"상품: {deal.get('name')}\n\n대본 줄:\n{numbered}"})
+    system = ("한국어 쇼핑 쇼츠의 편집자다. 사용자가 준 사진들을 보고, 대본 각 줄이 나올 때 화면에 띄울 사진을 고른다. "
+              "줄의 내용(상황·장면·효과·가격)과 가장 잘 맞는 사진을 고르고, 가격·할인·링크를 말하는 줄에는 상품이 잘 보이는 "
+              "사진을 쓴다. 가능한 한 모든 사진을 한 번 이상 쓰고, 같은 사진이 너무 오래 이어지지 않게 한다. "
+              "정말 어울리는 사진이 없는 줄만 0.")
+    try:
+        resp = anthropic.Anthropic().beta.messages.parse(
+            model=config.get("script.model", "claude-opus-5-5"),
+            max_tokens=4000,
+            system=system,
+            output_config={"effort": "low"},
+            betas=["server-side-fallback-2026-07-01"],
+            fallbacks="default",
+            messages=[{"role": "user", "content": content}],
+            output_format=Placement,
+        )
+        pl = resp.parsed_output
+    except Exception:  # noqa: BLE001 - 배치는 순서대로라도 해 준다
+        pl = None
+    if pl is None or len(pl.lines) != len(lines):
+        return _spread(len(photos), lines), "order"
+    n = len(photos)
+    pl.lines = [x if 0 <= x <= n else 0 for x in pl.lines]
+    pl.product_image = pl.product_image if 0 <= pl.product_image <= n else 0
+    return pl, "claude"
+
+
+def apply_photos(job: Job, scenes: list[Scene], photos: list) -> dict:
+    """사진 여러 장 → images/line_NNN.jpg 로 줄마다 배치 (+ 상품 사진이 없으면 상품 컷을 상품 사진으로)."""
+    from PIL import Image
+    flat = [(sc.kind, it.text) for sc in scenes for it in sc.items]
+    post = [(i, t) for i, (kind, t) in enumerate(flat) if kind == "post"]
+    pl, by = place_photos([t for _, t in post], photos, job.deal)
+    out_dir = job.p("images")
+    out_dir.mkdir(exist_ok=True)
+    placed = {}
+    for (i, text), k in zip(post, pl.lines):
+        if not k:
+            continue
+        for old in out_dir.glob(f"line_{i:03d}.*"):
+            old.unlink()
+        Image.open(photos[k - 1]).convert("RGB").save(out_dir / f"line_{i:03d}.jpg", quality=92)
+        placed[i] = k
+    product_set = False
+    has_product = any(job.p(f"product.{e}").exists() for e in ("png", "jpg", "jpeg", "webp"))
+    if pl.product_image and not has_product:
+        Image.open(photos[pl.product_image - 1]).convert("RGB").save(job.p("product.jpg"), quality=92)
+        product_set = True
+    (out_dir / "placement.json").write_text(json.dumps(
+        {"by": by, "photos": [str(p) for p in photos], "lines": {str(i): k for i, k in placed.items()},
+         "product_image": pl.product_image}, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"by": by, "placed": placed, "unused": sorted(set(range(1, len(photos) + 1)) - set(placed.values())),
+            "product_set": product_set, "empty_lines": [i for i, _ in post if i not in placed]}

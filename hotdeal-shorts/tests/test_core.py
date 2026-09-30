@@ -540,3 +540,29 @@ def test_line_images_without_product_photo_use_ai(tmp_path, monkeypatch):
     ims = frames.line_images(j, ["훅", "상황", "리뷰", "장면", "지금 5,740원 링크는 고정 댓글"], (40, 30))
     px = [im.convert("RGB").getpixel((20, 15)) for im in ims]
     assert px == [(255, 0, 0)] * 3 + [(0, 0, 255)] * 2  # 회색 빈 화면 없음
+
+
+def test_apply_photos_places_user_photos_per_line(tmp_path, monkeypatch):
+    import json
+    from PIL import Image
+    from hotdeal_shorts import images, job as jobmod, scenes
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    (tmp_path / "deal.json").write_text(json.dumps({"name": "세제", "source": "toss"}), encoding="utf-8")
+    j = jobmod.Job(tmp_path)
+    scs = scenes.parse("훅 한 줄\n빨래가 쌓인 상황\n향이 오래 감\n지금 5,740원\n링크는 고정 댓글")
+    photos = []
+    for k, c in enumerate([(255, 0, 0), (0, 255, 0), (0, 0, 255)], 1):
+        p = tmp_path / f"p{k}.png"
+        Image.new("RGB", (40, 30), c).save(p)
+        photos.append(p)
+    r = images.apply_photos(j, scs, photos)  # 키 없음 → 가격 줄 빼고 순서대로 고르게
+    assert r["by"] == "order" and r["placed"] == {0: 1, 1: 2, 2: 3}
+
+    # Claude 가 고른 배치 (사진 내용 기준) + 상품 컷 지정
+    monkeypatch.setattr(images, "place_photos",
+                        lambda lines, ph, deal: (images.Placement(product_image=3, lines=[2, 1, 1, 3, 0]), "claude"))
+    r = images.apply_photos(j, scs, photos)
+    assert r["placed"] == {0: 2, 1: 1, 2: 1, 3: 3} and r["product_set"] and r["unused"] == []
+    assert (tmp_path / "product.jpg").exists()
+    px = Image.open(tmp_path / "images" / "line_000.jpg").getpixel((20, 15))
+    assert px[1] > 200 and px[0] < 50  # 2번(초록) 사진

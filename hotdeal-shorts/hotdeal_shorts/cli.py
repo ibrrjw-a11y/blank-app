@@ -309,9 +309,24 @@ def _make_images(j: jobmod.Job, provider: Optional[str], force: bool = False) ->
 @app.command("images")
 def images_cmd(job_id: str, provider: Optional[str] = typer.Option(None, help="gemini | openai"),
                force: bool = typer.Option(False, "--force", help="이미 있는 이미지도 다시 생성"),
-               select: Optional[str] = typer.Option(None, help="every | marked | first")):
-    """줄마다 AI 이미지만 따로 생성 (결과: images/line_NNN.png). 마음에 안 드는 파일은 지우고 다시 실행."""
+               select: Optional[str] = typer.Option(None, help="every | marked | first"),
+               photos: Optional[Path] = typer.Option(None, "--photos",
+                                                     help="내 사진 폴더 → 대본에 맞게 줄마다 자동 배치 (AI 생성 안 함)")):
+    """줄마다 AI 이미지 생성, 또는 --photos 로 내 사진을 대본에 맞게 배치 (결과: images/line_NNN)."""
     j = jobmod.load(job_id)
+    if photos:
+        from . import images as img_mod
+        files = sorted(p for p in photos.iterdir() if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp"))
+        if not files:
+            fail(f"{photos} 에 사진이 없어요")
+        r = img_mod.apply_photos(j, script.read_scenes(j.p("script.md")), files)
+        echo(f"✓ {len(r['placed'])}줄에 배치 ({'사진 내용 기준' if r['by'] == 'claude' else '순서대로'})"
+             + (" · 상품 사진 지정" if r["product_set"] else ""))
+        for i, k in sorted(r["placed"].items()):
+            echo(f"  {i + 1}줄 ← {files[k - 1].name}")
+        if r["unused"]:
+            echo(f"  안 쓴 사진: {', '.join(files[k - 1].name for k in r['unused'])}")
+        return
     if select:
         config.cfg()["images"] = {**(config.get("images") or {}), "select": select}
     _make_images(j, provider, force)

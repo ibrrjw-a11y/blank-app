@@ -12,7 +12,7 @@ from PIL import Image
 
 os.environ.setdefault("HD_HOME", str(Path(__file__).resolve().parent))
 
-from hotdeal_shorts import (config, db, deals, job as jobmod, pipeline, profiles, scene_frames,  # noqa: E402
+from hotdeal_shorts import (config, db, deals, images, job as jobmod, pipeline, profiles, scene_frames,  # noqa: E402
                             scenes, script, themes)
 from hotdeal_shorts.frames import preview  # noqa: E402
 
@@ -344,7 +344,29 @@ def section_images(j: jobmod.Job) -> None:
     scs = script.read_scenes(j.p("script.md"))
     flat = [(sc.kind, it.text) for sc in scs for it in sc.items]
     post_lines = [(i, text) for i, (kind, text) in enumerate(flat) if kind == "post"]
-    with st.expander(f"줄별 사진 ({len(post_lines)}줄) — 사진이 없는 줄은 앞 사진·상품 사진을 이어서 써요"):
+    st.subheader("사진")
+    st.caption("사진을 여러 장 한꺼번에 올리면 대본을 읽고 줄마다 어울리는 사진을 알아서 넣어요. "
+               "상품이 잘 보이는 사진은 가격 줄에 쓰고, 남는 줄은 AI 이미지(선택 시)나 앞 사진으로 채워요.")
+    ups = st.file_uploader("사진 여러 장", type=["jpg", "jpeg", "png", "webp"], accept_multiple_files=True,
+                           key=f"batch_{j.id}", label_visibility="collapsed")
+    if ups and st.button(f"사진 {len(ups)}장 대본에 맞게 배치", type="primary", key=f"place_{j.id}"):
+        folder = j.p("uploads")
+        folder.mkdir(exist_ok=True)
+        paths = []
+        for k, up in enumerate(ups, 1):
+            path = folder / f"{k:02d}.jpg"
+            Image.open(up).convert("RGB").save(path, quality=92)
+            paths.append(path)
+        with st.spinner("사진을 보고 줄마다 고르는 중…"):
+            r = images.apply_photos(j, scs, paths)
+        how = "사진 내용을 보고" if r["by"] == "claude" else "올린 순서대로 (Claude 키가 없거나 실패)"
+        st.success(f"{len(r['placed'])}줄에 배치했어요 — {how}"
+                   + (" · 상품 사진도 정했어요" if r["product_set"] else ""))
+        if r["unused"]:
+            st.info(f"안 쓴 사진: {', '.join(map(str, r['unused']))}번")
+    has_any = any(j.path.glob("images/line_*.*"))
+    with st.expander(f"줄별 사진 확인·바꾸기 ({len(post_lines)}줄) — 사진이 없는 줄은 앞 사진·상품 사진을 이어서 써요",
+                     expanded=has_any):
         for i, text in post_lines:
             a, b, c = st.columns([3, 1, 2])
             a.write(f"**{i + 1}.** {text}")
