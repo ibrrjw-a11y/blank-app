@@ -1,0 +1,77 @@
+<!--
+    Árvo 머리말 (모든 화면 공통)
+    - 메뉴(GNB)는 관리자 > 상품 > 상품 분류 관리의 대분류가 자동으로 나옵니다. (Layout_category)
+    - 로그인/로그아웃, 장바구니 개수는 카페24가 채웁니다.
+    - 공지 띠 문구는 아래 <div class="notice"> 안에서 바로 고치면 됩니다.
+-->
+<div class="notice"><b>No.07 · No.10 · No.11</b>향으로 고르는 퍼퓸 헤어오일</div>
+
+<header class="site-header" id="arvoHeader">
+    <div class="arvo-wrap bar">
+        <div class="left">
+            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="arvoMenu" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+            <nav class="gnb" aria-label="주요 메뉴">
+                <div module="Layout_category">
+                    <ul>
+                        <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+                        <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+                    </ul>
+                </div>
+                <a class="gnb-brand" href="/brand/story.html">브랜드</a>
+            </nav>
+        </div>
+
+        <a class="logo-link" href="/" aria-label="Árvo 홈"><img class="brand-logo" src="/arvo/img/logo-black.webp" alt="Árvo" width="1000" height="380"></a>
+
+        <div class="util">
+            <button type="button" class="hide-sm" data-arvo-search-open>검색</button>
+            <a module="Layout_statelogoff" class="hide-sm" href="/member/login.html">로그인</a>
+            <a module="Layout_stateLogon" class="hide-sm" href="/myshop/index.html">마이페이지</a>
+            <a module="Layout_orderBasketcount" class="cart-link" href="/order/basket.html">장바구니 <span class="cart-count {$basket_count_display|display} {$basket_count_display_class}"><span class="{$basket_count_class}">{$basket_count}</span></span></a>
+        </div>
+    </div>
+</header>
+
+<!-- 모바일 메뉴 -->
+<nav id="arvoMenu" class="mobile-nav" aria-label="모바일 메뉴">
+    <div class="big" module="Layout_category">
+        <ul>
+            <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+            <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+        </ul>
+    </div>
+    <div class="big"><a href="/brand/story.html">브랜드</a></div>
+    <div class="scents">
+        <a href="/product/search.html?keyword=No.07" data-arvo-scent-link="07" data-scent="07"><span class="m-num">07</span><span class="m-label">Floral Sunshine</span></a>
+        <a href="/product/search.html?keyword=No.10" data-arvo-scent-link="10" data-scent="10"><span class="m-num">10</span><span class="m-label">Bloom of Sharon</span></a>
+        <a href="/product/search.html?keyword=No.11" data-arvo-scent-link="11" data-scent="11"><span class="m-num">11</span><span class="m-label">Forest Fog</span></a>
+    </div>
+    <div class="small">
+        <button type="button" data-arvo-search-open>검색</button>
+        <a module="Layout_statelogoff" href="/member/login.html">로그인</a>
+        <a module="Layout_statelogoff" href="/member/agreement.html">회원가입</a>
+        <a module="Layout_stateLogon" href="/myshop/index.html">마이페이지</a>
+        <a module="Layout_stateLogon" href="{$action_logout}">로그아웃</a>
+        <a href="/myshop/order/list.html">주문 조회</a>
+        <a href="/product/recent_view_product.html">최근 본 상품</a>
+    </div>
+</nav>
+
+<!-- 검색 -->
+<div id="arvoSearch" class="search-layer" module="Layout_SearchHeader" role="dialog" aria-label="상품 검색">
+    <!--
+        $product_page=/product/detail.html
+        $category_page=/product/list.html
+    -->
+    <div class="arvo-wrap inner">
+        <fieldset>
+            <legend>상품 검색</legend>
+            {$form.keyword}
+            <button type="button" class="search-go" onclick="{$action_search_submit}">검색</button>
+        </fieldset>
+        <ul class="autoDrop" id="{$search_auto_id}"></ul>
+        <p class="hints">향 번호로 찾기 <a href="/product/search.html?keyword=No.07">No.07</a><a href="/product/search.html?keyword=No.10">No.10</a><a href="/product/search.html?keyword=No.11">No.11</a></p>
+        <button type="button" class="close" data-arvo-search-close>닫기</button>
+    </div>
+</div>
+<div class="search-scrim" data-arvo-search-close></div>

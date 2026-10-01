@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>전체 상품 · Árvo</title>
+<meta name="description" content="향으로 고르는 퍼퓸 헤어오일, 에이르보(Árvo). No.07 플로럴 선샤인, No.10 블룸 오브 샤론, No.11 포레스트 포그.">
+<meta name="theme-color" content="#F5F4F0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap">
+<link rel="stylesheet" href="assets/css/arvo.css">
+</head>
+<body>
+<a class="skip" href="#main">본문 바로가기</a>
+<p class="proto-flag"><b>PROTOTYPE</b> · 시안용 화면입니다. 가격과 재고는 예시이며 실제 판매는 카페24 스킨에서 연결됩니다.</p>
+<div class="notice"><span class="label">No.07 · No.10 · No.11</span>향으로 고르는 퍼퓸 헤어오일</div>
+<header class="site-header">
+  <div class="wrap bar">
+    <div class="left">
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="메뉴"><span></span><span></span><span></span></button>
+      <nav class="gnb" aria-label="주요 메뉴">
+        <a href="shop.html" aria-current="page">전체 상품</a>
+        <a href="shop.html#oil">헤어오일</a>
+        <a href="shop.html#care">케어</a>
+        <a href="brand.html">브랜드</a>
+      </nav>
+    </div>
+    <a href="index.html" aria-label="Árvo 홈"><img class="brand-logo" src="assets/img/logo-black.webp" alt="Árvo" width="1000" height="380"></a>
+    <div class="util">
+      <a href="#" class="hide-sm">검색</a>
+      <a href="#" class="hide-sm">로그인</a>
+      <a href="#" class="cart-link" data-open-cart>장바구니 <span class="cart-count" data-cart-count>0</span></a>
+    </div>
+  </div>
+</header>
+<nav id="mobile-nav" class="mobile-nav" aria-label="모바일 메뉴">
+  <div class="big">
+    <a href="shop.html">전체 상품</a>
+    <a href="shop.html#oil">헤어오일</a>
+    <a href="shop.html#care">케어</a>
+    <a href="brand.html">브랜드</a>
+  </div>
+  <div class="scents">
+    <a href="product.html#oil-07" data-scent="07" style="background:linear-gradient(180deg,var(--s-a),var(--s-c))"><span class="num">07</span><span class="label">Floral Sunshine</span></a>
+    <a href="product.html#oil-10" data-scent="10" style="background:linear-gradient(180deg,var(--s-a),var(--s-c))"><span class="num">10</span><span class="label">Bloom of Sharon</span></a>
+    <a href="product.html#oil-11" data-scent="11" style="background:linear-gradient(180deg,var(--s-a),var(--s-c))"><span class="num">11</span><span class="label">Forest Fog</span></a>
+  </div>
+  <div class="small"><a href="#">로그인</a><a href="#">회원가입</a><a href="#">주문 조회</a><a href="#">고객센터</a></div>
+</nav>
+<main id="main">
+  <div class="wrap page-head">
+    <nav class="crumbs" aria-label="현재 위치"><a href="index.html">홈</a><span>/</span><span>전체 상품</span></nav>
+    <h1>전체 상품</h1>
+    <p>무드 오일 세 가지와 같은 향의 케어, 두피를 위한 스칼프, 살롱에서 쓰는 컬 크림까지.</p>
+  </div>
+
+  <div class="filters">
+    <div class="wrap row">
+      <div class="tabs" role="group" aria-label="분류">
+        <button type="button" data-cat="all" aria-pressed="true">전체</button>
+        <button type="button" data-cat="oil" aria-pressed="false">무드 오일</button>
+        <button type="button" data-cat="care" aria-pressed="false">무드 케어</button>
+        <button type="button" data-cat="scalp" aria-pressed="false">스칼프</button>
+        <button type="button" data-cat="salon" aria-pressed="false">살롱</button>
+      </div>
+      <div>
+        <label class="sr-only" for="sort">정렬</label>
+        <select id="sort">
+          <option value="reco">추천순</option>
+          <option value="low">낮은 가격순</option>
+          <option value="high">높은 가격순</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="scent-chips" role="group" aria-label="향으로 거르기">
+      <button type="button" data-scent-filter="07" data-scent="07" aria-pressed="false"><i></i>07 플로럴 선샤인</button>
+      <button type="button" data-scent-filter="10" data-scent="10" aria-pressed="false"><i></i>10 블룸 오브 샤론</button>
+      <button type="button" data-scent-filter="11" data-scent="11" aria-pressed="false"><i></i>11 포레스트 포그</button>
+    </div>
+    <p class="list-count" style="margin-bottom:20px">상품 <span data-count>8</span>개</p>
+    <div id="shop-grid" class="prd-grid cols-4"></div>
+  </div>
+
+  <section class="section minis" style="margin-top:96px">
+    <div class="wrap">
+      <div class="sec-head split">
+        <div><p class="label muted">20ml</p><h2>내 번호를 모르겠다면</h2></div>
+        <p>20ml로 세 가지 향을 먼저 맡아 보세요. 마음에 드는 번호를 찾으면 50ml로.</p>
+      </div>
+      <div class="mini-row">
+        <a class="mini" data-scent="07" href="product.html#oil-07"><img src="assets/img/p-07-mini.webp" alt="No.07 20ml" width="232" height="469" loading="lazy"><span class="num">07</span><span class="en-name">Floral Sunshine</span><span class="price">12,000<small>원</small></span></a>
+        <a class="mini" data-scent="10" href="product.html#oil-10"><img src="assets/img/p-10-mini.webp" alt="No.10 20ml" width="456" height="954" loading="lazy"><span class="num">10</span><span class="en-name">Bloom of Sharon</span><span class="price">12,000<small>원</small></span></a>
+        <a class="mini" data-scent="11" href="product.html#oil-11"><img src="assets/img/p-11-mini.webp" alt="No.11 20ml" width="232" height="469" loading="lazy"><span class="num">11</span><span class="en-name">Forest Fog</span><span class="price">12,000<small>원</small></span></a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap top">
+    <div>
+      <img class="logo" src="assets/img/logo-white.webp" alt="Árvo" width="1000" height="385">
+      <p class="slogan">Wear your mood on your hair.</p>
+    </div>
+    <div>
+      <h4>Customer</h4>
+      <p class="cs-tel">1899-5513</p>
+      <ul><li>주문 · 배송 · 교환 문의</li><li><a href="#">1:1 문의</a></li></ul>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <ul><li><a href="shop.html#oil">무드 오일</a></li><li><a href="shop.html#care">무드 케어</a></li><li><a href="shop.html#scalp">스칼프</a></li><li><a href="shop.html#salon">살롱</a></li></ul>
+    </div>
+    <div>
+      <h4>Árvo</h4>
+      <ul><li><a href="brand.html">브랜드 이야기</a></li><li><a href="https://www.instagram.com/arvo.official/" target="_blank" rel="noopener">Instagram</a></li><li><a href="#">공지사항</a></li></ul>
+    </div>
+  </div>
+  <div class="wrap legal">
+    <div class="links"><a href="#">이용약관</a><a href="#"><b>개인정보처리방침</b></a><a href="#">이용안내</a></div>
+    <p>상호 · 대표자 · 사업자등록번호 · 통신판매업 신고번호 · 사업장 주소 · 개인정보보호책임자는 카페24 쇼핑몰 기본 정보에서 자동으로 표시됩니다.</p>
+    <p>© Árvo. All rights reserved.</p>
+  </div>
+</footer>
+
+<aside id="cart-drawer" class="drawer" aria-hidden="true" aria-label="장바구니">
+  <header><h2>장바구니</h2><button class="close link-arrow" type="button">닫기</button></header>
+  <div class="items"></div>
+  <footer>
+    <div class="sum"><span>합계</span><span class="price" data-sum>0<small>원</small></span></div>
+    <button class="btn btn-ink btn-block" type="button" data-checkout>주문하기</button>
+    <p data-msg>배송비와 할인은 주문서에서 계산됩니다.</p>
+  </footer>
+</aside>
+<div class="drawer-scrim"></div>
+<script src="assets/js/arvo.js"></script>
+<script src="assets/js/arvo-motion.js"></script>
+</body>
+</html>
