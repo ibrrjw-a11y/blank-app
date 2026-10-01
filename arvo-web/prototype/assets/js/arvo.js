@@ -150,6 +150,8 @@
     hero.addEventListener('focusin', function () { pause(true); });
     hero.addEventListener('focusout', function (e) { if (!hero.contains(e.relatedTarget)) pause(false); });
     document.addEventListener('visibilitychange', function () { if (document.hidden) clearTimeout(timer); else schedule(); });
+    /* 오프닝이 끝난 순간부터 7초를 다시 셉니다. */
+    document.addEventListener('arvo:introdone', function () { show(cur); });
     show(cur);
   }
 

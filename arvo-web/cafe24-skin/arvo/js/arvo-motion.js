@@ -25,12 +25,219 @@
 
   var ready = function (fn) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); };
 
-  /* 오프닝: 메인 본문 맨 앞의 짧은 스크립트가 has-intro 를 붙였을 때만 보입니다. */
-  ready(function () {
-    if (!root.classList.contains('has-intro')) return;
+  /* ---------- 오프닝 ----------
+     메인 본문 맨 앞의 짧은 스크립트가 html 에 has-intro 를 붙였을 때만 재생합니다 (세션당 한 번).
+     0.0s 오일 한 방울이 떨어져 퍼짐 → 0.5s 물결이 07 의 색으로 번짐 → 1.35s 10 → 1.95s 11
+     → 2.55s 세 색이 로고의 방울 자리로 모임 → 2.9s Árvo 조립, 방울이 Á 위에 떨어짐
+     → 3.5s 문구 → 4.3s 로고가 머리말 자리로 날아가며 첫 화면이 열림 */
+  var supportsLinear = !!(window.CSS && CSS.supports && CSS.supports('animation-timing-function', 'linear(0, 1)'));
+  /* 감쇠 스프링을 linear() 곡선으로 (z: 감쇠, w: 진동) */
+  var spring = function (z, w) {
+    if (!supportsLinear) return 'cubic-bezier(.34, 1.56, .64, 1)';
+    var wd = w * Math.sqrt(1 - z * z), pts = [];
+    for (var i = 0; i <= 60; i++) {
+      var t = i / 60;
+      pts.push((1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t))).toFixed(4));
+    }
+    pts[60] = '1';
+    return 'linear(' + pts.join(', ') + ')';
+  };
+  var EASE = {
+    springHard: spring(0.38, 15), springSoft: spring(0.5, 12), springBottle: spring(0.42, 13),
+    inOut: 'cubic-bezier(.86, 0, .07, 1)', out: 'cubic-bezier(.16, 1, .3, 1)', in: 'cubic-bezier(.7, 0, .84, 0)',
+    gravity: 'cubic-bezier(.55, 0, 1, .45)'
+  };
+
+  function playIntro() {
+    var intro = $('.intro');
+    if (!intro || !root.classList.contains('has-intro')) return;
     try { sessionStorage.setItem('arvo-intro', '1'); } catch (e) {}
-    setTimeout(function () { root.classList.remove('has-intro'); }, 2900);
-  });
+    var done = false, exiting = false, timers = [], anims = [];
+    var finish = function () {
+      if (done) return;
+      done = true;
+      timers.forEach(clearTimeout);
+      root.classList.remove('has-intro');
+      if (intro.parentNode) intro.parentNode.removeChild(intro);
+      document.dispatchEvent(new CustomEvent('arvo:introdone'));
+    };
+    if (reduce || !intro.animate) { finish(); return; }
+
+    var q = function (sel) { return $(sel, intro); };
+    var qa = function (sel) { return $$(sel, intro); };
+    var A = function (el, kf, dur, delay, easing) {
+      if (!el) return null;
+      var a = el.animate(kf, { duration: dur, delay: delay || 0, easing: easing || 'linear', fill: 'both' });
+      anims.push(a);
+      return a;
+    };
+    var later = function (ms, fn) { timers.push(setTimeout(fn, ms)); };
+
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var floods = qa('.i-flood'), bottles = qa('.i-bottles img'), names = qa('.i-name'), krs = qa('.i-kr span');
+    var num = q('.i-num'), cols = qa('.i-num .col'), count = q('.i-count .col');
+    var logo = q('.i-logo'), letters = qa('.i-logo .l'), drop = q('.i-logo .drop');
+    var words = qa('.i-tag > span > span');
+
+    /* 로고 방울이 놓일 자리 (모든 색이 이 점으로 빨려 들어감) */
+    var lr = logo.getBoundingClientRect();
+    var tx = lr.left + lr.width * 0.121, ty = lr.top + lr.height * 0.126;
+    var txp = (tx / vw * 100).toFixed(2) + '%', typ = (ty / vh * 100).toFixed(2) + '%';
+
+    /* 1. 한 방울 (0 – 0.62s) */
+    var fall = q('.i-fall');
+    A(fall, [
+      { transform: 'translate3d(0,' + (-vh * 0.62) + 'px,0) scale(.7, 1.45)', opacity: 1 },
+      { transform: 'translate3d(0,0,0) scale(.82, 1.3)', opacity: 1, offset: 0.86 },
+      { transform: 'translate3d(0,0,0) scale(1.9, .32)', opacity: 1 }
+    ], 520, 60, EASE.gravity);
+    anims.push(fall.animate([{ transform: 'translate3d(0,0,0) scale(1.9, .32)', opacity: 1 }, { transform: 'translate3d(0,0,0) scale(0, 0)', opacity: 0 }], { duration: 160, delay: 580, easing: EASE.in, fill: 'forwards' }));
+    /* 튀는 물방울: 바닥에 닿는 순간 사방으로 포물선을 그리며 흩어짐 */
+    var spl = [[-1, 0.9, 10], [-0.55, 1.25, 7], [-0.2, 1.5, 5], [0.25, 1.4, 8], [0.6, 1.15, 6], [1, 0.85, 9], [0.08, 1.7, 4]];
+    qa('.i-splash i').forEach(function (d, i) {
+      var v = spl[i % spl.length], dx = v[0] * Math.min(vw, 900) * 0.16, up = v[1] * Math.min(vh, 800) * 0.12;
+      d.style.setProperty('--sz', v[2] + 'px');
+      anims.push(d.animate([
+        { transform: 'translate3d(0,0,0) scale(1)', opacity: 1 },
+        { transform: 'translate3d(' + (dx * 0.6) + 'px,' + (-up) + 'px,0) scale(1)', opacity: 1, offset: 0.45 },
+        { transform: 'translate3d(' + dx + 'px,' + (up * 0.35) + 'px,0) scale(.3)', opacity: 0 }
+      ], { duration: 620, delay: 575, easing: 'cubic-bezier(.2, .6, .4, 1)', fill: 'forwards' }));
+    });
+    qa('.i-rings i').forEach(function (r, i) {
+      A(r, [{ transform: 'scale(0)', opacity: 0.9 }, { transform: 'scale(1)', opacity: 0 }], 1100, 560 + i * 110, EASE.out);
+    });
+
+    /* 2. 07 → 10 → 11 : 물결 → 오른쪽에서 쓸기 → 아래에서 쓸기 */
+    var T = [600, 1350, 1950];
+    var wipes = [
+      [{ clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(75% at 50% 50%)' }],
+      [{ clipPath: 'polygon(118% 0, 118% 0, 100% 100%, 100% 100%)' }, { clipPath: 'polygon(-18% 0, 118% 0, 100% 100%, -36% 100%)' }],
+      [{ clipPath: 'polygon(0 118%, 100% 100%, 100% 100%, 0 118%)' }, { clipPath: 'polygon(0 -18%, 100% -36%, 100% 100%, 0 118%)' }]
+    ];
+    floods.forEach(function (f, i) {
+      A(f, wipes[i], i ? 620 : 760, T[i], EASE.inOut);
+      $$('.i-lines path', f).forEach(function (p, k) {
+        p.setAttribute('pathLength', '1');
+        A(p, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], 1100, T[i] + 120 + k * 60, EASE.out);
+      });
+    });
+    /* 숫자: 튀어 들어온 뒤 07 → 10 → 11 로 굴러감 */
+    A(num, [{ transform: 'translateY(22%) scale(1.35)', opacity: 0 }, { opacity: 1, offset: 0.25 }, { transform: 'translateY(-4%) scale(1)', opacity: 1 }], 900, T[0] + 300, EASE.springHard);
+    cols.forEach(function (c, ci) {
+      A(c, [{ transform: 'translateY(0)' }, { transform: 'translateY(-1em)' }], 640, T[1] + ci * 50, EASE.springHard);
+    });
+    cols.forEach(function (c, ci) {
+      anims.push(c.animate([{ transform: 'translateY(-1em)' }, { transform: 'translateY(-2em)' }], { duration: 640, delay: T[2] + ci * 50, easing: EASE.springHard, fill: 'forwards' }));
+    });
+    A(num, [{ color: '#ffffff' }, { color: '#1B1A19' }], 420, T[2] + 120, EASE.out);
+    if (count) {
+      A(count, [{ transform: 'translateY(0)' }, { transform: 'translateY(-1.2em)' }], 520, T[1], EASE.springSoft);
+      anims.push(count.animate([{ transform: 'translateY(-1.2em)' }, { transform: 'translateY(-2.4em)' }], { duration: 520, delay: T[2], easing: EASE.springSoft, fill: 'forwards' }));
+    }
+    /* 병: 아래·옆에서 튕기며 들어오고, 다음 병에게 자리를 내줌 */
+    var enter = [
+      [{ transform: 'translate3d(0, 38%, 0) rotate(-14deg) scale(.82)', opacity: 0 }, { opacity: 1, offset: 0.2 }, { transform: 'none', opacity: 1 }],
+      [{ transform: 'translate3d(80vw, 4%, 0) rotate(18deg)', opacity: 1 }, { transform: 'none', opacity: 1 }],
+      [{ transform: 'translate3d(0, 115vh, 0) rotate(-10deg)', opacity: 1 }, { transform: 'none', opacity: 1 }]
+    ];
+    var leave = [
+      [{ transform: 'none', opacity: 1 }, { transform: 'translate3d(-85vw, -6%, 0) rotate(-22deg)', opacity: 1 }],
+      [{ transform: 'none', opacity: 1 }, { transform: 'translate3d(0, -130vh, 0) rotate(12deg)', opacity: 1 }]
+    ];
+    bottles.forEach(function (b, i) {
+      A(b, enter[i], 900, T[i] + (i ? 40 : 380), EASE.springBottle);
+      if (leave[i]) anims.push(b.animate(leave[i], { duration: 460, delay: T[i + 1] - 90, easing: 'cubic-bezier(.5, 0, .75, .2)', fill: 'forwards' }));
+    });
+    /* 글자: 향 이름이 한 글자씩 올라오고, 다음 향이 오면 위로 빠짐 */
+    A(q('.i-top'), [{ transform: 'translateY(-14px)', opacity: 0 }, { transform: 'none', opacity: 1 }], 600, T[0] + 200, EASE.out);
+    names.forEach(function (n, i) {
+      var cs = $$('.c', n);
+      cs.forEach(function (c, k) {
+        A(c, [{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }], 620, T[i] + 220 + k * 18, EASE.out);
+        if (i < 2) anims.push(c.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-110%)' }], { duration: 300, delay: T[i + 1] - 60 + k * 8, easing: EASE.in, fill: 'forwards' }));
+      });
+      var nt = $('.notes', n);
+      A(nt, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], 500, T[i] + 420, EASE.out);
+      if (i < 2) anims.push(nt.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, delay: T[i + 1] - 80, fill: 'forwards' }));
+    });
+    krs.forEach(function (k, i) {
+      A(k, [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], 500, T[i] + 300, EASE.out);
+      if (i < 2) anims.push(k.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, delay: T[i + 1] - 80, fill: 'forwards' }));
+    });
+
+    /* 3. 세 색이 로고 방울 자리로 빨려 들어감 (2.55s) */
+    var C = 2550;
+    A(q('.i-floods'), [{ clipPath: 'circle(150% at ' + txp + ' ' + typ + ')' }, { clipPath: 'circle(0% at ' + txp + ' ' + typ + ')' }], 520, C, 'cubic-bezier(.6, 0, .3, 1)');
+    var stage = q('.i-stage');
+    stage.style.transformOrigin = tx + 'px ' + ty + 'px';
+    A(stage, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.04)', opacity: 0 }], 480, C, 'cubic-bezier(.6, 0, .3, 1)');
+    A(q('.i-meta'), [{ opacity: 1 }, { opacity: 0 }], 220, C, 'linear');
+
+    /* 4. Árvo 조립 + 방울 (2.9s) */
+    var L = 2900;
+    letters.forEach(function (l, i) {
+      A(l, [{ transform: 'translateY(105%)' }, { transform: 'translateY(0)' }], 760, L + i * 70, EASE.springHard);
+    });
+    A(drop, [
+      { transform: 'translate3d(0,' + (-vh * 0.55) + 'px,0) scale(.8, 1.5)', opacity: 1 },
+      { transform: 'translate3d(0,0,0) scale(.9, 1.2)', opacity: 1 }
+    ], 380, L + 260, EASE.gravity);
+    anims.push(drop.animate([
+      { transform: 'translate3d(0,0,0) scale(1.35, .62)', opacity: 1 },
+      { transform: 'translate3d(0,-14%,0) scale(.9, 1.12)', opacity: 1, offset: 0.45 },
+      { transform: 'translate3d(0,0,0) scale(1.06, .95)', opacity: 1, offset: 0.75 },
+      { transform: 'none', opacity: 1 }
+    ], { duration: 520, delay: L + 640, easing: 'ease-out', fill: 'forwards' }));
+    A(q('.i-logo .ping'), [{ transform: 'scale(0)', opacity: 0.8 }, { transform: 'scale(1)', opacity: 0 }], 800, L + 640, EASE.out);
+    /* 로고가 다 맞춰질 때 살짝 '쿵' */
+    A(logo, [{ transform: 'translate(-50%, -62%) scale(1)' }, { transform: 'translate(-50%, -62%) scale(.975)', offset: 0.3 }, { transform: 'translate(-50%, -62%) scale(1)' }], 520, L + 640, 'ease-out');
+
+    /* 5. 문구 (3.5s) */
+    words.forEach(function (w, i) {
+      A(w, [{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }], 700, L + 620 + i * 55, EASE.out);
+    });
+
+    /* 6. 로고가 머리말 자리로 날아가며 첫 화면이 열림 */
+    var exit = function (fast) {
+      if (exiting) return;
+      exiting = true;
+      var d = fast ? 560 : 860;
+      var target = $('.site-header .brand-logo');
+      var from = logo.getBoundingClientRect();
+      A(q('.i-tag'), [{ opacity: 1 }, { opacity: 0 }], 200, 0, 'linear');
+      A(q('.i-skip'), [{ opacity: 0.6 }, { opacity: 0 }], 200, 0, 'linear');
+      if (target) {
+        var to = target.getBoundingClientRect();
+        var s = to.width / from.width;
+        var dx = (to.left + to.width / 2) - (from.left + from.width / 2);
+        var dy = (to.top + to.height / 2) - (from.top + from.height / 2);
+        anims.push(logo.animate([
+          { transform: 'translate(-50%, -62%) scale(1)' },
+          { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-62% + ' + dy + 'px)) scale(' + s + ')' }
+        ], { duration: d, easing: EASE.inOut, fill: 'forwards' }));
+      } else {
+        A(logo, [{ opacity: 1 }, { opacity: 0 }], d, 0, 'linear');
+      }
+      A(q('.i-bg'), [{ clipPath: 'inset(0 0 0 0)' }, { clipPath: 'inset(0 0 100% 0)' }], d, fast ? 0 : 120, EASE.inOut);
+      later((fast ? 0 : 120) + d + 20, finish);
+    };
+    var skip = function () {
+      if (exiting) return;
+      timers.forEach(clearTimeout);
+      anims.forEach(function (a) { try { a.cancel(); } catch (e) {} });
+      anims = [];
+      intro.classList.add('is-skipped');
+      exit(true);
+    };
+    later(4300, function () { exit(false); });
+    intro.addEventListener('click', skip);
+    window.addEventListener('wheel', skip, { passive: true, once: true });
+    window.addEventListener('touchmove', skip, { passive: true, once: true });
+    document.addEventListener('keydown', function (e) { if (!done && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ' || e.key.indexOf('Arrow') === 0)) skip(); });
+    /* 혹시 멈춰도 6초 뒤에는 반드시 닫힘 */
+    setTimeout(finish, 6500);
+  }
+  ready(playIntro);
 
   if (reduce) return;
   root.classList.add('has-motion');
