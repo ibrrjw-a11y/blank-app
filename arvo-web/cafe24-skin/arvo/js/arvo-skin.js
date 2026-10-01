@@ -3,7 +3,8 @@
    상품 데이터(이름·가격·옵션·장바구니)는 카페24가 채웁니다.
    이 파일은 그 위에 Árvo 다운 표현만 더합니다.
 
-   - 상품명에 "No.07 / No.10 / No.11" 이 있으면 그 향의 색·번호·영문 이름·향 노트를 입힙니다.
+   - 상품명에 "No.07 / No.10 / No.11" 이나 향 이름(블룸 오브 샤론 등)이 있으면 그 향의 색·번호·영문 이름·향 노트를 입힙니다.
+     상품명을 바꾸기 어려우면 아래 PRODUCT_SCENT 에 상품번호만 적어도 됩니다.
    - 머리말 스크롤 상태, 모바일 메뉴, 검색 열기, 지금 보는 분류 표시
    - 메인 히어로 향 전환 (7초마다, 마우스를 올리면 멈춤)
    - 상품 목록의 향 칩 거르기
@@ -68,6 +69,11 @@
     '살롱': '살롱에서 직접 쓰는 제품을 집에서.'
   };
 
+  /* 상품명에 향 번호·향 이름이 없는 상품만 여기에 적습니다. (상품번호: '향 번호')
+     상품번호는 관리자 > 상품 목록의 '상품번호' 칸, 또는 상품 주소의 product_no= 뒤 숫자입니다.
+     예) var PRODUCT_SCENT = { 23: '10', 31: '07' };  — 향이 없는 상품(스칼프 등)은 적지 않습니다. */
+  var PRODUCT_SCENT = {};
+
   /* ---------- 도구 ---------- */
   var $ = function (sel, el) { return (el || document).querySelector(sel); };
   var $$ = function (sel, el) { return Array.prototype.slice.call((el || document).querySelectorAll(sel)); };
@@ -80,6 +86,17 @@
     if (/bloom\s*of\s*sharon|블룸\s*오브\s*샤론/i.test(name)) return '10';
     if (/forest\s*fog|포레스트\s*포그/i.test(name)) return '11';
     return null;
+  };
+  /* 상품 주소에서 상품번호 읽기 (?product_no=12 또는 /product/이름/12/...) */
+  var productNoOf = function (href) {
+    if (!href) return null;
+    var m = /product_no=(\d+)/.exec(href) || /\/product\/[^/?#]+\/(\d+)(?:[/?#]|$)/.exec(href);
+    return m ? m[1] : null;
+  };
+  /* 대응표 → 상품명 순서로 향 번호를 정합니다. */
+  var scentFor = function (no, name) {
+    if (no && PRODUCT_SCENT[no]) return String(PRODUCT_SCENT[no]);
+    return scentOf(name);
   };
   var lineOf = function (name) {
     for (var i = 0; i < LINES.length; i++) if (LINES[i].test.test(name)) return LINES[i];
@@ -165,7 +182,9 @@
     cards.forEach(function (card, i) {
       var nameEl = $('[data-arvo-name]', card);
       var name = text(nameEl);
-      var s = scentOf(name);
+      var link = $('a[href]', card) || (card.tagName === 'A' ? card : null);
+      var idNo = /anchorBoxId_(\d+)/.exec(card.id || '');
+      var s = scentFor(idNo ? idNo[1] : productNoOf(link && link.getAttribute('href')), name);
       var line = lineOf(name);
       card.setAttribute('data-scent', s || 'none');
       var thumb = $('.thumb', card);
@@ -204,6 +223,17 @@
     /* '전체 상품 보기'는 머리말 첫 번째 분류로 */
     var firstCate = $('.gnb [module] a, .gnb ul a');
     if (firstCate) $$('[data-arvo-all-link]').forEach(function (a) { a.setAttribute('href', firstCate.getAttribute('href')); });
+
+    /* ---------- 리뷰 앱 자리 ----------
+       코드가 붙어 있으면 앱 위젯을 쓰고 카페24 기본 리뷰 목록은 숨깁니다.
+       비어 있으면 메인의 리뷰 구역을 숨기고, 상세에서는 기본 리뷰 게시판을 그대로 보여 줍니다. */
+    var filled = function (el) { return !!(el && el.children.length); };
+    $$('[data-arvo-app-section]').forEach(function (sec) {
+      if (!filled($('.arvo-app-slot', sec))) sec.hidden = true;
+    });
+    if (filled($('.arvo-app-slot[data-slot="review"]'))) {
+      $$('.arvo-native-review').forEach(function (el) { el.hidden = true; });
+    }
 
     /* ---------- 메인 히어로: 향 3종 전환 ---------- */
     var hero = $('.hero');
@@ -291,7 +321,7 @@
     if (pdp) {
       var h1 = $('[data-arvo-name]', pdp);
       var pname = text(h1);
-      var ps = scentOf(pname);
+      var ps = scentFor(productNoOf(location.href), pname);
       var pline = lineOf(pname);
       var data = ps ? SCENTS[ps] : null;
       body.setAttribute('data-scent', ps || 'none');

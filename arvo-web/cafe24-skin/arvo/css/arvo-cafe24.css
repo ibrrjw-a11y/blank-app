@@ -241,6 +241,8 @@ body.arvo { min-width: 0; }
 .pdp-tabs a span { font-family: var(--en); font-size: 12px; color: var(--ink-3); margin-left: 2px; }
 .pdp-tabs a:hover { color: var(--ink); }
 #prdDetail, #prdReview, #prdQnA, #prdInfo { scroll-margin-top: calc(var(--header-h) + 56px); }
+/* 기본 스킨은 모바일에서 탭으로 하나씩 보여 주느라 리뷰·문의·안내를 숨겨 둡니다. Árvo 는 모두 펼쳐 보여 줍니다. */
+.arvo #prdReview, .arvo #prdQnA, .arvo #prdInfo { display: block !important; }
 #prdDetail { padding-block: 72px 24px; }
 #prdDetail .detail-body { max-width: 860px; margin-inline: auto; text-align: center; }
 #prdDetail .detail-body img { display: inline-block; max-width: 100%; height: auto; }
@@ -264,6 +266,8 @@ body.arvo { min-width: 0; }
 .pdp-board .ec-base-paginate ol li { border: 0; margin: 0; }
 .pdp-board .ec-base-paginate ol a.this { color: var(--ink); font-weight: 700; border-bottom: 1.5px solid var(--ink); }
 .pdp-board .ec-base-paginate > a { font-size: 12px; color: var(--ink-3); width: auto; height: auto; text-indent: 0; background: none; border: 0; }
+.pdp-board .ec-base-paginate > a::before, .pdp-board .ec-base-paginate > a::after { display: none; }
+.pdp-board .ec-base-paginate > a.first, .pdp-board .ec-base-paginate > a.last { display: none; }
 /* 아직 글이 없을 때 */
 .pdp-board .ec-base-table:has(table.displaynone)::after { content: "아직 작성된 글이 없습니다."; display: block; padding: 40px 0; text-align: center; font-size: 14px; color: var(--ink-3); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
 .pdp-board .contents:has(table.displaynone) .ec-base-paginate { display: none; }
@@ -280,3 +284,30 @@ body.arvo { min-width: 0; }
 #prdInfo .ec-base-fold .contents .info { background: none; border: 0; padding: 0; }
 #prdInfo .detail_guide { display: grid; }
 @media (min-width: 1025px) { #prdInfo .detail_guide { grid-template-columns: 1fr 1fr; column-gap: 48px; } }
+
+/* ---------- 5. 리뷰 · 문의 (카페24 기본 게시판을 카드형으로) ---------- */
+.arvo-app-slot:empty { display: none; }
+.arvo-app-slot[data-slot="rating"] { margin-top: 2px; }
+.arvo [data-arvo-app-section][hidden], .arvo .arvo-native-review[hidden] { display: none !important; }
+.arvo-app-slot[data-slot="review"]:not(:empty) { margin-bottom: 40px; }
+.pdp-board .board_title h2 .cnt { font-family: var(--en); font-size: .55em; font-weight: 600; color: var(--ink-3); vertical-align: middle; margin-left: 4px; }
+.pdp-board .ec-base-table table:not(.displaynone), .pdp-board .ec-base-table table:not(.displaynone) tbody { display: block; width: 100%; }
+.pdp-board .ec-base-table colgroup, .pdp-board .ec-base-table thead { display: none; }
+.pdp-board .ec-base-table tbody tr { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 14px; align-items: center; padding: 18px 2px; border-bottom: 1px solid var(--line); }
+.pdp-board .ec-base-table tbody td { display: block; padding: 0; border: 0; text-align: left; font-size: 12.5px; color: var(--ink-3); background: none; }
+.pdp-board .ec-base-table tbody td.RW { display: none !important; }
+.pdp-board .ec-base-table tbody td.subject { grid-column: 1 / -1; grid-row: 2; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.pdp-board .ec-base-table tbody td.subject a { color: var(--ink); }
+.pdp-board .ec-base-table tbody td.subject .comment { font-family: var(--en); font-size: 12px; color: var(--ink-3); margin-left: 4px; }
+/* 리뷰: 별점 · 작성자 · 날짜 / 제목 */
+#prdReview .ec-base-table tbody td:nth-child(6) { grid-column: 1; grid-row: 1; }
+#prdReview .ec-base-table tbody td:nth-child(6) img { height: 14px; width: auto; }
+#prdReview .ec-base-table tbody td:nth-child(3) { grid-column: 3; grid-row: 1; }
+#prdReview .ec-base-table tbody td:nth-child(4) { grid-column: 4; grid-row: 1; font-family: var(--en); }
+#prdReview .ec-base-table tbody td:nth-child(5) { display: none; }
+/* 문의: 분류 · 작성자 · 날짜 / 제목 */
+#prdQnA .ec-base-table tbody td:nth-child(2) { grid-column: 1; grid-row: 1; font-weight: 600; color: var(--ink-2); }
+#prdQnA .ec-base-table tbody td:nth-child(4) { grid-column: 3; grid-row: 1; }
+#prdQnA .ec-base-table tbody td:nth-child(5) { grid-column: 4; grid-row: 1; font-family: var(--en); }
+#prdQnA .ec-base-table tbody td:nth-child(6) { display: none; }
+.pdp-board .ec-base-table table:not(.displaynone) { border-top: 1px solid var(--ink); }

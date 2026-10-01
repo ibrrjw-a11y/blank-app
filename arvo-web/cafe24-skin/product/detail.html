@@ -77,6 +77,8 @@
                 <div class="row1"><span class="num" data-arvo-no></span><span class="en-name" data-arvo-en></span></div>
                 <h1 data-arvo-name>{$name}</h1>
                 <p class="lede" data-arvo-lede>{$summary_desc}</p>
+                <!-- 리뷰 앱의 '별점 요약' 코드가 있으면 아래 div 사이에 붙여 넣으세요. (비워 두면 아무것도 안 보입니다) -->
+                <div class="arvo-app-slot" data-slot="rating"></div>
                 <span class="delivery {$delvtype_display|display}">(해외배송 가능상품)</span>
             </div>
             <div class="topLogo {$supply_link_display|display}">
@@ -723,14 +725,18 @@
     </div><!-- //product_relation -->
 
     <div id="prdReview" class="pdp-board">
-        
-
-        <div class="{$review_display|display}">
+        <!--
+            리뷰 앱(크리마, 브이리뷰, 알파리뷰 등)을 쓰면 앱이 안내하는 '상품 상세 리뷰' 코드를
+            바로 아래 <div class="arvo-app-slot" ...></div> 사이에 붙여 넣으세요.
+            코드가 들어가면 카페24 기본 리뷰 목록은 자동으로 숨겨지고, 비워 두면 기본 리뷰 게시판이 그대로 보입니다.
+        -->
+        <div class="arvo-app-slot" data-slot="review"></div>
+        <div class="arvo-native-review {$review_display|display}">
             <div class="board_title">
-                <h2>리뷰</h2>
+                <h2>리뷰 <span class="cnt">{$review_count}</span></h2>
                 <div class="ec-base-button">
                     <a href="{$review_list}" class="btnNormalFix">전체 보기</a>
-                    <a href="{$review_write}" class="btnNormalFix">글쓰기</a>
+                    <a href="{$review_write}" class="btnNormalFix">리뷰 쓰기</a>
                 </div>
             </div>
             <div class="contents">
@@ -806,10 +812,10 @@
 
         <div class="{$qna_display|display}">
             <div class="board_title">
-                <h2>상품 문의</h2>
+                <h2>상품 문의 <span class="cnt">{$qna_count}</span></h2>
                 <div class="ec-base-button">
                     <a href="{$qna_list}" class="btnNormalFix">전체 보기</a>
-                    <a href="{$qna_write}" class="btnNormalFix">글쓰기</a>
+                    <a href="{$qna_write}" class="btnNormalFix">문의하기</a>
                 </div>
             </div>
             <div class="contents">
