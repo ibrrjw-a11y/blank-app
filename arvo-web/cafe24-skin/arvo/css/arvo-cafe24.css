@@ -296,7 +296,7 @@ body.arvo { min-width: 0; }
 .pdp-board .ec-base-table table:not(.displaynone), .pdp-board .ec-base-table table:not(.displaynone) tbody { display: block; width: 100%; }
 .pdp-board .ec-base-table colgroup, .pdp-board .ec-base-table thead { display: none; }
 .pdp-board .ec-base-table tbody tr { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 14px; align-items: center; padding: 18px 2px; border-bottom: 1px solid var(--line); }
-.pdp-board .ec-base-table tbody td { display: block; padding: 0; border: 0; text-align: left; font-size: 12.5px; color: var(--ink-3); background: none; }
+.pdp-board .ec-base-table tbody td { display: block; height: auto !important; padding: 0; border: 0; text-align: left; font-size: 12.5px; color: var(--ink-3); background: none; }
 .pdp-board .ec-base-table tbody td.RW { display: none !important; }
 .pdp-board .ec-base-table tbody td.subject { grid-column: 1 / -1; grid-row: 2; font-size: 15px; line-height: 1.6; color: var(--ink); }
 .pdp-board .ec-base-table tbody td.subject a { color: var(--ink); }
@@ -313,3 +313,31 @@ body.arvo { min-width: 0; }
 #prdQnA .ec-base-table tbody td:nth-child(5) { grid-column: 4; grid-row: 1; font-family: var(--en); }
 #prdQnA .ec-base-table tbody td:nth-child(6) { display: none; }
 .pdp-board .ec-base-table table:not(.displaynone) { border-top: 1px solid var(--ink); }
+
+/* 리뷰·문의 제목을 누르면 카페24가 그 줄 바로 아래에 본문 줄(사진, 내용, 댓글)을 끼워 넣습니다.
+   카드형 목록 규칙이 이 줄에 적용되면 사진이 원래 크기로 넘쳐 아래 영역을 덮으므로, 따로 정리합니다. */
+.pdp-board .ec-base-table tbody tr[id^="product-review-read"],
+.pdp-board .ec-base-table tbody tr[id^="product-qna-read"] { display: block; padding: 6px 2px 28px; border-bottom: 1px solid var(--line); }
+.pdp-board .ec-base-table tbody tr[id^="product-review-read"] > td,
+.pdp-board .ec-base-table tbody tr[id^="product-qna-read"] > td { display: block !important; width: auto !important; height: auto !important; min-width: 0; grid-column: auto; grid-row: auto; font-size: 14.5px; line-height: 1.75; color: var(--ink-2); }
+#prdReview .view, #prdQnA .view { position: static; z-index: auto; overflow: visible; margin: 0; padding: 0 !important; background: none; text-align: left; line-height: 1.75; color: var(--ink-2); }
+.pdp-board .view p { margin: 0 0 10px; }
+.pdp-board .view .attach { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.pdp-board .view .attach:empty { display: none; }
+.pdp-board .view img, .pdp-board .boardComment img:not([alt$="점"]) { display: block; width: auto !important; height: auto !important; max-width: min(100%, 420px) !important; max-height: 420px; object-fit: contain; }
+.pdp-board .view .ec-base-button { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; }
+.pdp-board .view .ec-base-button > div { display: flex; flex-wrap: wrap; gap: 6px; float: none; }
+.pdp-board .view .btnNormal, .pdp-board .boardComment .btnNormal, .pdp-board .commentSecret .btnNormal { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 0; background: var(--white); color: var(--ink); font-size: 12px; font-weight: 500; text-decoration: none; }
+.pdp-board .view .btnNormal.displaynone { display: none !important; }
+.pdp-board .boardComment { margin: 14px 0 0; padding: 0; background: var(--white); list-style: none; }
+.pdp-board .boardComment li { padding: 14px 16px !important; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.7; }
+.pdp-board .boardComment li::before { display: none; }
+.pdp-board .boardComment .commentInfo { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
+.pdp-board .boardComment .grade img { height: 12px; width: auto; display: inline-block; }
+.pdp-board .memoCont { margin: 14px 0 0 !important; padding: 0 !important; }
+.pdp-board .memoCont textarea { width: 100%; min-height: 80px; border: 1px solid var(--line-2); padding: 10px; font: inherit; font-size: 13.5px; }
+.pdp-board .memoCont .writeForm { margin: 0 !important; position: static; }
+.pdp-board .memoCont .writeForm::before { display: none; }
+.pdp-board .memoCont .ctrl { position: static !important; margin-top: 8px; line-height: normal; }
+.pdp-board .view.secret input[type="password"] { height: 36px; border: 1px solid var(--line-2); padding: 0 10px; margin-right: 6px; }
+@media (max-width: 767px) { .pdp-board .view .attach img { max-width: calc(50% - 4px) !important; max-height: 260px; object-fit: cover; } }
