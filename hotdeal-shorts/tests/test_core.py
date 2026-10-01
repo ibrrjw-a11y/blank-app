@@ -601,3 +601,41 @@ def test_image_rate_limit_waits_and_continues(tmp_path, monkeypatch):
         raise AssertionError
     except images.ImageError as e:
         assert e.fatal
+
+
+def test_stock_photos_per_line_without_repeats(tmp_path, monkeypatch):
+    import json
+    from hotdeal_shorts import images, job as jobmod, publish, scenes, script
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setenv("PEXELS_API_KEY", "k")
+    (tmp_path / "deal.json").write_text(json.dumps({"name": "티슈", "category": "생활용품"}), encoding="utf-8")
+    j = jobmod.Job(tmp_path)
+    scs = scenes.parse("코 풀려는데 티슈 없음\n감기 걸린 날\n아무것도 안 나오는 검색어\n지금 5,740원")
+
+    class R:
+        def __init__(self, status, body=None, content=b"", ctype="application/json"):
+            self.status_code, self._b, self.content, self.text = status, body, content, str(body)
+            self.headers = {"content-type": ctype}
+        def json(self): return self._b
+
+    def fake_get(url, headers=None, params=None, timeout=None):
+        if "api.pexels.com" in url:
+            assert headers["Authorization"] == "k" and params["orientation"] == "landscape"
+            if "아무것도" in params["query"]:
+                return R(200, {"photos": []})
+            return R(200, {"photos": [{"id": 1, "src": {"large": "https://img/1"}, "photographer": "A"},
+                                      {"id": 2, "src": {"large": "https://img/2"}, "photographer": "B"}]})
+        return R(200, content=url.encode(), ctype="image/jpeg")
+
+    monkeypatch.setattr(images.requests, "get", fake_get)
+    monkeypatch.setattr(images, "_sleep", lambda s: None)
+    r = images.generate(j, scs, "pexels")
+    assert r["made"] == 3 and r["failed"] == []  # 결과 없는 줄은 분야(생활용품)로 다시 찾음, 가격 줄은 제외
+    got = [(tmp_path / "images" / f"line_{i:03d}.png").read_bytes() for i in range(3)]
+    assert got[0] != got[1]  # 같은 사진 반복 안 함
+    log = json.loads((tmp_path / "images" / "prompts.json").read_text(encoding="utf-8"))
+    assert log["000"]["credit"] == "Photo by A on Pexels"
+    s = script.Script(title="티슈 한 통 천 원도 안 하는 딜", lines=["코 풀려는데 티슈 없음"], hook_type="상황공감")
+    (tmp_path / "script.md").write_text(script.to_markdown(s), encoding="utf-8")
+    publish.build(j, s)
+    assert "합성된 콘텐츠" not in (tmp_path / "review.md").read_text(encoding="utf-8")  # 실사 사진은 AI 표시 대상 아님

@@ -66,7 +66,9 @@ def build(job: Job, s: Script, render_info: dict | None = None) -> dict:
     if quoted:
         md += ["- [ ] 커뮤니티 장면의 제목·본문·댓글이 원글에 실제로 있는 문장 그대로다 (지어낸 후기 금지)",
                "- [ ] 조회수·댓글 수는 원글의 실제 수치다 (모르면 meta 줄을 지운다)"]
-    if job.p("images", "prompts.json").exists():
+    used = json.loads(job.p("images", "prompts.json").read_text(encoding="utf-8")) \
+        if job.p("images", "prompts.json").exists() else {}
+    if any(v.get("provider") not in ("pexels", "pixabay") for v in used.values()):
         md += ["- [ ] AI 이미지가 실제 상품처럼 보이지 않는다 (상품은 실제 사진으로만)",
                "- [ ] 업로드할 때 '변경되거나 합성된 콘텐츠' 항목을 '예'로 표시 (실사풍 AI 이미지 사용)"]
     if any(sc.kind == "kakao" for sc in scs):

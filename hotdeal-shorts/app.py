@@ -399,12 +399,16 @@ def section_build(j: jobmod.Job) -> None:
     vkeys = list(voices)
     v = st.selectbox("목소리", vkeys, index=vkeys.index(default_v) if default_v in vkeys else 0,
                      format_func=lambda k: voices[k])
-    img_opts = (["none"] + [p for p, env in (("gemini", "GEMINI_API_KEY"), ("openai", "OPENAI_API_KEY")) if has(env)]
+    img_opts = (["none"] + [p for p, env in (("pexels", "PEXELS_API_KEY"), ("pixabay", "PIXABAY_API_KEY"),
+                                             ("gemini", "GEMINI_API_KEY"), ("openai", "OPENAI_API_KEY")) if has(env)]
                 + ["pollinations"])
     default_im = config.get("images.provider", "gemini")
     im = st.selectbox("AI 이미지", img_opts, index=img_opts.index(default_im) if default_im in img_opts else 0,
                       format_func=lambda k: {"none": "안 씀 (올린 사진·상품 사진)",
-                                             "pollinations": "무료 (pollinations · 키 없음)"}.get(k, k))
+                                             "pexels": "무료 실사 사진 (Pexels)",
+                                             "pixabay": "무료 실사 사진 (Pixabay)",
+                                             "gemini": "AI 그림 (Gemini)", "openai": "AI 그림 (OpenAI)",
+                                             "pollinations": "무료 AI 그림 (pollinations · 키 없음)"}.get(k, k))
     ist = j.state.get("steps", {}).get("images", {})
     if ist.get("status") == "error":
         st.error(f"지난번 AI 이미지 실패: {ist.get('error') or '모든 줄 실패'}")

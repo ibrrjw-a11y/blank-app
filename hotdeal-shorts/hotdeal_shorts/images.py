@@ -28,8 +28,9 @@ STYLE = ("Photorealistic smartphone photo, natural light, everyday life in South
 
 
 class ImageError(RuntimeError):
-    def __init__(self, msg: str, retry_after: float | None = None, fatal: bool = False):
+    def __init__(self, msg: str, retry_after: float | None = None, fatal: bool = False, skip: bool = False):
         super().__init__(msg)
+        self.skip = skip                # 이 줄만 건너뜀 (검색 결과 없음 등)
         self.retry_after = retry_after  # 몇 초 뒤 다시 하면 되는 오류 (분당 한도 등)
         self.fatal = fatal              # 다시 해도 소용없는 오류 (키·결제·모델 이름)
 
@@ -185,6 +186,98 @@ def _pollinations(prompt: str) -> bytes:
     return r.content
 
 
+# ------------------------------------------------------------------ 무료 사진 검색 (그리지 않고 실사 사진을 찾아 넣음)
+
+class Queries(BaseModel):
+    queries: list[str] = Field(description="줄마다 하나씩, 입력 순서대로. 사진 검색용 영어 키워드 2~4단어")
+
+
+def write_queries(lines: list[str], deal: dict) -> tuple[list[str], str]:
+    """줄마다 사진 검색어. Claude 키가 있으면 장면을 이해한 영어 키워드, 없으면 줄 그대로(한국어 검색)."""
+    if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")):
+        return list(lines), "line"
+    import anthropic
+    numbered = "\n".join(f"{i + 1}. {ln}" for i, ln in enumerate(lines))
+    system = ("You pick stock-photo search keywords for a Korean shopping short. For each narration line, give 2-4 "
+              "English words describing a concrete, photographable everyday scene (people, place, action, mood) that "
+              "fits the line. Do not name brands. Prefer varied scenes so consecutive lines get different photos.")
+    try:
+        resp = anthropic.Anthropic().beta.messages.parse(
+            model=config.get("script.model", "claude-opus-5-5"), max_tokens=4000, system=system,
+            output_config={"effort": "low"}, betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+            messages=[{"role": "user", "content": f"상품: {deal.get('category') or deal['name']}\n\n{numbered}"}],
+            output_format=Queries)
+        q = resp.parsed_output
+    except Exception:  # noqa: BLE001
+        q = None
+    if q is None or len(q.queries) != len(lines):
+        return list(lines), "line"
+    return q.queries, "claude"
+
+
+def _pexels_search(query: str) -> list[dict]:
+    key = os.environ.get("PEXELS_API_KEY")
+    if not key:
+        raise ImageError("PEXELS_API_KEY 가 .env 에 없습니다 (pexels.com/api 에서 무료 발급)", fatal=True)
+    r = requests.get("https://api.pexels.com/v1/search", headers={"Authorization": key}, timeout=30,
+                     params={"query": query, "orientation": "landscape", "per_page": 15, "locale": "ko-KR"})
+    if r.status_code == 429:
+        raise ImageError("Pexels 한도 (시간당 200회)", retry_after=60)
+    if r.status_code != 200:
+        raise ImageError(f"Pexels {r.status_code}: {r.text[:200]}", fatal=r.status_code in (401, 403))
+    return [{"id": f"pexels:{p['id']}", "url": p["src"].get("large") or p["src"]["original"],
+             "credit": f"Photo by {p.get('photographer', '')} on Pexels", "page": p.get("url")}
+            for p in r.json().get("photos", [])]
+
+
+def _pixabay_search(query: str) -> list[dict]:
+    key = os.environ.get("PIXABAY_API_KEY")
+    if not key:
+        raise ImageError("PIXABAY_API_KEY 가 .env 에 없습니다 (pixabay.com/api/docs 에서 무료 발급)", fatal=True)
+    lang = "ko" if re.search(r"[가-힣]", query) else "en"
+    r = requests.get("https://pixabay.com/api/", timeout=30,
+                     params={"key": key, "q": query[:100], "image_type": "photo", "orientation": "horizontal",
+                             "per_page": 20, "safesearch": "true", "lang": lang})
+    if r.status_code == 429:
+        raise ImageError("Pixabay 한도", retry_after=60)
+    if r.status_code != 200:
+        raise ImageError(f"Pixabay {r.status_code}: {r.text[:200]}", fatal=r.status_code in (400, 401, 403))
+    return [{"id": f"pixabay:{h['id']}", "url": h.get("largeImageURL") or h["webformatURL"],
+             "credit": f"Image by {h.get('user', '')} from Pixabay", "page": h.get("pageURL")}
+            for h in r.json().get("hits", [])]
+
+
+STOCK = {"pexels": _pexels_search, "pixabay": _pixabay_search}
+
+
+def _stock_fetcher(search, deal: dict, credits: dict):
+    """검색어 → 아직 안 쓴 사진 하나 (같은 영상에서 같은 사진 반복 안 함). 결과가 없으면 검색어를 줄여 다시."""
+    used: set[str] = set()
+
+    def fetch(query: str) -> bytes:
+        words = query.split()
+        tries = [query] + ([" ".join(words[:2])] if len(words) > 2 else []) + [deal.get("category") or "daily life"]
+        seen: list[dict] = []
+        for q in tries:
+            hits = search(q)
+            seen += hits
+            for hit in hits:
+                if hit["id"] in used:
+                    continue
+                r = requests.get(hit["url"], timeout=60)
+                if r.status_code == 200 and r.headers.get("content-type", "").startswith("image"):
+                    used.add(hit["id"])
+                    credits[query] = hit
+                    return r.content
+        for hit in seen[:1]:  # 새 사진이 없으면 마지막 수단으로 이미 쓴 사진이라도
+            r = requests.get(hit["url"], timeout=60)
+            if r.status_code == 200:
+                credits[query] = hit
+                return r.content
+        raise ImageError(f"'{query}' 사진을 못 찾음", skip=True)
+    return fetch
+
+
 PROVIDERS = {"gemini": _gemini, "openai": _openai, "pollinations": _pollinations}
 
 
@@ -194,9 +287,11 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
     provider = provider or config.get("images.provider", "gemini")
     if provider == "none":
         return {"provider": "none", "made": 0}
+    stock = provider in STOCK
     fn = PROVIDERS.get(provider)
-    if fn is None:
-        raise ImageError(f"알 수 없는 images.provider: {provider} (gemini | openai | none)")
+    if fn is None and not stock:
+        raise ImageError(f"알 수 없는 images.provider: {provider} (gemini | openai | pollinations | pexels | "
+                         "pixabay | none)")
     targets = select_lines(scenes, mode)
     out_dir = job.p("images")
     out_dir.mkdir(exist_ok=True)
@@ -204,7 +299,12 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
             if force or not any(out_dir.glob(f"line_{i:03d}.*"))]
     if not todo:
         return {"provider": provider, "made": 0, "skipped": len(targets)}
-    prompts, by = write_prompts([t for _, t in todo], job.deal)
+    credits: dict = {}
+    if stock:
+        prompts, by = write_queries([t for _, t in todo], job.deal)
+        fn = _stock_fetcher(STOCK[provider], job.deal, credits)
+    else:
+        prompts, by = write_prompts([t for _, t in todo], job.deal)
     log_path = out_dir / "prompts.json"
     log = json.loads(log_path.read_text(encoding="utf-8")) if log_path.exists() else {}
     made, failed, last_err = 0, [], ""
@@ -226,6 +326,8 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
             except ImageError as e:
                 last_err = str(e)
                 job.log(f"이미지 {i}줄 실패({attempt + 1}/6): {last_err}")
+                if e.skip:
+                    break
                 if e.fatal:
                     if made == 0:
                         raise
@@ -239,7 +341,9 @@ def generate(job: Job, scenes: list[Scene], provider: str | None = None, force: 
             failed.append(i)
             continue
         (out_dir / f"line_{i:03d}.png").write_bytes(data)
-        log[f"{i:03d}"] = {"text": text, "prompt": prompt, "provider": provider, "prompt_by": by}
+        log[f"{i:03d}"] = {"text": text, "prompt": prompt, "provider": provider, "prompt_by": by,
+                           **({"credit": credits[prompt].get("credit"), "source": credits[prompt].get("page")}
+                              if prompt in credits else {})}
         made += 1
     log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
     return {"provider": provider, "made": made, "failed": failed, "prompt_by": by, "error": last_err}
