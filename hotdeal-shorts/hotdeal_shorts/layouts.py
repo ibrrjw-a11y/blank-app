@@ -104,6 +104,55 @@ def gradient(W: int, H: int, y0: int, y1: int, a0: int, a1: int) -> Image.Image:
 
 # ------------------------------------------------------------------ 공통 가격 문자열
 
+# ------------------------------------------------------------------ 가격 글자 (숫자 크게, '원'은 작게, 자간 좁게)
+
+def _split_won(text: str) -> tuple[str, str]:
+    return (text[:-1], "원") if text.endswith("원") else (text, "")
+
+
+def money_width(d: ImageDraw.ImageDraw, text: str, size: int, weight: str = "bold", track: float = -0.03) -> float:
+    num, unit = _split_won(text)
+    f = font(size, weight)
+    w = sum(d.textlength(ch, font=f) for ch in num) + track * size * max(len(num) - 1, 0)
+    if unit:
+        w += size * 0.06 + d.textlength(unit, font=font(int(size * 0.56), weight))
+    return w
+
+
+def draw_money(d: ImageDraw.ImageDraw, x: float, baseline: float, text: str, size: int, fill,
+               weight: str = "bold", track: float = -0.03) -> float:
+    """'9,800원' → 숫자는 크게·촘촘히, '원'은 작게 같은 기준선. 그린 너비를 돌려준다."""
+    num, unit = _split_won(text)
+    f = font(size, weight)
+    x0 = x
+    for k, ch in enumerate(num):
+        d.text((x, baseline), ch, font=f, fill=fill, anchor="ls")
+        x += d.textlength(ch, font=f) + (track * size if k < len(num) - 1 else 0)
+    if unit:
+        x += size * 0.06
+        uf = font(int(size * 0.56), weight)
+        d.text((x, baseline), unit, font=uf, fill=fill, anchor="ls")
+        x += d.textlength(unit, font=uf)
+    return x - x0
+
+
+def draw_struck(d: ImageDraw.ImageDraw, x: float, baseline: float, text: str, size: int, fill,
+                weight: str = "regular") -> float:
+    """정가: 가운데를 지나는 얇은 취소선."""
+    f = font(size, weight)
+    w = d.textlength(text, font=f)
+    d.text((x, baseline), text, font=f, fill=fill, anchor="ls")
+    y = baseline - size * 0.36
+    d.line([(x - 2, y), (x + w + 2, y)], fill=fill, width=max(2, size // 15))
+    return w
+
+
+def soft_shadow(size: tuple[int, int], box, radius: int, color=(60, 40, 20, 70), blur: int = 18) -> Image.Image:
+    sh = Image.new("RGBA", size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle(box, radius, fill=color)
+    return sh.filter(ImageFilter.GaussianBlur(blur))
+
+
 def price_bits(deal: dict) -> tuple[str, str, str]:
     sale = fmt_won(deal["price"]) if deal.get("price") else ""
     orig = fmt_won(deal["original_price"]) if deal.get("original_price") else ""
@@ -153,8 +202,12 @@ class Card:
         img.paste(shadow, (0, 0), shadow)
         img.paste(photo.convert("RGB").resize(size) if photo.size != size else photo.convert("RGB"), (x0, y0),
                   rounded_mask(size, 36))
-        if chip is not None:
-            img.paste(chip, (x0 + 28, y1 - chip.height - 28), chip)
+        if chip is not None:  # 사진 아래 모서리에 반쯤 걸치게
+            m = chip.info.get("margin", 0)
+            inner_h = chip.height - 2 * m
+            img = img.convert("RGBA")
+            img.alpha_composite(chip, (x0 + 36 - m, y1 - int(inner_h * 0.62) - m))
+            img = img.convert("RGB")
         return img
 
     def subtitle(self, img: Image.Image, parts: list[str]) -> None:
@@ -168,24 +221,32 @@ class Card:
             y += line_h
 
     def price_chip(self, deal: dict) -> Image.Image | None:
+        """흰 가격 카드: 1줄 '62%  25,900원'(취소선), 2줄 큰 판매가. 사진 아래 모서리에 걸쳐 놓는다."""
         sale, orig, pct = price_bits(deal)
         if not sale:
             return None
-        accent = C("accent", "#E8590C")
+        accent, ink = C("accent", "#E8590C"), C("ink", "#1E1B18")
         tmp = ImageDraw.Draw(Image.new("RGB", (1, 1)))
-        big, small = font(64), font(32, "regular")
-        top = " ".join(x for x in (pct, orig) if x)
-        w = int(max(tmp.textlength(sale, font=big), tmp.textlength(top, font=small)) + 64)
-        h = 140 if top else 96
-        chip = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        big, small, padx, pady, m = 92, 34, 42, 32, 64  # m: 그림자 여백
+        top_w = (tmp.textlength(pct + "  ", font=font(small)) if pct else 0) + \
+            (tmp.textlength(orig, font=font(small, "regular")) if orig else 0)
+        w = int(max(money_width(tmp, sale, big), top_w)) + padx * 2
+        h = pady * 2 + int(big * 0.78) + (int(small * 1.6) if (pct or orig) else 0)
+        chip = Image.new("RGBA", (w + m * 2, h + m * 2), (0, 0, 0, 0))
+        chip.alpha_composite(soft_shadow(chip.size, [m, m + 10, m + w, m + h + 10], 30))
         d = ImageDraw.Draw(chip)
-        d.rounded_rectangle([0, 0, w - 1, h - 1], 30, fill=accent + (245,))
-        if top:
-            d.text((32, 20), top, font=small, fill=(255, 238, 225))
+        d.rounded_rectangle([m, m, m + w, m + h], 30, fill=(255, 255, 255, 255))
+        x, y = m + padx, m + pady
+        if pct or orig:
+            yb = y + small
+            if pct:
+                d.text((x, yb), pct, font=font(small), fill=accent, anchor="ls")
+                x += tmp.textlength(pct + "  ", font=font(small))
             if orig:
-                ox = 32 + (d.textlength(pct + " ", font=small) if pct else 0)
-                d.line([(ox, 40), (ox + d.textlength(orig, font=small), 40)], fill=(255, 238, 225), width=3)
-        d.text((32, h - 18), sale, font=big, fill=(255, 255, 255), anchor="ls")
+                draw_struck(d, x, yb, orig, small, (150, 142, 132))
+            y += int(small * 1.6)
+        draw_money(d, m + padx, y + int(big * 0.78), sale, big, ink)
+        chip.info["margin"] = m
         return chip
 
     def chrome(self, W: int, H: int, title: str) -> Image.Image:
@@ -246,22 +307,31 @@ class FullBleed:
             y += line_h
 
     def price_chip(self, deal: dict) -> Image.Image | None:
+        """네온 할인율 태그 + 정가(취소선) 위에, 아래에 큰 판매가. 외곽선 대신 부드러운 그림자."""
         sale, orig, pct = price_bits(deal)
         if not sale:
             return None
         neon = C("accent", "#B6FF3B")
         tmp = ImageDraw.Draw(Image.new("RGB", (1, 1)))
-        big, small = font(76), font(34, "regular")
-        top = "  ".join(x for x in (orig, pct) if x)
-        w = int(max(tmp.textlength(sale, font=big), tmp.textlength(top, font=small)) + 20)
-        chip = Image.new("RGBA", (w, 150), (0, 0, 0, 0))
+        big, small = 104, 34
+        tag_w = tmp.textlength(pct, font=font(small)) + 28 if pct else 0
+        top_w = tag_w + (16 if pct and orig else 0) + (tmp.textlength(orig, font=font(small, "regular")) if orig else 0)
+        w = int(max(money_width(tmp, sale, big), top_w)) + 40
+        h = int(big * 0.8) + (64 if (pct or orig) else 0) + 30
+        chip = Image.new("RGBA", (w, h), (0, 0, 0, 0))
         d = ImageDraw.Draw(chip)
+        x = 0
+        if pct:
+            d.rounded_rectangle([0, 0, tag_w, 48], 8, fill=neon)
+            d.text((tag_w / 2, 24), pct, font=font(small), fill=(10, 12, 14), anchor="mm")
+            x = tag_w + 16
         if orig:
-            d.text((0, 6), orig, font=small, fill=(200, 200, 205))
-            d.line([(0, 28), (d.textlength(orig, font=small), 28)], fill=(200, 200, 205), width=3)
-            if pct:
-                d.text((d.textlength(orig + "  ", font=small), 6), pct, font=small, fill=neon)
-        d.text((0, 142), sale, font=big, fill=neon, anchor="ls", stroke_width=4, stroke_fill=(0, 0, 0))
+            draw_struck(d, x, 38, orig, small, (215, 218, 224))
+        base_y = h - 22
+        sh = Image.new("RGBA", chip.size, (0, 0, 0, 0))
+        draw_money(ImageDraw.Draw(sh), 4, base_y + 6, sale, big, (0, 0, 0, 170))
+        chip.alpha_composite(sh.filter(ImageFilter.GaussianBlur(8)))
+        draw_money(ImageDraw.Draw(chip), 0, base_y, sale, big, neon)
         return chip
 
     def chrome(self, W: int, H: int, title: str) -> Image.Image:
@@ -322,24 +392,27 @@ class Magazine:
             y += line_h
 
     def price_chip(self, deal: dict) -> Image.Image | None:
+        """잡지 가격표: 큰 판매가 · 오른쪽에 정가(취소선)와 할인율을 두 줄로."""
         sale, orig, pct = price_bits(deal)
         if not sale:
             return None
         ink, accent = C("ink", "#231F1C"), C("accent", "#B5485D")
         tmp = ImageDraw.Draw(Image.new("RGB", (1, 1)))
-        big, small = font(52), font(32, "regular")
-        w = int(tmp.textlength(sale, font=big) + tmp.textlength(f"  {orig}  {pct}", font=small) + 20)
-        chip = Image.new("RGBA", (w, 70), (0, 0, 0, 0))
+        big, small = 84, 32
+        sw = money_width(tmp, sale, big, track=-0.02)
+        side = max(tmp.textlength(orig, font=font(small, "regular")) if orig else 0,
+                   tmp.textlength(f"{pct} OFF", font=font(small)) if pct else 0)
+        w = int(sw + (32 + side if side else 0)) + 10
+        chip = Image.new("RGBA", (w, 104), (0, 0, 0, 0))
         d = ImageDraw.Draw(chip)
-        d.text((0, 60), sale, font=big, fill=ink, anchor="ls")
-        x = d.textlength(sale + "  ", font=big)
+        draw_money(d, 0, 88, sale, big, ink, track=-0.02)
+        x = sw + 32
+        if side:
+            d.line([(x - 16, 24), (x - 16, 88)], fill=(200, 190, 180), width=2)
         if orig:
-            d.text((x, 56), orig, font=small, fill=(150, 140, 132), anchor="ls")
-            ow = d.textlength(orig, font=small)
-            d.line([(x, 45), (x + ow, 45)], fill=(150, 140, 132), width=2)
-            x += ow + d.textlength("  ", font=small)
+            draw_struck(d, x, 50, orig, small, (150, 140, 132))
         if pct:
-            d.text((x, 56), pct, font=small, fill=accent, anchor="ls")
+            d.text((x, 88), f"{pct} OFF", font=font(small), fill=accent, anchor="ls")
         return chip
 
     def chrome(self, W: int, H: int, title: str) -> Image.Image:
