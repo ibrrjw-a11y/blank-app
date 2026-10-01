@@ -102,10 +102,10 @@
     for (var i = 0; i < LINES.length; i++) if (LINES[i].test.test(name)) return LINES[i];
     return null;
   };
-  /* 번호는 따로 크게 보여 주므로 이름에서는 "No.10" 만 뺍니다. */
+  /* 번호는 따로 크게 보여 주므로 이름에서는 "No.10", 맨 앞의 "10 " 만 뺍니다. ("[7월 한정판매]" 같은 머리말은 그대로) */
   var cleanName = function (el) {
     if (!el || el.children.length) return;
-    var t = text(el).replace(NO_RE, ' ').replace(/\s{2,}/g, ' ').trim();
+    var t = text(el).replace(NO_RE, ' ').replace(/^\s*(\[[^\]]*\]\s*)?(07|10|11)\s+/, '$1').replace(/\s{2,}/g, ' ').trim();
     if (t) el.textContent = t;
   };
   var set = function (el, value) { if (el && value != null) el.textContent = value; };
@@ -216,9 +216,10 @@
       var a = $('a[href]', card);
       if (s && s !== 'none' && a && !scentHref[s]) scentHref[s] = a.getAttribute('href');
     });
+    /* 버튼은 HTML 에 적은 상품 주소(product_no)를 그대로 씁니다. 검색 주소로 남아 있는 버튼만 진열 상품으로 바꿉니다. */
     $$('[data-arvo-scent-link]').forEach(function (a) {
       var s = a.getAttribute('data-arvo-scent-link');
-      if (scentHref[s]) a.setAttribute('href', scentHref[s]);
+      if (scentHref[s] && /search\.html/.test(a.getAttribute('href') || '')) a.setAttribute('href', scentHref[s]);
     });
     /* '전체 상품 보기'는 머리말 첫 번째 분류로 */
     var firstCate = $('.gnb [module] a, .gnb ul a');

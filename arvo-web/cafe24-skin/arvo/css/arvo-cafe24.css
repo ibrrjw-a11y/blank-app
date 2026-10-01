@@ -52,7 +52,9 @@ body.arvo { min-width: 0; }
 .arvo-list .scent-card .meta { gap: 12px; }
 .scent-row.compact .scent-card .txt p.line { display: none; }
 .scent-row .scent-card.is-current .panel { outline: 2px solid var(--ink); outline-offset: -2px; }
-.arvo-list .mini-row li { list-style: none; display: grid; }
+.arvo-list .mini-row { display: flex; justify-content: center; }
+.arvo-list .mini-row li { list-style: none; display: grid; flex: 0 1 calc((100% - 24px) / 3); }
+@media (min-width: 768px) { .arvo-list .mini-row li { flex-basis: calc((100% - 40px) / 3); } }
 .arvo-list .mini img { width: 100%; height: clamp(120px, 18vw, 220px); object-fit: contain; }
 .arvo-list .mini .m-name { font-size: 12.5px; color: var(--ink-2); line-height: 1.4; display: none; }
 .arvo-list .mini[data-scent="none"] .m-name { display: block; }
