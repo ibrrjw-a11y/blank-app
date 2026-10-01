@@ -57,10 +57,12 @@ def is_price_line(text: str) -> bool:
 def select_lines(scenes: list[Scene], mode: str | None = None) -> list[tuple[int, str]]:
     """(나레이션 전체 기준 줄 번호, 줄 텍스트) 목록."""
     mode = mode or config.get("images.select", "every")
+    total = sum(len(sc.items) for sc in scenes)
+    tail_from = total - int(config.get("video.product_tail_lines", 2))  # 마지막 부분은 상품 사진 자리
     out, idx = [], 0
     for sc in scenes:
         for k, it in enumerate(sc.items):
-            if sc.kind == "post":
+            if sc.kind == "post" and idx < tail_from:
                 if mode == "marked" and it.marked:
                     out.append((idx, it.text))
                 elif mode == "first" and k == 0:

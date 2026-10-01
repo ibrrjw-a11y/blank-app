@@ -159,6 +159,35 @@ def product_image(job: Job) -> Image.Image | None:
             return img
         except Exception as e:  # noqa: BLE001
             job.log(f"상품 이미지 다운로드 실패: {e}")
+    return _image_from_link(job)
+
+
+def _image_from_link(job: Job) -> Image.Image | None:
+    """상품 사진이 없으면 상품 링크 페이지의 대표 사진(og:image)을 가져온다 (한 번 받으면 product.jpg 로 저장)."""
+    from . import config
+    from .deals import fetch_url_meta
+    deal = job.deal
+    if deal.get("source") == "toss" and not config.get("deals.toss_use_thumbnails", True):
+        return None
+    marker = job.p(".no_product_image")
+    if marker.exists():  # 한 번 실패했으면 매 프레임마다 다시 시도하지 않음
+        return None
+    for link in (deal.get("url"), deal.get("affiliate_url")):
+        if not link or not str(link).startswith("http"):
+            continue
+        img_url = fetch_url_meta(link).get("image_url")
+        if not img_url:
+            continue
+        try:
+            r = requests.get(img_url, timeout=15, headers={"User-Agent": "Mozilla/5.0", "Referer": link})
+            r.raise_for_status()
+            img = Image.open(io.BytesIO(r.content)).convert("RGBA")
+            img.convert("RGB").save(job.p("product.jpg"), quality=92)
+            job.log(f"상품 사진: 링크 페이지 대표 사진 사용 ({img_url})")
+            return img
+        except Exception as e:  # noqa: BLE001
+            job.log(f"링크 대표 사진 다운로드 실패: {e}")
+    marker.write_text("", encoding="utf-8")
     return None
 
 
@@ -231,14 +260,22 @@ def line_images(job: Job, texts: list[str], size: tuple[int, int],
         base = contain_on_white(prod, size, margin, bg_color)
     else:
         base = first_ai or placeholder(size, job.deal["name"])
+    tail = int(config_get("video.product_tail_lines", 2))
     out, cur = [], base
     for i, text in enumerate(texts):
-        if is_price_line(text) and prod:
-            cur = base
+        must_product = prod is not None and (is_price_line(text) or i >= len(texts) - tail)
+        if must_product:  # 가격 줄·마지막 부분은 반드시 실제 상품 사진
+            out.append(base)
+            continue
         if per_line[i] is not None:
             cur = per_line[i]
         out.append(cur)
     return out
+
+
+def config_get(key: str, default=None):
+    from . import config
+    return config.get(key, default)
 
 
 # ------------------------------------------------------------------ 레이아웃 (1080x1920 기준)

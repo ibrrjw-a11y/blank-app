@@ -172,13 +172,16 @@ def _png_bytes(color=(90, 140, 200)):
     return buf.getvalue()
 
 
-def test_image_line_selection():
-    from hotdeal_shorts import images, scenes
+def test_image_line_selection(monkeypatch):
+    from hotdeal_shorts import config, images, scenes
+    monkeypatch.setitem(config.cfg()["video"], "product_tail_lines", 0)
     scs = scenes.parse("훅 줄\n[img]장면 줄\n지금 39,900원임\n[community: 더쿠]\nbody: 인용\n[post]\n마지막 장면")
     assert images.select_lines(scs, "every") == [(0, "훅 줄"), (1, "장면 줄"), (4, "마지막 장면")]
     assert images.select_lines(scs, "marked") == [(1, "장면 줄")]
     assert images.select_lines(scs, "first") == [(0, "훅 줄"), (4, "마지막 장면")]
     assert scenes.narration(scs)[1] == "장면 줄"  # [img] 표시는 읽지 않음
+    monkeypatch.setitem(config.cfg()["video"], "product_tail_lines", 2)
+    assert images.select_lines(scs, "every") == [(0, "훅 줄"), (1, "장면 줄")]  # 마지막 2줄은 상품 사진 자리
 
 
 def test_image_providers_parse_responses(monkeypatch):
@@ -209,6 +212,8 @@ def test_image_providers_parse_responses(monkeypatch):
 
 
 def test_generate_writes_files_and_skips_existing(monkeypatch, tmp_path):
+    from hotdeal_shorts import config as _cfg
+    monkeypatch.setitem(_cfg.cfg()["video"], "product_tail_lines", 0)
     from hotdeal_shorts import images, scenes
     from hotdeal_shorts.job import Job
     (tmp_path / "deal.json").write_text('{"name": "청소기", "category": "가전"}', encoding="utf-8")
@@ -282,7 +287,7 @@ def test_toss_sharelink_client(monkeypatch, tmp_path):
     best = t.best(10)
     assert [d["name"] for d in best] == ["세제"] and best[0]["source"] == "toss"  # 품절 제외
     assert best[0]["discount_pct"] == 41 and best[0]["reviews"] == 1520 and best[0]["evergreen"] == 1
-    assert best[0]["price"] == 18900 and not best[0].get("image_url")  # 썸네일은 기본 저장 안 함
+    assert best[0]["price"] == 18900 and best[0]["image_url"] == "https://img/11.jpg"  # 썸네일 → 상품 사진
     assert calls["token"] == 1 and calls["api"][-1][4] == "Bearer tok1"
 
     today = t.today_deals(pages=3)  # 커서 페이지 넘김 + 종료 10분 이내 제외
@@ -574,6 +579,8 @@ def test_apply_photos_places_user_photos_per_line(tmp_path, monkeypatch):
 
 
 def test_image_rate_limit_waits_and_continues(tmp_path, monkeypatch):
+    from hotdeal_shorts import config as _cfg
+    monkeypatch.setitem(_cfg.cfg()["video"], "product_tail_lines", 0)
     import json
     from hotdeal_shorts import images, job as jobmod, scenes
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
@@ -604,6 +611,8 @@ def test_image_rate_limit_waits_and_continues(tmp_path, monkeypatch):
 
 
 def test_stock_photos_per_line_without_repeats(tmp_path, monkeypatch):
+    from hotdeal_shorts import config as _cfg
+    monkeypatch.setitem(_cfg.cfg()["video"], "product_tail_lines", 0)
     import json
     from hotdeal_shorts import images, job as jobmod, publish, scenes, script
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
@@ -639,3 +648,32 @@ def test_stock_photos_per_line_without_repeats(tmp_path, monkeypatch):
     (tmp_path / "script.md").write_text(script.to_markdown(s), encoding="utf-8")
     publish.build(j, s)
     assert "합성된 콘텐츠" not in (tmp_path / "review.md").read_text(encoding="utf-8")  # 실사 사진은 AI 표시 대상 아님
+
+
+def test_ending_and_price_lines_always_show_product(tmp_path, monkeypatch):
+    import json
+    from PIL import Image
+    from hotdeal_shorts import deals, frames, job as jobmod
+    (tmp_path / "images").mkdir()
+    (tmp_path / "deal.json").write_text(json.dumps({"name": "세제", "source": "toss",
+                                                    "url": "https://toss.im/p/1"}), encoding="utf-8")
+    for i in range(6):
+        Image.new("RGB", (40, 30), (0, 0, 255)).save(tmp_path / "images" / f"line_{i:03d}.png")
+    # 상품 사진은 링크 페이지 대표 사진에서
+    monkeypatch.setattr(deals, "fetch_url_meta", lambda url: {"image_url": "https://img/p.jpg"})
+
+    class R:
+        status_code = 200
+        content = b""
+        def raise_for_status(self): pass
+    import io
+    buf = io.BytesIO()
+    Image.new("RGB", (40, 30), (255, 0, 0)).save(buf, "PNG")
+    R.content = buf.getvalue()
+    monkeypatch.setattr(frames.requests, "get", lambda *a, **k: R())
+    j = jobmod.Job(tmp_path)
+    texts = ["훅", "지금 5,740원", "상황", "장면", "끝 직전", "링크는 고정 댓글"]
+    ims = frames.line_images(j, texts, (400, 300), bg_color=(255, 255, 255, 255))
+    red = [im.convert("RGB").getpixel((200, 150)) == (255, 0, 0) for im in ims]
+    assert red == [False, True, False, False, True, True]  # 가격 줄 + 마지막 2줄 = 상품 사진
+    assert (tmp_path / "product.jpg").exists()
