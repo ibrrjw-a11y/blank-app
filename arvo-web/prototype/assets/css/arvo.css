@@ -520,6 +520,8 @@ h1, h2, h3 { font-weight: 600; text-wrap: balance; letter-spacing: -0.035em; lin
 .intro .i-bottles img { position: absolute; left: 50%; bottom: 0; height: 100%; width: auto; max-width: none; margin-left: calc(min(64vh, 118vw) * -0.175); opacity: 0; filter: drop-shadow(0 34px 30px rgba(27, 26, 25, .25)); transform-origin: 50% 100%; }
 .intro .i-meta { position: absolute; inset: 0; pointer-events: none; color: var(--ink); }
 .intro .i-top { position: absolute; left: var(--gutter); top: 22px; display: flex; gap: 14px; align-items: baseline; font-family: var(--en); font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; opacity: 0; }
+.intro .i-rule { font-family: var(--kr); font-size: 12px; font-weight: 500; letter-spacing: -0.01em; text-transform: none; }
+@media (max-width: 599px) { .intro .i-rule { display: none; } }
 .intro .i-count { display: inline-flex; gap: 6px; align-items: baseline; font-family: var(--num); font-size: 15px; letter-spacing: 0; text-transform: none; }
 .intro .i-count .win { display: inline-block; height: 1.2em; line-height: 1.2em; overflow: hidden; vertical-align: bottom; }
 .intro .i-count .col { display: flex; flex-direction: column; }
