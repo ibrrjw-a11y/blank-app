@@ -22,6 +22,14 @@ def toss_link_for(deal: dict, channel: str | None, log: Log = print) -> str | No
     except deals.TossLinkBlocked as e:
         raise PipelineError(f"이 상품은 토스가 링크 발급을 막아 둠 — 다른 딜을 고르세요 ({e})")
     except deals.TossError as e:
+        if subtag and "ACCESS_DENIED" in str(e):  # 채널 태그(subTag) 미등록일 수 있음 → 태그 없이라도 받아 둔다
+            try:
+                url = deals.Toss().link(deal["source_id"], None)
+                log(f"! 채널 태그 '{subtag}' 로는 링크를 못 받아서 태그 없이 받았어요 (수익은 똑같이 잡힘, "
+                    f"채널별 구분만 안 됨). 쉐어링크 관리 화면에서 '{subtag}' 를 등록하면 다음부터 구분돼요: {url}")
+                return url
+            except deals.TossError as e2:
+                e = e2
         log(f"! 토스 링크 발급 실패, 작업 화면의 '수익 링크' 칸을 직접 채우세요: {e}")
         return None
     log(f"✓ 토스 쉐어링크 발급{f' ({subtag})' if subtag else ''}: {url}")
