@@ -11,7 +11,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "_src")
-PAGES = ("index.html", "products.html")
+PAGES = ("index.html", "products.html", "product.html")
 
 ARROW = ('<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M0 6h14M9 1l5 5-5 5" '
          'fill="none" stroke="currentColor" stroke-width="1.5"/></svg>')

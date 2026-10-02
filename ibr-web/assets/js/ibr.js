@@ -6,6 +6,21 @@
   var IBR = (window.IBR = window.IBR || {});
   IBR.reduce = reduce;
   doc.classList.add("js");
+
+  /* 제품 id 부여 + 사진·상세 이미지(ibr-media.js, 자동 생성) 합치기 */
+  (function () {
+    var MEDIA = window.IBR_MEDIA || {}, n = {};
+    (window.IBR_PRODUCTS || []).forEach(function (p) {
+      n[p.b] = (n[p.b] || 0) + 1;
+      if (!p.id) p.id = p.b + "-" + n[p.b];
+      var m = MEDIA[p.b + "|" + p.n];
+      if (m) {
+        if (m.img) { p.img = m.img; p.imgFull = !!m.full; }
+        if (m.detail && m.detail.length) p.detail = m.detail;
+      }
+      if (!p.url && p.detail && p.detail.length) p.url = "product.html#p-" + p.id;
+    });
+  })();
   if (reduce) doc.classList.add("no-motion");
 
   IBR.ARROW = '<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M0 6h14M9 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
@@ -224,7 +239,7 @@
     el.style.setProperty("--bink", b.ink || "#2A3330");
     var art = '<div class="art">' + '<span class="bn">' + b.en + "</span>";
     if (p.check) art += '<span class="flag">' + p.check + "</span>";
-    if (p.img) art += '<img src="' + p.img + '" alt="' + b.ko + " " + p.n + '" loading="lazy" decoding="async">';
+    if (p.img) art += '<img' + (p.imgFull ? ' class="full"' : "") + ' src="' + p.img + '" alt="' + b.ko + " " + p.n + '" loading="lazy" decoding="async">';
     else art += '<svg class="sil" viewBox="0 0 120 150" aria-hidden="true"><g fill="currentColor" opacity=".86">' + (SIL[p.form] || SIL.box) + '</g></svg>';
     art += "</div>";
     var meta = '<div class="meta"><p class="brand"><b>' + b.ko + "</b>" + (b.en !== b.ko ? b.en : "") + "</p><h3>" + p.n + "</h3>";
