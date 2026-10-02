@@ -5,6 +5,8 @@
   var TYPES = [["", "전체"], ["news", "언론 보도"], ["press", "보도자료"], ["notice", "공지"], ["ir", "IR 자료"]];
   var LABEL = { news: "언론 보도", press: "보도자료", notice: "공지", ir: "IR 자료" };
   var PAGE = 12;
+  /* 날짜 표시: 지금은 끔(정렬에는 계속 씁니다). 보이게 하려면 true 로 바꿉니다. */
+  var SHOW_DATE = false;
   var OUT = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9l6-6M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
   var DL = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1v7M3 5l3 3 3-3M1.5 10.5h9" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
   var state = { type: "", shown: PAGE };
@@ -17,7 +19,7 @@
   function href(x) { return x.url ? x.url : x.body ? "#post-" + encodeURIComponent(x.id) : x.file || ""; }
   function action(x) { return x.url ? "기사 보기" + OUT : x.body ? "자세히 " + (IBR.ARROW || "") : x.file ? "자료 받기" + DL : ""; }
   var BR = {}; (window.IBR_BRANDS || []).forEach(function (b) { BR[b.id] = b; });
-  function meta(x) { var b = BR[x.brand]; return '<p class="ir-meta"><span class="tp tp-' + esc(x.type) + '">' + (LABEL[x.type] || "소식") + "</span><time datetime=\"" + esc(x.date) + "\">" + fmt(x.date) + "</time>" + (x.source ? "<span>" + esc(x.source) + "</span>" : "") + (b ? '<span class="br">' + esc(b.ko) + "</span>" : "") + "</p>"; }
+  function meta(x) { var b = BR[x.brand]; return '<p class="ir-meta"><span class="tp tp-' + esc(x.type) + '">' + (LABEL[x.type] || "소식") + "</span>" + (SHOW_DATE && x.date ? "<time datetime=\"" + esc(x.date) + "\">" + fmt(x.date) + "</time>" : "") + (x.source ? "<span>" + esc(x.source) + "</span>" : "") + (b ? '<span class="br">' + esc(b.ko) + "</span>" : "") + "</p>"; }
   /* 사진이 없는 글은 브랜드 이름(없으면 IBR)을 썸네일로 씁니다 */
   function thumb(x) {
     if (x.img) return '<div class="ir-thumb"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></div>';
