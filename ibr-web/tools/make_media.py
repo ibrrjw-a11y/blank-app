@@ -1,6 +1,7 @@
 """드라이브에서 받은 제품 사진·상세 이미지를 웹용으로 줄이고 assets/js/ibr-media.js 를 만듭니다.
 
     python3 ibr-web/tools/make_media.py <mapping.json>
+    python3 ibr-web/tools/make_media.py <mapping.json> "브랜드id|제품명" ...   # 적은 제품만 다시 만들고 나머지는 그대로 둡니다
 
 mapping.json 형식 (제품 하나당 한 줄):
     [{"key": "arvo|07 플로럴 선샤인 헤어오일", "slug": "arvo-07-oil",
@@ -12,7 +13,7 @@ mapping.json 형식 (제품 하나당 한 줄):
   "crop": [왼, 위, 오른, 아래] (0~1 비율) 로 일부만 잘라 쓸 수 있습니다.
   "knockout": true 면 가장자리와 이어진 흰 배경을 투명하게 지웁니다(흰 배경 jpg 누끼용).
   "main": null 이고 "keep_main": true 면 지금 쓰는 사진을 그대로 둡니다(상세만 추가).
-- 상세 이미지: 가로 860px 로 줄이고, 너무 긴 이미지는 세로 2400px 단위로 잘라 여러 장으로 나눕니다.
+- 상세 이미지: 가로 860px 로 줄이고, 너무 긴 이미지는 세로 6000px 단위로 잘라 여러 장으로 나눕니다.
   움직이는 GIF 는 움직임을 살려 애니메이션 webp 로 바꿉니다.
 """
 import json
@@ -93,8 +94,8 @@ def save_detail(srcs, slug):
         im = im.convert("RGB")
         if im.width > 860:
             im = im.resize((860, round(im.height * 860 / im.width)), Image.LANCZOS)
-        for top in range(0, im.height, 2400):
-            part = im.crop((0, top, im.width, min(im.height, top + 2400)))
+        for top in range(0, im.height, 6000):
+            part = im.crop((0, top, im.width, min(im.height, top + 6000)))
             if part.height < 8:
                 continue
             n += 1
@@ -106,7 +107,13 @@ def save_detail(srcs, slug):
 
 def main():
     items = json.load(open(sys.argv[1], encoding="utf-8"))
+    only = set(sys.argv[2:])
+    out = os.path.join(HERE, "assets", "js", "ibr-media.js")
     media = {}
+    if only:
+        txt = open(out, encoding="utf-8").read()
+        media = json.loads(txt[txt.index("=") + 1:txt.rindex(";")])
+        items = [it for it in items if it["key"] in only]
     for it in items:
         entry = {}
         if it.get("keep_main"):
@@ -120,7 +127,6 @@ def main():
         if entry:
             media[it["key"]] = entry
         print(it["key"], "main" if "img" in entry else "-", len(entry.get("detail", [])))
-    out = os.path.join(HERE, "assets", "js", "ibr-media.js")
     with open(out, "w", encoding="utf-8") as f:
         f.write("/* 제품 사진·상세 이미지 목록. tools/make_media.py 가 만듭니다. 키는 '브랜드id|제품명' 입니다. */\n")
         f.write("window.IBR_MEDIA = " + json.dumps(media, ensure_ascii=False, indent=1) + ";\n")
