@@ -506,6 +506,44 @@ h1, h2, h3 { text-wrap: balance; }
 .disclaimer { margin-top: 56px; padding: 22px 24px; background: var(--paper-2); border-radius: 3px; font-size: 13.5px; color: var(--text-2); line-height: 1.75; }
 .disclaimer b { color: var(--text); }
 
+/* ── 브랜드 필름 (제품 페이지에서 브랜드를 고르면 필터 바 아래에 나옵니다) ── */
+#brandFilm { padding-top: 32px; }
+.bfilm { position: relative; height: clamp(320px, 34vw, 440px); border-radius: 4px; overflow: hidden; background: var(--fb); color: var(--fi); isolation: isolate; }
+.bfilm canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.bf-copy { position: absolute; z-index: 1; left: clamp(20px, 4vw, 56px); bottom: clamp(22px, 3.6vw, 48px); max-width: 40%; display: grid; gap: 10px; }
+.bf-eyebrow { font: 500 11px/1 var(--f-display); letter-spacing: .18em; text-transform: uppercase; opacity: .7; }
+.bfilm .bf-wm { color: var(--fi); font-size: clamp(40px, 6vw, 88px); line-height: 1.02; }
+.bfilm .bf-wm.caps { font-size: clamp(24px, 3.2vw, 44px); line-height: 1.15; }
+.bf-ko { font-size: 14px; opacity: .72; margin-top: -2px; }
+.bf-words { display: flex; flex-wrap: wrap; row-gap: 4px; margin-top: 10px; font: 500 clamp(13px, 1.25vw, 16px)/1.4 var(--f-display); letter-spacing: .01em; }
+.bf-words span { display: inline-block; }
+.bf-words span + span::before { content: "/"; margin: 0 12px; opacity: .35; }
+.bf-replay { position: absolute; z-index: 1; right: 12px; top: 10px; font: 500 11px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--fi); opacity: .55; padding: 8px 10px; }
+.bf-replay:hover { opacity: 1; }
+.bf-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 32px; align-items: center; padding: 18px 0 4px; }
+.bf-bar p { font-size: 15px; color: var(--text-2); max-width: 42em; }
+.bf-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.bf-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--ink); border-radius: 2px; background: var(--card); font: 600 14px/1 var(--f-body); color: var(--text); transition: background .25s, color .25s; }
+.bf-btn:hover { background: var(--ink); color: var(--on-ink); }
+.bf-btn svg { width: 12px; height: 12px; flex: 0 0 auto; }
+.bf-btn .n { width: 18px; height: 18px; border-radius: 3px; background: #03C75A; color: #FFFFFF; font: 800 11px/18px var(--f-display); text-align: center; font-style: normal; }
+.bf-btn.catalog { background: var(--ink); color: var(--on-ink); }
+.bf-btn.catalog:hover { background: transparent; color: var(--text); }
+.bf-btn[aria-disabled="true"] { border-color: var(--line-paper); color: var(--text-3); background: transparent; cursor: default; }
+.bf-btn[aria-disabled="true"]:hover { background: transparent; color: var(--text-3); }
+.bf-btn[aria-disabled="true"] .n { opacity: .45; }
+.bf-btn em { font-style: normal; font-size: 11.5px; font-weight: 500; color: var(--text-3); }
+.catalog.single .bsec-head { display: none; }
+.catalog.single .bsec { padding-top: 28px; }
+@media (max-width: 640px) {
+  .bfilm { height: 440px; }
+  .bfilm::after { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(to top, var(--fb) 36%, transparent 62%); pointer-events: none; }
+  .bf-copy { left: 18px; right: 18px; bottom: 20px; max-width: none; }
+  .bf-bar { grid-template-columns: minmax(0, 1fr); }
+  .bf-actions { justify-content: flex-start; }
+  .bf-btn { flex: 1 1 auto; justify-content: center; }
+}
+
 /* ── responsive ─────────────────────────────── */
 @media (max-width: 1080px) {
   .gnb { display: none; }

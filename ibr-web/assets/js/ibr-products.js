@@ -51,7 +51,7 @@
         state.brand = br.id;
         if (history.replaceState) history.replaceState(null, "", br.id ? "#b-" + br.id : location.pathname + location.search);
         render();
-        window.scrollTo({ top: $(".catalog").offsetTop - 160, behavior: IBR.reduce ? "auto" : "smooth" });
+        toTop();
       });
       bb.appendChild(b);
     });
@@ -59,8 +59,22 @@
     if (on && on !== bb.firstChild) bb.scrollLeft = on.getBoundingClientRect().left - bb.getBoundingClientRect().left + bb.scrollLeft - 24;
   }
 
+  /* 브랜드를 고르면 필터 바 아래에 브랜드 필름과 바로가기 버튼이 나옵니다 */
+  function film() {
+    var host = $("#brandFilm"), b = state.brand && IBR.brandMap()[state.brand];
+    $(".catalog").classList.toggle("single", !!b);
+    if (!IBR.brandFilm || !host) return;
+    if (b) IBR.brandFilm.show(host, b); else IBR.brandFilm.hide(host);
+  }
+  function toTop() {
+    var hd = document.querySelector(".site-header"), tb = $(".toolbar");
+    var y = $(".catalog").getBoundingClientRect().top + window.scrollY - (hd ? hd.offsetHeight : 0) - (tb ? tb.offsetHeight : 0) + 8;
+    window.scrollTo({ top: Math.max(0, y), behavior: IBR.reduce ? "auto" : "smooth" });
+  }
+
   function render() {
     bars();
+    film();
     var cat = $("#catalog"); cat.innerHTML = "";
     var list = PR.filter(match);
     $("#empty").hidden = list.length > 0;
@@ -103,11 +117,8 @@
     sort.addEventListener("change", function () { state.sort = sort.value; save(); render(); });
     pr.addEventListener("change", function () { state.priced = pr.checked; save(); render(); });
     $("#reset").addEventListener("click", function () { state = { cat: "", brand: "", q: "", sort: "", priced: false }; q.value = ""; sort.value = ""; pr.checked = false; save(); render(); });
-    addEventListener("hashchange", function () { var h = location.hash.match(/^#b-([\w-]+)$/); state.brand = h ? h[1] : ""; render(); });
+    addEventListener("hashchange", function () { var h = location.hash.match(/^#b-([\w-]+)$/); state.brand = h ? h[1] : ""; render(); if (state.brand) toTop(); });
     render();
-    if (state.brand) {
-      var t = document.getElementById("b-" + state.brand);
-      if (t) setTimeout(function () { window.scrollTo({ top: $(".catalog").offsetTop - 150 }); }, 60);
-    }
+    if (state.brand) setTimeout(toTop, 80);
   });
 })();
