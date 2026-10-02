@@ -1,0 +1,44 @@
+<!-- title: IBR 제품 -->
+<!-- desc: IBR 자사 브랜드와 글로벌 소싱 브랜드의 단품을 소비자가와 함께 모았습니다. -->
+<!-- nav: products -->
+<!-- header: solid -->
+<!-- scripts: ibr-data.js ibr.js ibr-products.js -->
+<main id="main">
+  <section class="p-hero ink">
+    <div class="wrap row">
+      <div style="display:grid;gap:22px">
+        <p class="eyebrow">Products · 제품</p>
+        <h1>IBR 제품</h1>
+        <p class="lead">자사 브랜드와 글로벌 소싱 브랜드의 단품을 한곳에 모았습니다. 표시된 가격은 모두 소비자가이며, 이 페이지에서는 구매할 수 없습니다.</p>
+      </div>
+      <div class="facts">
+        <div><b class="num" id="fBrands">–</b><span>브랜드</span></div>
+        <div><b class="num" id="fProducts">–</b><span>제품</span></div>
+        <div><b class="num" id="fPriced">–</b><span>소비자가 표시</span></div>
+      </div>
+    </div>
+    <span class="line" aria-hidden="true"></span>
+  </section>
+
+  <div class="toolbar">
+    <div class="wrap">
+      <div class="row1">
+        <div class="cats" role="group" aria-label="분류" id="catBar"></div>
+        <div class="tools">
+          <label class="field" for="q"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l4 4" stroke="currentColor" stroke-width="1.5"/></svg><span class="sr-only">검색</span><input id="q" type="search" placeholder="제품·브랜드 검색" autocomplete="off"></label>
+          <label class="field" for="sort"><span class="sr-only">정렬</span><select id="sort"><option value="">브랜드 순</option><option value="lo">가격 낮은 순</option><option value="hi">가격 높은 순</option></select></label>
+          <label class="check" for="pricedOnly"><input id="pricedOnly" type="checkbox"> 가격 있는 제품만</label>
+        </div>
+      </div>
+      <div class="brandbar" role="group" aria-label="브랜드" id="brandBar"></div>
+    </div>
+  </div>
+
+  <section class="catalog paper">
+    <div class="wrap">
+      <div id="catalog"></div>
+      <div class="empty" id="empty" hidden><p>조건에 맞는 제품이 없습니다.</p><button class="link-arrow" type="button" id="reset">조건 지우기</button></div>
+      <p class="disclaimer"><b>안내</b> · 표시된 가격은 권장 소비자가이며 판매처와 행사에 따라 달라질 수 있습니다. 구매는 각 브랜드의 공식 판매처에서 하실 수 있습니다. 제품 사진과 상세 정보는 순차적으로 추가됩니다.</p>
+    </div>
+  </section>
+</main>
