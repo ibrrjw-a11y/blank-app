@@ -976,12 +976,36 @@
   };
 
   /* 제품 사진만 있는 브랜드: 코드 모션 위에 제품이 올라옵니다 */
-  SCENES.denoah = function (S) { lineup(S, productImgs("denoah"), { x0: 6, x1: 98, h: 82, step: .12 }); };
-  SCENES.drdaniel = function (S) { lineup(S, productImgs("drdaniel"), { x0: 4, x1: 98, h: 70, fan: 1 }); };
+  /* 드노아: 물방울처럼 둥근 창에 연출컷이 차오르고, 제품이 나란히 섭니다 */
+  SCENES.denoah = function (S) {
+    var ph = S.th.photos || [];
+    if (!ph.length) return lineup(S, productImgs("denoah"), { x0: 6, x1: 98, h: 82, step: .12 });
+    var cap = S.L({ slides: ph, rbox: S.m ? [54, 4, 44, 92] : [60, 7, 37, 86], cls: "pill", pos: "50% 50%" });
+    S.slides(cap, { at: .6, every: 4.8, fade: 1.4, kb: [1.14, 1.0] });
+    S.go(cap, .5, 1.5, { ci: [[100, 0, 0, 0], [0, 0, 0, 0]] }, "io");
+    lineup(S, productImgs("denoah"), { x0: S.m ? 0 : 2, x1: S.m ? 56 : 60, h: 74, step: .12, at: 1.4 });
+  };
+  /* 닥터다니엘: 캡슐이 떠다니는 사이로 연출컷 카드가 넘겨지고, 제품이 부채꼴로 펼쳐집니다 */
+  SCENES.drdaniel = function (S) {
+    var ph = S.th.photos || [];
+    if (!ph.length) return lineup(S, productImgs("drdaniel"), { x0: 4, x1: 98, h: 70, fan: 1 });
+    var card = S.L({ slides: ph, rbox: S.m ? [56, 6, 42, 88] : [64, 8, 33, 84], cls: "card", pos: "50% 50%" });
+    S.slides(card, { at: .4, every: 4.4, fade: 1.2, kb: [1.12, 1.0] });
+    S.go(card, .4, 1.2, { x: [30, 0], o: [0, 1], r: [4, 0] }, "spring");
+    lineup(S, productImgs("drdaniel"), { x0: 0, x1: S.m ? 58 : 64, h: 68, fan: 1, at: 1.2 });
+  };
   SCENES.sahale = function (S) { lineup(S, productImgs("sahale"), { x0: S.m ? 2 : 12, x1: 97, h: 76, fan: 1, at: 1.4 }); };
   SCENES.zeroguide = function (S) {
     S.th.region = { d: [58, 4, 40, 96], m: [44, 0, 56, 60] };
     lineup(S, productImgs("zeroguide"), { x0: 3, x1: 92, h: 80, at: 2.4, step: .2 });
+    /* 카운트다운이 0이 되면, 0 자리의 동그란 창 안에서 연출컷이 바뀝니다 */
+    var ph = S.th.photos || [];
+    if (ph.length) {
+      var A = S.th.area[S.m ? "m" : "d"], d = 2 * A[2] * .34 * .74 * 100;
+      var lens = S.L({ slides: ph, box: [(A[0] + A[2] * .52) * 100, (A[1] + A[3] * .52) * 100, d, d], cls: "lens", base: { x: -50, y: -50 }, pos: "50% 50%" });
+      S.slides(lens, { at: 3.4, every: 3.6, fade: 1, kb: [1.16, 1.0] });
+      S.go(lens, 3.35, 1.1, { cc: [[0, 50, 50], [50, 50, 50]] }, "spring");
+    }
   };
   SCENES.kimguksan = function (S) {
     var src = productImgs("kimguksan")[0]; if (!src) return;
