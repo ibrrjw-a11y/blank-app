@@ -9,7 +9,11 @@ mapping.json 형식 (제품 하나당 한 줄):
 
 - 대표 이미지: 긴 쪽 1000px, 배경이 투명하면 그대로(webp 알파), 아니면 webp 품질 84.
   "full": true 면 카드를 꽉 채우는 사진으로 씁니다(배경이 있는 연출컷).
+  "crop": [왼, 위, 오른, 아래] (0~1 비율) 로 일부만 잘라 쓸 수 있습니다.
+  "knockout": true 면 가장자리와 이어진 흰 배경을 투명하게 지웁니다(흰 배경 jpg 누끼용).
+  "main": null 이고 "keep_main": true 면 지금 쓰는 사진을 그대로 둡니다(상세만 추가).
 - 상세 이미지: 가로 860px 로 줄이고, 너무 긴 이미지는 세로 2400px 단위로 잘라 여러 장으로 나눕니다.
+  움직이는 GIF 는 움직임을 살려 애니메이션 webp 로 바꿉니다.
 """
 import json
 import os
@@ -22,9 +26,35 @@ IMG = os.path.join(HERE, "assets", "img")
 Image.MAX_IMAGE_PIXELS = None
 
 
-def save_main(src, slug):
+def knockout(im, tol=244):
+    """가장자리와 이어진 거의 흰 픽셀을 투명하게."""
+    from PIL import ImageDraw, ImageFilter
+    rgb = im.convert("RGB")
+    white = Image.eval(rgb.convert("L"), lambda v: 0)
+    px, wp = rgb.load(), white.load()
+    for y in range(rgb.height):
+        for x in range(rgb.width):
+            r, g, b = px[x, y]
+            if r >= tol and g >= tol and b >= tol:
+                wp[x, y] = 255
+    for pt in ((0, 0), (rgb.width - 1, 0), (0, rgb.height - 1), (rgb.width - 1, rgb.height - 1)):
+        if wp[pt] == 255:
+            ImageDraw.floodfill(white, pt, 128)
+    alpha = white.point(lambda v: 0 if v == 128 else 255).filter(ImageFilter.GaussianBlur(0.6))
+    out = rgb.convert("RGBA")
+    out.putalpha(alpha)
+    return out
+
+
+def save_main(src, slug, crop=None, ko=False):
     im = Image.open(src)
     im.load()
+    if crop:
+        l, t, r, b = crop
+        im = im.crop((round(im.width * l), round(im.height * t), round(im.width * r), round(im.height * b)))
+    if ko:
+        im.thumbnail((1400, 1400), Image.LANCZOS)
+        im = knockout(im)
     has_alpha = im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info)
     im = im.convert("RGBA" if has_alpha else "RGB")
     if has_alpha:
@@ -45,6 +75,21 @@ def save_detail(srcs, slug):
     for src in srcs:
         im = Image.open(src)
         im.load()
+        if getattr(im, "n_frames", 1) > 1:
+            frames, durs = [], []
+            for i in range(im.n_frames):
+                im.seek(i)
+                f = im.convert("RGB")
+                if f.width > 860:
+                    f = f.resize((860, round(f.height * 860 / f.width)), Image.LANCZOS)
+                frames.append(f)
+                durs.append(im.info.get("duration", 80))
+            n += 1
+            name = "%02d.webp" % n
+            frames[0].save(os.path.join(folder, name), "WEBP", save_all=True, append_images=frames[1:],
+                           duration=durs, loop=0, quality=72, method=4)
+            outs.append("assets/img/detail/%s/%s" % (slug, name))
+            continue
         im = im.convert("RGB")
         if im.width > 860:
             im = im.resize((860, round(im.height * 860 / im.width)), Image.LANCZOS)
@@ -64,8 +109,10 @@ def main():
     media = {}
     for it in items:
         entry = {}
+        if it.get("keep_main"):
+            entry["img"] = it["keep_main"]
         if it.get("main"):
-            entry["img"] = save_main(it["main"], it["slug"])
+            entry["img"] = save_main(it["main"], it["slug"], it.get("crop"), it.get("knockout"))
             if it.get("full"):
                 entry["full"] = True
         if it.get("detail"):

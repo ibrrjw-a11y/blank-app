@@ -509,8 +509,20 @@ h1, h2, h3 { text-wrap: balance; }
 /* ── 브랜드 필름 (제품 페이지에서 브랜드를 고르면 필터 바 아래에 나옵니다) ── */
 #brandFilm { padding-top: 32px; }
 .bfilm { position: relative; height: clamp(320px, 34vw, 440px); border-radius: 4px; overflow: hidden; background: var(--fb); color: var(--fi); isolation: isolate; }
-.bfilm canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.bf-copy { position: absolute; z-index: 1; left: clamp(20px, 4vw, 56px); bottom: clamp(22px, 3.6vw, 48px); max-width: 40%; display: grid; gap: 10px; }
+.bfilm canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.bfilm .bf-bg { z-index: 0; }
+.bf-stage { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
+.bfilm .bf-fx { z-index: 2; }
+.bf-l { position: absolute; will-change: transform, opacity; }
+.bf-l > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; user-select: none; -webkit-user-drag: none; }
+.bf-l.ct > img { object-fit: contain; object-position: 50% 100%; }
+.bf-l.drop > img { filter: drop-shadow(0 16px 18px rgba(0, 0, 0, .26)); }
+.bf-l.arch { border-radius: 999px 999px 0 0; overflow: hidden; }
+.bf-l.round { border-radius: 4px; overflow: hidden; }
+.bf-l.card { border-radius: 4px; overflow: hidden; box-shadow: 0 18px 36px rgba(0, 0, 0, .22); }
+.bf-l.clip { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 94%, transparent); }
+.bf-l .holo { position: absolute; inset: 0; mix-blend-mode: screen; opacity: .85; background: linear-gradient(112deg, transparent 38%, rgba(255, 255, 255, .85) 46%, rgba(160, 225, 255, .7) 50%, rgba(255, 200, 236, .7) 54%, transparent 62%) 130% 50% / 320% 100% no-repeat; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: 50% 100%; mask-position: 50% 100%; }
+.bf-copy { position: absolute; z-index: 3; left: clamp(20px, 4vw, 56px); bottom: clamp(22px, 3.6vw, 48px); max-width: 40%; display: grid; gap: 10px; }
 .bf-eyebrow { font: 500 11px/1 var(--f-display); letter-spacing: .18em; text-transform: uppercase; opacity: .7; }
 .bfilm .bf-wm { color: var(--fi); font-size: clamp(40px, 6vw, 88px); line-height: 1.02; }
 .bfilm .bf-wm.caps { font-size: clamp(24px, 3.2vw, 44px); line-height: 1.15; }
@@ -518,8 +530,12 @@ h1, h2, h3 { text-wrap: balance; }
 .bf-words { display: flex; flex-wrap: wrap; row-gap: 4px; margin-top: 10px; font: 500 clamp(13px, 1.25vw, 16px)/1.4 var(--f-display); letter-spacing: .01em; }
 .bf-words span { display: inline-block; }
 .bf-words span + span::before { content: "/"; margin: 0 12px; opacity: .35; }
-.bf-replay { position: absolute; z-index: 1; right: 12px; top: 10px; font: 500 11px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--fi); opacity: .55; padding: 8px 10px; }
+.bf-replay { position: absolute; z-index: 3; right: 12px; top: 10px; font: 500 11px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--fi); opacity: .55; padding: 8px 10px; }
 .bf-replay:hover { opacity: 1; }
+.bfilm .bf-logo { line-height: 0; }
+.bfilm .bf-logo img { display: block; height: var(--lh, 56px); width: auto; max-width: 100%; object-fit: contain; object-position: 0 50%; }
+.bfilm.dark .bf-eyebrow, .bfilm.dark .bf-ko { opacity: .8; }
+.bfilm.scene .bf-copy { text-shadow: none; }
 .bf-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 32px; align-items: center; padding: 18px 0 4px; }
 .bf-bar p { font-size: 15px; color: var(--text-2); max-width: 42em; }
 .bf-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
@@ -537,7 +553,8 @@ h1, h2, h3 { text-wrap: balance; }
 .catalog.single .bsec { padding-top: 28px; }
 @media (max-width: 640px) {
   .bfilm { height: 440px; }
-  .bfilm::after { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(to top, var(--fb) 36%, transparent 62%); pointer-events: none; }
+  .bfilm::after { content: ""; position: absolute; inset: 0; z-index: 2; background: linear-gradient(to top, var(--fb) 34%, transparent 60%); pointer-events: none; }
+  .bfilm .bf-logo img { height: calc(var(--lh, 56px) * .72); }
   .bf-copy { left: 18px; right: 18px; bottom: 20px; max-width: none; }
   .bf-bar { grid-template-columns: minmax(0, 1fr); }
   .bf-actions { justify-content: flex-start; }
@@ -551,8 +568,8 @@ h1, h2, h3 { text-wrap: balance; }
 .pd-crumbs span { color: var(--text-2); }
 .pd-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: start; }
 .pd-media .art { aspect-ratio: 1 / 1; border-radius: 4px; position: relative; background: var(--tint); display: grid; place-items: center; overflow: hidden; }
-.pd-media .art img { width: auto; height: 84%; max-width: 78%; object-fit: contain; filter: drop-shadow(0 22px 22px rgba(0, 0, 0, .14)); }
-.pd-media .art img.full { width: 100%; height: 100%; max-width: none; object-fit: cover; filter: none; }
+.pd-media .art img { position: absolute; left: 11%; top: 8%; width: 78%; height: 84%; object-fit: contain; filter: drop-shadow(0 22px 22px rgba(0, 0, 0, .14)); }
+.pd-media .art img.full { left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; filter: none; }
 .pd-media .art svg.sil { width: 46%; height: 66%; color: var(--bink); }
 .pd-media .art .bn { position: absolute; left: 18px; top: 18px; font: 500 11px/1 var(--f-display); letter-spacing: .16em; text-transform: uppercase; color: var(--bink); opacity: .7; }
 .pd-media .art .flag { position: absolute; right: 14px; top: 14px; font-size: 12px; font-weight: 600; padding: 6px 8px; border-radius: 2px; background: rgba(255, 255, 255, .8); color: #8A3A12; }
