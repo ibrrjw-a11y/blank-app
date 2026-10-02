@@ -386,7 +386,12 @@ h1, h2, h3 { text-wrap: balance; }
 .bcard .foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line-paper); font-size: 13px; }
 .bcard .foot a { font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
 .bcard .foot a svg { width: 13px; height: 9px; transition: transform .3s var(--ease); }
-.bcard .foot a:hover svg { transform: translateX(3px); }
+.bcard .foot a:hover svg, .bcard:hover .foot a svg { transform: translateX(3px); }
+/* 카드 어디를 눌러도 브랜드 페이지로 갑니다(링크가 카드 전체를 덮음) */
+.bcard.link { cursor: pointer; }
+.bcard.link .foot a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.bcard.link .foot a:focus-visible { outline: none; }
+.bcard.link .foot a:focus-visible::after { outline: 2px solid var(--ink); outline-offset: -2px; }
 .bcard .foot .none { color: var(--text-3); }
 
 /* ── product cards (home rail + products page) ─────────────────────────────── */

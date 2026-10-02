@@ -192,7 +192,7 @@
   var ORIGIN = { KR: "KOREA", US: "USA", AU: "AUSTRALIA", GR: "GREECE", JP: "JAPAN", FR: "FRANCE", UK: "UK", NZ: "NEW ZEALAND", IT: "ITALY", CZ: "CZECH", AT: "AUSTRIA" };
   function brandCard(b, count) {
     var el = document.createElement("article");
-    el.className = "bcard";
+    el.className = "bcard" + (count ? " link" : "");
     var cats = (b.cat || []).map(function (c) { return "<span>" + (window.IBR_CATS[c] || c) + "</span>"; }).join("");
     el.innerHTML =
       '<div class="top"><div><p class="wm ' + (b.mark || "") + '">' + b.en + "</p>" + (b.ko !== b.en ? '<p class="ko">' + b.ko + "</p>" : "") + "</div>" +
