@@ -4,14 +4,14 @@
   var IBR = window.IBR, CATS = window.IBR_CATS, BR = window.IBR_BRANDS, PR = window.IBR_PRODUCTS;
   function $(s) { return document.querySelector(s); }
   var GROUP = { own: "자사 브랜드", global: "글로벌 소싱", dist: "유통 브랜드" };
-  var state = { cat: "", brand: "", q: "", sort: "", priced: false };
+  var state = { cat: "", brand: "", q: "", sort: "" };
 
   function load() {
-    try { var s = JSON.parse(sessionStorage.getItem("ibr-products") || "{}"); state.sort = s.sort || ""; state.priced = !!s.priced; } catch (e) {}
+    try { var s = JSON.parse(sessionStorage.getItem("ibr-products") || "{}"); state.sort = s.sort || ""; } catch (e) {}
     var h = location.hash.match(/^#b-([\w-]+)$/);
     if (h) state.brand = h[1];
   }
-  function save() { try { sessionStorage.setItem("ibr-products", JSON.stringify({ sort: state.sort, priced: state.priced })); } catch (e) {} }
+  function save() { try { sessionStorage.setItem("ibr-products", JSON.stringify({ sort: state.sort })); } catch (e) {} }
 
   var order = BR.map(function (b) { return b.id; });
   var withProducts = BR.filter(function (b) { return PR.some(function (p) { return p.b === b.id; }); });
@@ -19,7 +19,6 @@
   function match(p) {
     if (state.cat && p.cat !== state.cat) return false;
     if (state.brand && p.b !== state.brand) return false;
-    if (state.priced && IBR.priceOf(p) == null) return false;
     if (state.q) {
       var b = IBR.brandMap()[p.b];
       var hay = (p.n + " " + b.ko + " " + b.en + " " + (p.vars || []).join(" ") + " " + p.opts.map(function (o) { return o[0]; }).join(" ")).toLowerCase();
@@ -56,7 +55,26 @@
       bb.appendChild(b);
     });
     var on = bb.querySelector('[aria-pressed="true"]');
-    if (on && on !== bb.firstChild) bb.scrollLeft = on.getBoundingClientRect().left - bb.getBoundingClientRect().left + bb.scrollLeft - 24;
+    if (on && on !== bb.firstChild && bb.scrollWidth > bb.clientWidth) bb.scrollLeft = on.getBoundingClientRect().left - bb.getBoundingClientRect().left + bb.scrollLeft - 24;
+    wireBar(bb);
+  }
+
+  /* 좁은 화면에서 브랜드 바가 한 줄로 넘칠 때: 마우스 휠로도 좌우로 넘기고, 끝에 닿으면 오른쪽 흐림을 없앱니다 */
+  function wireBar(bb) {
+    function edge() { bb.classList.toggle("end", bb.scrollLeft + bb.clientWidth >= bb.scrollWidth - 4); }
+    if (!bb.dataset.wired) {
+      bb.dataset.wired = "1";
+      bb.addEventListener("scroll", edge, { passive: true });
+      addEventListener("resize", edge);
+      bb.addEventListener("wheel", function (e) {
+        if (bb.scrollWidth <= bb.clientWidth || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        var max = bb.scrollWidth - bb.clientWidth;
+        if ((e.deltaY < 0 && bb.scrollLeft <= 0) || (e.deltaY > 0 && bb.scrollLeft >= max - 1)) return;
+        bb.scrollLeft += e.deltaY;
+        e.preventDefault();
+      }, { passive: false });
+    }
+    edge();
   }
 
   /* 브랜드를 고르면 필터 바 아래에 브랜드 필름과 바로가기 버튼이 나옵니다 */
@@ -109,14 +127,12 @@
     load();
     $("#fBrands").textContent = withProducts.length;
     $("#fProducts").textContent = PR.length;
-    $("#fPriced").textContent = PR.filter(function (p) { return IBR.priceOf(p) != null; }).length;
-    var q = $("#q"), sort = $("#sort"), pr = $("#pricedOnly");
-    sort.value = state.sort; pr.checked = state.priced;
+    var q = $("#q"), sort = $("#sort");
+    sort.value = state.sort;
     var qt;
     q.addEventListener("input", function () { clearTimeout(qt); qt = setTimeout(function () { state.q = q.value.trim(); render(); }, 120); });
     sort.addEventListener("change", function () { state.sort = sort.value; save(); render(); });
-    pr.addEventListener("change", function () { state.priced = pr.checked; save(); render(); });
-    $("#reset").addEventListener("click", function () { state = { cat: "", brand: "", q: "", sort: "", priced: false }; q.value = ""; sort.value = ""; pr.checked = false; save(); render(); });
+    $("#reset").addEventListener("click", function () { state = { cat: "", brand: "", q: "", sort: "" }; q.value = ""; sort.value = ""; save(); render(); });
     addEventListener("hashchange", function () { var h = location.hash.match(/^#b-([\w-]+)$/); state.brand = h ? h[1] : ""; render(); if (state.brand) toTop(); });
     render();
     if (state.brand) setTimeout(toTop, 80);

@@ -493,10 +493,11 @@ h1, h2, h3 { text-wrap: balance; }
 .field svg { width: 15px; height: 15px; color: var(--text-3); flex: 0 0 auto; }
 .check { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; color: var(--text-2); min-height: 40px; cursor: pointer; }
 .check input { width: 16px; height: 16px; accent-color: var(--ink); }
-.brandbar { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+/* 브랜드 바: 넓은 화면은 여러 줄로 모두 보이고, 좁은 화면은 손가락으로 밀어 넘깁니다 */
+.brandbar { display: flex; flex-wrap: wrap; gap: 2px 2px; }
 .brandbar::-webkit-scrollbar { display: none; }
-.brandbar button { flex: 0 0 auto; font: 600 13px/1 var(--f-body); padding: 9px 11px; border-radius: 2px; color: var(--text-2); border: 1px solid transparent; }
-.brandbar button .c { font: 500 11px/1 var(--f-display); color: var(--text-3); margin-left: 4px; }
+.brandbar button { flex: 0 0 auto; font: 600 13px/1 var(--f-body); padding: 8px 8px; border-radius: 2px; color: var(--text-2); border: 1px solid transparent; }
+.brandbar button .c { font: 500 10.5px/1 var(--f-display); color: var(--text-3); margin-left: 2px; }
 .brandbar button[aria-pressed="true"] { border-color: var(--ink); color: var(--text); background: var(--card); }
 .catalog { padding-block: 36px clamp(80px, 10vw, 140px); }
 .bsec { padding-top: 44px; scroll-margin-top: calc(var(--header-h) + 150px); }
@@ -634,6 +635,10 @@ h1, h2, h3 { text-wrap: balance; }
 .step-dots { display: none; gap: 8px; margin-top: 6px; }
 .step-dots i { width: 22px; height: 2px; background: var(--line-ink); }
 .step-dots i.on { background: var(--on-ink); }
+@media (max-width: 1180px) {
+  .brandbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+  .brandbar.end { -webkit-mask-image: none; mask-image: none; }
+}
 @media (max-width: 760px) {
   :root { --header-h: 60px; }
   .hero .pillars { grid-template-columns: minmax(0, 1fr); }
@@ -683,4 +688,51 @@ h1, h2, h3 { text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .loop .run, .worldmap .node.on circle.h { animation: none; }
+}
+
+/* ── IR · 소식 ── */
+.ir { padding-block: clamp(40px, 5vw, 72px) clamp(80px, 10vw, 140px); min-height: 50vh; }
+.ir-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: clamp(24px, 3vw, 36px); }
+.ir-tabs .tab[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); border-color: var(--ink); }
+.ir-list { display: grid; gap: 1px; background: var(--line-paper); border: 1px solid var(--line-paper); }
+.ir-card { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: clamp(18px, 2.4vw, 32px); padding: clamp(18px, 2vw, 26px); background: var(--card); color: inherit; transition: background .25s; }
+a.ir-card:hover { background: #FBFCFA; }
+.ir-thumb { aspect-ratio: 16 / 10; border-radius: 3px; overflow: hidden; background: var(--paper-2); display: grid; place-items: center; }
+.ir-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s var(--ease); }
+a.ir-card:hover .ir-thumb img { transform: scale(1.04); }
+.ir-thumb .wm { font-size: clamp(20px, 2vw, 28px); line-height: 1.1; text-align: center; padding: 0 12px; }
+.ir-thumb .wm.caps { font-size: clamp(13px, 1.2vw, 16px); }
+.ir-thumb.ibr { background: var(--ink); color: var(--on-ink); align-content: center; gap: 8px; }
+.ir-thumb.ibr span { font: 700 clamp(26px, 2.6vw, 36px)/1 var(--f-display); letter-spacing: .04em; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ir-thumb.ibr small { font: 500 11px/1 var(--f-body); color: var(--on-ink-2); letter-spacing: .08em; }
+.ir-meta .br { color: var(--text-2); font-weight: 600; }
+.ir-body { display: grid; align-content: start; gap: 10px; }
+.ir-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 12.5px; color: var(--text-3); }
+.ir-meta .tp { font-weight: 700; color: var(--text); padding: 4px 7px; border: 1px solid var(--line-paper); border-radius: 2px; font-size: 11.5px; }
+.ir-meta .tp-news { border-color: #0B8DCF; color: #0B6FA3; }
+.ir-meta .tp-press { border-color: #1EA464; color: #157A4A; }
+.ir-meta .tp-ir { border-color: var(--ink); }
+.ir-body h2 { font-size: clamp(18px, 1.6vw, 22px); line-height: 1.4; font-weight: 700; letter-spacing: -0.02em; }
+.ir-body .sum { font-size: 14.5px; line-height: 1.7; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ir-body .go { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; margin-top: 4px; }
+.ir-body .go svg { width: 12px; height: 12px; }
+.ir-more { display: flex; justify-content: center; margin-top: 32px; }
+.ir-more [hidden] { display: none; }
+.ir-empty { border: 1px dashed var(--line-paper); border-radius: 4px; background: var(--card); padding: clamp(56px, 8vw, 96px) 24px; }
+.ir-empty .t { font-size: clamp(18px, 1.8vw, 22px); font-weight: 700; color: var(--text); }
+.ir-post { max-width: 760px; margin-inline: auto; display: grid; gap: 18px; }
+.ir-post h1 { font-size: clamp(26px, 3.2vw, 40px); line-height: 1.3; letter-spacing: -0.03em; font-weight: 800; }
+.ir-back { font-size: 13.5px; font-weight: 600; color: var(--text-2); }
+.ir-post figure img { width: 100%; border-radius: 4px; display: block; }
+.ir-text { display: grid; gap: 16px; font-size: 16px; line-height: 1.85; color: var(--text); padding-top: 8px; border-top: 1px solid var(--line-paper); }
+.ir-text h3 { font-size: 19px; font-weight: 700; margin-top: 12px; }
+.ir-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ir-pn { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line-paper); border: 1px solid var(--line-paper); margin-top: 24px; }
+.ir-pn a, .ir-pn span { background: var(--card); padding: 16px 18px; font-size: 14px; font-weight: 600; display: grid; gap: 4px; }
+.ir-pn .nx { text-align: right; }
+.ir-pn small { font-size: 11.5px; font-weight: 500; color: var(--text-3); }
+@media (max-width: 640px) {
+  .ir-card { grid-template-columns: minmax(0, 1fr); }
+  .ir-pn { grid-template-columns: minmax(0, 1fr); }
+  .ir-pn .nx { text-align: left; }
 }

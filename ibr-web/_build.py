@@ -11,7 +11,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "_src")
-PAGES = ("index.html", "products.html", "product.html")
+PAGES = ("index.html", "products.html", "product.html", "ir.html")
 
 ARROW = ('<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M0 6h14M9 1l5 5-5 5" '
          'fill="none" stroke="currentColor" stroke-width="1.5"/></svg>')
@@ -55,7 +55,7 @@ def build(page, artifact_dir=None):
     body = re.sub(r"<!-- \w+: .+? -->\n", "", body)
     head = read("_head.html").replace("{{TITLE}}", meta["title"]).replace("{{DESC}}", meta.get("desc", ""))
     header = read("_header.html")
-    for key in ("home", "products"):
+    for key in ("home", "products", "ir"):
         header = header.replace("{{NAV_%s}}" % key.upper(), ' aria-current="page"' if meta.get("nav") == key else "")
     header = header.replace("{{HEADER_CLASS}}", meta.get("header", ""))
     home = "" if page == "index.html" else "index.html"

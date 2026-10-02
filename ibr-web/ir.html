@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>IBR 제품 상세</title>
-<meta name="description" content="IBR 제품 상세 정보와 소비자가.">
+<title>IBR IR · 소식</title>
+<meta name="description" content="IBR의 언론 보도, 보도자료, 공지, IR 자료를 모았습니다.">
 <meta name="theme-color" content="#07110F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,9 +21,9 @@
       <a href="index.html#channels">유통</a>
       <a href="index.html#global">글로벌</a>
       <a href="index.html#brands">브랜드</a>
-      <a href="products.html" aria-current="page">제품</a>
+      <a href="products.html">제품</a>
       <a href="index.html#journey">회사</a>
-      <a href="ir.html">IR</a>
+      <a href="ir.html" aria-current="page">IR</a>
       <a class="gnb-cta" href="index.html#contact">제휴 문의</a>
     </nav>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="메뉴 열기"><span></span><span></span></button>
@@ -40,13 +40,34 @@
   <a href="index.html#contact">제휴 문의 <small>Contact</small></a>
   <p class="m-contact">ibrrjw@ibrofficial.co.kr<br>서울시 강남구 강남대로136길 60</p>
 </nav>
-<main id="main" class="pd paper">
-  <div class="wrap">
-    <nav class="pd-crumbs" aria-label="현재 위치"><a href="products.html">제품</a><i>/</i><a id="pdBrandLink" href="products.html">브랜드</a><i>/</i><span id="pdCrumb">제품</span></nav>
-    <section class="pd-top" id="pdTop"></section>
-    <section class="pd-detail" id="pdDetail" aria-label="상세 정보"></section>
-    <nav class="pd-nav" id="pdNav" aria-label="같은 브랜드의 다른 제품"></nav>
-  </div>
+<main id="main">
+  <section class="p-hero ink ir-hero">
+    <div class="wrap row">
+      <div style="display:grid;gap:22px">
+        <p class="eyebrow">IR · News</p>
+        <h1>IR · 소식</h1>
+        <p class="lead">IBR의 언론 보도와 보도자료, 공지, 투자자를 위한 자료를 모았습니다.</p>
+      </div>
+      <div class="facts" id="irFacts" hidden></div>
+    </div>
+    <span class="line" aria-hidden="true"></span>
+  </section>
+
+  <section class="ir paper">
+    <div class="wrap">
+      <div class="ir-list-view" id="irListView">
+        <div class="ir-tabs" role="group" aria-label="분류" id="irTabs"></div>
+        <div class="ir-list" id="irList"></div>
+        <div class="ir-more"><button class="link-arrow" type="button" id="irMore" hidden>더 보기 <svg viewBox="0 0 16 12" aria-hidden="true"><path d="M0 6h14M9 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button></div>
+        <div class="empty ir-empty" id="irEmpty" hidden>
+          <p class="t">첫 소식을 준비하고 있습니다.</p>
+          <p>언론 보도, 보도자료, IR 자료가 이곳에 차례로 올라옵니다.</p>
+          <a class="link-arrow" href="index.html#contact">제휴·IR 문의 <svg viewBox="0 0 16 12" aria-hidden="true"><path d="M0 6h14M9 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+        </div>
+      </div>
+      <article class="ir-post" id="irPost" hidden></article>
+    </div>
+  </section>
 </main>
 <footer class="site-footer">
   <div class="wrap">
@@ -69,9 +90,8 @@
   </div>
 </footer>
 <script src="assets/js/ibr-data.js"></script>
-<script src="assets/js/ibr-media.js"></script>
-<script src="assets/js/ibr-links.js"></script>
+<script src="assets/js/ibr-ir-data.js"></script>
 <script src="assets/js/ibr.js"></script>
-<script src="assets/js/ibr-product.js"></script>
+<script src="assets/js/ibr-ir.js"></script>
 </body>
 </html>
