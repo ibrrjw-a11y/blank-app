@@ -562,6 +562,21 @@
 
   /* ── 사진 위·아래에 겹치는 캔버스 효과 ─────────────────────────────── */
   var FX = {};
+  /* 둥근 빛·구슬처럼 매 프레임 같은 그림은 한 번만 그려 두고 복사해 씁니다(휴대폰에서 가볍게) */
+  var SPR = {};
+  function sprite(key, size, paint) {
+    if (SPR[key]) return SPR[key];
+    var cv = document.createElement("canvas"); cv.width = cv.height = size;
+    paint(cv.getContext("2d"), size);
+    return (SPR[key] = cv);
+  }
+  function glowSprite(rgbIn, rgbOut, a0) {
+    return sprite("g" + rgbIn + rgbOut + a0, 128, function (c, n) {
+      var g = c.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2);
+      g.addColorStop(0, rgba(rgbIn, a0)); g.addColorStop(1, rgba(rgbOut, 0));
+      c.fillStyle = g; c.fillRect(0, 0, n, n);
+    });
+  }
 
   /* 숲 안개와 떠오르는 향 입자 (에이르보) */
   FX.fog = function (c, w, h, t, th) {
@@ -571,10 +586,9 @@
     for (var i = 0; i < 7; i++) {
       var R = h * (.5 + r() * .5), sp = 6 + r() * 10, y = h * (.25 + r() * .7);
       var x = ((r() * (w + 2 * R) + t * sp) % (w + 2 * R)) - R;
-      var g = c.createRadialGradient(x, y, 0, x, y, R);
-      g.addColorStop(0, "rgba(235,238,232," + (.13 + .06 * Math.sin(t * .3 + i)).toFixed(3) + ")");
-      g.addColorStop(1, "rgba(235,238,232,0)");
-      c.fillStyle = g; c.fillRect(x - R, y - R, 2 * R, 2 * R);
+      c.globalAlpha = clamp(.13 + .06 * Math.sin(t * .3 + i), 0, 1);
+      c.drawImage(glowSprite("#EBEEE8", "#EBEEE8", 1), x - R, y - R, 2 * R, 2 * R);
+      c.globalAlpha = 1;
     }
     var mp = prog(t, 1.2, 2);
     for (var k = 0; k < 46; k++) {
@@ -650,11 +664,10 @@
     c.globalCompositeOperation = "lighter";
     for (var i = 0; i < 34; i++) {
       var life = 8 + r() * 8, ph = (t / life + r()) % 1, x = r() * w + Math.sin(t * .5 + i) * 20, yy = h * (1.1 - ph * 1.2), R = 1.5 + r() * (i % 5 ? 3 : 9);
-      var gg = c.createRadialGradient(x, yy, 0, x, yy, R * 2.2);
-      gg.addColorStop(0, rgba(th.acc[1], .55 * Math.sin(ph * Math.PI) * on)); gg.addColorStop(1, rgba(th.acc[0], 0));
-      c.fillStyle = gg; c.beginPath(); c.arc(x, yy, R * 2.2, 0, TAU); c.fill();
+      c.globalAlpha = clamp(.55 * Math.sin(ph * Math.PI) * on, 0, 1);
+      c.drawImage(glowSprite(th.acc[1], th.acc[0], 1), x - R * 2.2, yy - R * 2.2, R * 4.4, R * 4.4);
     }
-    c.globalCompositeOperation = "source-over";
+    c.globalAlpha = 1; c.globalCompositeOperation = "source-over";
   };
 
   /* 떠다니는 진주 구슬 (클라라앤코, 사진 뒤) */
@@ -664,10 +677,13 @@
       var R = (i % 4 ? 10 + r() * 22 : 40 + r() * 30) * Math.min(1, w / 900 + .35), bx = r() * w, by = r() * h;
       var p = back(prog(t, .1 + i * .07, .9)); if (!p) continue;
       var x = bx + Math.sin(t * .35 + i) * 18, y = by + Math.cos(t * .3 + i * 1.7) * 14, rad = R * p;
-      var g = c.createRadialGradient(x - rad * .35, y - rad * .4, rad * .05, x, y, rad);
-      g.addColorStop(0, "#FFFFFF"); g.addColorStop(.35, "#FCE6EB"); g.addColorStop(.8, "#F2B6C4"); g.addColorStop(1, "#E89AAE");
+      var pearl = sprite("pearl", 160, function (k, n) {
+        var r0 = n / 2, g = k.createRadialGradient(r0 - r0 * .35, r0 - r0 * .4, r0 * .05, r0, r0, r0);
+        g.addColorStop(0, "#FFFFFF"); g.addColorStop(.35, "#FCE6EB"); g.addColorStop(.8, "#F2B6C4"); g.addColorStop(1, "#E89AAE");
+        k.fillStyle = g; k.beginPath(); k.arc(r0, r0, r0, 0, TAU); k.fill();
+      });
       c.globalAlpha = i % 4 ? .95 : .55;
-      c.fillStyle = g; c.beginPath(); c.arc(x, y, rad, 0, TAU); c.fill();
+      c.drawImage(pearl, x - rad, y - rad, rad * 2, rad * 2);
     }
     c.globalAlpha = 1;
   };
@@ -715,19 +731,21 @@
     }
     return v;
   };
+  /* 값이 바뀐 속성만 씁니다(같은 값을 매 프레임 다시 쓰지 않아 가볍습니다) */
+  Track.prototype.set = function (k, v) { if (this["_" + k] !== v) { this["_" + k] = v; this.el.style[k] = v; } };
   Track.prototype.apply = function (t) {
-    var g = this.get.bind(this), st = this.el.style, x = g("x", t), y = g("y", t), s = g("s", t), r = g("r", t), kx = g("kx", t);
-    st.transform = "translate(" + x.toFixed(2) + "%," + y.toFixed(2) + "%) rotate(" + r.toFixed(2) + "deg) scale(" + s.toFixed(4) + ")" + (kx ? " skewX(" + kx.toFixed(2) + "deg)" : "");
-    var o = clamp(g("o", t), 0, 1); st.opacity = o.toFixed(3);
-    st.visibility = o < .002 ? "hidden" : "";
-    var b = g("b", t); st.filter = b > .05 ? "blur(" + b.toFixed(1) + "px)" : "";
-    if (this.tw.ci) { var ci = g("ci", t); this.cur.ci = ci; st.clipPath = "inset(" + ci.map(function (n) { return n.toFixed(2) + "%"; }).join(" ") + ")"; }
-    if (this.tw.cc) { var cc = g("cc", t); this.cur.cc = cc; st.clipPath = "circle(" + cc[0].toFixed(2) + "% at " + cc[1] + "% " + cc[2] + "%)"; }
-    if (this.tw.bx || this.osc.some(function (q) { return q.p === "bx"; })) st.backgroundPosition = g("bx", t).toFixed(2) + "% 50%";
+    var g = this.get.bind(this), x = g("x", t), y = g("y", t), s = g("s", t), r = g("r", t), kx = g("kx", t);
+    this.set("transform", "translate(" + x.toFixed(2) + "%," + y.toFixed(2) + "%) rotate(" + r.toFixed(2) + "deg) scale(" + s.toFixed(3) + ")" + (kx ? " skewX(" + kx.toFixed(2) + "deg)" : ""));
+    var o = clamp(g("o", t), 0, 1); this.set("opacity", o.toFixed(2));
+    this.set("visibility", o < .005 ? "hidden" : "");
+    var b = this.S.lp ? 0 : g("b", t); this.set("filter", b > .05 ? "blur(" + b.toFixed(1) + "px)" : "");
+    if (this.tw.ci) { var ci = g("ci", t); this.cur.ci = ci; this.set("clipPath", "inset(" + ci.map(function (n) { return n.toFixed(2) + "%"; }).join(" ") + ")"); }
+    if (this.tw.cc) { var cc = g("cc", t); this.cur.cc = cc; this.set("clipPath", "circle(" + cc[0].toFixed(2) + "% at " + cc[1] + "% " + cc[2] + "%)"); }
+    if (this.tw.bx || this.osc.some(function (q) { return q.p === "bx"; })) this.set("backgroundPosition", g("bx", t).toFixed(1) + "% 50%");
   };
 
-  function makeScene(film, stage, b, th, mobile) {
-    var S = { film: film, stage: stage, b: b, th: th, m: mobile, tracks: [], groups: [], ref: {}, imgs: [] };
+  function makeScene(film, stage, b, th, mobile, lp) {
+    var S = { film: film, stage: stage, b: b, th: th, m: mobile, lp: lp, tracks: [], groups: [], ref: {}, imgs: [] };
     var REG0 = { d: [40, 0, 60, 100], m: [0, 0, 100, 60] };
     S.src = function (n) { return n.indexOf("/") >= 0 ? n : IMG + b.id + "/" + n + ".webp"; };
     function mapR(r) { var G = th.region || REG0, R = mobile ? G.m : G.d; return [R[0] + r[0] * R[2] / 100, R[1] + r[1] * R[3] / 100, r[2] * R[2] / 100, r[3] * R[3] / 100]; }
@@ -780,13 +798,15 @@
         var local = u - k * g.every, fin = k === 0 ? 1 : clamp(local / g.fade, 0, 1);
         g.h.slides.forEach(function (im, i) {
           var vis = i === cur || (i === prev && fin < 1 && k > 0);
-          im.style.opacity = i === cur ? eio(fin).toFixed(3) : vis ? "1" : "0";
-          im.style.zIndex = i === cur ? 2 : vis ? 1 : 0;
-          im.style.visibility = vis || i === cur ? "" : "hidden";
+          var st = im._s || (im._s = {});
+          function put(k2, v) { if (st[k2] !== v) { st[k2] = v; im.style[k2] = v; } }
+          put("opacity", i === cur ? eio(fin).toFixed(2) : vis ? "1" : "0");
+          put("zIndex", String(i === cur ? 2 : vis ? 1 : 0));
+          put("visibility", vis || i === cur ? "" : "hidden");
           if (vis) {
             var kk = i === cur ? k : k - 1, p = clamp((u - kk * g.every) / (g.every + g.fade), 0, 1), up = kk % 2 === 0;
             var s = up ? g.kb[0] + (g.kb[1] - g.kb[0]) * p : g.kb[1] + (g.kb[0] - g.kb[1]) * p, dx = (kk % 3 - 1) * 1.6 * p;
-            im.style.transform = "translate(" + dx.toFixed(2) + "%,0) scale(" + s.toFixed(4) + ")";
+            put("transform", "translate(" + dx.toFixed(2) + "%,0) scale(" + s.toFixed(3) + ")");
           }
         });
       });
@@ -1079,8 +1099,10 @@
     var film = host.querySelector(".bfilm"), stage = film.querySelector(".bf-stage");
     var cvB = film.querySelector(".bf-bg"), cvF = film.querySelector(".bf-fx"), cB = cvB.getContext("2d"), cF = cvF.getContext("2d");
     var motif = th.motif && M[th.motif], under = th.under && FX[th.under], fx = th.fx && FX[th.fx];
-    var dpr = Math.min(2, window.devicePixelRatio || 1);
-    var state = { id: b.id, raf: 0, t0: 0, vis: true, W: 0, H: 0, anims: [], S: null, mobile: null, ready: false };
+    /* 휴대폰·터치 기기: 캔버스 해상도를 낮추고 초당 30프레임으로 그립니다 */
+    var lp = !!(window.matchMedia && matchMedia("(hover: none), (max-width: 760px)").matches);
+    var DPR = window.devicePixelRatio || 1, dprB = Math.min(lp ? 1.25 : 2, DPR), dprF = Math.min(lp ? 1 : 1.5, DPR);
+    var state = { id: b.id, raf: 0, t0: 0, vis: true, W: 0, H: 0, anims: [], S: null, mobile: null, ready: false, last: 0 };
     cur = state;
     cvB.style.display = motif || under ? "" : "none";
     cvF.style.display = fx ? "" : "none";
@@ -1088,7 +1110,8 @@
     function size() {
       var r = film.getBoundingClientRect();
       state.W = r.width; state.H = r.height;
-      [cvB, cvF].forEach(function (cv) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); });
+      cvB.width = Math.round(r.width * dprB); cvB.height = Math.round(r.height * dprB);
+      cvF.width = Math.round(r.width * dprF); cvF.height = Math.round(r.height * dprF);
     }
     function frame(t) {
       if (!state.started && !IBR.reduce) t = 0;
@@ -1096,18 +1119,19 @@
       var W = state.W, H = state.H;
       try {
         if (motif || under) {
-          cB.setTransform(dpr, 0, 0, dpr, 0, 0); cB.fillStyle = th.bg; cB.fillRect(0, 0, W, H);
+          cB.setTransform(dprB, 0, 0, dprB, 0, 0); cB.fillStyle = th.bg; cB.fillRect(0, 0, W, H);
           if (motif) motif(cB, W, H, t, th);
           if (under) under(cB, W, H, t, th, state.S);
         }
         if (state.S) state.S.render(t);
-        if (fx) { cF.setTransform(dpr, 0, 0, dpr, 0, 0); cF.clearRect(0, 0, W, H); fx(cF, W, H, t, th, state.S); }
+        if (fx) { cF.setTransform(dprF, 0, 0, dprF, 0, 0); cF.clearRect(0, 0, W, H); fx(cF, W, H, t, th, state.S); }
       } catch (e) { if (!state.err) { state.err = 1; if (window.console) console.error(e); } }
     }
     function now() { return (performance.now() - state.t0) / 1000; }
-    function loop() {
+    function loop(ts) {
       if (cur !== state || state.seek != null) { state.raf = 0; return; }
-      frame(now());
+      var t = now();
+      if (!lp || !ts || ts - state.last >= (t > 7 ? 50 : 32)) { state.last = ts || 0; frame(t); }
       state.raf = state.vis ? requestAnimationFrame(loop) : 0;
     }
     function text() {
@@ -1127,7 +1151,7 @@
     function build() {
       stage.innerHTML = "";
       state.mobile = state.W < 640;
-      state.S = scene ? makeScene(film, stage, b, th, state.mobile) : null;
+      state.S = scene ? makeScene(film, stage, b, th, state.mobile, lp) : null;
       if (state.S) scene(state.S);
       frame(IBR.reduce ? 6.5 : 0);
     }

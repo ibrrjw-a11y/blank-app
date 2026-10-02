@@ -17,18 +17,33 @@
     var g = svgEl("linearGradient", { id: id, x1: "0", y1: "0", x2: "1", y2: "0" }, defs);
     [["0", "#0B8DCF"], [".45", "#10A39E"], ["1", "#9CCB5B"]].forEach(function (s) { svgEl("stop", { offset: s[0], "stop-color": s[1] }, g); });
   }
-  /* 지도 하나를 그립니다: 점(도 단위 경로를 transform 으로 확대) + 화면 좌표 레이어 */
+  /* 지도 하나를 그립니다: 점은 canvas 에 한 번만 그려 두고(위치·크기는 CSS transform 으로만 바꿈),
+     선·도시 표시는 그 위의 SVG 에 그립니다. 점을 매번 다시 그리지 않아 휴대폰에서도 가볍습니다. */
   function makeMap(svg, gradId) {
     svg.innerHTML = "";
     gradDefs(svg, gradId);
-    var dotsG = svgEl("g", {}, svg);
-    svgEl("path", { class: "dots", d: IBR.worldDots(), stroke: "#EAF2EE", "stroke-width": "1.05", "stroke-linecap": "round", fill: "none" }, dotsG);
+    var old = svg.parentNode.querySelector(".dots-cv");
+    var cv = old || document.createElement("canvas");
+    if (!old) { cv.className = "dots dots-cv"; cv.setAttribute("aria-hidden", "true"); svg.parentNode.insertBefore(cv, svg); }
     var arcs = svgEl("g", {}, svg), nodes = svgEl("g", {}, svg);
-    return { svg: svg, dotsG: dotsG, arcs: arcs, nodes: nodes, view: { s: 1, tx: 0, ty: 0 } };
+    return { svg: svg, dots: { cv: cv, R: 0, css: 1 }, arcs: arcs, nodes: nodes, view: { s: 1, tx: 0, ty: 0 } };
+  }
+  function drawDots(d, sNeed) {
+    var m = IBR.mapSize(), dpr = Math.min(IBR.lowPower ? 1 : 2, window.devicePixelRatio || 1);
+    var R = Math.min(4096 / m.w, Math.max(2, sNeed * dpr));
+    if (d.R && d.R >= R * .98) return;
+    d.R = R; d.css = R / dpr;
+    var cv = d.cv, c = cv.getContext("2d"), pts = IBR.dotPoints(), r = .525 * R;
+    cv.width = Math.ceil(m.w * R); cv.height = Math.ceil(m.h * R);
+    cv.style.width = (m.w * d.css).toFixed(1) + "px"; cv.style.height = (m.h * d.css).toFixed(1) + "px";
+    c.fillStyle = "#EAF2EE"; c.beginPath();
+    for (var i = 0; i < pts.length; i++) { var x = pts[i][0] * R, y = pts[i][1] * R; c.moveTo(x + r, y); c.arc(x, y, r, 0, 6.2832); }
+    c.fill();
   }
   function setView(m, s, tx, ty) {
     m.view = { s: s, tx: tx, ty: ty };
-    m.dotsG.setAttribute("transform", "translate(" + tx.toFixed(1) + " " + ty.toFixed(1) + ") scale(" + s.toFixed(4) + ")");
+    drawDots(m.dots, s);
+    m.dots.cv.style.transform = "translate(" + tx.toFixed(1) + "px," + ty.toFixed(1) + "px) scale(" + (s / m.dots.css).toFixed(4) + ")";
   }
   function xy(m, code) { var p = P[code]; return IBR.proj(m.view, p.lon, p.lat); }
 
@@ -52,8 +67,10 @@
     heroMap.kr = k;
   }
   var heroTimer = null, routeI = 0;
+  var heroVis = true;
+  if (hero && "IntersectionObserver" in window) new IntersectionObserver(function (es) { heroVis = es[0].isIntersecting; }).observe(hero);
   function heroArc() {
-    if (!heroMap || IBR.reduce || document.hidden) return;
+    if (!heroMap || IBR.reduce || document.hidden || !heroVis) return;
     var r = ROUTES[routeI++ % ROUTES.length];
     var a = xy(heroMap, r[0]), b = xy(heroMap, r[1]);
     var path = svgEl("path", { d: IBR.arcPath(a, b, .26), fill: "none", stroke: "url(#heroArc)", "stroke-width": 1.4, "stroke-linecap": "round", pathLength: 1, "stroke-dasharray": "0.3 2", opacity: .9 }, heroMap.arcs);
@@ -69,14 +86,19 @@
   var one = $(".oneteam"), stage = $("#oneStage"), tiles = $$(".tile", stage || document);
   var SCATTER = [[.30, .02, -7], [.82, .17, 6], [.06, .33, 4], [.62, .49, -5], [.18, .68, 7], [.74, .84, -4]];
   var oneP = -1;
-  function oneScene() {
+  var oneDims = null;
+  function measureOne() {
+    oneDims = { sw: stage.clientWidth, sh: stage.clientHeight, tw: tiles[0] ? tiles[0].offsetWidth : 300, th: tiles[0] ? tiles[0].offsetHeight : 60 };
+  }
+  function oneScene(r) {
     if (!one || !stage) return;
-    var r = one.getBoundingClientRect(), vh = innerHeight;
+    r = r || one.getBoundingClientRect();
+    var vh = innerHeight;
     var p = IBR.reduce ? 1 : clamp((-r.top + vh * .15) / (r.height - vh * 1.1), 0, 1);
     if (Math.abs(p - oneP) < 0.0005) return;
     oneP = p;
-    var sw = stage.clientWidth, sh = stage.clientHeight;
-    var tw = tiles[0] ? tiles[0].offsetWidth : 300, th = tiles[0] ? tiles[0].offsetHeight : 60;
+    if (!oneDims) measureOne();
+    var sw = oneDims.sw, sh = oneDims.sh, tw = oneDims.tw, th = oneDims.th;
     var gap = (sh - th * tiles.length) / (tiles.length - 1);
     tiles.forEach(function (t, i) {
       var sc = SCATTER[i];
@@ -136,7 +158,7 @@
       var g = svgEl("g", { class: "node " + (on ? "on" : "off") + (code === "KR" ? " hq" : "") }, world.nodes);
       if (on) svgEl("circle", { class: "h", cx: c[0], cy: c[1], r: 6 }, g);
       svgEl("circle", { class: "c", cx: c[0], cy: c[1], r: code === "KR" ? 4 : 2.6 }, g);
-      if (on) {
+      if (on && c[0] > 2 && c[0] < wrapEl.clientWidth - 2) {
         var pl = P[code], W0 = wrapEl.clientWidth;
         var right = pl.side !== "l";
         if (right && c[0] > W0 - 90) right = false;
@@ -167,9 +189,10 @@
       drawStep(i, true);
     }
   }
-  function globScene() {
+  function globScene(r) {
     if (!glob) return;
-    var r = glob.getBoundingClientRect(), vh = innerHeight;
+    r = r || glob.getBoundingClientRect();
+    var vh = innerHeight;
     var p = clamp(-r.top / (r.height - vh), 0, 1);
     if (r.bottom < 0 || r.top > vh) return;
     setStep(p < .36 ? 0 : p < .7 ? 1 : 2);
@@ -264,20 +287,27 @@
 
   /* ── scroll loop ─────────────────────────────── */
   var timeline = $("#timeline"), ticking = false;
+  /* 스크롤 한 번에: 위치는 먼저 한꺼번에 읽고, 바뀐 값만 씁니다(읽기·쓰기를 섞지 않아 가볍습니다) */
+  var lastHp = "", lastTp = "", eras = timeline ? $$(".era", timeline) : [];
   function frame() {
     ticking = false;
     var vh = innerHeight;
-    if (hero) {
-      var hr = hero.getBoundingClientRect();
-      hero.style.setProperty("--hp", clamp(-hr.top / hr.height, 0, 1).toFixed(3));
+    var hr = hero && hero.getBoundingClientRect(), or = one && one.getBoundingClientRect();
+    var gr = glob && glob.getBoundingClientRect(), tr = timeline && timeline.getBoundingClientRect();
+    if (stage && !oneDims) measureOne();
+    if (hr) {
+      var hp = clamp(-hr.top / hr.height, 0, 1).toFixed(3);
+      if (hp !== lastHp) { lastHp = hp; hero.style.setProperty("--hp", hp); }
     }
-    oneScene();
-    globScene();
-    if (timeline) {
-      var tr = timeline.getBoundingClientRect();
-      var tp = clamp((vh * .85 - tr.top) / (tr.height + vh * .3), 0, 1);
-      timeline.style.setProperty("--tp", tp.toFixed(3));
-      $$(".era", timeline).forEach(function (e, i, arr) { e.classList.toggle("lit", tp >= i / arr.length); });
+    oneScene(or);
+    globScene(gr);
+    if (tr) {
+      var tp = clamp((vh * .85 - tr.top) / (tr.height + vh * .3), 0, 1), tps = tp.toFixed(3);
+      if (tps !== lastTp) {
+        lastTp = tps;
+        timeline.style.setProperty("--tp", tps);
+        eras.forEach(function (e, i, arr) { e.classList.toggle("lit", tp >= i / arr.length); });
+      }
     }
   }
   function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
@@ -285,7 +315,7 @@
   var rz;
   addEventListener("resize", function () {
     clearTimeout(rz);
-    rz = setTimeout(function () { layoutHero(); oneP = -1; layoutWorld(focusNow); if (curStep > -1) setStep(curStep, true); frame(); }, 120);
+    rz = setTimeout(function () { layoutHero(); oneP = -1; oneDims = null; layoutWorld(focusNow); if (curStep > -1) setStep(curStep, true); frame(); }, 120);
   });
 
   document.addEventListener("DOMContentLoaded", function () {

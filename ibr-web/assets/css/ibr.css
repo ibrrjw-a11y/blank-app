@@ -153,6 +153,7 @@ h1, h2, h3 { text-wrap: balance; }
 .has-intro #intro { display: block; }
 .has-intro body, body.has-intro { overflow: hidden; }
 #intro svg.stage { position: absolute; inset: 0; width: 100%; height: 100%; }
+#intro .intro-dots { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; opacity: 0; will-change: opacity; }
 #intro .map-dots { fill: #EAF2EE; }
 #intro .ch-line { fill: none; stroke-width: 2; stroke-linecap: round; }
 #intro .ch-label { font: 600 15px/1 var(--f-body); fill: var(--on-ink); letter-spacing: -0.02em; }
@@ -177,7 +178,10 @@ h1, h2, h3 { text-wrap: balance; }
 /* ── hero ─────────────────────────────── */
 .hero { position: relative; min-height: min(100svh, 980px); display: flex; flex-direction: column; overflow: hidden; isolation: isolate; }
 .hero .map { position: absolute; inset: 0; z-index: -1; opacity: calc(1 - var(--hp, 0) * .7); }
-.hero .map svg { width: 100%; height: 100%; }
+.hero .map svg { width: 100%; height: 100%; position: relative; z-index: 1; }
+.dots-cv { position: absolute; left: 0; top: 0; transform-origin: 0 0; pointer-events: none; will-change: transform; }
+.hero .map { will-change: opacity; }
+.hero .copy, .hero .mark { will-change: transform; }
 .hero .map .dots { opacity: .17; }
 .hero .glow { position: absolute; z-index: -1; width: 70vmax; height: 70vmax; right: -24vmax; top: -18vmax; border-radius: 50%;
   background: radial-gradient(closest-side, rgba(16, 163, 158, .22), rgba(11, 141, 207, .08) 55%, transparent 72%); }
@@ -342,7 +346,8 @@ h1, h2, h3 { text-wrap: balance; }
 .step .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .step .chips span { font: 500 11px/1 var(--f-display); letter-spacing: .02em; padding: 6px 8px; border: 1px solid var(--line-ink); border-radius: 2px; color: var(--on-ink-2); }
 .worldmap { position: relative; height: 100%; min-height: 0; }
-.worldmap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.worldmap svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+.worldmap .dots-cv { z-index: 0; }
 .worldmap .dots { fill: #EAF2EE; opacity: .22; }
 .worldmap .arc { fill: none; stroke: url(#arcGrad); stroke-width: 1.6; stroke-linecap: round; }
 .worldmap .arc-glow { fill: none; stroke: url(#arcGrad); stroke-width: 6; opacity: .14; stroke-linecap: round; }
@@ -433,7 +438,7 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* ── journey ─────────────────────────────── */
 .timeline { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 1px solid var(--line-ink); position: relative; }
-.timeline::before { content: ""; position: absolute; left: 0; top: -1px; height: 2px; width: calc(var(--tp, 0) * 100%); background: var(--grad); }
+.timeline::before { content: ""; position: absolute; left: 0; top: -1px; height: 2px; width: 100%; background: var(--grad); transform: scaleX(var(--tp, 0)); transform-origin: left; }
 .era { padding: 24px 22px 0 0; display: grid; gap: 12px; align-content: start; position: relative; }
 .era::before { content: ""; position: absolute; left: 0; top: -6px; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); border: 2px solid var(--on-ink-3); transition: border-color .4s, background .4s; }
 .era.lit::before { background: var(--lime); border-color: var(--lime); }
@@ -665,7 +670,7 @@ h1, h2, h3 { text-wrap: balance; }
   .lane { grid-template-columns: minmax(0, 1fr); gap: 12px; padding-block: 18px; }
   .channels .notes { grid-template-columns: minmax(0, 1fr); }
   .timeline { grid-template-columns: minmax(0, 1fr); border-top: 0; border-left: 1px solid var(--line-ink); row-gap: 28px; }
-  .timeline::before { width: 2px; height: calc(var(--tp, 0) * 100%); top: 0; left: -1px; }
+  .timeline::before { width: 2px; height: 100%; top: 0; left: -1px; transform: scaleY(var(--tp, 0)); transform-origin: top; }
   .era { padding: 0 0 0 24px; }
   .era::before { left: -6px; top: 6px; }
   .vision { grid-template-columns: minmax(0, 1fr); }
@@ -736,3 +741,11 @@ a.ir-card:hover .ir-thumb img { transform: scale(1.04); }
   .ir-pn { grid-template-columns: minmax(0, 1fr); }
   .ir-pn .nx { text-align: left; }
 }
+
+/* ── 휴대폰·터치 기기: 무거운 흐림(backdrop-filter) 효과를 끄고 불투명 배경으로 ── */
+@media (max-width: 760px), (hover: none) {
+  .site-header.solid, .site-header.scrolled { background: rgba(7, 17, 15, .97); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .toolbar { background: rgba(242, 245, 241, .98); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* 화면 밖 구역(.off)의 반복 애니메이션은 멈춰 둡니다 */
+section.off *, section.off *::before, section.off *::after { animation-play-state: paused !important; }

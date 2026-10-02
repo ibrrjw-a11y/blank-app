@@ -27,6 +27,8 @@
   IBR.clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
   IBR.ease = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
   IBR.won = function (n) { return n.toLocaleString("ko-KR"); };
+  /* 휴대폰·터치 기기: 그림 해상도와 움직임을 조금 줄여 가볍게 */
+  IBR.lowPower = !!(window.matchMedia && matchMedia("(hover: none), (max-width: 760px)").matches);
 
   /* ── header ─────────────────────────────── */
   var header = document.querySelector(".site-header");
@@ -124,14 +126,19 @@
     measure();
     addEventListener("resize", measure);
     if (reduce) return;
+    var running = false;
+    function kick() { if (!running) { running = true; last = performance.now(); requestAnimationFrame(loop); } }
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (es) {
         es.forEach(function (e) { items.forEach(function (it) { if (it.el === e.target) it.vis = e.isIntersecting; }); });
+        if (items.some(function (it) { return it.vis; })) kick();
       });
       items.forEach(function (it) { io.observe(it.el); });
     }
     var lastY = scrollY, boost = 0, last = performance.now();
-    (function loop(now) {
+    /* 띠가 화면에 보일 때만 돕니다 */
+    function loop(now) {
+      if (!items.some(function (it) { return it.vis; })) { running = false; return; }
       var dt = Math.min(64, now - last) / 1000; last = now;
       var dy = Math.abs(scrollY - lastY); lastY = scrollY;
       boost += (Math.min(dy * 1.4, 260) - boost) * 0.08;
@@ -143,8 +150,17 @@
         it.el.style.transform = "translate3d(" + it.x.toFixed(2) + "px,0,0)";
       });
       requestAnimationFrame(loop);
-    })(last);
+    }
+    kick();
   };
+
+  /* ── 화면 밖 구역의 반복 애니메이션(CSS)은 멈춰 둡니다 ─────────────────────────────── */
+  if ("IntersectionObserver" in window) {
+    var offIo = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.target.classList.toggle("off", !e.isIntersecting); });
+    }, { rootMargin: "120px 0px" });
+    document.addEventListener("DOMContentLoaded", function () { [].forEach.call(document.querySelectorAll("main > section"), function (sec) { offIo.observe(sec); }); });
+  }
 
   /* ── copy buttons ─────────────────────────────── */
   document.addEventListener("click", function (e) {
@@ -192,6 +208,15 @@
       }
     }
     return (IBR._dots = d.join(""));
+  };
+  /* 같은 점들을 좌표 목록으로 (지도 점을 canvas 에 한 번만 그릴 때 씁니다) */
+  IBR.dotPoints = function () {
+    if (IBR._pts) return IBR._pts;
+    var pts = [];
+    if (!W) return pts;
+    var raw = atob(W.bits), i = 0;
+    for (var r = 0; r < W.rows; r++) for (var c = 0; c < W.cols; c++, i++) if ((raw.charCodeAt(i >> 3) >> (7 - (i & 7))) & 1) pts.push([(c + .5) * W.step, (r + .5) * W.step]);
+    return (IBR._pts = pts);
   };
   IBR.mapSize = function () { return W ? { w: W.cols * W.step, h: W.rows * W.step, lon0: W.lon0, lat0: W.lat0, step: W.step } : { w: 360, h: 135, lon0: -25, lat0: 80, step: 2.25 }; };
   /* 화면 좌표 변환: s = 1도당 px, (tx, ty) = 이동 */

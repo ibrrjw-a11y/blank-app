@@ -71,8 +71,20 @@
   var hW = hero ? hero.clientWidth : W, hH = hero ? hero.clientHeight : H;
   var s = Math.max(hW, hH * 1.25) / m.w;
   var view = { s: s, tx: hW * (hW < 760 ? .5 : .56) - (150 - m.lon0) * s, ty: hH * .5 - (m.lat0 - 18) * s };
-  var mapG = el("g", { transform: "translate(" + view.tx + " " + view.ty + ") scale(" + s + ")", opacity: 0 }, stage);
-  el("path", { d: IBR.worldDots(), stroke: "#EAF2EE", "stroke-width": "1.05", "stroke-linecap": "round", fill: "none", opacity: .22 }, mapG);
+  /* 지도 점은 SVG 가 아니라 canvas 에 한 번만 그립니다(선이 움직일 때마다 점 수천 개를 다시 그리지 않도록) */
+  var mapG = document.createElement("canvas");
+  mapG.className = "intro-dots"; mapG.setAttribute("aria-hidden", "true");
+  stage.parentNode.insertBefore(mapG, stage);
+  (function () {
+    var dpr = Math.min(IBR.lowPower ? 1 : 2, window.devicePixelRatio || 1), R = Math.min(4096 / m.w, Math.max(2, s * dpr)), css = R / dpr;
+    var c = mapG.getContext("2d"), pts = IBR.dotPoints(), r = .525 * R;
+    mapG.width = Math.ceil(m.w * R); mapG.height = Math.ceil(m.h * R);
+    mapG.style.width = (m.w * css).toFixed(1) + "px"; mapG.style.height = (m.h * css).toFixed(1) + "px";
+    mapG.style.transform = "translate(" + view.tx.toFixed(1) + "px," + view.ty.toFixed(1) + "px) scale(" + (s / css).toFixed(4) + ")";
+    c.fillStyle = "rgba(234,242,238,.22)"; c.beginPath();
+    for (var i = 0; i < pts.length; i++) { var x = pts[i][0] * R, y = pts[i][1] * R; c.moveTo(x + r, y); c.arc(x, y, r, 0, 6.2832); }
+    c.fill();
+  })();
 
   /* 1) 채널 선 */
   var CH = [
