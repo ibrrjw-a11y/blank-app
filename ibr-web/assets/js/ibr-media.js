@@ -401,30 +401,6 @@ window.IBR_MEDIA = {
    "assets/img/detail/kimguksan-hotpack/12.webp"
   ]
  },
- "sahale|허니 아몬드": {
-  "img": "assets/img/products/sahale-honey-almond.webp"
- },
- "sahale|석류 피스타치오": {
-  "img": "assets/img/products/sahale-pom-pistachio.webp"
- },
- "sahale|메이플 피칸": {
-  "img": "assets/img/products/sahale-maple-pecan.webp"
- },
- "sahale|석류 바닐라 캐슈넛": {
-  "img": "assets/img/products/sahale-pom-vanilla-cashew.webp"
- },
- "sahale|탠저린 마카다미아": {
-  "img": "assets/img/products/sahale-tangerine-mac.webp"
- },
- "freshmac|마카다미아 인-쉘": {
-  "img": "assets/img/products/freshmac-inshell.webp",
-  "full": true,
-  "detail": [
-   "assets/img/detail/freshmac-inshell/01.webp",
-   "assets/img/detail/freshmac-inshell/02.webp",
-   "assets/img/detail/freshmac-inshell/03.webp"
-  ]
- },
  "arvo|10 블룸 오브 샤론 헤어오일": {
   "detail": [
    "assets/img/detail/arvo-10-oil/01.webp",

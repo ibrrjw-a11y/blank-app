@@ -18,7 +18,8 @@
         if (m.img) { p.img = m.img; p.imgFull = !!m.full; }
         if (m.detail && m.detail.length) p.detail = m.detail;
       }
-      if (!p.url && p.detail && p.detail.length) p.url = "product.html#p-" + p.id;
+      /* 모든 제품 카드는 제품 화면(사진·용량별 소비자가·구매처·상세)으로 이어집니다 */
+      if (!p.url) p.url = "product.html#p-" + p.id;
     });
   })();
   if (reduce) doc.classList.add("no-motion");

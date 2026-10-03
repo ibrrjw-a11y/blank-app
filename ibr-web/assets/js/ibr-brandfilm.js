@@ -34,9 +34,6 @@
     magis:     { motif: "toys", bg: "#EAEAE4", ink: "#1A1A1A", acc: ["#E5352B", "#F2C12E", "#2B5CE6", "#2BA36B", "#FFFFFF"], words: ["Italian design", "Puppy", "360° Container"] },
     driade:    { motif: "sculpt", bg: "#EFE8DE", ink: "#3D2C1C", acc: ["#3A3836", "#E2B9A3", "#D19A2B"], words: ["Italian design", "Roly Poly", "Charcoal · Flesh · Ochre"] },
     kvetna:    { motif: "glass", bg: "#E3EAEF", ink: "#20323E", acc: ["#C8323C", "#2D5DB8", "#E8B81C", "#E8742A"], words: ["Czech glass", "Handmade", "Auriga"] },
-    sahale:    { motif: "nuts", opt: { kind: "mix" }, bg: "#F1E3D3", ink: "#5A2E10", acc: ["#C98A4B", "#9DB860", "#8A4A22", "#C0392B", "#E8C890"], words: ["Seattle", "Glazed nuts", "Fruit & spice"] },
-    freshmac:  { motif: "nuts", opt: { kind: "mac" }, bg: "#ECE2CF", ink: "#4A3618", acc: ["#7B4A22", "#A8703C", "#F3E6C8"], words: ["Australia", "Macadamia", "In-shell"] },
-    yuhan:     { motif: "capsule", bg: "#E1E8F0", ink: "#173452", acc: ["#2C6FB7", "#79B4E8", "#FFFFFF"], words: ["당큐락", "400억 원+", "IBR 독점 대행"] },
     claraco:   { bg: "#F7D6DC", ink: "#8A1028", acc: ["#E8344E", "#F7A8B8", "#FFFFFF"], logo: "logo", logoH: 34, under: "pearls", words: ["Collagen", "Glow", "20g × 15"] },
     oat:       { motif: "nuts", opt: { kind: "oat" }, bg: "#EFE8D9", ink: "#4A3A1E", acc: ["#E6D3A8", "#C9A86A", "#8A6A3A"], words: ["Oat", "Spread", "Easy morning"] },
     atply:     { motif: "pulse", bg: "#E2E7EA", ink: "#24303A", acc: ["#2FB3C8", "#24303A"], words: ["Smart", "Scale", "T8"] }
@@ -1014,7 +1011,6 @@
     S.go(card, .4, 1.2, { x: [30, 0], o: [0, 1], r: [4, 0] }, "spring");
     lineup(S, productImgs("drdaniel"), { x0: 0, x1: S.m ? 58 : 64, h: 68, fan: 1, at: 1.2 });
   };
-  SCENES.sahale = function (S) { lineup(S, productImgs("sahale"), { x0: S.m ? 2 : 12, x1: 97, h: 76, fan: 1, at: 1.4 }); };
   SCENES.zeroguide = function (S) {
     S.th.region = { d: [58, 4, 40, 96], m: [44, 0, 56, 60] };
     lineup(S, productImgs("zeroguide"), { x0: 3, x1: 92, h: 80, at: 2.4, step: .2 });
@@ -1032,13 +1028,6 @@
     var h = S.L({ img: src, cls: "ct drop", rbox: S.m ? [28, 6, 46, 90] : [37, 6, 42, 90], org: "50% 100%" });
     S.go(h, 1.1, 1.3, { y: [30, 0], o: [0, 1], s: [.9, 1] }, "spring");
     S.osc(h, "r", 2.4, 4.8, 2.4);
-  };
-  /* 프레시맥: 마카다미아 사진이 견과가 떨어지는 배경 위로 떠오릅니다 */
-  SCENES.freshmac = function (S) {
-    var p = (window.IBR_PRODUCTS || []).filter(function (x) { return x.b === "freshmac" && x.img; })[0]; if (!p) return;
-    var h = S.L({ img: p.img, cls: "card", rbox: S.m ? [8, 8, 84, 84] : [30, 12, 56, 76] });
-    S.go(h, 1, 1.3, { y: [20, 0], o: [0, 1], s: [.94, 1] }, "spring");
-    S.go(h.i, 1, 9, { s: [1.12, 1] }, "out");
   };
   /* 청담뉴트리션: 14가지 제품이 물결 위로 천천히 흘러갑니다 */
   SCENES.chungdam = function (S) {

@@ -80,12 +80,6 @@ window.IBR_BRANDS = [
   { id: "kvetna", ko: "크베트나", en: "Květná", group: "global", origin: "CZ", cat: ["living"], mark: "serif",
     tint: "#E2E9EE", ink: "#20323E",
     line: "체코 핸드메이드 글라스. 컬러 와인잔 아우리가 컬렉션." },
-  { id: "sahale", ko: "사할리 스낵", en: "Sahale Snacks", group: "global", origin: "US", cat: ["food"], mark: "caps",
-    tint: "#F1E2D3", ink: "#5A2E10",
-    line: "미국 시애틀에서 온 견과 스낵. 과일과 향신료를 더한 글레이즈드 넛." },
-  { id: "freshmac", ko: "프레시맥", en: "Freshmac", group: "global", origin: "AU", cat: ["food"], mark: "caps",
-    tint: "#EDE4D2", ink: "#4A3618",
-    line: "호주산 껍질째 마카다미아." },
   { id: "salonia", ko: "살로니아", en: "SALONIA", group: "global", origin: "JP", cat: ["hair"], mark: "caps",
     line: "살롱급 결과를 집에서. 일본 헤어 스타일링 기기 브랜드." },
   { id: "yolu", ko: "요루", en: "YOLU", group: "global", origin: "JP", cat: ["hair"], mark: "caps",
@@ -98,9 +92,6 @@ window.IBR_BRANDS = [
     line: "뉴질랜드 마누카 허니." },
 
   /* ── 유통 브랜드 ─────────────────────────────── */
-  { id: "yuhan", ko: "유한양행", en: "Yuhan", group: "dist", origin: "KR", cat: ["health"], mark: "caps",
-    tint: "#E1E8EF", ink: "#173452",
-    line: "제품 컨셉 개발부터 마케팅·유통까지 IBR이 독점 대행한 당큐락. 누적 매출 400억 원." },
   { id: "claraco", ko: "클라라앤코", en: "Clara & Co.", group: "dist", origin: "KR", cat: ["health"], mark: "serif",
     tint: "#F2E1E4", ink: "#5A2330",
     line: "먹는 뷰티 콜라겐." },
@@ -218,10 +209,6 @@ window.IBR_PRODUCTS = [
   { b: "kimguksan", n: "핫팩 핫칠공", cat: "living", form: "pack", opts: [["150g × 10개", null], ["100g × 20개", null]] },
 
   /* 유한양행 (유통) */
-  { b: "yuhan", n: "당큐락", cat: "health", form: "box", opts: [["1개월 · 30캡슐", null], ["2주 · 14캡슐", null]] },
-  { b: "yuhan", n: "와이즈바이옴 당큐락 플러스 유산균", cat: "health", form: "box", opts: [["28정", null]] },
-  { b: "yuhan", n: "율리아나 카무트 효소", cat: "health", form: "box", opts: [["3g × 30정", null]] },
-  { b: "yuhan", n: "율리아나 퍼펙트케어", cat: "health", form: "box", opts: [["510mg × 120캡슐", null]] },
 
   /* 가구 · 리빙 */
   { b: "magis", n: "360 컨테이너 5단 수납장", cat: "living", form: "cabinet", opts: [["5단", null]],
@@ -232,12 +219,5 @@ window.IBR_PRODUCTS = [
   { b: "atply", n: "T8 스마트 체중계", cat: "living", form: "scale", opts: [["1대", null]] },
 
   /* 스낵 · 식품 */
-  { b: "sahale", n: "허니 아몬드", cat: "food", form: "pouch", opts: [["113g", null], ["42.5g", null]] },
-  { b: "sahale", n: "석류 피스타치오", cat: "food", form: "pouch", opts: [["113g", null], ["42.5g", null]] },
-  { b: "sahale", n: "메이플 피칸", cat: "food", form: "pouch", opts: [["113g", null], ["42.5g", null]] },
-  { b: "sahale", n: "허니 시나몬 캐슈넛", cat: "food", form: "pouch", opts: [["113g", null]] },
-  { b: "sahale", n: "석류 바닐라 캐슈넛", cat: "food", form: "pouch", opts: [["42.5g", null]] },
-  { b: "sahale", n: "탠저린 마카다미아", cat: "food", form: "pouch", opts: [["42.5g", null]] },
-  { b: "freshmac", n: "마카다미아 인-쉘", cat: "food", form: "pouch", opts: [["180g", null]], vars: ["씨솔트", "오븐 로스티드", "바닐라"] },
   { b: "oat", n: "오트 스프레드", cat: "food", form: "stick", opts: [["32g × 10개", null]] }
 ];
