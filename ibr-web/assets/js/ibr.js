@@ -13,6 +13,7 @@
     (window.IBR_PRODUCTS || []).forEach(function (p) {
       n[p.b] = (n[p.b] || 0) + 1;
       if (!p.id) p.id = p.b + "-" + n[p.b];
+      if (p.full) p.imgFull = true; /* 관리자 화면에서 '배경 있는 사진'으로 넣은 사진 */
       var m = MEDIA[p.b + "|" + p.n];
       if (m) {
         if (m.img) { p.img = m.img; p.imgFull = !!m.full; }

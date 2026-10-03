@@ -212,7 +212,7 @@
 
   /* ── ⑦ 브랜드 ─────────────────────────────── */
   var GROUPS = [["own", "자사 브랜드"], ["global", "글로벌 소싱"], ["dist", "유통 브랜드"], ["all", "전체"]];
-  var ORIGIN = { KR: "KOREA", US: "USA", AU: "AUSTRALIA", GR: "GREECE", JP: "JAPAN", FR: "FRANCE", UK: "UK", NZ: "NEW ZEALAND", IT: "ITALY", CZ: "CZECH", AT: "AUSTRIA" };
+  var ORIGIN = { KR: "KOREA", US: "USA", AU: "AUSTRALIA", GR: "GREECE", JP: "JAPAN", FR: "FRANCE", UK: "UK", NZ: "NEW ZEALAND", IT: "ITALY", CZ: "CZECH", AT: "AUSTRIA", DE: "GERMANY", CH: "SWITZERLAND", CA: "CANADA", CN: "CHINA", ES: "SPAIN" };
   function brandCard(b, count) {
     var el = document.createElement("article");
     el.className = "bcard" + (count ? " link" : "");
