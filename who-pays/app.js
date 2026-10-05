@@ -61,7 +61,7 @@ if (shared) {
   const head = shared.names.slice(0, 2).join(", ");
   inv.textContent = `${shared.title ? shared.title + " · " : ""}${head}${shared.names.length > 2 ? ` 외 ${shared.names.length - 2}명` : ""} 멤버가 준비돼 있어요`;
   inv.hidden = false;
-  $("#start").textContent = "이 멤버로 내기 시작하기";
+  $("#start span").textContent = "이 멤버로 내기 시작하기";
 }
 
 /* ---------- 인트로 ---------- */
@@ -217,11 +217,11 @@ function renderSetup() {
   $("#names").innerHTML = names.length
     ? names
         .map(
-          (nm, i) => `<span class="name-chip"><span class="dot" style="--pc:${PALETTE[i % PALETTE.length]}"></span>${escapeHtml(nm)}<button class="name-chip__x" data-remove="${i}" aria-label="${escapeHtml(nm)} 빼기">×</button></span>`
+          (nm, i) => `<span class="plate" style="--pc:${PALETTE[i % PALETTE.length]};--i:${i}"><span class="plate__no">P${i + 1}</span><span class="plate__name">${escapeHtml(nm)}</span><button class="plate__x" data-remove="${i}" aria-label="${escapeHtml(nm)} 빼기">×</button></span>`
         )
         .join("")
-    : '<p class="names__empty">아직 아무도 없어요. 이름을 넣어 주세요</p>';
-  $("#count").textContent = `${names.length} / ${MAX}명`;
+    : '<p class="names__empty">출전 선수가 없어요. 이름을 넣어 주세요</p>';
+  $("#count").textContent = `${names.length}/${MAX}`;
   $("#clearNames").hidden = names.length === 0;
   const g = findGroup(names);
   $("#saveGroup").hidden = names.length < 2 || !!g;
@@ -231,7 +231,7 @@ function renderSetup() {
   $("#groups").hidden = groups.length === 0;
   $("#groupRow").innerHTML = groups
     .map(
-      (x) => `<button class="chip group-chip${g && g.id === x.id ? " is-selected" : ""}" data-group="${x.id}">⭐ ${escapeHtml(x.title)} <small>${x.names.length}명</small></button>`
+      (x) => `<button class="chip group-chip${g && g.id === x.id ? " is-selected" : ""}" data-group="${x.id}">${escapeHtml(x.title)} <small>${x.names.length}명</small></button>`
     )
     .join("");
 
@@ -242,7 +242,7 @@ function renderSetup() {
 
   const ok = names.length >= 2;
   $("#go").disabled = !ok;
-  $("#go").textContent = `${MODE_NAME[state.mode]} 시작하기`;
+  $("#goLabel").textContent = `${MODE_NAME[state.mode]} 시작하기`;
   $("#ctaHint").textContent = ok
     ? state.mode === "barrel"
       ? `통아저씨는 해적을 튀어나오게 한 사람이 당첨이에요`
@@ -290,7 +290,7 @@ function openSaveSheet(after) {
     setGroups(list.slice(0, 12));
     close();
     haptic(12);
-    toast(`⭐ ${t} 저장했어요`);
+    toast(`${t} 그룹을 저장했어요`);
     renderSetup();
     after?.();
   };
@@ -377,34 +377,33 @@ function onGameDone(res, players) {
 
 function renderResult() {
   const r = lastResult;
-  $("#resMode").textContent = `${MODE_NAME[r.mode]} 결과 · ${r.mode === "barrel" ? "튀어나오면 당첨" : RULE_NAME[r.rule]}`;
+  $("#resMode").textContent = `FINAL · ${MODE_NAME[r.mode]} · ${r.mode === "barrel" ? "튀어나오면 당첨" : RULE_NAME[r.rule]}`;
   $("#stampEmoji").textContent = penaltyEmoji(r.penalty);
   $("#stampText").textContent = headline(r.loser, r.penalty);
   const stamp = $("#stamp");
   stamp.style.animation = "none";
   void stamp.offsetWidth;
   stamp.style.animation = "";
-  $("#resPenalty").textContent = `벌칙: ${r.penalty}`;
+  $("#resPenalty").innerHTML = `<span>벌칙</span>${escapeHtml(r.penalty)}`;
 
   const stats = groupStats(r.entry.key);
   const me = stats.people.find((p) => p.name === r.loser);
   const debt = me ? me.debtText : "";
   const streak = stats.streak && stats.streak.name === r.loser && stats.streak.count >= 2 ? ` · ${stats.streak.count}연속 당첨 🔥` : "";
   $("#resDebt").hidden = !debt;
-  $("#resDebt").textContent = `📒 장부에 적었어요 · ${r.loser} ${debt}${streak}`;
+  $("#resDebt").innerHTML = `<b>장부 기록</b> ${escapeHtml(`${r.loser} ${debt}${streak}`)}`;
 
   $("#ranks").innerHTML = r.rows
     .map(
-      (row, k) => `<li class="rank${row.isLoser ? " is-loser" : ""}" style="--i:${k}">
-        <span class="rank__label">${escapeHtml(row.label)}</span>
-        <span class="dot" style="--pc:${row.color}"></span>
-        <span class="rank__name">${escapeHtml(row.name)}${row.isLoser ? ` ${penaltyEmoji(r.penalty)}` : ""}</span>
-        <span class="rank__sub">${escapeHtml(row.sub || "")}</span>
+      (row, k) => `<li class="rank${row.isLoser ? " is-loser" : ""}" style="--i:${k};--pc:${row.color}">
+        <span class="rank__pos">${r.mode === "race" ? k + 1 : escapeHtml(row.label.replace(/[^0-9]/g, "") || (row.isLoser ? "!" : "–"))}</span>
+        <span class="rank__name">${escapeHtml(row.name)}<small>${escapeHtml(r.mode === "race" ? "" : row.label)}</small></span>
+        <span class="rank__sub">${row.isLoser ? "당첨" : escapeHtml(row.sub || "")}</span>
       </li>`
     )
     .join("");
   $("#saveVideo").hidden = !r.video;
-  $("#saveVideo").textContent = r.mode === "battle" ? "🎬 배틀 영상 저장" : "🎬 레이스 영상 저장";
+  $("#saveVideo").textContent = r.mode === "battle" ? "배틀 영상 저장" : "레이스 영상 저장";
   $("#resSave").hidden = !!findGroup(state.names);
   haptic([30, 40, 80]);
 }
@@ -502,12 +501,12 @@ function drawCard(r) {
   }
   const tw = ctx.measureText(text).width + 100;
   roundRect(ctx, -tw / 2, -90, tw, 180, 32);
-  ctx.fillStyle = alpha(tk.danger, 0.1);
+  ctx.fillStyle = alpha(tk.brand, 0.1);
   ctx.fill();
   ctx.lineWidth = 12;
-  ctx.strokeStyle = tk.danger;
+  ctx.strokeStyle = tk.brand;
   ctx.stroke();
-  ctx.fillStyle = tk.danger;
+  ctx.fillStyle = tk.brand;
   ctx.fillText(text, 0, 6);
   ctx.restore();
 
@@ -535,18 +534,18 @@ function drawCard(r) {
     const x = 72 + c * (colW + 24);
     const y = top + (k % perCol) * rowH;
     roundRect(ctx, x, y + 4, colW, rowH - 10, 20);
-    ctx.fillStyle = row.isLoser ? alpha(tk.danger, 0.18) : tk.surface;
+    ctx.fillStyle = row.isLoser ? alpha(tk.brand, 0.18) : tk.surface;
     ctx.fill();
     if (row.isLoser) {
       ctx.lineWidth = 4;
-      ctx.strokeStyle = tk.danger;
+      ctx.strokeStyle = tk.brand;
       ctx.stroke();
     }
     const cy = y + 4 + (rowH - 10) / 2;
     const f = Math.round(Math.min(34, rowH * 0.42));
     ctx.textAlign = "left";
     ctx.font = `700 ${f}px ${CANVAS_FONT}`;
-    ctx.fillStyle = row.isLoser ? tk.danger : tk.text2;
+    ctx.fillStyle = row.isLoser ? tk.brand : tk.text2;
     ctx.fillText(row.label, x + 28, cy);
     ctx.beginPath();
     ctx.arc(x + 28 + f * 4.6, cy, f * 0.32, 0, Math.PI * 2);
@@ -590,10 +589,10 @@ function groupStats(key) {
   if (streak && streak.count >= 2) people.find((p) => p.name === streak.name)?.titles.push({ t: `${streak.count}연속 당첨 🔥`, c: "hot" });
   const maxUnpaid = Math.max(0, ...people.map((p) => p.unpaid));
   const tops = people.filter((p) => p.unpaid === maxUnpaid);
-  if (maxUnpaid > 0 && tops.length === 1 && entries.length >= 2) tops[0].titles.push({ t: "장부 1위 📒", c: "warn" });
+  if (maxUnpaid > 0 && tops.length === 1 && entries.length >= 2) tops[0].titles.push({ t: "장부 1위", c: "warn" });
   people.forEach((p) => {
-    if (entries.length >= 3 && p.total === 0) p.titles.push({ t: "무패 행진 🛡️", c: "good" });
-    if (p.total > 0 && p.unpaid === 0) p.titles.push({ t: "빚 청산 완료 ✨", c: "good" });
+    if (entries.length >= 3 && p.total === 0) p.titles.push({ t: "무패 행진", c: "good" });
+    if (p.total > 0 && p.unpaid === 0) p.titles.push({ t: "빚 청산 완료", c: "good" });
   });
   people.sort((a, b) => b.unpaid - a.unpaid || b.total - a.total);
   return { entries, names, people, streak };
@@ -631,7 +630,7 @@ function renderLedger() {
   const body = $("#ledgerBody");
   if (!keys.length) {
     body.innerHTML = `<div class="ledger-empty card card--flat">
-      <div class="ledger-empty__emoji" aria-hidden="true">📒</div>
+      <div class="ledger-empty__num" aria-hidden="true">0</div>
       <p class="t-body-02-strong">아직 적힌 벌칙이 없어요</p>
       <p class="t-body-03">한 판 하고 나면 누가 무엇에 당첨됐는지 여기에 쌓여요.</p>
       <button class="btn btn--primary" id="ledgerGo">내기 하러 가기</button>
@@ -643,7 +642,7 @@ function renderLedger() {
     .map((key) => {
       const st = groupStats(key);
       const g = groups.find((x) => groupKey(x.names) === key);
-      const title = g ? `⭐ ${g.title}` : st.names.join(", ");
+      const title = g ? g.title : st.names.join(", ");
       const list = st.entries.slice().reverse();
       const showAll = expanded.has(key);
       const shown = showAll ? list : list.slice(0, 5);
@@ -658,13 +657,14 @@ function renderLedger() {
         <div class="lg__people">
           ${st.people
             .map(
-              (p) => `<div class="person">
-                <span class="dot" style="--pc:${colorOf(p.name)}"></span>
+              (p, k) => `<div class="person" style="--pc:${colorOf(p.name)}">
+                <span class="person__pos">${k + 1}</span>
                 <div class="person__main">
                   <span class="person__name">${escapeHtml(p.name)} <span class="t-caption-01 t-tertiary">당첨 ${p.total}번</span></span>
                   ${p.titles.length ? `<span class="person__titles">${p.titles.map((t) => `<span class="badge badge--${t.c}">${t.t}</span>`).join("")}</span>` : ""}
+                  <span class="person__debt${p.unpaid ? "" : " is-clear"}">${p.unpaid ? escapeHtml(`${p.name} ${p.debtText}`) : "빚 없음"}</span>
                 </div>
-                <span class="person__debt${p.unpaid ? "" : " is-clear"}">${p.unpaid ? escapeHtml(`${p.name} ${p.debtText}`) : "빚 없음"}</span>
+                <span class="person__big${p.unpaid ? "" : " is-clear"}" aria-label="안 갚은 벌칙 ${p.unpaid}개">${p.unpaid}</span>
               </div>`
             )
             .join("")}
@@ -674,7 +674,7 @@ function renderLedger() {
             .map(
               (e) => `<li class="entry${e.paid ? " is-paid" : ""}">
                 <span class="dot" style="--pc:${colorOf(e.loser)}"></span>
-                <span class="entry__text"><span class="entry__what">${penaltyEmoji(e.penalty)} ${escapeHtml(e.loser)} · ${escapeHtml(e.penalty)}</span>
+                <span class="entry__text"><span class="entry__what">${escapeHtml(e.loser)} · ${escapeHtml(e.penalty)}</span>
                 <span class="entry__date">${fmtDate(e.ts)} · ${MODE_NAME[e.mode] || ""}</span></span>
                 <button class="chip" data-paid="${e.id}" aria-pressed="${e.paid}">${e.paid ? "갚음 ✓" : "갚았어요"}</button>
               </li>`
@@ -684,7 +684,7 @@ function renderLedger() {
         ${list.length > 5 ? `<button class="btn btn--ghost btn--sm lg__more" data-more="${escapeHtml(key)}">${showAll ? "접기" : `${list.length - 5}개 더 보기`}</button>` : ""}
         <div class="lg__actions">
           <button class="btn btn--secondary btn--sm" data-play="${escapeHtml(key)}">이 멤버로 한 판</button>
-          ${g ? `<button class="btn btn--ghost btn--sm" data-clear="${escapeHtml(key)}">장부 비우기</button>` : `<button class="btn btn--outline btn--sm" data-save="${escapeHtml(key)}">⭐ 그룹 저장</button>`}
+          ${g ? `<button class="btn btn--ghost btn--sm" data-clear="${escapeHtml(key)}">장부 비우기</button>` : `<button class="btn btn--outline btn--sm" data-save="${escapeHtml(key)}">그룹으로 저장</button>`}
         </div>
       </section>`;
     })

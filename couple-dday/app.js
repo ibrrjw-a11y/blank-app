@@ -245,58 +245,71 @@ function stats(r) {
   return { streak, best, both: both.size, mine };
 }
 
-/* ---------- 질문 카드 ---------- */
-function bubbles(r, e) {
-  const me = e.a[r.me];
-  const you = e.a[1 - r.me];
-  return `<div class="qcard__answers">
-    <div class="bubble bubble--me"><span class="bubble__who">${esc(myName(r))}</span><p>${esc(me)}</p></div>
-    <div class="bubble bubble--you"><span class="bubble__who">${esc(yourName(r))}</span><p>${esc(you)}</p></div>
+/* ---------- 질문 카드: 편지지 + 봉투 ---------- */
+function noteHTML(r, e, who, cls = "") {
+  const mine = who === r.me;
+  return `<div class="note ${mine ? "note--me" : "note--you"} ${cls}">
+    <span class="note__who">${esc(r.n[who])}${mine ? " (나)" : ""}</span>
+    <p>${esc(e.a[who])}</p>
   </div>`;
 }
 function qHead(e, extra = "") {
   const Q = QUESTIONS[e.q];
-  return `<div class="row between qcard__meta">
-      <span class="badge">${LEVELS[Q.level]} · ${dotDate(e.d)}</span>${extra}
+  return `<div class="letter__meta">
+      <span class="letter__date">${dotDate(e.d)} · 오늘의 질문</span>${extra || `<span class="letter__lv">${LEVELS[Q.level]}</span>`}
     </div>
-    <p class="qcard__q">${esc(Q.text)}</p>`;
+    <p class="letter__q">${esc(Q.text)}</p>`;
 }
-// state: ask(답 쓰기) / wait(내 답만) / locked(상대 답만 있고 아직 안 엶) / open(둘 다)
-function renderQCard(el, r, e, { onSubmit, onReveal, animate = false } = {}) {
+function envHTML(r) {
+  return `<div class="env" aria-hidden="true">
+      <div class="env__back"></div>
+      <div class="env__letter env__letter--a"><small>${esc(myName(r))}</small><p>…</p></div>
+      <div class="env__letter env__letter--b"><small>${esc(yourName(r))}</small><p>…</p></div>
+      <div class="env__front"></div>
+      <div class="env__flap"></div>
+      <div class="env__seal">봉인</div>
+      <span class="env__hint">둘 다 답했어요</span>
+    </div>`;
+}
+// 상태: ask(답 쓰기) / wait(내 답만) / sealed(둘 다, 아직 안 엶) / open(둘 다, 열림)
+function renderQCard(el, r, e, { onSubmit, onReveal, arrive = false } = {}) {
   const mine = e.a[r.me];
   const theirs = e.a[1 - r.me];
-  let front = "";
+  let html = "";
   if (!mine) {
-    front = `${qHead(e, theirs ? `<span class="lock-pill">🔒 ${esc(yourName(r))}님 답 도착</span>` : "")}
+    html = `<div class="letter">
+      ${qHead(e, theirs ? `<span class="lock-pill">${esc(yourName(r))}님 답 도착, 봉인 중</span>` : "")}
       <label class="field">
         <span class="sr-only">내 답</span>
-        <textarea class="input qcard__input" maxlength="200" placeholder="${theirs ? "내 답을 적으면 둘의 답이 같이 열려요" : "솔직하게 적어보세요. 상대도 답해야 열려요"}"></textarea>
-        <span class="field__help row between"><span>${theirs ? "둘 다 답해야 열려요" : "답하면 상대에게 보낼 링크가 생겨요"}</span><span class="t-num qcard__count">0/200</span></span>
+        <textarea class="input letter__input" maxlength="200" placeholder="${theirs ? "내 답을 적으면 봉투가 열려요" : "여기에 적어요. 상대도 답해야 열려요"}"></textarea>
       </label>
-      <button class="btn btn--primary btn--block qcard__submit" disabled>${theirs ? "답하고 열어보기 💌" : "답하고 링크 만들기"}</button>`;
-  } else if (!theirs) {
-    front = `${qHead(e)}
-      <div class="qcard__answers">
-        <div class="bubble bubble--me"><span class="bubble__who">${esc(myName(r))} (나)</span><p>${esc(mine)}</p></div>
-        <div class="bubble bubble--locked"><span class="bubble__who">${esc(yourName(r))}</span><p><span class="lock-ico" aria-hidden="true">🔒</span>답을 기다리는 중</p></div>
-      </div>`;
-  } else {
-    front = `${qHead(e)}
-      <div class="sealed">
-        <div class="sealed__env" aria-hidden="true">💌</div>
-        <p class="t-body-02-strong">둘 다 답했어요</p>
-        <p class="t-caption-01 t-tertiary">눌러서 같이 열어봐요</p>
-      </div>
-      <button class="btn btn--primary btn--block qcard__reveal">열어보기</button>`;
-  }
-  const back = theirs && mine ? `${qHead(e, `<span class="lock-pill lock-pill--open">💞 열림</span>`)}${bubbles(r, e)}` : "";
-  const flipped = mine && theirs && e.revealed && !animate;
-  el.innerHTML = `<div class="qcard__inner ${flipped ? "is-flipped is-settled" : ""}">
-      <div class="qcard__face qcard__front">${front}</div>
-      <div class="qcard__face qcard__back">${back}</div>
+      <div class="letter__foot"><span>${theirs ? "둘 다 답해야 열려요" : "답하면 상대에게 보낼 링크가 생겨요"}</span><span class="t-num qcard__count">0/200</span></div>
+      <button class="btn btn--primary btn--block qcard__submit" disabled>${theirs ? "답하고 봉투 열기" : "답하고 링크 만들기"}</button>
     </div>`;
+  } else if (!theirs) {
+    html = `<div class="letter">
+      ${qHead(e)}
+      <div class="pair">
+        ${noteHTML(r, e, r.me)}
+        <div class="mini-env"><span class="mini-env__seal"></span><span class="mini-env__who">${esc(yourName(r))}님 답 기다리는 중</span></div>
+      </div>
+    </div>`;
+  } else if (!e.revealed) {
+    html = `<div class="letter">
+      ${qHead(e)}
+      <div class="big-env-wrap">${envHTML(r)}
+        <button class="btn btn--primary btn--block qcard__reveal">봉투 열어보기</button>
+      </div>
+    </div>`;
+  } else {
+    html = `<div class="letter">
+      ${qHead(e, `<span class="lock-pill">열렸어요</span>`)}
+      <div class="pair ${arrive ? "is-arriving" : ""}">${noteHTML(r, e, r.me)}${noteHTML(r, e, 1 - r.me)}</div>
+    </div>`;
+  }
+  el.innerHTML = html;
 
-  const ta = $(".qcard__input", el);
+  const ta = $(".letter__input", el);
   if (ta) {
     const btn = $(".qcard__submit", el);
     const cnt = $(".qcard__count", el);
@@ -314,32 +327,69 @@ function renderQCard(el, r, e, { onSubmit, onReveal, animate = false } = {}) {
       onSubmit?.();
     });
   }
-  $(".qcard__reveal", el)?.addEventListener("click", () => flip(el, r, e, onReveal));
+  $(".qcard__reveal", el)?.addEventListener("click", () => openEnvelope(el, r, e, onReveal));
 }
-function flip(el, r, e, after) {
-  const inner = $(".qcard__inner", el);
+// 봉인이 터지고 → 뚜껑이 열리고 → 두 편지가 튀어나와 자리를 잡는다
+function openEnvelope(el, r, e, after) {
+  const env = $(".env", el);
+  const btn = $(".qcard__reveal", el);
   e.revealed = true;
   saveRooms();
   haptic([10, 40, 20]);
-  inner.classList.add("is-flipped");
-  setTimeout(() => {
-    inner.classList.add("is-settled");
+  const done = () => {
+    renderQCard(el, r, e, { arrive: true });
     after?.();
-  }, prefersReducedMotion() ? 0 : 700);
+  };
+  if (!env || prefersReducedMotion()) return done();
+  if (btn) btn.disabled = true;
+  env.querySelectorAll(".env__letter p").forEach((p, i) => (p.textContent = e.a[i === 0 ? r.me : 1 - r.me]));
+  env.classList.add("is-broken");
+  setTimeout(() => env.classList.add("is-open"), 220);
+  setTimeout(() => env.classList.add("is-out"), 640);
+  setTimeout(done, 1500);
 }
 
 /* ---------- 방 화면 ---------- */
 let tickTimer;
 let showPast = false;
+function odometer(el, text, { on = true } = {}) {
+  el.classList.add("odo");
+  el.setAttribute("aria-label", text);
+  const strip = "01234567890123456789"
+    .split("")
+    .map((n) => `<span>${n}</span>`)
+    .join("");
+  let k = 0;
+  el.innerHTML = [...text]
+    .map((ch) =>
+      /\d/.test(ch)
+        ? `<span class="odo__col" aria-hidden="true" style="--d:${ch};--i:${k++}"><span class="odo__strip">${strip}</span></span>`
+        : `<span class="odo__ch" aria-hidden="true">${ch}</span>`,
+    )
+    .join("");
+  if (!on) return;
+  if (prefersReducedMotion()) return el.classList.add("is-on");
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-on")));
+}
 function renderRoom({ animate = true } = {}) {
   const r = room();
   if (!r) return showIntro();
   const today = todayKey();
-  $("#roomTitle").textContent = `${r.n[0]} ♥ ${r.n[1]}`;
-  $("#heroNames").textContent = `${myName(r)} ♥ ${yourName(r)}`;
+  $("#roomTitle").textContent = `${r.n[0]} & ${r.n[1]}`;
+  $("#heroNames").innerHTML = `${esc(myName(r))} <em>♥</em> ${esc(yourName(r))}`;
   const d = dPlus(r.s, today);
-  if (animate) countUp($("#heroD"), d, { duration: 1400, format: (n) => fmt.num(Math.round(n)) });
-  else $("#heroD").textContent = fmt.num(d);
+  const heroD = $("#heroD");
+  if (animate) {
+    odometer(heroD, `D+${fmt.num(d)}`);
+    const hero = $("#hero");
+    hero.style.animation = "none";
+    void hero.offsetWidth;
+    hero.style.animation = "";
+  } else if (heroD.getAttribute("aria-label") !== `D+${fmt.num(d)}`) {
+    odometer(heroD, `D+${fmt.num(d)}`);
+  }
+  const [y, m, dd] = r.s.split("-");
+  $("#heroImprint").textContent = `'${y.slice(2)} ${Number(m)} ${Number(dd)}`;
   $("#heroSince").textContent = `${longDate(r.s)}부터 · 사귄 날을 1일로 세요`;
   tickTogether(r);
   clearInterval(tickTimer);
@@ -357,7 +407,17 @@ function tickTogether(r) {
   $("#tWeeks").textContent = fmt.num(Math.floor(days / 7));
   $("#tWeeksSub").textContent = days % 7 ? `주 ${days % 7}일` : "주";
   $("#tHours").textContent = fmt.num(Math.floor(ms / 3600000));
-  $("#tMins").textContent = fmt.num(Math.floor(ms / 60000));
+  const mins = fmt.num(Math.floor(ms / 60000));
+  const el = $("#tMins");
+  if (el.textContent !== mins) {
+    const had = el.textContent !== "0";
+    el.textContent = mins;
+    if (had) {
+      el.classList.remove("tick-bump");
+      void el.offsetWidth;
+      el.classList.add("tick-bump");
+    }
+  }
   if (todayKey() !== renderRoom.lastDay) {
     renderRoom.lastDay = todayKey();
     if (renderRoom.booted) renderRoom({ animate: false });
@@ -369,20 +429,18 @@ function renderNext(r, today) {
   const from = prev ? prev.date : r.s;
   const total = Math.max(1, diffDays(from, next.date));
   const pct = Math.min(100, Math.max(0, (diffDays(from, today) / total) * 100));
+  const [ny, nm, nd] = next.date.split("-");
   $("#nextCard").innerHTML = `
-    <div class="row between">
-      <p class="t-label-02 t-secondary">${gap === 0 ? "오늘은 기념일 🎉" : "다음 기념일"}</p>
-      <span class="t-caption-01 t-tertiary">${longDate(next.date)}</span>
+    <div class="stamp"><small>${gap === 0 ? "오늘" : "다음 기념일"}</small><b>${next.label}</b><small>${next.kind === "year" ? `D+${fmt.num(next.n)}` : "사귄 날 = 1일"}</small></div>
+    <div class="next__body">
+      <p class="t-label-03 t-tertiary">${gap === 0 ? "오늘이 기념일이에요" : "까지 남은 날"}</p>
+      <p class="next__d t-num"><span class="odo" id="nextOdo"></span></p>
+      <p class="t-caption-01 t-secondary">${longDate(next.date)}</p>
+      <div class="next__bar" role="progressbar" aria-label="${prev ? prev.label : "사귄 날"}에서 진행" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
+      <button class="btn btn--outline btn--sm" id="nextCal">캘린더에 넣기</button>
     </div>
-    <div class="row between next__main">
-      <p class="t-title-01">${next.label}</p>
-      <p class="next__d t-num">${gap === 0 ? "D-day" : `D-${fmt.num(gap)}`}</p>
-    </div>
-    <div class="next__bar" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
-    <div class="row between">
-      <span class="t-caption-01 t-tertiary">${prev ? prev.label : "사귄 날"}에서 ${Math.round(pct)}%</span>
-      <button class="btn btn--secondary btn--sm" id="nextCal">캘린더에 넣기</button>
-    </div>`;
+    <div class="postmark" aria-hidden="true"><span>${ny}<b>${Number(nm)}.${Number(nd)}</b>${weekday(next.date)}요일</span></div>`;
+  odometer($("#nextOdo"), gap === 0 ? "D-day" : `D-${fmt.num(gap)}`);
   $("#nextCal").onclick = () => openCalendar(next);
 }
 function renderToday(r) {
@@ -390,17 +448,11 @@ function renderToday(r) {
   const e = entryOf(r, d, q);
   const el = $("#todayCard");
   const actions = $("#todayActions");
-  const paint = (animate) => {
+  const paint = () => {
     renderQCard(el, r, e, {
-      animate,
       onSubmit: () => {
-        if (e.a[1 - r.me]) {
-          paint(true);
-          setTimeout(() => flip(el, r, e, () => paintActions()), 250);
-        } else {
-          paint(false);
-          sendAnswer(r, e);
-        }
+        paint();
+        if (!e.a[1 - r.me]) sendAnswer(r, e);
         renderAlbum(r);
       },
       onReveal: () => paintActions(),
@@ -411,28 +463,28 @@ function renderToday(r) {
     const mine = e.a[r.me];
     const theirs = e.a[1 - r.me];
     if (!mine) {
-      actions.innerHTML = `<p class="t-caption-01 t-tertiary t-center">매일 자정(한국 시간)에 새 질문이 열려요</p>`;
+      actions.innerHTML = `<p class="t-caption-01 t-tertiary">매일 자정(한국 시간)에 새 질문이 열려요</p>`;
     } else if (!theirs) {
       actions.innerHTML = `
-        <button class="btn btn--primary btn--block" id="sendAns">${esc(yourName(r))}님에게 보내기 💌</button>
+        <button class="btn btn--primary btn--block" id="sendAns">${esc(yourName(r))}님에게 보내기</button>
         <div class="row gap-8">
           <button class="btn btn--outline grow" id="copyAns">링크 복사</button>
           <button class="btn btn--ghost grow" id="editAns">내 답 고치기</button>
         </div>
-        <p class="t-caption-01 t-tertiary t-center">${esc(yourName(r))}님이 답하고 답장 링크를 보내주면 여기서 열려요</p>`;
+        <p class="t-caption-01 t-tertiary">${esc(yourName(r))}님이 답하고 답장 링크를 보내주면 여기서 봉투가 열려요</p>`;
       $("#sendAns").onclick = () => sendAnswer(r, e);
       $("#copyAns").onclick = async () => toast((await copyText(answerLink(r, e))) ? "링크를 복사했어요" : "복사에 실패했어요");
       $("#editAns").onclick = () => {
         delete e.a[r.me];
         saveRooms();
-        paint(false);
+        paint();
       };
     } else if (!e.revealed) {
       actions.innerHTML = "";
     } else {
       actions.innerHTML = `
-        ${e.replied ? "" : `<button class="btn btn--secondary btn--block" id="replyAns">${esc(yourName(r))}님에게도 열어주기</button>`}
-        <p class="t-caption-01 t-tertiary t-center" id="nextQ"></p>`;
+        ${e.replied ? "" : `<button class="btn btn--primary btn--block" id="replyAns">${esc(yourName(r))}님에게도 열어주기</button>`}
+        <p class="t-caption-01 t-tertiary" id="nextQ"></p>`;
       $("#replyAns")?.addEventListener("click", async () => {
         await sendAnswer(r, e, 1);
         e.replied = true;
@@ -442,7 +494,7 @@ function renderToday(r) {
       $("#nextQ").textContent = `다음 질문까지 ${Math.floor(left / 3600000)}시간 ${Math.floor((left % 3600000) / 60000)}분`;
     }
   };
-  paint(false);
+  paint();
 }
 function nextMidnightMs() {
   return toUTC(addDays(todayKey(), 1)) - 9 * 3600000;
@@ -457,11 +509,12 @@ function renderAnniv(r, today) {
       if (past && !showPast) return "";
       const isNext = i === firstUp;
       const gap = diffDays(today, x.date);
+      const [y, m, d] = x.date.split("-");
       return `<li>
         <button class="ann ${past ? "is-past" : ""} ${isNext ? "is-next" : ""} ${x.kind === "year" ? "is-year" : ""}" data-i="${i}">
+          <span class="ann__date"><b>${Number(m)}.${Number(d)}</b>${y} ${weekday(x.date)}</span>
           <span class="ann__label">${x.label}${x.kind === "year" ? `<small>D+${fmt.num(x.n)}</small>` : ""}</span>
-          <span class="ann__date">${longDate(x.date)}</span>
-          <span class="ann__d t-num">${past ? "지났어요" : gap === 0 ? "오늘 🎉" : `D-${fmt.num(gap)}`}</span>
+          <span class="ann__d t-num">${past ? "지났어요" : gap === 0 ? "오늘" : `D-${fmt.num(gap)}`}</span>
         </button>
       </li>`;
     })
@@ -474,19 +527,17 @@ function renderAnniv(r, today) {
 function renderAlbum(r) {
   const s = stats(r);
   $("#streak").innerHTML = `
-    <div class="row gap-12">
-      <span class="streak__fire ${s.streak ? "is-on" : ""}" aria-hidden="true">🔥</span>
-      <div class="grow">
-        <p class="t-title-03 t-num">${s.streak ? `${s.streak}일 연속 둘 다 답했어요` : "오늘부터 연속 기록을 시작해요"}</p>
-        <p class="t-caption-01 t-tertiary">둘 다 답한 질문 ${s.both}개 · 내가 답한 질문 ${s.mine}개 · 최고 ${s.best}일 연속</p>
-      </div>
-    </div>
-    <p class="t-caption-01 t-tertiary streak__note">이 기기에서 확인된 둘의 답을 기준으로 세요.</p>`;
+    <div class="postmark" aria-hidden="true"><span>연속<b class="t-num">${s.streak}</b>일</span></div>
+    <div class="grow stack gap-4">
+      <p class="t-title-04">${s.streak ? `${s.streak}일 연속, 둘 다 답했어요 🔥` : "오늘부터 연속 기록을 시작해요"}</p>
+      <p class="t-caption-01 t-tertiary">둘 다 답한 질문 ${s.both}개 · 내가 답한 질문 ${s.mine}개 · 최고 ${s.best}일 연속</p>
+      <p class="t-caption-01 t-tertiary">이 기기에서 확인된 둘의 답을 기준으로 세요.</p>
+    </div>`;
   const list = Object.values(r.qa || {})
     .filter((e) => e.a[0] || e.a[1])
     .sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : (b.at || 0) - (a.at || 0)));
   if (!list.length) {
-    $("#album").innerHTML = `<li class="album__empty t-center"><p class="t-body-02-strong">아직 앨범이 비어 있어요</p><p class="t-caption-01 t-tertiary">오늘의 질문에 답하면 여기에 차곡차곡 쌓여요</p></li>`;
+    $("#album").innerHTML = `<li class="album__empty"><p class="hand">아직 첫 장이 비어 있어요</p><p class="t-caption-01 t-tertiary">오늘의 질문에 답하면 여기에 한 장씩 쌓여요</p></li>`;
     return;
   }
   $("#album").innerHTML = list
@@ -494,18 +545,16 @@ function renderAlbum(r) {
       const mine = e.a[r.me];
       const theirs = e.a[1 - r.me];
       const you = !theirs
-        ? `<p class="t-tertiary">🔒 아직 몰라요</p>`
+        ? `<div class="mini-env"><span class="mini-env__seal"></span><span class="mini-env__who">아직 몰라요</span></div>`
         : mine
-          ? `<p>${esc(theirs)}</p>`
-          : `<p class="t-tertiary">🔒 내가 답하면 열려요</p>`;
+          ? noteHTML(r, e, 1 - r.me)
+          : `<div class="mini-env"><span class="mini-env__seal"></span><span class="mini-env__who">내가 답하면 열려요</span></div>`;
+      const me = mine ? noteHTML(r, e, r.me) : `<div class="note"><span class="note__who">${esc(myName(r))} (나)</span><p class="t-tertiary">아직 안 했어요</p></div>`;
       return `<li class="album__item">
-        <p class="t-caption-01 t-tertiary">${longDate(e.d)} · ${LEVELS[QUESTIONS[e.q].level]}</p>
-        <p class="t-body-02-strong">${esc(QUESTIONS[e.q].text)}</p>
-        <div class="album__pair">
-          <div><span class="bubble__who">${esc(myName(r))}</span>${mine ? `<p>${esc(mine)}</p>` : `<p class="t-tertiary">아직 안 했어요</p>`}</div>
-          <div><span class="bubble__who">${esc(yourName(r))}</span>${you}</div>
-        </div>
-        ${theirs && !mine ? `<button class="btn btn--secondary btn--sm album__open" data-k="${qaKey(e.d, e.q)}">답하고 열기</button>` : ""}
+        <p class="letter__date">${longDate(e.d)} · ${LEVELS[QUESTIONS[e.q].level]}</p>
+        <p class="album__q">${esc(QUESTIONS[e.q].text)}</p>
+        <div class="pair">${me}${you}</div>
+        ${theirs && !mine ? `<button class="btn btn--primary btn--sm album__open" data-k="${qaKey(e.d, e.q)}">답하고 열기</button>` : ""}
         ${mine && !theirs ? `<button class="btn btn--ghost btn--sm album__open album__send" data-k="${qaKey(e.d, e.q)}">다시 보내기</button>` : ""}
       </li>`;
     })
@@ -524,7 +573,7 @@ function openAnswerView(r, e, { from, re, created }) {
   stopIntro();
   showView("answer");
   const sender = r.n[from];
-  $("#ansDate").textContent = `${dotDate(e.d)} 오늘의 질문`;
+  $("#ansDate").textContent = `${dotDate(e.d)} · 오늘의 질문`;
   const el = $("#ansCard");
   const actions = $("#ansActions");
   const ownLink = from === r.me;
@@ -537,13 +586,13 @@ function openAnswerView(r, e, { from, re, created }) {
         <button class="btn btn--ghost btn--block" data-go="room">우리 방으로 가기</button>`;
       $("#ansResend").onclick = () => sendAnswer(r, e);
     } else if (mine && theirs && e.revealed) {
-      $("#ansTitle").textContent = "둘의 답이 열렸어요 💞";
+      $("#ansTitle").textContent = "둘의 답이 열렸어요";
       $("#ansDesc").textContent = "같은 질문, 다른 답. 오늘 대화거리가 생겼어요.";
       actions.innerHTML = re
-        ? `<p class="t-body-03 t-secondary t-center">둘 다 서로의 답을 확인했어요 💞</p>
+        ? `<p class="t-body-03 t-secondary">둘 다 서로의 답을 확인했어요.</p>
            <button class="btn btn--primary btn--block" data-go="room">우리 방으로 가기</button>`
-        : `<button class="btn btn--primary btn--block" id="ansReply">${esc(sender)}님에게 답장 보내기 💌</button>
-           <p class="t-caption-01 t-tertiary t-center">답장 링크를 보내야 ${esc(sender)}님도 내 답을 볼 수 있어요</p>
+        : `<button class="btn btn--primary btn--block" id="ansReply">${esc(sender)}님에게 답장 보내기</button>
+           <p class="t-caption-01 t-tertiary">답장 링크를 보내야 ${esc(sender)}님도 내 답을 볼 수 있어요</p>
            <button class="btn btn--ghost btn--block" data-go="room">우리 방으로 가기</button>`;
       $("#ansReply")?.addEventListener("click", async () => {
         await sendAnswer(r, e, 1);
@@ -551,9 +600,7 @@ function openAnswerView(r, e, { from, re, created }) {
         saveRooms();
       });
     } else {
-      actions.innerHTML = created
-        ? `<p class="t-caption-01 t-tertiary t-center">${esc(r.n[0])} ♥ ${esc(r.n[1])} 방이 이 기기에도 만들어졌어요</p>`
-        : "";
+      actions.innerHTML = created ? `<p class="t-caption-01 t-tertiary">${esc(r.n[0])} & ${esc(r.n[1])} 방이 이 기기에도 만들어졌어요</p>` : "";
     }
     bindGo(actions);
   };
@@ -562,21 +609,23 @@ function openAnswerView(r, e, { from, re, created }) {
     $("#ansTitle").textContent = "내가 보낸 답이에요";
     $("#ansDesc").textContent = `${yourName(r)}님이 이 링크를 열고 답하면 둘의 답이 열려요.`;
   } else if (e.a[r.me]) {
-    $("#ansTitle").textContent = re ? `${sender}님의 답장이 왔어요 💞` : `${sender}님의 답이 도착했어요`;
+    $("#ansTitle").textContent = re ? `${sender}님의 답장이 왔어요` : `${sender}님의 답이 도착했어요`;
     $("#ansDesc").textContent = "둘 다 답했으니 이제 같이 열어봐요.";
   } else {
     $("#ansTitle").textContent = `${sender}님의 답이 도착했어요`;
-    $("#ansDesc").textContent = "같은 질문에 내 답을 먼저 적어야 열려요 🔒";
+    $("#ansDesc").textContent = "같은 질문에 내 답을 먼저 적어야 봉투가 열려요.";
   }
-  renderQCard(el, r, e, {
-    onSubmit: () => {
-      $("#ansTitle").textContent = "둘 다 답했어요!";
-      $("#ansDesc").textContent = "카드를 뒤집어볼게요.";
-      renderQCard(el, r, e, { animate: true });
-      setTimeout(() => flip(el, r, e, () => (paintActions(), renderRoom({ animate: false }))), 300);
-    },
-    onReveal: () => paintActions(),
-  });
+  const paint = () =>
+    renderQCard(el, r, e, {
+      onSubmit: () => {
+        $("#ansTitle").textContent = "둘 다 답했어요";
+        $("#ansDesc").textContent = "봉투를 열어볼까요?";
+        paint();
+        renderRoom({ animate: false });
+      },
+      onReveal: () => paintActions(),
+    });
+  paint();
   paintActions();
 }
 function handleAnswerLink(p) {
@@ -624,11 +673,10 @@ function handleRoomLink(p) {
   showView("join");
   const f = [0, 1].includes(p.f) ? p.f : 0;
   let me = 1 - f;
+  $("#joinFrom").textContent = `from. ${p.n[f]}`;
   $("#joinTitle").textContent = `${p.n[f]}님이 우리 방에 초대했어요`;
   $("#joinDesc").textContent = "들어가면 같은 날짜, 같은 질문을 같이 써요.";
-  $("#joinNames").textContent = `${p.n[0]} ♥ ${p.n[1]}`;
-  $("#joinD").textContent = `D+${fmt.num(dPlus(p.s))}`;
-  $("#joinSince").textContent = `${longDate(p.s)}부터`;
+  $("#joinCard").innerHTML = polaroidHTML(p.n, p.s);
   const who = $("#joinWho");
   const paintWho = () => {
     who.innerHTML = p.n
@@ -644,7 +692,7 @@ function handleRoomLink(p) {
     saveRooms();
     haptic(20);
     openRoom();
-    toast("우리 방에 들어왔어요 💗");
+    toast("우리 방에 들어왔어요");
   };
   return true;
 }
@@ -688,6 +736,14 @@ function bindGo(root = document) {
 }
 
 /* ---------- 방 만들기 ---------- */
+function polaroidHTML(n, s) {
+  const [y, m, d] = s.split("-");
+  return `<figure class="pola" style="--r:-3deg">
+      <span class="tape" aria-hidden="true"></span>
+      <div class="pola__photo"><p class="big-d t-num">D+${fmt.num(dPlus(s))}</p><span class="pola__date">'${y.slice(2)} ${Number(m)} ${Number(d)}</span></div>
+      <figcaption class="pola__cap">${esc(n[0])} & ${esc(n[1])}<span class="t-caption-01 t-tertiary">${longDate(s)}부터</span></figcaption>
+    </figure>`;
+}
 function updatePreview() {
   const v = $("#startDate").value;
   const pv = $("#setupPreview");
@@ -695,19 +751,21 @@ function updatePreview() {
   fieldEl.classList.remove("is-error");
   $("#startHelp").textContent = "사귄 날을 1일로 세요 (D+1)";
   if (!isDateKey(v)) {
-    pv.hidden = true;
+    pv.innerHTML = "";
     return;
   }
   if (v > todayKey()) {
     fieldEl.classList.add("is-error");
     $("#startHelp").textContent = "오늘 이후 날짜는 고를 수 없어요";
-    pv.hidden = true;
+    pv.innerHTML = "";
     return;
   }
   const { next } = nextAnniversary(v);
-  pv.hidden = false;
-  pv.innerHTML = `<div class="row between"><span class="t-body-03 t-secondary">오늘은</span><strong class="t-title-03 t-primary t-num">D+${fmt.num(dPlus(v))}</strong></div>
-    <div class="row between"><span class="t-body-03 t-secondary">다음 기념일</span><span class="t-body-03-strong">${next.label} · ${dLabel(next.date)}</span></div>`;
+  const n = [$("#nameMe").value.trim() || "나", $("#nameYou").value.trim() || "너"];
+  const had = !!pv.innerHTML;
+  pv.innerHTML = polaroidHTML(n, v);
+  if (!had) $(".pola", pv).classList.add("drop");
+  $("#startHelp").textContent = `오늘은 D+${fmt.num(dPlus(v))} · 다음 기념일 ${next.label} (${dLabel(next.date)})`;
 }
 $("#startDate").addEventListener("input", updatePreview);
 $("#startDate").addEventListener("change", updatePreview);
@@ -740,7 +798,12 @@ $("#setupForm").addEventListener("submit", (ev) => {
   haptic(20);
   openRoom();
 });
-["#nameMe", "#nameYou"].forEach((s) => $(s).addEventListener("input", (e) => e.target.classList.remove("is-error")));
+["#nameMe", "#nameYou"].forEach((s) =>
+  $(s).addEventListener("input", (e) => {
+    e.target.classList.remove("is-error");
+    if ($("#setupPreview").innerHTML) updatePreview();
+  }),
+);
 
 /* ---------- 탭 ---------- */
 $$(".tabs__btn").forEach((b) => {
@@ -786,111 +849,167 @@ $("#saveCard").onclick = async () => {
 function token(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
-function drawCard(r) {
-  const W = 540;
-  const H = 675;
-  const { canvas, ctx } = createCanvas(W, H, 2);
-  const brand = token("--brand");
-  const soft = token("--brand-soft");
-  const surface = token("--color-surface");
-  const text = token("--color-text");
-  const sub = token("--color-text-secondary");
-  const ter = token("--color-text-tertiary");
-  const today = todayKey();
-  const d = dPlus(r.s, today);
-  const { next } = nextAnniversary(r.s, today);
-  const gap = diffDays(today, next.date);
-
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, soft);
-  g.addColorStop(1, surface);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
-  // 장식 하트
-  const rand = seededRandom(`card:${r.id}`);
-  for (let i = 0; i < 16; i++) {
-    ctx.globalAlpha = 0.1 + rand() * 0.18;
-    const side = i % 2 ? W - 20 - rand() * 64 : 20 + rand() * 64;
-    drawHeart(ctx, side, 30 + rand() * (H - 60), 8 + rand() * 18, brand);
-  }
-  ctx.globalAlpha = 1;
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = sub;
-  ctx.font = `600 18px ${CANVAS_FONT}`;
-  ctx.fillText("💌 커플 D-day 룸", W / 2, 64);
-  ctx.fillStyle = text;
-  ctx.font = `700 30px ${CANVAS_FONT}`;
-  ctx.fillText(`${r.n[0]} ♥ ${r.n[1]}`, W / 2, 140);
-  ctx.fillStyle = sub;
-  ctx.font = `600 26px ${CANVAS_FONT}`;
-  ctx.fillText("우리", W / 2, 212);
-  ctx.fillStyle = brand;
-  const big = `D+${fmt.num(d)}`;
-  let size = 112;
-  ctx.font = `800 ${size}px ${CANVAS_FONT}`;
-  while (ctx.measureText(big).width > W - 80 && size > 60) {
-    size -= 4;
-    ctx.font = `800 ${size}px ${CANVAS_FONT}`;
-  }
-  ctx.fillText(big, W / 2, 316);
-  ctx.fillStyle = sub;
-  ctx.font = `500 18px ${CANVAS_FONT}`;
-  const ms = Math.max(0, Date.now() - startMs(r.s));
-  ctx.fillText(`${dotDate(r.s)}부터 · 함께한 ${fmt.num(Math.floor(ms / 3600000))}시간`, W / 2, 360);
-
-  // 다음 기념일 카드
-  const cx = 48;
-  const cy = 410;
-  const cw = W - 96;
-  const ch = 132;
-  ctx.save();
-  ctx.shadowColor = "rgba(18,21,27,0.12)";
-  ctx.shadowBlur = 24;
-  ctx.shadowOffsetY = 8;
-  ctx.fillStyle = surface;
-  roundRect(ctx, cx, cy, cw, ch, 24);
-  ctx.fill();
-  ctx.restore();
-  ctx.fillStyle = ter;
-  ctx.font = `600 16px ${CANVAS_FONT}`;
-  ctx.fillText("다음 기념일", W / 2, cy + 40);
-  ctx.fillStyle = text;
-  ctx.font = `800 34px ${CANVAS_FONT}`;
-  ctx.fillText(`${next.label} (${gap === 0 ? "D-day" : `D-${fmt.num(gap)}`})`, W / 2, cy + 84);
-  ctx.fillStyle = sub;
-  ctx.font = `500 16px ${CANVAS_FONT}`;
-  ctx.fillText(longDate(next.date), W / 2, cy + 112);
-
-  ctx.fillStyle = sub;
-  ctx.font = `600 17px ${CANVAS_FONT}`;
-  wrapText(ctx, "매일 하나씩, 둘 다 답해야 열리는 질문", W / 2, 600, W - 96, 24);
-  ctx.fillStyle = ter;
-  ctx.font = `500 14px ${CANVAS_FONT}`;
-  ctx.fillText("커플 D-day 룸에서 우리 방 만들기", W / 2, 632);
-  return canvas;
-}
-// "#rrggbb" 토큰에 투명도만 입혀요 (캔버스 그라디언트용)
+// "#rrggbb" 토큰에 투명도만 입혀요 (캔버스용)
 function alpha(hex, a) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
   if (!m) return hex;
   const n = parseInt(m[1], 16);
   return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
 }
-function heartPoint(t) {
-  const s = Math.sin(t);
-  return [16 * s * s * s, -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))];
-}
-function drawHeart(ctx, x, y, size, color) {
-  ctx.fillStyle = color;
+// 우표 테두리(톱니) 그리기
+function stampPath(ctx, x, y, w, h, r) {
   ctx.beginPath();
-  for (let i = 0; i <= 40; i++) {
-    const [hx, hy] = heartPoint((i / 40) * Math.PI * 2);
-    const px = x + (hx / 17) * size;
-    const py = y + (hy / 17) * size;
-    i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+  ctx.rect(x, y, w, h);
+  for (let i = 0; i <= w; i += r * 2.6) {
+    ctx.moveTo(x + i + r, y);
+    ctx.arc(x + i, y, r, 0, Math.PI * 2);
+    ctx.moveTo(x + i + r, y + h);
+    ctx.arc(x + i, y + h, r, 0, Math.PI * 2);
   }
-  ctx.fill();
+  for (let j = 0; j <= h; j += r * 2.6) {
+    ctx.moveTo(x + r, y + j);
+    ctx.arc(x, y + j, r, 0, Math.PI * 2);
+    ctx.moveTo(x + w + r, y + j);
+    ctx.arc(x + w, y + j, r, 0, Math.PI * 2);
+  }
+}
+function drawCard(r) {
+  const W = 540;
+  const H = 675;
+  const { canvas, ctx } = createCanvas(W, H, 2);
+  const paper = token("--art-paper");
+  const letter = token("--art-letter");
+  const ink = token("--art-ink");
+  const inkSoft = token("--art-ink-soft");
+  const brand = token("--brand");
+  const film = token("--art-film");
+  const hi = token("--art-photo-hi");
+  const mid = token("--art-photo-mid");
+  const lo = token("--art-photo-lo");
+  const display = token("--font-display") || CANVAS_FONT;
+  const hand = token("--art-hand") || CANVAS_FONT;
+  const today = todayKey();
+  const d = dPlus(r.s, today);
+  const { next } = nextAnniversary(r.s, today);
+  const gap = diffDays(today, next.date);
+  const gapText = gap === 0 ? "D-day" : `D-${fmt.num(gap)}`;
+
+  // 종이 + 그레인
+  ctx.fillStyle = paper;
+  ctx.fillRect(0, 0, W, H);
+  const rand = seededRandom(`grain:${r.id}`);
+  for (let i = 0; i < 2600; i++) {
+    ctx.fillStyle = alpha(ink, 0.03 + rand() * 0.05);
+    ctx.fillRect(rand() * W, rand() * H, 1, 1);
+  }
+
+  // 폴라로이드
+  ctx.save();
+  ctx.translate(250, 270);
+  ctx.rotate((-3 * Math.PI) / 180);
+  ctx.shadowColor = alpha(ink, 0.28);
+  ctx.shadowBlur = 26;
+  ctx.shadowOffsetY = 12;
+  ctx.fillStyle = letter;
+  ctx.fillRect(-195, -215, 390, 450);
+  ctx.shadowColor = "transparent";
+  const px = -177;
+  const py = -197;
+  const pw = 354;
+  const ph = 330;
+  const g = ctx.createLinearGradient(px, py, px + pw * 0.6, py + ph);
+  g.addColorStop(0, mid);
+  g.addColorStop(1, lo);
+  ctx.fillStyle = g;
+  ctx.fillRect(px, py, pw, ph);
+  const leak = ctx.createRadialGradient(px + pw * 0.85, py + ph * 0.1, 10, px + pw * 0.85, py + ph * 0.1, pw * 0.8);
+  leak.addColorStop(0, alpha(hi, 0.95));
+  leak.addColorStop(1, alpha(hi, 0));
+  ctx.fillStyle = leak;
+  ctx.fillRect(px, py, pw, ph);
+  for (let i = 0; i < 1400; i++) {
+    ctx.fillStyle = alpha(rand() > 0.5 ? letter : ink, 0.08);
+    ctx.fillRect(px + rand() * pw, py + rand() * ph, 1.2, 1.2);
+  }
+  ctx.fillStyle = letter;
+  ctx.textAlign = "left";
+  ctx.font = `400 34px ${hand}`;
+  ctx.fillText("우리", px + 24, py + 104);
+  let size = 104;
+  const big = `D+${fmt.num(d)}`;
+  ctx.font = `700 ${size}px ${display}`;
+  while (ctx.measureText(big).width > pw - 48 && size > 56) {
+    size -= 4;
+    ctx.font = `700 ${size}px ${display}`;
+  }
+  ctx.fillText(big, px + 22, py + 104 + size * 0.95);
+  const [y, m, dd] = r.s.split("-");
+  ctx.fillStyle = film;
+  ctx.font = `700 18px "Courier New", monospace`;
+  ctx.textAlign = "right";
+  ctx.fillText(`'${y.slice(2)} ${Number(m)} ${Number(dd)}`, px + pw - 16, py + ph - 16);
+  ctx.textAlign = "left";
+  ctx.fillStyle = ink;
+  ctx.font = `400 40px ${hand}`;
+  ctx.fillText(`${r.n[0]} ♥ ${r.n[1]}`, px + 6, py + ph + 52);
+  ctx.fillStyle = inkSoft;
+  ctx.font = `500 14px ${CANVAS_FONT}`;
+  ctx.fillText(`${dotDate(r.s)}부터 · 사귄 날 = 1일`, px + 8, py + ph + 80);
+  ctx.restore();
+
+  // 다음 기념일 우표
+  ctx.save();
+  ctx.translate(430, 548);
+  ctx.rotate((6 * Math.PI) / 180);
+  ctx.fillStyle = brand;
+  stampPath(ctx, -62, -74, 124, 148, 4);
+  ctx.fill("evenodd");
+  ctx.strokeStyle = alpha(letter, 0.6);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(-52, -64, 104, 128);
+  ctx.fillStyle = letter;
+  ctx.textAlign = "center";
+  ctx.font = `600 13px ${CANVAS_FONT}`;
+  ctx.fillText("다음 기념일", 0, -32);
+  ctx.font = `700 30px ${display}`;
+  ctx.fillText(next.label, 0, 6);
+  ctx.font = `700 18px ${display}`;
+  ctx.fillText(gapText, 0, 40);
+  ctx.restore();
+
+  // 소인
+  ctx.save();
+  ctx.translate(352, 520);
+  ctx.rotate((-14 * Math.PI) / 180);
+  ctx.strokeStyle = alpha(brand, 0.75);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, 46, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(0, 0, 40, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = alpha(brand, 0.8);
+  ctx.textAlign = "center";
+  ctx.font = `700 12px ${display}`;
+  const [ny, nm, nd] = next.date.split("-");
+  ctx.fillText(ny, 0, -10);
+  ctx.font = `700 17px ${display}`;
+  ctx.fillText(`${Number(nm)}.${Number(nd)}`, 0, 10);
+  ctx.font = `600 11px ${CANVAS_FONT}`;
+  ctx.fillText(`${weekday(next.date)}요일`, 0, 26);
+  ctx.restore();
+
+  // 손글씨 메모
+  ctx.fillStyle = ink;
+  ctx.textAlign = "left";
+  ctx.font = `400 30px ${hand}`;
+  ctx.fillText(`다음: ${next.label} (${gapText})`, 44, 590);
+  ctx.fillStyle = inkSoft;
+  ctx.font = `600 13px ${CANVAS_FONT}`;
+  ctx.fillText("커플 D-day 룸 · 둘 다 답해야 열리는 오늘의 질문", 44, 636);
+  return canvas;
 }
 
 /* ---------- 설정 ---------- */
@@ -931,277 +1050,142 @@ $("#openSettings").onclick = () => {
 };
 
 /* ---------- 인트로 모션그래픽 ---------- */
-function stageCanvas(stage) {
-  const w = stage.clientWidth;
-  const h = stage.clientHeight;
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  const cv = document.createElement("canvas");
-  cv.className = "ic-canvas";
-  cv.width = w * dpr;
-  cv.height = h * dpr;
-  cv.style.width = `${w}px`;
-  cv.style.height = `${h}px`;
-  stage.appendChild(cv);
-  const ctx = cv.getContext("2d");
-  ctx.scale(dpr, dpr);
-  return { cv, ctx, w, h };
-}
-function animate(signal, duration, frame) {
-  const t0 = performance.now();
-  if (prefersReducedMotion()) {
-    frame(duration);
-    return;
-  }
-  const loop = (now) => {
-    if (signal.aborted) return;
-    const t = Math.min(duration, now - t0);
-    frame(t);
-    if (t < duration) requestAnimationFrame(loop);
-  };
-  requestAnimationFrame(loop);
-}
 const later = (signal, ms, fn) => {
   const id = setTimeout(() => !signal.aborted && fn(), prefersReducedMotion() ? 0 : ms);
   signal.addEventListener("abort", () => clearTimeout(id));
 };
-const ease = (t) => (t < 0 ? 0 : t > 1 ? 1 : 1 - Math.pow(1 - t, 3));
-const easeIO = (t) => (t < 0 ? 0 : t > 1 ? 1 : t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+// 헤드라인을 글자 단위로 쪼개 스프링으로 튀어 오르게
+function kinetic() {
+  const h = $("#intro .intro__caption h2");
+  if (!h || prefersReducedMotion()) return;
+  let k = 0;
+  h.innerHTML = h.textContent
+    .split(" ")
+    .map((w) => `<span class="kin">${[...w].map((ch) => `<i style="--k:${k++}">${esc(ch)}</i>`).join("")}</span>`)
+    .join(" ");
+}
+const relRect = (el, stage) => {
+  const a = el.getBoundingClientRect();
+  const b = stage.getBoundingClientRect();
+  return { x: a.left - b.left + a.width / 2, y: a.top - b.top + a.height / 2 };
+};
 
 function sceneMeet(stage, signal) {
-  stage.innerHTML = "";
-  const { ctx, w, h } = stageCanvas(stage);
-  const brand = token("--brand");
-  const warm = token("--color-warning");
-  const soft = token("--brand-soft");
-  const s = Math.min(w, h) / 40;
-  const cx = w / 2;
-  const cy = h / 2 - 2 * s;
-  const H = (t) => {
-    const [x, y] = heartPoint(t);
-    return [cx + x * s, cy + y * s];
-  };
-  const top = H(0);
-  const startL = [-20, cy + 8 * s];
-  const startR = [w + 20, cy - 4 * s];
-  const ctrlL = [w * 0.15, cy - 16 * s];
-  const ctrlR = [w * 0.85, cy + 14 * s];
-  const bez = (p0, c, p1, t) => [
-    (1 - t) * (1 - t) * p0[0] + 2 * (1 - t) * t * c[0] + t * t * p1[0],
-    (1 - t) * (1 - t) * p0[1] + 2 * (1 - t) * t * c[1] + t * t * p1[1],
-  ];
-  const glowDot = (x, y, color, r = 6) => {
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
-    g.addColorStop(0, alpha(color, 0.9));
-    g.addColorStop(1, alpha(color, 0));
-    ctx.fillStyle = g;
-    ctx.globalAlpha = 0.55;
-    ctx.beginPath();
-    ctx.arc(x, y, r * 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  };
-  const trail = (pts, color, alpha) => {
-    if (pts.length < 2) return;
-    ctx.save();
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = alpha;
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 12;
-    ctx.beginPath();
-    pts.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
-    ctx.stroke();
-    ctx.restore();
-  };
-  const D1 = 1300;
-  const D2 = 1500;
-  const D3 = 900;
-  animate(signal, D1 + D2 + D3, (t) => {
-    ctx.clearRect(0, 0, w, h);
-    const a = easeIO(t / D1);
-    const b = easeIO((t - D1) / D2);
-    const c = ease((t - D1 - D2) / D3);
-    // 접근 곡선 꼬리
-    const N = 30;
-    const approach = (p0, ctrl) => {
-      const pts = [];
-      for (let i = 0; i <= N; i++) {
-        const u = (i / N) * a;
-        if (u < a - 0.35) continue;
-        pts.push(bez(p0, ctrl, top, u));
-      }
-      return pts;
+  kinetic();
+  stage.innerHTML = `<div class="sc sc-meet">
+    <figure class="pola pola--a drop"><span class="pola__pin"></span><div class="pola__photo"><span class="pola__date">'25 5 12</span></div><figcaption>민수</figcaption></figure>
+    <figure class="pola pola--b drop" style="--delay:200ms"><span class="pola__pin"></span><div class="pola__photo"><span class="pola__date">'25 5 12</span></div><figcaption>지은</figcaption></figure>
+    <svg class="sc-meet__string" aria-hidden="true"><path /></svg>
+  </div>`;
+  const sc = $(".sc-meet", stage);
+  const path = $("path", sc);
+  later(signal, 1100, () => {
+    const a = relRect($(".pola--a .pola__pin", sc), sc);
+    const b = relRect($(".pola--b .pola__pin", sc), sc);
+    const curve = (sag) => {
+      const cx = (a.x + b.x) / 2;
+      const cy = Math.max(a.y, b.y) + sag;
+      return { d: `M${a.x},${a.y} Q${cx},${cy} ${b.x},${b.y}`, mx: (a.x + 2 * cx + b.x) / 4, my: (a.y + 2 * cy + b.y) / 4 };
     };
-    trail(approach(startL, ctrlL), brand, 0.35 * (1 - b));
-    trail(approach(startR, ctrlR), warm, 0.35 * (1 - b));
-    // 하트 그리기
-    const half = (dir) => {
-      const pts = [];
-      for (let i = 0; i <= 60; i++) {
-        const u = (i / 60) * b * Math.PI;
-        pts.push(H(dir * u));
-      }
-      return pts;
-    };
-    if (b > 0) {
-      if (c > 0) {
-        ctx.save();
-        ctx.globalAlpha = 0.9 * c;
-        const pulse = 1 + 0.04 * Math.sin(c * Math.PI);
-        ctx.translate(cx, cy + 4 * s);
-        ctx.scale(pulse, pulse);
-        ctx.translate(-cx, -(cy + 4 * s));
-        ctx.fillStyle = soft;
-        ctx.beginPath();
-        for (let i = 0; i <= 80; i++) {
-          const [x, y] = H((i / 80) * Math.PI * 2);
-          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-        }
-        ctx.fill();
-        ctx.restore();
-      }
-      trail(half(-1), brand, 1);
-      trail(half(1), warm, 1);
-    }
-    if (b <= 0) {
-      const [lx, ly] = bez(startL, ctrlL, top, a);
-      const [rx, ry] = bez(startR, ctrlR, top, a);
-      glowDot(lx, ly, brand);
-      glowDot(rx, ry, warm);
-    } else if (c <= 0) {
-      const [lx, ly] = H(-b * Math.PI);
-      const [rx, ry] = H(b * Math.PI);
-      glowDot(lx, ly, brand);
-      glowDot(rx, ry, warm);
-    } else {
-      const [bx, by] = H(Math.PI);
-      glowDot(bx, by, brand, 6 + 4 * Math.sin(c * Math.PI));
-      // 반짝이
-      for (let i = 0; i < 10; i++) {
-        const ang = (i / 10) * Math.PI * 2;
-        const rr = 18 * s * (0.6 + 0.6 * c);
-        ctx.globalAlpha = 1 - c;
-        ctx.fillStyle = i % 2 ? brand : warm;
-        ctx.beginPath();
-        ctx.arc(cx + Math.cos(ang) * rr, cy + 4 * s + Math.sin(ang) * rr * 0.9, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = brand;
-      ctx.font = `800 ${Math.round(5 * s)}px ${CANVAS_FONT}`;
-      ctx.textAlign = "center";
-      ctx.globalAlpha = c;
-      ctx.fillText("D+1", cx, cy + 5.5 * s);
-      ctx.globalAlpha = 1;
-    }
+    path.setAttribute("d", curve(70).d);
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = `${len}`;
+    path.style.strokeDashoffset = `${len}`;
+    path.getBoundingClientRect();
+    path.style.transition = "stroke-dashoffset 520ms cubic-bezier(.2,.8,.2,1)";
+    path.style.strokeDashoffset = "0";
+    // 실이 팽팽해지며 출렁: 감쇠 진동 스프링
+    later(signal, 560, () => {
+      path.style.strokeDasharray = "none";
+      const tag = document.createElement("div");
+      tag.className = "hang-tag t-num";
+      tag.textContent = "D+1";
+      sc.appendChild(tag);
+      const t0 = performance.now();
+      const step = (now) => {
+        if (signal.aborted) return;
+        const t = (now - t0) / 1000;
+        const sag = 40 + 30 * Math.exp(-4.2 * t) * Math.cos(16 * t);
+        const c = curve(sag);
+        path.setAttribute("d", c.d);
+        tag.style.left = `${c.mx}px`;
+        tag.style.top = `${c.my}px`;
+        if (t < 1.6) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
   });
 }
 
 function sceneCount(stage, signal) {
-  stage.innerHTML = `
-    <div class="ic-count">
-      <p class="t-label-02 t-secondary">민수 ♥ 지은</p>
-      <p class="ic-count__d t-num"><span class="ic-count__dp">D+</span><span class="ic-count__n">1</span></p>
-      <div class="ic-count__chips">
-        <span class="chip"><b class="t-num" data-k="w">0</b>주</span>
-        <span class="chip"><b class="t-num" data-k="h">0</b>시간</span>
-      </div>
-      <span class="ic-count__badge">💗 100일</span>
-    </div>`;
-  const n = $(".ic-count__n", stage);
-  const wEl = $('[data-k="w"]', stage);
-  const hEl = $('[data-k="h"]', stage);
-  let last = 0;
-  animate(signal, 1700, (t) => {
-    const v = Math.max(1, Math.round(1 + 99 * easeIO(t / 1700)));
-    if (v !== last) {
-      n.textContent = v;
-      n.classList.remove("is-roll");
-      void n.offsetWidth;
-      n.classList.add("is-roll");
-      last = v;
-    }
-    wEl.textContent = Math.floor(v / 7);
-    hEl.textContent = fmt.num(v * 24);
-  });
-  later(signal, 1800, () => $(".ic-count__badge", stage).classList.add("is-on"));
+  kinetic();
+  stage.innerHTML = `<div class="sc sc-count">
+    <figure class="pola drop"><div class="pola__photo"><p class="big-d t-num"><span class="odo"></span></p><span class="pola__date">'25 8 19</span></div>
+      <figcaption><span class="ink-in" style="--delay:1100ms">함께한 2,376시간</span><small>민수 & 지은 · 사귄 날 = 1일</small></figcaption></figure>
+    <div class="postmark slam" style="--delay:1500ms"><span>2025<b>5.12</b>사귄 날</span></div>
+  </div>`;
+  const odo = $(".odo", stage);
+  odometer(odo, "D+100", { on: false });
+  later(signal, 420, () => odo.classList.add("is-on"));
+  later(signal, 1640, () => $(".pola", stage).classList.add("shake"));
 }
 
 function sceneQuestion(stage, signal) {
-  stage.innerHTML = `
-    <div class="ic-q">
-      <div class="ic-q__inner">
-        <div class="ic-q__face ic-q__front">
-          <span class="badge">오늘의 질문</span>
-          <p class="ic-q__text">우리 여행 1순위 장소는 어디예요?</p>
-          <div class="ic-q__who">
-            <span class="ic-q__p" data-p="a"><i>나</i><b>✓</b></span>
-            <span class="ic-q__lock" aria-hidden="true">🔒</span>
-            <span class="ic-q__p" data-p="b"><i>너</i><b>✓</b></span>
-          </div>
-          <p class="t-caption-01 t-tertiary">둘 다 답해야 열려요</p>
-        </div>
-        <div class="ic-q__face ic-q__back">
-          <p class="ic-q__text ic-q__text--sm">우리 여행 1순위 장소는 어디예요?</p>
-          <div class="ic-q__ans">
-            <div class="bubble bubble--me"><span class="bubble__who">나</span><p>제주도 바다 🌊</p></div>
-            <div class="bubble bubble--you"><span class="bubble__who">너</span><p>무조건 제주!</p></div>
-          </div>
-          <p class="ic-q__match">통했다 💞</p>
-        </div>
-      </div>
-    </div>`;
-  later(signal, 500, () => $('[data-p="a"]', stage).classList.add("is-done"));
-  later(signal, 1100, () => $('[data-p="b"]', stage).classList.add("is-done"));
-  later(signal, 1500, () => $(".ic-q__lock", stage).classList.add("is-open"));
-  later(signal, 1800, () => $(".ic-q__inner", stage).classList.add("is-flipped"));
+  kinetic();
+  stage.innerHTML = `<div class="sc sc-env">
+    <p class="sc-env__q"><small>오늘의 질문</small>우리 여행 1순위 장소는 어디예요?</p>
+    <div class="env">
+      <div class="env__back"></div>
+      <div class="env__letter env__letter--a"><small>나</small><p>제주도 바다</p></div>
+      <div class="env__letter env__letter--b"><small>너</small><p>무조건 제주!</p></div>
+      <div class="env__front"></div>
+      <div class="env__flap"></div>
+      <div class="env__seal">봉인</div>
+      <div class="env__checks"><span>나 답함</span><span>너 답함</span></div>
+    </div>
+  </div>`;
+  const env = $(".env", stage);
+  const [c1, c2] = $$(".env__checks span", stage);
+  later(signal, 650, () => c1.classList.add("is-on"));
+  later(signal, 1000, () => c2.classList.add("is-on"));
+  later(signal, 1450, () => env.classList.add("is-broken"));
+  later(signal, 1650, () => env.classList.add("is-open"));
+  later(signal, 2050, () => env.classList.add("is-out"));
 }
 
 function sceneCalendar(stage, signal) {
-  const cells = [];
-  for (let i = 0; i < 3; i++) cells.push(`<span class="is-blank"></span>`);
-  for (let d = 1; d <= 30; d++) cells.push(`<span class="${d === 18 ? "is-target" : ""}">${d}</span>`);
-  const colors = ["--brand", "--color-warning", "--color-success", "--brand-pressed"];
-  const rand = seededRandom("confetti");
-  const pieces = Array.from({ length: 30 }, (_, i) => {
-    const ang = rand() * Math.PI * 2;
-    const dist = 60 + rand() * 90;
-    return `<i style="--dx:${Math.cos(ang) * dist}px;--dy:${Math.sin(ang) * dist - 40}px;--rot:${Math.round(rand() * 540)}deg;--c:var(${colors[i % 4]});--delay:${Math.round(rand() * 120)}ms"></i>`;
-  }).join("");
-  stage.innerHTML = `
-    <div class="ic-cal">
-      <div class="ic-cal__head"><b>6월</b><span class="ic-cal__dd t-num">D-3</span></div>
-      <div class="ic-cal__wd">${WD.map((w) => `<span>${w}</span>`).join("")}</div>
-      <div class="ic-cal__grid">${cells.join("")}</div>
-      <div class="ic-cal__confetti">${pieces}</div>
-      <div class="ic-cal__tag">💗 100일 · 캘린더에 저장됨</div>
-    </div>`;
-  const dd = $(".ic-cal__dd", stage);
-  const target = $(".is-target", stage);
-  const conf = $(".ic-cal__confetti", stage);
-  conf.style.left = `${target.offsetLeft + target.offsetWidth / 2}px`;
-  conf.style.top = `${target.offsetTop + target.offsetHeight / 2}px`;
-  later(signal, 400, () => (dd.textContent = "D-2"));
-  later(signal, 750, () => (dd.textContent = "D-1"));
-  later(signal, 1100, () => {
-    dd.textContent = "D-day";
-    dd.classList.add("is-on");
-    $(".is-target", stage).classList.add("is-on");
-    $(".ic-cal__confetti", stage).classList.add("is-on");
+  kinetic();
+  const cells = WD.map((w) => `<span class="is-wd">${w}</span>`);
+  for (let i = 0; i < 5; i++) cells.push("<span></span>"); // 2025년 8월 1일은 금요일
+  for (let d = 1; d <= 31; d++) {
+    cells.push(
+      d === 19
+        ? `<span class="is-target">${d}<svg class="cal__circle" viewBox="0 0 60 40" preserveAspectRatio="none" aria-hidden="true"><path d="M44 6 C30 0 6 4 5 18 C4 32 30 38 46 32 C58 27 58 10 40 5" /></svg></span>`
+        : `<span>${d}</span>`,
+    );
+  }
+  stage.innerHTML = `<div class="sc sc-cal">
+    <div class="cal"><div class="cal__head"><b>8월</b><span>2025 · 우리 달력</span></div><div class="cal__grid">${cells.join("")}</div></div>
+    <span class="cal__note">8월 19일, 우리 100일!</span>
+    <div class="stamp"><small>기념일</small><b>100일</b><small>D-day</small></div>
+  </div>`;
+  const sc = $(".sc-cal", stage);
+  later(signal, 820, () => {
+    const cal = $(".cal", sc);
+    const note = $(".cal__note", sc);
+    note.style.left = `${cal.offsetLeft + 12}px`;
+    note.style.top = `${cal.offsetTop + cal.offsetHeight + 28}px`;
+    $(".cal__circle", sc).classList.add("is-on");
   });
-  later(signal, 1700, () => $(".ic-cal__tag", stage).classList.add("is-on"));
+  later(signal, 1400, () => $(".cal__note", sc).classList.add("is-on"));
+  later(signal, 1800, () => $(".stamp", sc).classList.add("is-on"));
 }
 
 const SCENES = [
-  { title: "둘이 만난 그날부터", desc: "사귄 날을 1일로, 우리 시간이 흐르기 시작해요", duration: 4000, play: sceneMeet },
-  { title: "오늘은 D+며칠?", desc: "함께한 날·주·시간까지 바로 세어줘요", duration: 3200, play: sceneCount },
-  { title: "둘 다 답해야 열려요", desc: "매일 하나씩, 같은 질문에 각자 답하고 링크로 주고받아요", duration: 4000, play: sceneQuestion },
-  { title: "100일·1주년 미리 챙기기", desc: "다가오는 기념일을 캘린더에 쏙 넣어둬요", duration: 3400, play: sceneCalendar },
+  { title: "사귄 날을 1일로", desc: "둘이 이어진 그날이 D+1, 빨간 실처럼 하루씩 이어져요", duration: 4200, play: sceneMeet },
+  { title: "오늘은 D+며칠?", desc: "날짜·주·시간까지 바로 세어줘요", duration: 3600, play: sceneCount },
+  { title: "둘 다 답해야 열려요", desc: "같은 질문에 각자 답하고, 봉투째 링크로 주고받아요", duration: 4400, play: sceneQuestion },
+  { title: "100일, 미리 동그라미", desc: "다가오는 기념일을 캘린더에 넣어둬요", duration: 3800, play: sceneCalendar },
 ];
 
 /* ---------- 시작 ---------- */

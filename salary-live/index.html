@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -10,7 +10,7 @@
     />
     <meta name="keywords" content="연봉 실수령액 계산기, 2026 연봉 실수령액, 월급 계산기, 시급 계산기, 월급루팡, 실수령액 표, 4대보험 요율, 회의 비용" />
     <link rel="canonical" href="https://example.com/salary-live/" />
-    <meta name="theme-color" content="#0a0c10" />
+    <meta name="theme-color" content="#ebe7dc" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="월급 카운터" />
@@ -23,6 +23,9 @@
     <meta property="og:url" content="https://example.com/salary-live/" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
@@ -95,7 +98,7 @@
         </header>
 
         <div class="stack gap-16 setup">
-          <div class="card stack gap-16">
+          <div class="slip stack gap-16">
             <div class="row between">
               <h1 class="t-title-03 m0">연봉 실수령액 계산</h1>
               <span class="badge">2026 · 근사치</span>
@@ -141,17 +144,22 @@
             </div>
           </div>
 
-          <div class="card result-card" id="resultCard" aria-live="polite">
-            <p class="t-label-02 t-secondary m0">예상 월 실수령액</p>
-            <p class="t-display-02 t-num result-card__big m0" id="netMonthly">-</p>
+          <div class="slip receipt result-card" id="resultCard" aria-live="polite">
+            <p class="receipt__store m0">급여 영수증 (예상)</p>
+            <p class="receipt__meta m0">2026 요율 · 월 기준 · 근사치</p>
+            <hr class="rule" />
+            <p class="t-label-02 t-secondary m0">월 실수령액</p>
+            <p class="result-card__big m0" id="netMonthly">-</p>
             <p class="t-body-03 t-secondary m0" id="netAnnual">연봉을 입력해 주세요</p>
+            <hr class="rule" />
             <table class="breakdown" id="breakdown"></table>
             <p class="t-caption-01 t-tertiary m0">
-              근사치예요. 실제 원천징수(간이세액표)와 차이가 있을 수 있어요. 장기요양보험은 건강보험료의 13.14%로 근사했어요.
+              실제 원천징수(간이세액표)와 차이가 있을 수 있어요. 장기요양보험은 건강보험료의 13.14%로 근사했어요.
             </p>
+            <div class="barcode" aria-hidden="true"></div>
           </div>
 
-          <div class="card stack gap-16">
+          <div class="slip stack gap-16">
             <h2 class="t-title-04 m0">근무 시간</h2>
             <div class="grid-2">
               <label class="field"><span class="field__label">출근</span><input class="input" type="time" id="start-t" value="09:00" /></label>
@@ -194,24 +202,27 @@
         </header>
 
         <div class="stack gap-16 app-body">
-          <div class="live card card--raised" id="live">
+          <div class="live counter" id="live">
             <div class="live__coins" id="coins" aria-hidden="true"></div>
             <div class="row between">
               <span class="live__status t-label-02" id="status">-</span>
               <span class="t-caption-01 t-tertiary t-num" id="clock"></span>
             </div>
             <p class="t-label-02 t-secondary m0 live__label" id="liveLabel">오늘 번 돈</p>
-            <p class="live__num t-num" id="liveNum" aria-live="off">0<span class="live__won">원</span></p>
-            <p class="t-body-03 t-secondary m0" id="liveSub">-</p>
+            <div class="live__num" id="liveNum"><div class="odo" id="odo"></div><span class="live__frac" id="liveFrac"></span><span class="live__won">원</span></div>
+            <p class="t-body-03 m0 live__sub" id="liveSub">-</p>
             <div class="progress" aria-hidden="true"><span id="progress"></span></div>
-            <div class="row between t-caption-01 t-tertiary t-num">
+            <div class="row between t-caption-01 progress-meta">
               <span id="pStart">09:00</span><span id="pPct">0%</span><span id="pEnd">18:00</span>
             </div>
           </div>
 
-          <div class="conv" id="conv"></div>
+          <div class="slip">
+            <div class="slip__head"><h2 class="t-title-04 m0">오늘의 환산표</h2><span class="conv__note">실수령 기준</span></div>
+            <div class="conv" id="conv"></div>
+          </div>
 
-          <div class="card stack gap-12" id="lupangCard">
+          <div class="slip stack gap-12" id="lupangCard">
             <div class="row between">
               <h2 class="t-title-04 m0">월급루팡 타이머</h2>
               <span class="badge" id="lupangBadge">오늘 0분</span>
@@ -226,7 +237,7 @@
             <button class="btn btn--primary btn--block" id="receiptBtn">🧾 오늘의 월급루팡 영수증 뽑기</button>
           </div>
 
-          <div class="card stack gap-12" id="meetCard">
+          <div class="slip stack gap-12" id="meetCard">
             <div class="row between">
               <h2 class="t-title-04 m0">회의 비용 타이머</h2>
               <span class="badge">세전 연봉 기준</span>
@@ -250,7 +261,7 @@
             </div>
             <div class="meet__board">
               <p class="t-label-02 t-secondary m0">이 회의 비용</p>
-              <p class="meet__num t-num" id="meetNum">0원</p>
+              <div class="meet__num" id="meetNum"><div class="odo odo--sm" id="meetOdo"></div><span class="live__won">원</span></div>
               <p class="t-body-03 t-secondary t-num m0" id="meetSub">00:00 · 1분에 0원</p>
             </div>
             <div class="row gap-8">
@@ -260,7 +271,7 @@
             </div>
           </div>
 
-          <div class="card card--flat stack gap-8" id="summaryCard">
+          <div class="slip stack gap-8" id="summaryCard">
             <div class="row between">
               <h2 class="t-title-04 m0">내 실수령액</h2>
               <button class="btn btn--ghost btn--sm" id="editBtn2">수정</button>
@@ -269,7 +280,7 @@
             <p class="t-caption-01 t-tertiary m0">2026 요율 기준 근사치예요. 실제 원천징수(간이세액표)와 차이가 있을 수 있어요.</p>
           </div>
 
-          <div class="card card--flat tip" id="installTip">
+          <div class="slip tip" id="installTip">
             <span class="tip__icon" aria-hidden="true">📲</span>
             <div class="grow">
               <p class="t-body-03-strong m0">홈 화면에 추가하면 위젯처럼 써요</p>

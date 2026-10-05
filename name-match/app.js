@@ -53,7 +53,7 @@ function josa(word, pair) {
 function shortName(n) {
   const h = hangulOnly(n);
   if (h.length === 3 && h === n) return h.slice(1); // 김민수 → 민수
-  return Array.from(n).slice(0, 3).join("");
+  return Array.from(n).slice(0, 2).join("");
 }
 
 function comment(score) {
@@ -78,6 +78,19 @@ function pixelHeart(size = 28) {
     })
   );
   return `<svg class="pixel-heart" viewBox="0 0 7 6" width="${size}" height="${(size * 6) / 7}" aria-hidden="true">${rects.join("")}</svg>`;
+}
+
+// 캡션 제목을 글자 단위로 쪼개 스프링으로 떨어뜨린다 (키네틱 타이포)
+function kinetic() {
+  const h = document.querySelector("#intro .intro__caption h2");
+  if (!h || prefersReducedMotion()) return;
+  h.innerHTML = Array.from(h.textContent)
+    .map((c, i) => `<span class="kchar" style="animation-delay:${i * 28}ms">${c === " " ? " " : esc(c)}</span>`)
+    .join("");
+}
+
+function circleSVG() {
+  return `<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path class="circle-draw" d="M58 3 C 88 2, 99 12, 97 22 C 94 36, 30 40, 8 31 C -4 25, 4 6, 30 4 C 44 3, 60 4, 66 7"/></svg>`;
 }
 
 function introScenes() {
@@ -135,9 +148,9 @@ function introScenes() {
       duration: 3000,
       play(stage) {
         stage.innerHTML = `<div class="scene scene--col">
-          <div class="i-names"><span class="t-a">${A}</span>${pixelHeart(30)}<span class="t-b">${B}</span></div>
+          <div class="i-names"><span class="mark">${A}</span>${pixelHeart(30)}<span class="t-b">${B}</span></div>
           <div class="i-row i-letters">${letters
-            .map((l, i) => `<span class="i-letter is-${l.from}" style="animation-delay:${200 + i * 120}ms">${l.ch}</span>`)
+            .map((l, i) => `<span class="i-letter is-${l.from}" style="animation-delay:${250 + i * 110}ms">${l.ch}</span>`)
             .join("")}</div>
           <div class="i-row i-digits">${r.rows[0]
             .map((d, i) => `<span class="i-digit is-rain" style="animation-delay:${900 + i * 180}ms">${d}</span>`)
@@ -155,18 +168,18 @@ function introScenes() {
         r.rows.slice(1).forEach((row, k) => {
           setTimeout(() => {
             if (signal.aborted) return;
-            pyr.insertAdjacentHTML("beforeend", rowHTML(row, "is-drop"));
-            if (k === r.rows.length - 2) {
+            const last = k === r.rows.length - 2;
+            pyr.insertAdjacentHTML("beforeend", last ? `<div class="i-final">${rowHTML(row, "is-write")}${circleSVG()}</div>` : rowHTML(row, "is-write"));
+            if (last) {
               setTimeout(() => {
                 if (signal.aborted) return;
                 pyr.insertAdjacentHTML(
                   "beforeend",
-                  `<div class="i-score">${r.score}%</div><p class="t-label-02 t-secondary m0 i-score-cap">${josa(A, "이/가")} ${josa(B, "을/를")} 생각하는 마음</p>`
+                  `<div class="i-score">${r.score}%</div><p class="t-secondary m0 i-score-cap">${josa(A, "이/가")} ${josa(B, "을/를")} 생각하는 마음</p>`
                 );
-                haptic(20);
-              }, 420);
+              }, 520);
             }
-          }, 420 + k * 420);
+          }, 300 + k * 380);
         });
       },
     },
@@ -183,7 +196,7 @@ function introScenes() {
       },
     },
     {
-      title: "순서를 바꾸면 마음도 달라요",
+      title: "방향마다 마음이 달라요",
       desc: `${net[hl.crush.from]}→${net[hl.crush.to]} ${hl.crush.high}%, ${net[hl.crush.to]}→${net[hl.crush.from]} ${hl.crush.low}%. 이게 짝사랑이에요`,
       duration: 3600,
       play(stage) {
@@ -202,13 +215,19 @@ function introScenes() {
           <path class="net-arrow-back" d="M${back.x1 - nx} ${back.y1 - ny} L${back.x2 - nx} ${back.y2 - ny}"/>
           <path class="net-arrow is-draw" d="M${e.x1 + nx} ${e.y1 + ny} L${e.x2 + nx} ${e.y2 + ny} ${head(e.x2 + nx, e.y2 + ny, e.ux, e.uy).replace("M", "M")}"/>
           ${nodesSVG(0)}
-          <text class="net-label net-label--hot" x="${mx + nx * 3.4}" y="${my + ny * 3.4}">${hl.crush.high}%</text>
-          <text class="net-label net-label--cold" x="${mx - nx * 3}" y="${my - ny * 3}">${hl.crush.low}%</text>
-          <g class="net-tag" style="animation-delay:700ms"><rect x="${W / 2 - 56}" y="${H / 2 - 18}" width="112" height="36" rx="18"/><text x="${W / 2}" y="${H / 2}">💔 짝사랑</text></g>
+          <text class="net-label net-label--hot" x="${mx + nx * 2.6}" y="${my + ny * 2.6}">${hl.crush.high}%</text>
+          <text class="net-label net-label--cold" x="${mx - nx * 2.6}" y="${my - ny * 2.6}">${hl.crush.low}%</text>
+          <g class="net-tag" style="animation-delay:700ms"><rect x="${W / 2 - 70}" y="${H - 14}" width="140" height="40" rx="4" transform="rotate(-3 ${W / 2} ${H + 6})"/><rect class="tape" x="${W / 2 - 22}" y="${H - 24}" width="44" height="16" transform="rotate(7 ${W / 2} ${H - 16})"/><text x="${W / 2}" y="${H + 6}" transform="rotate(-3 ${W / 2} ${H + 6})">💔 짝사랑 발견!</text></g>
         </svg></div>`;
       },
     },
-  ];
+  ].map((sc) => ({
+    ...sc,
+    play(stage, signal) {
+      kinetic();
+      sc.play(stage, signal);
+    },
+  }));
 }
 
 /* =========================================================
@@ -452,7 +471,7 @@ function openResult(list, { shared = false } = {}) {
   $("#resultKicker").textContent = isPair ? "1:1 이름궁합" : `${list.length}명 단톡방 궁합표`;
   $("#resultTitle").innerHTML = isPair
     ? `${esc(list[0])} ${pixelHeart(22)} ${esc(list[1])}`
-    : esc(title || "우리 방 궁합표");
+    : `<span class="mark">${esc(title || "우리 방 궁합표")}</span>`;
   $("#matrixCard").hidden = isPair;
   $("#pairView").hidden = !isPair;
   $("#saveRoomBtn").hidden = isPair;
@@ -469,9 +488,8 @@ function renderMatrix(list, m) {
   const el = $("#matrix");
   const n = list.length;
   el.style.setProperty("--n", n);
-  el.classList.toggle("is-vertical", n >= 6);
   el.classList.toggle("is-dense", n >= 9);
-  el.style.setProperty("--head", n >= 9 ? "48px" : "60px");
+  el.style.setProperty("--head", n >= 9 ? "44px" : "56px");
   let html = `<div class="mx-corner">→</div>`;
   html += list.map((nm) => `<div class="mx-col" title="${esc(nm)}">${esc(shortName(nm))}</div>`).join("");
   list.forEach((rowName, i) => {
@@ -640,11 +658,11 @@ function renderPyramid(a, b) {
       const isFinal = k === r.rows.length - 1;
       pyr.insertAdjacentHTML(
         "beforeend",
-        `<div class="pyr__row is-pop ${isFinal ? "is-final" : ""}">${row.map((d) => `<span class="pyr__c">${d}</span>`).join("")}</div>`
+        `<div class="pyr__row is-write ${isFinal ? "is-final" : ""}">${row.map((d) => `<span class="pyr__c">${d}</span>`).join("")}${isFinal ? circleSVG() : ""}</div>`
       );
       if (isFinal) {
         const done = () => {
-          $("#pyrResult").innerHTML = `<div class="pyr-result__score">${r.score}%</div><p class="t-body-02-strong">${comment(r.score)}</p>`;
+          $("#pyrResult").innerHTML = `<div class="pyr-result__score">${r.score}%</div><p>${comment(r.score)}</p>`;
           haptic(20);
         };
         reduce ? done() : pyrTimers.push(setTimeout(done, 380));

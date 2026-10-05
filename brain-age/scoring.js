@@ -9,17 +9,17 @@
 export const KEYS = ["rt", "mem", "color", "hear", "math"];
 
 export const META = {
-  rt: { icon: "⚡", name: "반응속도", short: "반응", better: "low", fmt: (v) => `${Math.round(v)}ms` },
-  mem: { icon: "🧩", name: "순간기억", short: "기억", better: "high", fmt: (v) => `${v}칸` },
-  color: { icon: "🎨", name: "색 구분", short: "색감", better: "high", fmt: (v) => `${v}단계` },
+  rt: { code: "CH1", name: "반응속도", short: "반응", better: "low", fmt: (v) => `${Math.round(v)}ms` },
+  mem: { code: "CH2", name: "순간기억", short: "기억", better: "high", fmt: (v) => `${v}칸` },
+  color: { code: "CH3", name: "색 구분", short: "색감", better: "high", fmt: (v) => `${v}단계` },
   hear: {
-    icon: "👂",
+    code: "CH4",
     name: "고주파 청력",
     short: "청력",
     better: "high",
     fmt: (v) => (v ? `${(v / 1000).toLocaleString("ko-KR")}kHz` : "건너뜀"),
   },
-  math: { icon: "🔢", name: "순간계산", short: "계산", better: "high", fmt: (v) => `${v}문제` },
+  math: { code: "CH5", name: "순간계산", short: "계산", better: "high", fmt: (v) => `${v}문제` },
 };
 
 // [측정값, 나이] 앵커. x 오름차순.

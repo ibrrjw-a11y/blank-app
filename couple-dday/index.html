@@ -7,7 +7,7 @@
     <meta name="description" content="사귄 날만 넣으면 커플 디데이와 100일·1000일·1주년 기념일을 바로 계산해요. 매일 하나씩 둘이 같이 답하는 커플 질문과 기념일 캘린더 저장까지, 둘이 같이 쓰는 기념일 방이에요." />
     <meta name="keywords" content="커플 디데이, 100일 계산기, 사귄 날 계산, 기념일 계산기, 커플 질문, 1주년, 1000일 계산, 커플 디데이 계산기" />
     <link rel="canonical" href="https://example.com/couple-dday/" />
-    <meta name="theme-color" content="#f0527a" />
+    <meta name="theme-color" content="#f3ebdd" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:url" content="https://example.com/couple-dday/" />
@@ -17,6 +17,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&display=swap" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="application/ld+json">
@@ -49,7 +51,11 @@
     <main class="app">
       <!-- 1) 첫 화면: 모션그래픽 -->
       <section class="intro" id="intro" data-view="intro">
-        <div class="intro__brand row gap-8"><span aria-hidden="true">💌</span><span class="t-label-01">커플 D-day 룸</span></div>
+        <div class="intro__brand">
+          <span class="mark-stamp" aria-hidden="true">D+</span>
+          <span class="intro__brandname">커플 D-day 룸</span>
+          <span class="intro__no hand">no. 001</span>
+        </div>
         <div class="intro__stage" aria-hidden="true"></div>
         <div class="intro__steps"></div>
         <div class="intro__caption" aria-live="polite"></div>
@@ -69,16 +75,16 @@
         </header>
         <form class="stack gap-24 setup" id="setupForm" novalidate>
           <div class="setup__hero">
-            <div class="setup__hearts" aria-hidden="true"><span>💗</span></div>
-            <h1 class="t-title-01">둘의 이름과<br />사귄 날을 알려주세요</h1>
+            <h1 class="t-title-01">둘의 이름과<br />사귄 날을 적어주세요</h1>
             <p class="t-body-03 t-secondary">이 기기에만 저장돼요. 상대는 링크로 같은 방에 들어와요.</p>
           </div>
+          <div class="setup__preview" id="setupPreview" aria-hidden="true"></div>
           <div class="row gap-8 names">
             <label class="field grow">
               <span class="field__label">내 이름</span>
               <input class="input" id="nameMe" maxlength="10" placeholder="예: 민수" autocomplete="off" required />
             </label>
-            <span class="names__heart" aria-hidden="true">♥</span>
+            <span class="names__amp" aria-hidden="true">&amp;</span>
             <label class="field grow">
               <span class="field__label">상대 이름</span>
               <input class="input" id="nameYou" maxlength="10" placeholder="예: 지은" autocomplete="off" required />
@@ -89,7 +95,6 @@
             <input class="input" id="startDate" type="date" required />
             <span class="field__help" id="startHelp">사귄 날을 1일로 세요 (D+1)</span>
           </label>
-          <div class="setup__preview card card--flat" id="setupPreview" hidden></div>
           <button class="btn btn--primary btn--lg btn--block" type="submit" id="createRoom">우리 방 만들기</button>
         </form>
       </section>
@@ -97,16 +102,12 @@
       <!-- 3) 초대받은 방 들어가기 -->
       <section data-view="join" hidden>
         <div class="join stack gap-24">
-          <div class="join__hero t-center">
-            <div class="join__env" aria-hidden="true">💌</div>
+          <div class="join__hero">
+            <p class="hand join__from" id="joinFrom"></p>
             <h1 class="t-title-01" id="joinTitle">초대받은 방이에요</h1>
             <p class="t-body-02 t-secondary" id="joinDesc"></p>
           </div>
-          <div class="card card--raised join__card t-center">
-            <p class="t-label-02 t-secondary" id="joinNames"></p>
-            <p class="t-display-02 t-primary t-num" id="joinD"></p>
-            <p class="t-body-03 t-secondary" id="joinSince"></p>
-          </div>
+          <div class="join__card" id="joinCard"></div>
           <div class="field">
             <span class="field__label">저는 누구예요?</span>
             <div class="row gap-8" id="joinWho" role="radiogroup"></div>
@@ -119,12 +120,12 @@
       <!-- 4) 받은 답 (교환 링크) -->
       <section data-view="answer" hidden>
         <header class="topbar">
-          <span class="topbar__brand"><span aria-hidden="true">💌</span>커플 D-day 룸</span>
+          <span class="topbar__brand"><span class="mark-stamp mark-stamp--sm" aria-hidden="true">D+</span>커플 D-day 룸</span>
           <button class="btn btn--ghost btn--sm" data-go="room">우리 방</button>
         </header>
         <div class="stack gap-16 answer">
-          <div class="t-center stack gap-4">
-            <p class="badge answer__badge" id="ansDate"></p>
+          <div class="stack gap-4">
+            <p class="postmark-line t-label-03" id="ansDate"></p>
             <h1 class="t-title-02" id="ansTitle"></h1>
             <p class="t-body-03 t-secondary" id="ansDesc"></p>
           </div>
@@ -136,30 +137,37 @@
       <!-- 5) 우리 방 -->
       <section data-view="room" hidden>
         <header class="topbar">
-          <span class="topbar__brand"><span aria-hidden="true">💌</span><span id="roomTitle">우리 방</span></span>
+          <span class="topbar__brand"><span class="mark-stamp mark-stamp--sm" aria-hidden="true">D+</span><span id="roomTitle">우리 방</span></span>
           <div class="row gap-4">
-            <button class="btn btn--ghost btn--icon" id="shareRoomTop" aria-label="방 링크 보내기">↗</button>
-            <button class="btn btn--ghost btn--icon" id="openSettings" aria-label="방 설정">⚙</button>
+            <button class="btn btn--ghost btn--sm" id="shareRoomTop">초대</button>
+            <button class="btn btn--ghost btn--sm" id="openSettings">설정</button>
           </div>
         </header>
 
-        <div class="stack gap-16 room">
-          <div class="hero card card--raised" id="hero">
-            <div class="hero__glow" aria-hidden="true"></div>
-            <p class="t-label-02 hero__names" id="heroNames"></p>
-            <p class="hero__d t-num"><span class="hero__dp">D+</span><span id="heroD">0</span></p>
-            <p class="t-body-03 hero__since" id="heroSince"></p>
-            <div class="together">
-              <p class="t-label-03 together__label">함께한 시간</p>
-              <div class="together__grid">
-                <div><strong class="t-num" id="tWeeks">0</strong><span id="tWeeksSub">주</span></div>
-                <div><strong class="t-num" id="tHours">0</strong><span>시간</span></div>
-                <div><strong class="t-num" id="tMins">0</strong><span>분 <i class="tick" aria-hidden="true"></i></span></div>
-              </div>
+        <div class="stack gap-24 room">
+          <figure class="pola pola--hero" id="hero">
+            <span class="tape" aria-hidden="true"></span>
+            <div class="pola__photo">
+              <span class="pola__kicker hand">우리</span>
+              <p class="hero__d"><span class="odo" id="heroD">D+0</span></p>
+              <span class="pola__date" id="heroImprint"></span>
+            </div>
+            <figcaption class="pola__cap">
+              <span class="hand pola__names" id="heroNames"></span>
+              <span class="t-caption-01 t-tertiary" id="heroSince"></span>
+            </figcaption>
+          </figure>
+
+          <div class="stub" aria-label="함께한 시간">
+            <p class="stub__label t-label-03">함께한 시간</p>
+            <div class="stub__row">
+              <div><strong class="t-num" id="tWeeks">0</strong><span id="tWeeksSub">주</span></div>
+              <div><strong class="t-num" id="tHours">0</strong><span>시간</span></div>
+              <div><strong class="t-num"><span id="tMins">0</span></strong><span>분 · 지금도 흐르는 중</span></div>
             </div>
           </div>
 
-          <div class="next card" id="nextCard"></div>
+          <div class="next" id="nextCard"></div>
 
           <div class="tabs" role="tablist">
             <button class="tabs__btn" role="tab" data-tab="q" aria-selected="true">오늘의 질문</button>
@@ -173,20 +181,20 @@
           </div>
 
           <div class="panel" data-panel="days" hidden>
-            <p class="t-caption-01 t-tertiary">100일 단위는 사귄 날을 1일로, 주년은 같은 날짜로 계산해요. 날짜를 누르면 캘린더에 넣을 수 있어요.</p>
+            <p class="t-caption-01 t-tertiary">100일 단위는 사귄 날을 1일로, 주년은 같은 날짜로 계산해요. 줄을 누르면 캘린더에 넣을 수 있어요.</p>
             <ol class="ann-list" id="annList"></ol>
             <button class="btn btn--ghost btn--block" id="togglePast">지난 기념일 보기</button>
           </div>
 
           <div class="panel" data-panel="album" hidden>
-            <div class="streak card card--flat" id="streak"></div>
+            <div class="streak" id="streak"></div>
             <ol class="album" id="album"></ol>
           </div>
 
-          <div class="share-box card card--flat stack gap-12">
-            <p class="t-title-04">우리 기록 자랑하기</p>
+          <div class="share-box stack gap-12">
+            <p class="t-title-04">우리 기록 남기기</p>
             <div class="row gap-8">
-              <button class="btn btn--secondary grow" id="saveCard">카드 저장 🖼️</button>
+              <button class="btn btn--outline grow" id="saveCard">사진 카드 저장</button>
               <button class="btn btn--primary grow" id="shareRoom">방 링크 보내기</button>
             </div>
             <p class="t-caption-01 t-tertiary">방 링크를 받은 상대는 같은 방에 들어와 같이 질문에 답할 수 있어요.</p>

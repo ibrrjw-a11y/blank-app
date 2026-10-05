@@ -2,10 +2,19 @@
 import { haptic, CANVAS_FONT, roundRect } from "../shared/kit.js";
 
 // 구슬 색 (캔버스 일러스트 장식색 — 플레이어 식별용)
-export const PALETTE = [
-  "#ff5a3c", "#3da5ff", "#2ed47a", "#ffc43d", "#b46bff", "#ff4fa3",
-  "#21d4c6", "#ff8a3d", "#8f9bff", "#9be15d", "#f2f4f8", "#ff7a8a",
+// 실제 값은 style.css 의 --art-p1 ~ --art-p12 (아래는 CSS 를 못 읽을 때 대비)
+const FALLBACK = [
+  "#ff5a3c", "#29b6f6", "#3ddc84", "#ffd23f", "#ff4fb4", "#f4f6f9",
+  "#19d3c5", "#ff9a2e", "#9fb4c8", "#a6e22e", "#ff7a8a", "#2f7bff",
 ];
+export const PALETTE = (() => {
+  try {
+    const cs = getComputedStyle(document.documentElement);
+    return FALLBACK.map((f, i) => cs.getPropertyValue(`--art-p${i + 1}`).trim() || f);
+  } catch {
+    return FALLBACK;
+  }
+})();
 
 export const ITEMS = {
   boost: { emoji: "🚀", label: "부스트", desc: "내 구슬을 앞으로 쭉" },
@@ -81,7 +90,28 @@ export function readTokens() {
     danger: v("--color-danger"),
     success: v("--color-success"),
     warning: v("--color-warning"),
+    asphalt: v("--art-asphalt") || v("--color-surface"),
+    line: v("--art-line") || v("--color-border"),
+    chalk: v("--art-chalk") || v("--color-text"),
+    display: `${v("--font-display") || CANVAS_FONT}`,
+    num: `${v("--art-font-num") || CANVAS_FONT}`,
   };
+}
+
+/* ---------- 모션 도우미 ---------- */
+// 오버슈트 스프링 (0→1, 약 12% 튀었다 자리 잡음)
+export const spring = (t) => (t <= 0 ? 0 : t >= 1.6 ? 1 : 1 - Math.exp(-7 * t) * Math.cos(10.5 * t));
+// 착지 스쿼시 양 (τ초 경과) — 양수면 납작, 음수면 길쭉
+export const squashAmt = (tau, amp = 0.35) => (tau < 0 ? 0 : amp * Math.exp(-7 * tau) * Math.cos(16 * tau));
+
+// 기울어진 방송 그래픽 판 (평행사변형)
+export function slant(ctx, x, y, w, h, k = 8) {
+  ctx.beginPath();
+  ctx.moveTo(x + k, y);
+  ctx.lineTo(x + w + k, y);
+  ctx.lineTo(x + w - k, y + h);
+  ctx.lineTo(x - k, y + h);
+  ctx.closePath();
 }
 
 /* ---------- 해설 (읽을 수 있게 간격 조절) ---------- */
@@ -123,33 +153,43 @@ export function createCaster() {
 export function drawCaption(ctx, cap, w, y, tk) {
   if (!cap) return;
   ctx.save();
-  ctx.globalAlpha = cap.alpha;
+  const intro = Math.min(1, cap.age / 0.32);
+  const sp = spring(cap.age / 0.5);
+  ctx.globalAlpha = Math.min(1, (2.6 - cap.age) / 0.3);
   let size = 15;
   ctx.font = `700 ${size}px ${CANVAS_FONT}`;
-  const text = `🎙️ ${cap.text}`;
-  let tw = ctx.measureText(text).width;
-  while (tw > w - 48 && size > 11) {
+  let tw = ctx.measureText(cap.text).width;
+  const tagW = 50;
+  while (tw > w - tagW - 48 && size > 11) {
     size -= 1;
     ctx.font = `700 ${size}px ${CANVAS_FONT}`;
-    tw = ctx.measureText(text).width;
+    tw = ctx.measureText(cap.text).width;
   }
+  const h = size + 20;
+  const x0 = 14;
   const pw = tw + 28;
-  const ph = size + 18;
-  const x = (w - pw) / 2;
-  const pop = 1 + Math.max(0, 0.12 - cap.age) * 1.2;
-  ctx.translate(w / 2, y + ph / 2);
-  ctx.scale(pop, pop);
-  ctx.translate(-w / 2, -(y + ph / 2));
-  roundRect(ctx, x, y, pw, ph, ph / 2);
-  ctx.fillStyle = "rgba(8,9,12,0.78)";
+  // 태그 (먼저 들어오고) → 본문 판이 사선으로 닦이며 열림
+  ctx.translate((1 - sp) * -80, 0);
+  slant(ctx, x0, y, tagW, h, 6);
+  ctx.fillStyle = tk.brand;
   ctx.fill();
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = tk.brand;
-  ctx.stroke();
-  ctx.fillStyle = tk.text;
+  ctx.fillStyle = "#fff";
+  ctx.font = `800 ${size}px ${tk.display}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(text, w / 2, y + ph / 2 + 1);
+  ctx.fillText("중계", x0 + tagW / 2, y + h / 2 + 1);
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x0 + tagW, y - 2, (pw + 20) * intro, h + 4);
+  ctx.clip();
+  slant(ctx, x0 + tagW + 2, y, pw, h, 6);
+  ctx.fillStyle = tk.chalk;
+  ctx.fill();
+  ctx.fillStyle = tk.bg;
+  ctx.font = `700 ${size}px ${CANVAS_FONT}`;
+  ctx.textAlign = "left";
+  ctx.fillText(cap.text, x0 + tagW + 16, y + h / 2 + 1);
+  ctx.restore();
   ctx.restore();
 }
 
@@ -255,29 +295,40 @@ export function escapeHtml(s) {
 }
 
 /* ---------- 구슬 그리기 (레이스·배틀·인트로 공용) ---------- */
-export function drawMarble(ctx, x, y, r, color, letter, rot = 0, tk) {
-  const g = ctx.createRadialGradient(x - r * 0.4, y - r * 0.45, r * 0.15, x, y, r);
-  g.addColorStop(0, "rgba(255,255,255,0.95)");
-  g.addColorStop(0.22, color);
-  g.addColorStop(1, shade(color, -0.45));
+export function drawMarble(ctx, x, y, r, color, letter, rot = 0, tk, sx = 1, sy = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(sx, sy);
   ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = g;
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fillStyle = color;
   ctx.fill();
-  ctx.lineWidth = Math.max(1, r * 0.1);
-  ctx.strokeStyle = "rgba(0,0,0,0.35)";
+  // 평면 음영: 아래쪽 반달 + 위쪽 하이라이트
+  ctx.save();
+  ctx.clip();
+  ctx.beginPath();
+  ctx.arc(r * 0.35, r * 0.45, r * 1.05, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(0,0,0,0.22)";
+  ctx.fill();
+  ctx.restore();
+  ctx.beginPath();
+  ctx.ellipse(-r * 0.38, -r * 0.42, r * 0.28, r * 0.16, -0.6, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.fill();
+  ctx.lineWidth = Math.max(1.2, r * 0.12);
+  ctx.strokeStyle = "rgba(0,0,0,0.55)";
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.stroke();
   if (letter) {
-    ctx.save();
-    ctx.translate(x, y);
     ctx.rotate(rot);
     ctx.font = `800 ${Math.round(r * 1.05)}px ${CANVAS_FONT}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = "rgba(10,12,16,0.85)";
+    ctx.fillStyle = "rgba(10,12,16,0.88)";
     ctx.fillText(letter, 0, r * 0.06);
-    ctx.restore();
   }
+  ctx.restore();
 }
 
 // #rrggbb 밝기 조정 (일러스트 내부 음영용)

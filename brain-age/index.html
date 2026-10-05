@@ -10,7 +10,7 @@
     />
     <meta name="keywords" content="반응속도 테스트, 뇌 나이 테스트, 신체나이 테스트, 순발력 테스트, 기억력 테스트, 청력 테스트, 귀 나이, 고주파 테스트, 뇌 나이" />
     <link rel="canonical" href="https://example.com/brain-age/" />
-    <meta name="theme-color" content="#0a0c10" />
+    <meta name="theme-color" content="#0d0f0e" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:url" content="https://example.com/brain-age/" />
@@ -20,6 +20,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@600;700&display=swap" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="application/ld+json">
@@ -65,17 +67,18 @@
       <!-- 1) 첫 화면: 회로 뇌 모션그래픽 -->
       <section class="intro" id="intro" data-view="intro">
         <header class="intro-head">
-          <h1 class="t-label-01 intro-head__brand"><span aria-hidden="true">🧠</span> 뇌 나이 측정소</h1>
-          <span class="badge">재미용 측정</span>
+          <h1 class="intro-head__brand"><span class="mono intro-head__model">BA-05</span>뇌 나이 측정소</h1>
+          <span class="tag mono">재미용 측정</span>
         </header>
-        <div class="intro__stage" aria-hidden="true"></div>
-        <div class="intro__steps"></div>
-        <div class="intro__caption" aria-live="polite"></div>
+        <p class="intro__title"></p>
+        <p class="intro__desc t-body-03"></p>
+        <div class="intro__panel"></div>
+        <div class="intro__ticks" aria-hidden="true"></div>
         <div class="intro__cta">
           <div class="challenge" id="challengeIntro" hidden></div>
           <p class="intro-nudge t-label-02" id="nudge" hidden></p>
-          <button class="btn btn--primary btn--lg btn--block" id="start">측정 시작 (약 2분)</button>
-          <button class="btn btn--ghost btn--block" id="openHistory" hidden>내 기록 보기</button>
+          <button class="btn btn--primary btn--lg btn--block btn--spring" id="start">측정 시작 (약 2분)</button>
+          <button class="btn btn--ghost btn--block" id="openHistory" hidden>지난 성적서 보기</button>
         </div>
       </section>
 
@@ -133,21 +136,21 @@
           즐기고, 부모님이나 친구에게 도전장을 보내 같이 해보세요.
         </p>
 
-        <h3>⚡ 반응속도 테스트 (순발력 테스트)</h3>
+        <h3>CH1 반응속도 테스트 (순발력 테스트)</h3>
         <p>
           화면이 초록색으로 바뀌는 순간 탭해요. 5번 재고 가장 느린 1번을 뺀 평균을 써요. 초록색이 되기 전에 누르면 다시 하고 30ms를 더해요.
         </p>
-        <h3>🧩 순간기억 (기억력 테스트)</h3>
+        <h3>CH2 순간기억 (기억력 테스트)</h3>
         <p>3×3 칸에 불이 들어오는 순서를 기억해서 똑같이 눌러요. 맞힐 때마다 순서가 한 칸씩 길어지고, 따라 누른 최대 길이가 점수예요.</p>
-        <h3>🎨 색 구분 테스트</h3>
+        <h3>CH3 색 구분 테스트</h3>
         <p>여러 칸 가운데 색이 살짝 다른 한 칸을 찾아요. 단계가 오를수록 칸은 많아지고 색 차이는 작아져요. 30초 동안 통과한 단계 수가 점수예요.</p>
-        <h3>👂 고주파 청력 테스트 (귀 나이)</h3>
+        <h3>CH4 고주파 청력 테스트 (귀 나이)</h3>
         <p>
           8kHz에서 19kHz까지 점점 높아지는 소리가 들리는지 답해요. 나이가 들수록 높은 소리부터 덜 들리는 경향이 있다고 알려져 있어서 흔히
           "귀 나이 테스트"라고 불러요. 중간에 소리가 없는 문제를 하나 섞어 "들려요"를 습관처럼 누르는지 확인해요. 볼륨은 중간 이하로, 가능하면
           이어폰으로 해주세요.
         </p>
-        <h3>🔢 순간계산</h3>
+        <h3>CH5 순간계산</h3>
         <p>한 자리·두 자리 덧셈, 뺄셈, 곱셈을 숫자 패드로 30초 동안 풀어요. 맞힌 개수가 점수예요.</p>
 
         <h3>반응속도 평균은 어느 정도인가요?</h3>

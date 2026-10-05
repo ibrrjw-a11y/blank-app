@@ -24,6 +24,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌙</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&display=swap" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="preload" href="dreams.json" as="fetch" crossorigin />
@@ -55,6 +56,12 @@
     </script>
   </head>
   <body>
+    <svg class="ink-defs" aria-hidden="true" focusable="false">
+      <filter id="ink-rough" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" />
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
     <main class="app">
       <header class="topbar">
         <a class="topbar__brand" href="./" id="home"><span aria-hidden="true">🌙</span> 꿈 사주</a>

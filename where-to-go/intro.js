@@ -1,79 +1,173 @@
-// 첫 화면 모션그래픽: 지도 → 핀 3개 → 중간지점 → 대진표 → 충돌 → 왕관
+// 첫 화면 모션그래픽 — 지하철 노선도·역명판·발차 안내판 장르
+// 1) 2호선 위 세 역(신촌·왕십리·사당)에 핀이 눌렸다 튀며 떨어짐
+// 2) 각자의 노선이 그려지며 중간역(이태원)에서 만남 + 역명판 리빌
+// 3) 발차 안내판에 후보가 플랩처럼 뜨고, 오른쪽에 노선도식 대진선이 그려짐
+// 4) 두 역명판이 투표(+1) → 예비동작 → 충돌(스쿼시) → 패자 탈선 → 왕관 착지
 import { runIntro, prefersReducedMotion } from "../shared/kit.js";
 
-const W = 340;
-const H = 340;
-const PINS = [
-  { x: 64, y: 92, name: "지민", c: 1 },
-  { x: 278, y: 118, name: "도윤", c: 2 },
-  { x: 150, y: 276, name: "나", c: 0 },
-];
-const MID = { x: 164, y: 162 };
-const CARDS = [
-  ["🍜", "쌀국수"], ["🍲", "김치찌개"], ["🍣", "초밥"], ["🍝", "파스타"],
-  ["🍔", "수제버거"], ["🥘", "부대찌개"], ["🍛", "카레"], ["🥗", "샐러드"],
-];
-// 대진표 칸 (좌 4, 우 4)
-const SLOTS = CARDS.map((_, i) => ({
-  x: i < 4 ? 8 : W - 8 - 104,
-  y: 44 + (i % 4) * 64,
-}));
+export const SPRING =
+  "linear(0, 0.161, 0.362, 0.577, 0.781, 0.959, 1.1, 1.199, 1.258, 1.279, 1.269, 1.237, 1.19, 1.136, 1.082, 1.033, 0.992, 0.961, 0.941, 0.931, 0.929, 0.935, 0.945, 0.958, 0.972, 0.985, 0.997, 1.006, 1.013, 1.017, 1.018, 1.018, 1.015, 1.012, 1.009, 1.006, 1.002, 1, 0.998, 0.996, 1)";
+export const SPRING_SOFT =
+  "linear(0, 0.185, 0.368, 0.538, 0.688, 0.813, 0.912, 0.988, 1.041, 1.075, 1.094, 1.101, 1.099, 1.091, 1.08, 1.066, 1.052, 1.039, 1.027, 1.017, 1.009, 1.003, 0.998, 0.995, 0.993, 0.993, 0.993, 0.993, 0.994, 0.995, 0.996, 0.997, 0.998, 0.998, 0.999, 1, 1)";
+const IN_OUT = "cubic-bezier(0.65, 0, 0.35, 1)";
+const FALL = "cubic-bezier(0.55, 0, 1, 0.45)";
+const OUT = "cubic-bezier(0.16, 1, 0.3, 1)";
 
-function mapSVG() {
-  return `<svg class="wi-map" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-    <rect class="wi-map__bg" width="${W}" height="${H}" rx="28"/>
-    <path class="wi-map__river" d="M-10 214 C 60 190, 110 236, 180 222 S 300 186, 350 206 L 350 246 C 290 226, 240 262, 180 258 S 60 230, -10 252 Z"/>
-    <ellipse class="wi-map__park" cx="262" cy="292" rx="54" ry="30"/>
-    <ellipse class="wi-map__park" cx="58" cy="40" rx="44" ry="24"/>
-    <g class="wi-map__blocks">
-      <rect x="22" y="112" width="70" height="44" rx="8"/><rect x="108" y="40" width="64" height="56" rx="8"/>
-      <rect x="196" y="36" width="56" height="42" rx="8"/><rect x="196" y="140" width="62" height="46" rx="8"/>
-      <rect x="22" y="266" width="58" height="48" rx="8"/><rect x="96" y="120" width="40" height="40" rx="8"/>
-      <rect x="276" y="148" width="50" height="40" rx="8"/><rect x="186" y="280" width="34" height="38" rx="8"/>
-    </g>
-    <g class="wi-map__roads">
-      <path d="M0 100 H 340"/><path d="M0 196 H 340"/><path d="M182 0 V 340"/><path d="M90 0 L 150 340"/>
-      <path class="wi-map__road--s" d="M0 60 C 120 80, 220 30, 340 54"/><path class="wi-map__road--s" d="M260 0 L 300 340"/>
-    </g>
-  </svg>`;
+const W = 340;
+const H = 360;
+// 실제 위치 관계를 단순화한 좌표 (신촌·왕십리·사당은 모두 2호선, 이태원은 6호선)
+const PINS = [
+  { x: 62, y: 142, name: "지민", st: "신촌", line: "l3", tag: "left" },
+  { x: 282, y: 124, name: "도윤", st: "왕십리", line: "l4", tag: "right" },
+  { x: 160, y: 296, name: "나", st: "사당", line: "l2", tag: "below" },
+];
+const MID = { x: 188, y: 176 };
+// 직선거리 근사치 (geo.js 계산과 같은 방식): 신촌 5.6km, 왕십리 4.8km, 사당 6.5km
+const KM = ["5.6km", "4.8km", "6.5km"];
+const CANDS = [
+  ["한", "l2", "김치찌개", "국물"],
+  ["아", "l7", "쌀국수", "국물"],
+  ["일", "l4", "돈까스", "든든"],
+  ["중", "sb", "마라탕", "매운"],
+  ["양", "l3", "파스타", "가벼운"],
+  ["한", "l2", "제육볶음", "매운"],
+  ["일", "l4", "초밥", "₩₩₩"],
+  ["양", "l3", "수제버거", "든든"],
+];
+const ROW0 = 86;
+const ROWH = 30;
+
+// 대각선(45°) 먼저, 그다음 직선으로 가는 노선 경로
+function routePath(a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const d = Math.min(Math.abs(dx), Math.abs(dy));
+  const cx = a.x + Math.sign(dx) * d;
+  const cy = a.y + Math.sign(dy) * d;
+  return `M${a.x} ${a.y} L${cx} ${cy} L${b.x} ${b.y}`;
+}
+
+function bracketPaths() {
+  const out = [];
+  const ys = CANDS.map((_, i) => ROW0 + i * ROWH);
+  const x0 = 256, x1 = 274, x2 = 292, x3 = 310;
+  const mids1 = [];
+  for (let i = 0; i < 8; i += 2) {
+    const m = (ys[i] + ys[i + 1]) / 2;
+    mids1.push(m);
+    out.push({ d: `M${x0} ${ys[i]} H${x1 - 6} Q${x1} ${ys[i]} ${x1} ${ys[i] + 6} V${m}`, c: CANDS[i][1] });
+    out.push({ d: `M${x0} ${ys[i + 1]} H${x1 - 6} Q${x1} ${ys[i + 1]} ${x1} ${ys[i + 1] - 6} V${m}`, c: CANDS[i + 1][1] });
+  }
+  const mids2 = [];
+  for (let k = 0; k < 4; k += 2) {
+    const m = (mids1[k] + mids1[k + 1]) / 2;
+    mids2.push(m);
+    out.push({ d: `M${x1} ${mids1[k]} H${x2} V${m}`, c: "l2" });
+    out.push({ d: `M${x1} ${mids1[k + 1]} H${x2} V${m}`, c: "l2" });
+  }
+  const fin = (mids2[0] + mids2[1]) / 2;
+  out.push({ d: `M${x2} ${mids2[0]} H${x3} V${fin}`, c: "l2" });
+  out.push({ d: `M${x2} ${mids2[1]} H${x3} V${fin}`, c: "l2" });
+  return { paths: out, dots: [...mids1.map((y) => [x1, y]), ...mids2.map((y) => [x2, y])], fin: [x3, fin] };
 }
 
 function build(stage) {
+  const br = bracketPaths();
   stage.innerHTML = `
-    <div class="wi">
-      ${mapSVG()}
-      <svg class="wi-lines" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-        ${PINS.map((p) => `<line x1="${p.x}" y1="${p.y}" x2="${p.x}" y2="${p.y}" style="--c: var(--pc-${p.c})"/>`).join("")}
-      </svg>
-      <svg class="wi-bracket" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-        ${[0, 1].map((side) => {
-          const x0 = side ? W - 112 : 112;
-          const dx = side ? -18 : 18;
-          return [0, 1].map((k) => {
-            const y1 = 44 + k * 128 + 17, y2 = y1 + 64;
-            return `<path pathLength="1" d="M${x0} ${y1} H${x0 + dx} V${y2} H${x0}"/><path pathLength="1" d="M${x0 + dx} ${(y1 + y2) / 2} H${x0 + dx * 2}"/>`;
-          }).join("") + `<path pathLength="1" d="M${x0 + dx * 2} ${44 + 49} V${44 + 128 + 49} M${x0 + dx * 2} ${44 + 113} H${x0 + dx * 3}"/>`;
+  <div class="wi">
+    <svg class="wi-svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+      <rect class="wi-bg" width="${W}" height="${H}" rx="20"/>
+      <g class="wi-map">
+        <path class="wi-river" d="M-10 214 C 60 196, 120 236, 200 222 S 310 196, 350 206 L 350 244 C 300 230, 250 262, 190 258 S 60 236, -10 252 Z"/>
+        <text class="wi-river__t" x="300" y="236" text-anchor="end">한강</text>
+        <path class="wi-ln" style="--l: var(--art-l4)" pathLength="1" d="M150 370 V318 L118 286 V140 L96 118 V-10"/>
+        <path class="wi-ln" style="--l: var(--art-l6)" pathLength="1" d="M-10 150 H104 L130 176 H350"/>
+        <path class="wi-ln wi-ln--main" style="--l: var(--art-l2)" pathLength="1" d="M104 84 H240 Q282 84 282 126 V254 Q282 296 240 296 H104 Q62 296 62 254 V126 Q62 84 104 84 Z"/>
+        <g class="wi-stations">
+          ${PINS.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="6"/>`).join("")}
+          <circle cx="${MID.x}" cy="${MID.y}" r="5"/>
+        </g>
+        <text class="wi-linelabel" x="76" y="78">2</text>
+      </g>
+      <g class="wi-legs">
+        ${PINS.map((p) => `<path class="wi-leg-case" pathLength="1" d="${routePath(p, MID)}"/>`).join("")}
+        ${PINS.map((p) => `<path class="wi-leg" pathLength="1" style="--l: var(--art-${p.line})" d="${routePath(p, MID)}"/>`).join("")}
+      </g>
+      <g class="wi-kms">
+        ${PINS.map((p, i) => {
+          const pos = [
+            [112, 192],
+            [246, 104],
+            [216, 254],
+          ][i];
+          return `<g transform="translate(${pos[0]} ${pos[1]})"><g class="wi-km"><rect x="-25" y="-11" width="50" height="22" rx="4"/><text y="4.5" text-anchor="middle">${KM[i]}</text></g></g>`;
         }).join("")}
-      </svg>
-      <div class="wi-mid" style="left:${MID.x}px; top:${MID.y}px">
-        <span class="wi-mid__ring"></span><span class="wi-mid__ring wi-mid__ring--2"></span>
-        <span class="wi-mid__dot"></span>
-        <span class="wi-mid__label">중간 지점</span>
-      </div>
-      ${PINS.map((p, i) => `
-        <div class="wi-pin" data-i="${i}" style="left:${p.x}px; top:${p.y}px; --c: var(--pc-${p.c})">
-          <span class="wi-pin__shadow"></span>
-          <span class="wi-pin__body"><span class="wi-pin__head">${p.name.slice(0, 1)}</span></span>
-          <span class="wi-pin__name">${p.name}</span>
-        </div>`).join("")}
-      ${CARDS.map(([e, n], i) => `<div class="wi-card" data-i="${i}"><span>${e}</span>${n}</div>`).join("")}
-      <div class="wi-duel wi-duel--a"><span class="wi-duel__e">🍲</span><b>김치찌개</b></div>
-      <div class="wi-duel wi-duel--b"><span class="wi-duel__e">🍜</span><b>쌀국수</b></div>
-      <div class="wi-vs">VS</div>
-      <div class="wi-crown">👑</div>
-      <div class="wi-spark">${Array.from({ length: 10 }, (_, i) => `<i></i>`).join("")}</div>
-    </div>`;
+      </g>
+      <g transform="translate(${MID.x} ${MID.y})"><g class="wi-xfer"><circle r="12"/><circle class="wi-xfer__in" r="4"/></g></g>
+
+      <g class="wi-board">
+        <rect class="wi-board__bg" x="12" y="36" width="${W - 24}" height="${H - 68}" rx="12"/>
+        <text class="wi-board__h" x="28" y="62">이태원 근처 · 후보 8</text>
+        <text class="wi-board__h wi-board__h--r" x="${W - 28}" y="62" text-anchor="end">대진</text>
+        ${CANDS.map(([g, l, n, t], i) => `
+          <g transform="translate(28 ${ROW0 + i * ROWH})"><g class="wi-row">
+            <circle r="10" cx="10" style="fill: var(--art-${l})"/><text class="wi-row__g" x="10" y="4" text-anchor="middle">${g}</text>
+            <text class="wi-row__n" x="30" y="5">${n}</text>
+            <text class="wi-row__t" x="220" y="5" text-anchor="end">${t}</text>
+          </g></g>`).join("")}
+        <g class="wi-br">
+          ${br.paths.map((p) => `<path pathLength="1" style="--l: var(--art-${p.c})" d="${p.d}"/>`).join("")}
+          ${br.dots.map(([x, y]) => `<g transform="translate(${x} ${y})"><circle class="wi-br__dot" r="4.5"/></g>`).join("")}
+          <g transform="translate(${br.fin[0]} ${br.fin[1]})"><circle class="wi-br__fin" r="8"/></g>
+        </g>
+      </g>
+    </svg>
+
+    ${PINS.map((p, i) => `
+      <div class="wi-pin" data-i="${i}" style="left:${p.x}px; top:${p.y}px; --l: var(--art-${p.line})">
+        <span class="wi-pin__shadow"></span>
+        <span class="wi-pin__body"><span class="wi-pin__head">${p.name.slice(0, 1)}</span></span>
+        <span class="wi-tag wi-tag--${p.tag}"><b>${p.name}</b>${p.st}</span>
+      </div>`).join("")}
+
+    <div class="wi-sign" style="left:${MID.x}px; top:${MID.y + 20}px">
+      <span class="wi-sign__lb">6</span><b>이태원</b><span class="wi-sign__sub">중간역</span>
+    </div>
+
+    <div class="wi-duel wi-duel--a" style="--l: var(--art-l2)">
+      <span class="wi-duel__lb">한</span><b>김치찌개</b><span class="wi-duel__bar">국물 · 매운</span>
+      <span class="wi-vote" style="left: 38%">+1</span><span class="wi-vote" style="left: 64%">+1</span>
+    </div>
+    <div class="wi-duel wi-duel--b" style="--l: var(--art-l7)">
+      <span class="wi-duel__lb">아</span><b>쌀국수</b><span class="wi-duel__bar">국물 · 가벼운</span>
+      <span class="wi-vote" style="left: 50%">+1</span>
+    </div>
+    <div class="wi-vs">VS</div>
+    <div class="wi-score">2 : 1</div>
+    <div class="wi-crown">👑</div>
+    <div class="wi-spark">${Array.from({ length: 8 }, () => "<i></i>").join("")}</div>
+  </div>`;
   return stage.querySelector(".wi");
+}
+
+// 헤드라인 글자 단위 분해 → 스프링으로 튀어 오름
+function kinetic(root, reduce) {
+  const h = root.querySelector(".intro__caption h2");
+  if (!h || reduce) return;
+  const text = h.textContent;
+  h.innerHTML = text
+    .split(" ")
+    .map((w) => `<span class="kw">${[...w].map((c) => `<span class="kc">${c}</span>`).join("")}</span>`)
+    .join(" ");
+  h.querySelectorAll(".kc").forEach((c, i) => {
+    c.animate(
+      [
+        { transform: "translateY(110%) rotate(12deg) scaleY(1.4)", opacity: 0 },
+        { transform: "translateY(0) rotate(0) scaleY(1)", opacity: 1 },
+      ],
+      { duration: 760, delay: i * 30, easing: SPRING, fill: "backwards" }
+    );
+  });
 }
 
 export function startIntro(root) {
@@ -83,152 +177,157 @@ export function startIntro(root) {
   const qa = (s) => Array.from(wi.querySelectorAll(s));
   const reduce = prefersReducedMotion();
   let live = [];
-  let rafs = [];
 
   const A = (el, frames, opts) => {
-    const a = el.animate(frames, { fill: "both", easing: "cubic-bezier(0.2, 0, 0, 1)", ...opts, duration: reduce ? 1 : opts.duration });
+    if (!el) return null;
+    const a = el.animate(frames, { fill: "both", easing: OUT, ...opts, duration: reduce ? 1 : opts.duration, delay: reduce ? 0 : opts.delay || 0 });
     live.push(a);
     return a;
   };
-  const clear = () => {
+  const clear = (scene) => {
     live.forEach((a) => a.cancel());
     live = [];
-    rafs.forEach(cancelAnimationFrame);
-    rafs = [];
-    wi.className = "wi";
+    wi.dataset.scene = scene;
   };
-  const setLines = (t) => {
-    qa(".wi-lines line").forEach((l, i) => {
-      const p = PINS[i];
-      const k = Math.max(0, Math.min(1, t[i] ?? t));
-      l.setAttribute("x2", p.x + (MID.x - p.x) * k);
-      l.setAttribute("y2", p.y + (MID.y - p.y) * k);
-    });
-  };
-  const growLines = (signal) => {
-    const t0 = performance.now();
-    const step = (now) => {
-      if (signal.aborted) return;
-      const ts = PINS.map((_, i) => {
-        const t = Math.max(0, Math.min(1, (now - t0 - i * 160) / 700));
-        return reduce ? 1 : 1 - Math.pow(1 - t, 3);
-      });
-      setLines(ts);
-      if (ts.some((t) => t < 1)) rafs.push(requestAnimationFrame(step));
-    };
-    rafs.push(requestAnimationFrame(step));
+  const draw = (el, delay, duration = 700, easing = IN_OUT) =>
+    A(el, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration, delay, easing });
+
+  const dropPin = (pin, delay) => {
+    const body = pin.querySelector(".wi-pin__body");
+    A(body, [
+      { transform: "translateY(-190px) scale(0.92, 1.12)", opacity: 0, offset: 0 },
+      { transform: "translateY(-170px) scale(0.92, 1.12)", opacity: 1, offset: 0.08, easing: FALL },
+      { transform: "translateY(0) scale(0.86, 1.22)", offset: 0.42 },
+      { transform: "translateY(0) scale(1.38, 0.62)", offset: 0.5, easing: OUT },
+      { transform: "translateY(-26px) scale(0.9, 1.12)", offset: 0.66, easing: "cubic-bezier(0.5, 0, 0.75, 0)" },
+      { transform: "translateY(0) scale(1.14, 0.86)", offset: 0.8, easing: OUT },
+      { transform: "translateY(-4px) scale(0.98, 1.02)", offset: 0.9 },
+      { transform: "translateY(0) scale(1, 1)", opacity: 1, offset: 1 },
+    ], { duration: 1000, delay, easing: "ease" });
+    A(pin.querySelector(".wi-pin__shadow"), [
+      { transform: "translateX(-50%) scale(0.2)", opacity: 0 },
+      { transform: "translateX(-50%) scale(1.5)", opacity: 1, offset: 0.5 },
+      { transform: "translateX(-50%) scale(1)", opacity: 1 },
+    ], { duration: 900, delay: delay + 120 });
+    A(pin.querySelector(".wi-tag"), [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 420, delay: delay + 560 });
   };
 
   const scenes = [
     {
-      title: "친구들 위치를 찍으면",
-      desc: "각자 있는 역이나 내 위치만 넣으면 돼요",
-      duration: 3000,
-      play(_, signal) {
-        clear();
-        wi.classList.add("is-s1");
-        setLines(0);
-        A(q(".wi-map"), [{ transform: "scale(1.08)", opacity: 0.4 }, { transform: "scale(1)", opacity: 1 }], { duration: 900 });
-        qa(".wi-pin").forEach((pin, i) => {
-          const body = pin.querySelector(".wi-pin__body");
-          const sh = pin.querySelector(".wi-pin__shadow");
-          const nm = pin.querySelector(".wi-pin__name");
-          const delay = 300 + i * 260;
-          A(body, [
-            { transform: "translateY(-150px)", opacity: 0, offset: 0 },
-            { transform: "translateY(0)", opacity: 1, offset: 0.55, easing: "cubic-bezier(0.3,0,0.6,1)" },
-            { transform: "translateY(-18px)", offset: 0.72, easing: "cubic-bezier(0.2,0,0,1)" },
-            { transform: "translateY(0)", offset: 0.86 },
-            { transform: "translateY(-4px)", offset: 0.93 },
-            { transform: "translateY(0)", opacity: 1, offset: 1 },
-          ], { duration: 900, delay, easing: "linear" });
-          A(sh, [{ transform: "translateX(-50%) scale(0.2)", opacity: 0 }, { transform: "translateX(-50%) scale(1)", opacity: 1 }], { duration: 500, delay: delay + 300 });
-          A(nm, [{ opacity: 0, transform: "translate(-50%, 4px)" }, { opacity: 1, transform: "translate(-50%, 0)" }], { duration: 300, delay: delay + 600 });
-        });
-        void signal;
+      title: "출발역만 찍으면",
+      desc: "친구마다 있는 역이나 내 위치를 넣어요",
+      duration: 3100,
+      play() {
+        clear("1");
+        kinetic(root, reduce);
+        qa(".wi-ln").forEach((p, i) => draw(p, i * 140, 1000));
+        A(q(".wi-stations"), [{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: 700 });
+        qa(".wi-pin").forEach((pin, i) => dropPin(pin, 900 + i * 230));
       },
     },
     {
-      title: "딱 중간 지점을 찾아줘요",
-      desc: "모두의 무게중심에서 가장 가까운 역을 골라요",
-      duration: 3200,
-      play(_, signal) {
-        clear();
-        wi.classList.add("is-s2");
-        setLines(0);
-        growLines(signal);
-        const mid = q(".wi-mid");
-        A(mid.querySelector(".wi-mid__dot"), [{ transform: "translate(-50%,-50%) scale(0)" }, { transform: "translate(-50%,-50%) scale(1.4)", offset: 0.6 }, { transform: "translate(-50%,-50%) scale(1)" }], { duration: 600, delay: 900, easing: "cubic-bezier(0.3,0,0,1.2)" });
-        A(mid.querySelector(".wi-mid__label"), [{ opacity: 0, transform: "translate(-50%, 6px) scale(.9)" }, { opacity: 1, transform: "translate(-50%, 0) scale(1)" }], { duration: 400, delay: 1300 });
-        qa(".wi-mid__ring").forEach((r, i) =>
-          A(r, [{ transform: "translate(-50%,-50%) scale(0.3)", opacity: 0.9 }, { transform: "translate(-50%,-50%) scale(2.6)", opacity: 0 }], { duration: 1400, delay: 1000 + i * 700, iterations: reduce ? 1 : Infinity, easing: "cubic-bezier(0,0,0.2,1)" })
+      title: "딱 중간역이 나와요",
+      desc: "신촌·왕십리·사당이면 이태원. 직선거리까지 보여줘요",
+      duration: 3300,
+      play() {
+        clear("2");
+        kinetic(root, reduce);
+        qa(".wi-leg-case").forEach((p, i) => draw(p, 150 + i * 160, 800));
+        qa(".wi-leg").forEach((p, i) => draw(p, 150 + i * 160, 800));
+        A(q(".wi-xfer"), [{ transform: "scale(0)" }, { transform: "scale(1)" }], { duration: 800, delay: 1050, easing: SPRING });
+        A(q(".wi-sign"), [
+          { clipPath: "inset(0 50% 0 50% round 6px)", transform: "translate(-50%, 6px)" },
+          { clipPath: "inset(0 0% 0 0% round 6px)", transform: "translate(-50%, 0)" },
+        ], { duration: 650, delay: 1350 });
+        A(q(".wi-sign b"), [{ letterSpacing: "0.5em", opacity: 0 }, { letterSpacing: "-0.02em", opacity: 1 }], { duration: 700, delay: 1450, easing: SPRING_SOFT });
+        qa(".wi-km").forEach((k, i) =>
+          A(k, [{ transform: "scale(0) rotate(-14deg)" }, { transform: "scale(1) rotate(0)" }], { duration: 650, delay: 1750 + i * 110, easing: SPRING })
         );
       },
     },
     {
-      title: "근처 후보가 대진표로",
-      desc: "메뉴나 근처 실제 가게가 8강·16강으로 모여요",
-      duration: 3400,
+      title: "근처 후보로 대진표 완성",
+      desc: "메뉴나 근처 실제 가게가 8강·16강으로 줄 서요",
+      duration: 3500,
       play() {
-        clear();
-        wi.classList.add("is-s3");
-        setLines(1);
-        A(q(".wi-map"), [{ opacity: 1 }, { opacity: 0.28 }], { duration: 500 });
-        A(q(".wi-lines"), [{ opacity: 1 }, { opacity: 0 }], { duration: 400 });
-        qa(".wi-pin").forEach((p) => A(p, [{ opacity: 1 }, { opacity: 0 }], { duration: 400 }));
-        A(q(".wi-mid"), [{ opacity: 1, transform: "scale(1)" }, { opacity: 1, transform: "scale(1.3)", offset: 0.3 }, { opacity: 0, transform: "scale(0.2)" }], { duration: 900, delay: 200 });
-        qa(".wi-card").forEach((card, i) => {
-          const s = SLOTS[i];
-          const ang = (i / CARDS.length) * Math.PI * 2 - Math.PI / 2;
-          const bx = MID.x - 52 + Math.cos(ang) * 92;
-          const by = MID.y - 17 + Math.sin(ang) * 92;
-          const from = `translate(${MID.x - 52}px, ${MID.y - 17}px) scale(0.2)`;
-          A(card, [
-            { transform: from, opacity: 0 },
-            { transform: `translate(${bx}px, ${by}px) scale(1.05)`, opacity: 1, offset: 0.45, easing: "cubic-bezier(0.3,0,0,1.2)" },
-            { transform: `translate(${bx}px, ${by}px) scale(1)`, opacity: 1, offset: 0.6 },
-            { transform: `translate(${s.x}px, ${s.y}px) scale(1)`, opacity: 1, offset: 1 },
-          ], { duration: 1500, delay: 500 + i * 60, easing: "cubic-bezier(0.2,0,0,1)" });
-        });
-        qa(".wi-bracket path").forEach((p, i) =>
-          A(p, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 500, delay: 2100 + (i % 3) * 120 })
+        clear("3");
+        kinetic(root, reduce);
+        A(q(".wi-board"), [
+          { clipPath: `circle(0px at ${MID.x}px ${MID.y}px)` },
+          { clipPath: `circle(${W}px at ${MID.x}px ${MID.y}px)` },
+        ], { duration: 700, easing: IN_OUT });
+        qa(".wi-row").forEach((r, i) =>
+          A(r, [
+            { transform: "scaleY(0)", opacity: 0 },
+            { transform: "scaleY(1.3)", opacity: 1, offset: 0.35 },
+            { transform: "scaleY(0.92)", opacity: 1, offset: 0.6 },
+            { transform: "scaleY(1)", opacity: 1 },
+          ], { duration: 520, delay: 450 + i * 90 })
         );
+        qa(".wi-br path").forEach((p, i) => draw(p, 1450 + (i < 8 ? 0 : i < 12 ? 380 : 700), 420));
+        qa(".wi-br__dot").forEach((d, i) =>
+          A(d, [{ transform: "scale(0)" }, { transform: "scale(1)" }], { duration: 500, delay: 1750 + (i < 4 ? 0 : 380), easing: SPRING })
+        );
+        A(q(".wi-br__fin"), [{ transform: "scale(0)" }, { transform: "scale(1)" }], { duration: 700, delay: 2450, easing: SPRING });
       },
     },
     {
-      title: "둘 중 하나, 다같이 골라요",
-      desc: "투표로 올라간 1등에 왕관! 바로 지도로 연결돼요",
-      duration: 3800,
+      title: "다같이 찍으면 1등 확정",
+      desc: "과반 투표로 올라간 곳에 왕관. 바로 지도로 이어져요",
+      duration: 4300,
       play() {
-        clear();
-        wi.classList.add("is-s4");
-        A(q(".wi-map"), [{ opacity: 0.28 }, { opacity: 0.28 }], { duration: 10 });
+        clear("4");
+        kinetic(root, reduce);
         const a = q(".wi-duel--a");
         const b = q(".wi-duel--b");
-        A(a, [
-          { transform: "translate(-240px, 0) rotate(-10deg)" },
-          { transform: "translate(6px, 0) rotate(2deg)", offset: 0.55, easing: "cubic-bezier(0.5,0,1,1)" },
-          { transform: "translate(-14px, 0) rotate(-3deg)", offset: 0.7 },
-          { transform: "translate(0, 0) rotate(0)", offset: 1 },
-        ], { duration: 900, easing: "linear" });
+        A(a, [{ transform: "translate(-230px, 0) rotate(-8deg)" }, { transform: "translate(0, 0) rotate(0)" }], { duration: 700, easing: SPRING_SOFT, fill: "backwards" });
+        A(b, [{ transform: "translate(230px, 0) rotate(8deg)" }, { transform: "translate(0, 0) rotate(0)" }], { duration: 700, easing: SPRING_SOFT, fill: "backwards" });
+        A(q(".wi-vs"), [{ transform: "translate(-50%, -50%) scale(0)" }, { transform: "translate(-50%, -50%) scale(1)" }], { duration: 600, delay: 350, easing: SPRING, fill: "backwards" });
+        qa(".wi-vote").forEach((v, i) =>
+          A(v, [
+            { transform: "translate(-50%, 10px) scale(0)", opacity: 0 },
+            { transform: "translate(-50%, -8px) scale(1.25)", opacity: 1, offset: 0.35 },
+            { transform: "translate(-50%, -30px) scale(1)", opacity: 0 },
+          ], { duration: 820, delay: 650 + i * 200 })
+        );
+        A(q(".wi-score"), [{ transform: "translate(-50%, 0) scale(0)" }, { transform: "translate(-50%, 0) scale(1)" }], { duration: 600, delay: 1150, easing: SPRING });
+        // 예비동작(뒤로 당김) → 충돌 → 스쿼시
+        const smash = (dir) => [
+          { transform: "translateX(0) scale(1, 1) rotate(0)" },
+          { transform: `translateX(${-26 * dir}px) scale(0.94, 1.05) rotate(${-5 * dir}deg)`, offset: 0.4, easing: FALL },
+          { transform: `translateX(${12 * dir}px) scale(0.84, 1.12) rotate(0)`, offset: 0.6, easing: OUT },
+          { transform: `translateX(${3 * dir}px) scale(1.05, 0.96)`, offset: 0.8 },
+          { transform: "translateX(0) scale(1, 1)" },
+        ];
+        A(a, smash(1), { duration: 720, delay: 1600, easing: "ease", fill: "forwards" });
+        A(b, smash(-1), { duration: 720, delay: 1600, easing: "ease", fill: "forwards" });
+        A(q(".wi-vs"), [
+          { transform: "translate(-50%, -50%) scale(1)" },
+          { transform: "translate(-50%, -50%) scale(1.8)", offset: 0.35 },
+          { transform: "translate(-50%, -50%) scale(0)" },
+        ], { duration: 500, delay: 1960, fill: "forwards" });
+        A(q(".wi-score"), [{ opacity: 1 }, { opacity: 0 }], { duration: 200, delay: 2300, fill: "forwards" });
+        // 패자 탈선, 승자 가운데로
         A(b, [
-          { transform: "translate(240px, 0) rotate(10deg)" },
-          { transform: "translate(-6px, 0) rotate(-2deg)", offset: 0.55, easing: "cubic-bezier(0.5,0,1,1)" },
-          { transform: "translate(14px, 0) rotate(3deg)", offset: 0.7 },
-          { transform: "translate(0, 0) rotate(0)", offset: 1 },
-        ], { duration: 900, easing: "linear" });
-        A(q(".wi-vs"), [{ transform: "translate(-50%,-50%) scale(0)", opacity: 0 }, { transform: "translate(-50%,-50%) scale(1.6)", opacity: 1, offset: 0.4 }, { transform: "translate(-50%,-50%) scale(1)", opacity: 1, offset: 0.7 }, { transform: "translate(-50%,-50%) scale(0.6)", opacity: 0 }], { duration: 1300, delay: 450 });
-        // 패자 퇴장, 승자 올라가기
-        A(b, [{ transform: "translate(0,0) rotate(0)", opacity: 1 }, { transform: "translate(120px, 90px) rotate(24deg)", opacity: 0 }], { duration: 600, delay: 1500, easing: "cubic-bezier(0.4,0,1,1)", fill: "forwards" });
-        A(a, [{ transform: "translate(0,0) scale(1)" }, { transform: "translate(64px, -24px) scale(1.18)" }], { duration: 700, delay: 1600, easing: "cubic-bezier(0.3,0,0,1.2)", fill: "forwards" });
+          { transform: "translate(0, 0) rotate(0)" },
+          { transform: "translate(36px, -34px) rotate(12deg)", offset: 0.3, easing: FALL },
+          { transform: "translate(130px, 280px) rotate(52deg)" },
+        ], { duration: 820, delay: 2320, fill: "forwards", easing: "ease" });
+        A(a, [{ transform: "translate(0, 0) scale(1)" }, { transform: "translate(78px, -10px) scale(1.18)" }], { duration: 820, delay: 2420, easing: SPRING, fill: "forwards" });
         A(q(".wi-crown"), [
-          { transform: "translate(-50%, -180px) rotate(-30deg)", opacity: 0 },
-          { transform: "translate(-50%, 0) rotate(8deg)", opacity: 1, offset: 0.6, easing: "cubic-bezier(0.5,0,1,1)" },
-          { transform: "translate(-50%, -14px) rotate(-4deg)", offset: 0.8 },
-          { transform: "translate(-50%, 0) rotate(0)", opacity: 1 },
-        ], { duration: 800, delay: 2300, easing: "linear" });
+          { transform: "translate(-50%, -200px) scale(0.9, 1.15) rotate(-20deg)", opacity: 0, offset: 0 },
+          { transform: "translate(-50%, -180px) scale(0.9, 1.15) rotate(-14deg)", opacity: 1, offset: 0.1, easing: FALL },
+          { transform: "translate(-50%, 0) scale(0.9, 1.15) rotate(4deg)", offset: 0.5 },
+          { transform: "translate(-50%, 6px) scale(1.35, 0.7) rotate(0)", offset: 0.6, easing: OUT },
+          { transform: "translate(-50%, -12px) scale(0.95, 1.08)", offset: 0.78 },
+          { transform: "translate(-50%, 0) scale(1, 1)", opacity: 1, offset: 1 },
+        ], { duration: 900, delay: 2950, easing: "ease" });
         qa(".wi-spark i").forEach((s, i) =>
-          A(s, [{ transform: `rotate(${i * 36}deg) translateY(0) scale(0)`, opacity: 1 }, { transform: `rotate(${i * 36}deg) translateY(-64px) scale(1)`, opacity: 0 }], { duration: 700, delay: 2800, easing: "cubic-bezier(0,0,0.2,1)" })
+          A(s, [
+            { transform: `rotate(${i * 45}deg) translateY(-14px) scaleY(0.2)`, opacity: 1 },
+            { transform: `rotate(${i * 45}deg) translateY(-44px) scaleY(1)`, opacity: 1, offset: 0.5 },
+            { transform: `rotate(${i * 45}deg) translateY(-58px) scaleY(0.2)`, opacity: 0 },
+          ], { duration: 600, delay: 3420 })
         );
       },
     },
@@ -238,7 +337,8 @@ export function startIntro(root) {
   return {
     stop() {
       ctl.stop();
-      clear();
+      live.forEach((a) => a.cancel());
+      live = [];
     },
   };
 }

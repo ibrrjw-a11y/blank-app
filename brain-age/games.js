@@ -2,6 +2,7 @@
 // 모든 게임은 play(area, signal) → Promise<result> 형태. signal 이 abort 되면 AbortError 로 끝난다.
 import { haptic, fmt } from "../shared/kit.js";
 import { META, ageFor, ageBand } from "./scoring.js";
+import { Scope, WAVES } from "./instrument.js";
 
 /* ---------- 공통 유틸 ---------- */
 export const abortErr = () => new DOMException("aborted", "AbortError");
@@ -134,25 +135,37 @@ export function howTo(area, key, signal) {
   const hear = key === "hear";
   area.innerHTML = `
     <div class="howto fade-swap">
-      <div class="howto__icon" aria-hidden="true">${m.icon}</div>
-      <h2 class="t-title-01">${m.name}</h2>
+      <div class="plate" aria-hidden="true">
+        <div class="plate__top"><span class="plate__code mono">${m.code}</span><span class="plate__bar"></span></div>
+        <div class="plate__scope rt__scope"><canvas></canvas></div>
+      </div>
+      <h2 class="t-title-01 howto__title">${m.name}</h2>
       <p class="t-body-01 t-secondary howto__lead">${h.lead}</p>
       <ul class="howto__list">${h.lines.map((l) => `<li class="t-body-03">${l}</li>`).join("")}</ul>
       ${
         hear
           ? `<div class="howto__warn" role="note">
-              <p class="t-label-02">🔉 먼저 볼륨을 중간 이하로 맞춰주세요</p>
+              <p class="t-label-02">먼저 볼륨을 중간 이하로 맞춰주세요</p>
               <p class="t-caption-01">기준음을 듣고 편안한 크기로 조절해요. 이어폰을 쓰면 더 정확하고, 스마트폰 스피커는 높은 소리를 잘 못 내기도 해요.</p>
             </div>`
           : ""
       }
       <div class="howto__cta">
-        ${hear ? `<button class="btn btn--outline btn--block" data-act="ref">🔈 기준음 들어보기</button>` : ""}
+        ${hear ? `<button class="btn btn--outline btn--block" data-act="ref">기준음 들어보기 (1kHz)</button>` : ""}
         <button class="btn btn--primary btn--lg btn--block" data-act="go">시작하기</button>
         ${hear ? `<button class="btn btn--ghost btn--block" data-act="skip">이번엔 건너뛰기</button>` : ""}
       </div>
     </div>`;
-  return until(signal, (done) => {
+  const life = new AbortController();
+  signal.addEventListener("abort", () => life.abort(), { once: true });
+  const sc = new Scope(area.querySelector(".plate__scope canvas"), { period: 1500, gain: 0.4 });
+  sc.setWave(WAVES[key]);
+  sc.start(life.signal);
+  return until(signal, (done0) => {
+    const done = (v) => {
+      life.abort();
+      done0(v);
+    };
     const box = area.querySelector(".howto__cta");
     const onClick = (e) => {
       const b = e.target.closest("[data-act]");
@@ -198,10 +211,11 @@ export function doneScreen(area, key, res, { nextName, isBest }, signal) {
   if (key === "math") note = `${res.tried}문제 중 ${res.raw}문제 맞혔어요.`;
   area.innerHTML = `
     <div class="done fade-swap">
-      <div class="done__icon" aria-hidden="true">${m.icon}</div>
-      <p class="t-label-02 t-secondary">${m.name} 기록</p>
-      <p class="done__value t-num">${skipped ? "건너뜀" : m.fmt(res.raw)}</p>
-      ${isBest ? `<span class="badge">🏅 개인 최고 기록</span>` : ""}
+      <div class="readout">
+        <p class="readout__k mono"><span>${m.code} ${m.name}</span><span>${skipped ? "SKIP" : "OK"}</span></p>
+        <p class="readout__v mono t-num">${skipped ? "건너뜀" : m.fmt(res.raw)}</p>
+      </div>
+      ${isBest ? `<span class="badge">개인 최고 기록 갱신</span>` : ""}
       ${age != null ? `<p class="t-body-01">재미로 보면 <b class="t-primary">${ageBand(age)}</b> 수준이에요</p>` : ""}
       ${note ? `<p class="t-body-03 t-secondary">${note}</p>` : ""}
       <button class="btn btn--primary btn--lg btn--block done__next" data-act="next">${nextName ? `다음: ${nextName}` : "결과 보기"}</button>
@@ -245,13 +259,19 @@ const RT_MIN = 100; // 100ms 미만은 예측해서 누른 것으로 보고 실�
 async function playReaction(area, signal) {
   area.innerHTML = `
     <div class="rt">
-      <div class="rt__dots" aria-hidden="true">${Array.from({ length: RT_TRIALS }, () => `<span></span>`).join("")}</div>
+      <div class="rt__scope" aria-hidden="true">
+        <canvas></canvas>
+        <span class="rt__ch mono">CH1 · TRIG</span>
+        <span class="rt__dots">${Array.from({ length: RT_TRIALS }, () => `<span></span>`).join("")}</span>
+      </div>
       <button class="rt__pad" type="button"><span class="rt__big"></span><span class="rt__small"></span></button>
     </div>`;
   const pad = area.querySelector(".rt__pad");
   const big = area.querySelector(".rt__big");
   const small = area.querySelector(".rt__small");
   const dots = [...area.querySelectorAll(".rt__dots span")];
+  const scope = new Scope(area.querySelector(".rt__scope canvas"), { period: 1600, gain: 0.4 });
+  scope.start(signal);
   const set = (state, a, b = "") => {
     pad.dataset.state = state;
     big.textContent = a;
@@ -267,6 +287,7 @@ async function playReaction(area, signal) {
   };
   const down = (e) => {
     e.preventDefault();
+    scope.mark(pad.dataset.state === "go" ? 0.95 : 0.45);
     tap(e.timeStamp);
   };
   const key = (e) => {
@@ -337,9 +358,9 @@ async function playMemory(area, signal) {
     <div class="mem">
       <div class="mem__head">
         <span class="t-label-01 t-num" data-len>길이 ${MEM_START}</span>
-        <span class="mem__lives" aria-label="남은 기회" data-lives>💚💚</span>
+        <span class="mem__lives" aria-label="남은 기회 2번" data-lives><i class="led is-on"></i><i class="led is-on"></i></span>
       </div>
-      <p class="mem__msg t-title-03" aria-live="polite">잘 보세요 👀</p>
+      <p class="mem__msg t-title-03" aria-live="polite">잘 보세요</p>
       <div class="mem__grid">${Array.from({ length: 9 }, (_, i) => `<button class="mem__tile" type="button" data-i="${i}" aria-label="${i + 1}번 칸"></button>`).join("")}</div>
     </div>`;
   const grid = area.querySelector(".mem__grid");
@@ -369,7 +390,7 @@ async function playMemory(area, signal) {
   let lives = 2;
   while (lives > 0 && seq.length <= MEM_MAX) {
     lenEl.textContent = `길이 ${seq.length}`;
-    msg.textContent = "잘 보세요 👀";
+    msg.textContent = "잘 보세요";
     grid.classList.add("is-locked");
     await wait(600, signal);
     const on = Math.max(300, 520 - seq.length * 18);
@@ -377,7 +398,7 @@ async function playMemory(area, signal) {
       await flash(i, on);
       await wait(140, signal);
     }
-    msg.textContent = "순서대로 눌러요 👆";
+    msg.textContent = "순서대로 눌러요";
     grid.classList.remove("is-locked");
     const ok = await until(signal, (done) => {
       let k = 0;
@@ -403,7 +424,7 @@ async function playMemory(area, signal) {
     grid.classList.add("is-locked");
     if (ok) {
       best = seq.length;
-      msg.textContent = "정답! 한 칸 더 ✨";
+      msg.textContent = "정답! 한 칸 더";
       grid.classList.add("is-good");
       await wait(500, signal);
       grid.classList.remove("is-good");
@@ -411,7 +432,8 @@ async function playMemory(area, signal) {
     } else {
       lives--;
       haptic([30, 40, 30]);
-      livesEl.textContent = "💚".repeat(lives) + "🤍".repeat(2 - lives);
+      livesEl.querySelectorAll(".led").forEach((l, j) => l.classList.toggle("is-on", j < lives));
+      livesEl.setAttribute("aria-label", `남은 기회 ${lives}번`);
       msg.textContent = lives ? "아쉬워요! 같은 길이로 한 번 더" : "여기까지!";
       grid.classList.add("is-shake");
       await wait(900, signal);
@@ -492,7 +514,7 @@ async function playHearing(area, signal) {
     // 8kHz도 안 들렸으면 기기/볼륨 문제일 가능성이 커서 다시 할지 묻는다
     area.innerHTML = `
       <div class="done fade-swap">
-        <div class="done__icon" aria-hidden="true">🔇</div>
+        <div class="readout"><p class="readout__k mono"><span>CH4 고주파 청력</span><span>NO SIGNAL</span></p><p class="readout__v mono">8kHz ✕</p></div>
         <h2 class="t-title-03">8kHz도 안 들렸어요</h2>
         <p class="t-body-03 t-secondary">볼륨이 너무 작거나 무음 모드일 수 있어요. 스마트폰 스피커는 높은 소리를 잘 못 내기도 해요.</p>
         <div class="howto__cta">
@@ -520,14 +542,14 @@ async function hearingRound(area, signal) {
     <div class="hear">
       <div class="hear__ladder" aria-hidden="true">${FREQS.map((f, i) => `<i style="--h:${(i + 2) / (FREQS.length + 1)}"></i>`).join("")}</div>
       <p class="t-label-02 t-secondary t-num" data-step></p>
-      <div class="hear__orb" aria-hidden="true"><span>👂</span><i></i><i></i><i></i></div>
+      <div class="hear__scope" aria-hidden="true"><canvas></canvas><span class="mono">CH4 · TONE</span></div>
       <p class="t-title-03" aria-live="polite" data-msg>소리가 들리나요?</p>
       <p class="t-body-03 t-tertiary">아주 작게 '삐—' 하는 높은 소리예요</p>
       <div class="hear__ans">
         <button class="btn btn--outline btn--lg" type="button" data-a="no">안 들려요</button>
         <button class="btn btn--primary btn--lg" type="button" data-a="yes">들려요</button>
       </div>
-      <button class="btn btn--ghost btn--sm" type="button" data-a="replay">🔁 다시 듣기</button>
+      <button class="btn btn--ghost btn--sm" type="button" data-a="replay">다시 듣기</button>
     </div>`;
   const root = area.querySelector(".hear");
   const bars = [...root.querySelectorAll(".hear__ladder i")];
@@ -539,7 +561,13 @@ async function hearingRound(area, signal) {
   let n = 0;
   let current = null;
   signal.addEventListener("abort", () => current?.stop(), { once: true });
+  // 소리가 나는 동안 파형이 진동한다 (무음 문제도 똑같이 보여서 눈치로 맞힐 수 없다)
+  let playUntil = 0;
+  const scope = new Scope(root.querySelector(".hear__scope canvas"), { period: 1100, gain: 0.45 });
+  scope.setWave((x, t) => (t < playUntil ? WAVES.hear(x, t) : WAVES.idle(x, t)));
+  scope.start(signal);
   const play = (t) => {
+    playUntil = performance.now() + 1500;
     current?.stop();
     root.classList.remove("is-playing");
     void root.offsetWidth;
@@ -570,6 +598,7 @@ async function hearingRound(area, signal) {
       return () => root.removeEventListener("click", onClick);
     });
     current?.stop();
+    playUntil = 0;
     root.classList.remove("is-playing");
     haptic(6);
     if (t.catch) {

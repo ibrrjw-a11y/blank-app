@@ -497,7 +497,7 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       const tw = ctx.measureText(label).width + 12;
       const ly = y - m.r * s - 12;
       roundRect(ctx, x - tw / 2, ly - 9, tw, 18, 9);
-      ctx.fillStyle = isD ? tk.danger : "rgba(8,9,12,0.62)";
+      ctx.fillStyle = isD ? tk.brand : "rgba(8,9,12,0.62)";
       ctx.fill();
       ctx.fillStyle = isD ? "#fff" : tk.text;
       ctx.fillText(label, x, ly + 0.5);
@@ -564,7 +564,7 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       ctx.fillStyle = players[i].color;
       ctx.fill();
       if (i === danger) {
-        ctx.strokeStyle = tk.danger;
+        ctx.strokeStyle = tk.brand;
         ctx.lineWidth = 2;
         ctx.stroke();
       }
@@ -581,7 +581,7 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       ctx.globalAlpha = slowA;
       ctx.font = `800 12px ${CANVAS_FONT}`;
       ctx.textAlign = "left";
-      ctx.fillStyle = tk.danger;
+      ctx.fillStyle = tk.brand;
       ctx.beginPath();
       ctx.arc(20, 70, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -649,9 +649,9 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
         ctx.fillStyle = "rgba(8,9,12,0.72)";
         ctx.fill();
         ctx.lineWidth = 5;
-        ctx.strokeStyle = tk.danger;
+        ctx.strokeStyle = tk.brand;
         ctx.stroke();
-        ctx.fillStyle = tk.danger;
+        ctx.fillStyle = tk.brand;
         ctx.fillText(text, 0, 2, tw - 24);
         ctx.restore();
       }

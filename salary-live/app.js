@@ -97,6 +97,82 @@ function recompute() {
 }
 
 /* =========================================================
+ * 기계식 오도미터: 자리마다 휠이 굴러가고, 스프링으로 살짝 넘쳤다가 멈춘다
+ * ========================================================= */
+class Odometer {
+  constructor(el, { minDigits = 1, dur = 420 } = {}) {
+    this.el = el;
+    this.minDigits = minDigits;
+    this.dur = dur;
+    this.wheels = [];
+    this.count = 0;
+  }
+  build(count) {
+    this.count = count;
+    this.el.innerHTML = "";
+    this.wheels = [];
+    for (let i = 0; i < count; i++) {
+      const place = count - 1 - i; // 10의 몇 제곱 자리
+      const w = document.createElement("span");
+      w.className = "odo__wheel";
+      const strip = document.createElement("span");
+      strip.className = "odo__strip";
+      strip.innerHTML = Array.from({ length: 20 }, (_, d) => `<span>${d % 10}</span>`).join("");
+      w.appendChild(strip);
+      this.el.appendChild(w);
+      this.wheels.push({ w, strip, pos: 0, place });
+      if (place > 0 && place % 3 === 0) {
+        const sep = document.createElement("span");
+        sep.className = "odo__sep";
+        sep.textContent = ",";
+        this.el.appendChild(sep);
+      }
+    }
+  }
+  h() {
+    return this.wheels[0]?.w.offsetHeight || 64;
+  }
+  set(value, { instant = false } = {}) {
+    const v = Math.max(0, Math.floor(value));
+    const len = Math.max(this.minDigits, String(v).length);
+    if (len !== this.count) {
+      this.build(len);
+      instant = true;
+    }
+    const H = this.h();
+    const s = String(v).padStart(len, "0");
+    const lead = len - String(v).length;
+    this.wheels.forEach((wh, i) => {
+      const d = Number(s[i]);
+      wh.w.classList.toggle("is-lead", i < lead);
+      const cur = wh.pos % 10;
+      if (d === cur && wh.pos < 10) return;
+      // 굴러가던 중 한 바퀴를 넘긴 상태면 먼저 0~9 구간으로 되돌려 놓는다
+      if (wh.pos >= 10) {
+        wh.strip.style.transition = "none";
+        wh.strip.style.transform = `translateY(${-(wh.pos - 10) * H}px)`;
+        void wh.strip.offsetHeight;
+        wh.pos -= 10;
+      }
+      const target = d >= wh.pos % 10 ? d : d + 10; // 9→0 은 앞으로 굴러서 넘어간다
+      wh.strip.style.transition =
+        instant || prefersReducedMotion() ? "none" : `transform ${this.dur}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
+      wh.strip.style.transform = `translateY(${-target * H}px)`;
+      wh.pos = target;
+    });
+  }
+}
+
+// 캡션 제목을 글자 단위로 쪼개 감열지에 찍히듯 튀어 오르게 (키네틱 타이포)
+function kinetic() {
+  const h = document.querySelector("#intro .intro__caption h2");
+  if (!h || prefersReducedMotion()) return;
+  h.innerHTML = Array.from(h.textContent)
+    .map((c, i) => `<span class="kchar" style="animation-delay:${i * 24}ms">${c}</span>`)
+    .join("");
+}
+
+/* =========================================================
  * 인트로
  * ========================================================= */
 function introScenes() {
@@ -107,127 +183,123 @@ function introScenes() {
   const exDay = exPs * dailyWorkSeconds(exSch);
   const toilet = Math.round(exPs * 300);
   const coffeeMin = Math.round(COFFEE / exPs / 60);
-  const meetHour = Math.round(((6 * 50_000_000) / (12 * 209)) * 1);
+  const meetHour = Math.round((6 * 50_000_000) / (12 * 209));
 
-  return [
+  const scenes = [
     {
-      title: "출근하면 1초마다 월급이 쌓여요",
-      desc: `연봉 5,400만 원이면 하루 약 ${comma(Math.round(exDay / 1000) * 1000)}원`,
+      title: "1초마다 월급이 쌓여요",
+      desc: `연봉 5,400만 원이면 하루 약 ${comma(Math.round(exDay / 1000) * 1000)}원이 굴러 들어와요`,
       duration: 3600,
       play(stage, signal) {
-        const digits = 6;
         stage.innerHTML = `<div class="scene">
-          <div class="slot" id="iSlot"><span class="slot__cur">₩</span>${Array.from({ length: digits }, (_, i) => {
-            const col = `<span class="slot__col"><span class="slot__strip">${"01234567890"
-              .split("")
-              .map((d) => `<span>${d}</span>`)
-              .join("")}</span></span>`;
-            return (digits - i) % 3 === 0 && i ? `<span class="slot__sep">,</span>${col}` : col;
-          }).join("")}</div>
-          <div class="jar">
-            <svg viewBox="0 0 168 196">
-              <rect class="jar__lid" x="34" y="6" width="100" height="22" rx="8"/>
-              <clipPath id="jarClip"><path d="M40 30 h88 v18 q24 14 24 44 v76 q0 22 -22 22 h-92 q-22 0 -22 -22 v-76 q0 -30 24 -44z"/></clipPath>
-              <g clip-path="url(#jarClip)"><rect class="jar__fill" id="jarFill" x="0" y="40" width="168" height="160"/></g>
-              <path class="jar__glass" d="M40 30 h88 v18 q24 14 24 44 v76 q0 22 -22 22 h-92 q-22 0 -22 -22 v-76 q0 -30 24 -44z"/>
-              <path class="jar__shine" d="M34 100 v50"/>
-            </svg>
+          <div class="housing"><span class="housing__cur">₩</span><span class="odo" id="iOdo"></span></div>
+          <p class="s1__meta">오늘 번 돈 · 실수령 · 09:00 출근</p>
+          <div class="s1">
+            <div class="jar">
+              <svg viewBox="0 0 132 160">
+                <rect class="jar__lid" x="30" y="2" width="72" height="14" rx="3"/>
+                <clipPath id="jarClip"><path d="M34 18 h64 v12 q24 12 24 40 v66 q0 20 -20 20 h-72 q-20 0 -20 -20 v-66 q0 -28 24 -40z"/></clipPath>
+                <g clip-path="url(#jarClip)">
+                  <rect class="jar__fill" id="jarFill" x="0" y="30" width="132" height="130"/>
+                  ${Array.from({ length: 12 }, (_, i) => `<line class="jar__hatch" x1="${i * 14 - 40}" y1="160" x2="${i * 14 + 40}" y2="30"/>`).join("")}
+                </g>
+                <path class="jar__glass" d="M34 18 h64 v12 q24 12 24 40 v66 q0 20 -20 20 h-72 q-20 0 -20 -20 v-66 q0 -28 24 -40z"/>
+              </svg>
+            </div>
+            <p class="s1__meta">1초에 ${exPs.toFixed(1)}원<br/>1분에 ${comma(exPs * 60)}원<br/>1시간에 ${comma(exPs * 3600)}원</p>
           </div>
         </div>`;
-        const strips = $$(".slot__strip", stage);
+        const odo = new Odometer($("#iOdo", stage), { minDigits: 6, dur: 260 });
+        odo.set(0, { instant: true });
         const fill = $("#jarFill", stage);
         const jar = $(".jar", stage);
-        const target = exDay;
-        const dur = 2800;
-        const t0 = performance.now();
+        const dur = 2600;
+        const t0 = performance.now() + 250; // 예비동작: 잠깐 멈췄다가 출발
         let lastCoin = 0;
-        const setSlot = (v) => {
-          strips.forEach((s, i) => {
-            const p = Math.pow(10, digits - 1 - i);
-            const lower = v % p;
-            let pos = Math.floor(v / p) % 10;
-            if (p === 1) pos = v % 10;
-            else if (lower > p - 1) pos += lower - (p - 1);
-            s.style.transform = `translateY(${-pos * 46}px)`;
-          });
-        };
+        let lastSet = 0;
         const frame = (now) => {
           if (signal.aborted) return;
-          const t = Math.min(1, (now - t0) / dur);
-          const eased = 1 - Math.pow(1 - t, 2.2);
-          setSlot(target * eased);
-          fill.style.transform = `scaleY(${0.08 + eased * 0.62})`;
-          if (now - lastCoin > 170 && t < 0.92) {
+          const t = Math.max(0, Math.min(1, (now - t0) / dur));
+          const eased = t < 1 ? 1 - Math.pow(1 - t, 2.4) : 1;
+          if (now - lastSet > 90 || t === 1) {
+            odo.set(exDay * eased);
+            lastSet = now;
+          }
+          fill.style.transform = `scaleY(${0.06 + eased * 0.6})`;
+          if (t > 0 && now - lastCoin > 210 && t < 0.9) {
             lastCoin = now;
             const c = document.createElement("span");
             c.className = "coin coin--drop";
-            c.textContent = Math.random() < 0.3 ? "500" : "100";
-            c.style.setProperty("--x", `${Math.round((Math.random() - 0.5) * 60)}px`);
-            c.style.setProperty("--y", `${150 - eased * 70}px`);
+            c.textContent = "₩";
+            c.style.setProperty("--x", `${Math.round((Math.random() - 0.5) * 50)}px`);
+            c.style.setProperty("--y", `${126 - eased * 70}px`);
             jar.appendChild(c);
-            setTimeout(() => c.remove(), 950);
+            setTimeout(() => c.remove(), 860);
           }
           if (t < 1) requestAnimationFrame(frame);
         };
         if (prefersReducedMotion()) {
-          setSlot(target);
-          fill.style.transform = "scaleY(0.7)";
+          odo.set(exDay, { instant: true });
+          fill.style.transform = "scaleY(0.66)";
         } else requestAnimationFrame(frame);
       },
     },
     {
       title: "화장실 5분도 돈이에요",
-      desc: "커피 한 잔, 점심 한 끼가 내 노동 몇 분인지 바로 보여줘요",
+      desc: "커피 한 잔, 점심 한 끼가 내 노동 몇 분인지 바로 계산해요",
       duration: 3600,
       play(stage, signal) {
-        stage.innerHTML = `<div class="scene">
-          <div class="ring">
-            <svg viewBox="0 0 168 168"><circle class="ring__track" cx="84" cy="84" r="75"/><circle class="ring__bar" cx="84" cy="84" r="75"/></svg>
-            <span class="ring__emoji">🚽</span>
-            <span class="ring__time" id="iTime">00:00</span>
+        stage.innerHTML = `<div class="scene"><div class="s2">
+          <div class="timer-row">
+            <div class="dial">
+              <svg viewBox="0 0 108 108"><circle class="dial__bar" cx="54" cy="54" r="46"/></svg>
+              <span class="dial__emoji">🚽</span>
+            </div>
+            <span class="timer-row__time" id="iTime">00:00</span>
           </div>
-          <div class="scene__chips" id="iChips"></div>
-        </div>`;
-        const bar = $(".ring__bar", stage);
+          <div class="stack gap-8" id="iChips"></div>
+        </div></div>`;
+        const bar = $(".dial__bar", stage);
         const time = $("#iTime", stage);
         const chips = $("#iChips", stage);
         requestAnimationFrame(() => bar.classList.add("is-run"));
         const t0 = performance.now();
         const tick = (now) => {
           if (signal.aborted) return;
-          const t = Math.min(1, (now - t0) / 1600);
-          time.textContent = hms(300 * t);
+          const t = Math.min(1, (now - t0) / 1500);
+          const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          time.textContent = hms(300 * e);
           if (t < 1) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
         setTimeout(() => {
           if (signal.aborted) return;
-          chips.innerHTML = `<span class="pop-chip">🚽 화장실 5분 = ${comma(toilet)}원</span>`;
-        }, 1700);
+          chips.innerHTML = `<div class="ticket ticket--hot"><span>화장실 5분</span><b>${comma(toilet)}원</b></div>`;
+        }, 1600);
         setTimeout(() => {
           if (signal.aborted) return;
-          chips.insertAdjacentHTML("beforeend", `<span class="pop-chip pop-chip--soft">☕ 커피 한 잔 = ${coffeeMin}분 노동</span>`);
-        }, 2300);
+          chips.insertAdjacentHTML("beforeend", `<div class="ticket"><span>커피 한 잔 (4,500원)</span><b>${coffeeMin}분 노동</b></div>`);
+        }, 2100);
       },
     },
     {
-      title: "오늘의 월급루팡, 영수증으로",
-      desc: "딴짓 타이머를 켜두면 그동안 번 돈이 영수증에 찍혀요",
+      title: "딴짓한 시간은 영수증으로",
+      desc: "월급루팡 타이머를 켜두면 그동안 번 돈이 한 줄씩 찍혀요",
       duration: 3400,
       play(stage) {
         const row = (a, b) => `<div class="paper__row"><span>${a}</span><span>${b}</span></div>`;
-        stage.innerHTML = `<div class="scene">
+        stage.innerHTML = `<div class="scene s3">
           <div class="printer"><span class="printer__led"></span></div>
           <div class="paper-wrap"><div class="paper" id="iPaper">
             <div class="paper__title">월급루팡 영수증</div>
-            ${row("근무 8시간", comma(exDay) + "원")}
+            ${row("근무 8시간", comma(exDay))}
             <div class="paper__hr"></div>
-            ${row("🚽 화장실 12분", comma(exPs * 720) + "원")}
-            ${row("☕ 커피 15분", comma(exPs * 900) + "원")}
-            ${row("📱 딴짓 20분", comma(exPs * 1200) + "원")}
+            ${row("🚽 화장실 12분", comma(exPs * 720))}
+            ${row("☕ 커피 15분", comma(exPs * 900))}
+            ${row("📱 딴짓 20분", comma(exPs * 1200))}
             <div class="paper__hr"></div>
             <div class="paper__row paper__total"><span>루팡 수익</span><span>${comma(exPs * 2820)}원</span></div>
-            <div class="paper__bar"></div>
+            <div class="barcode"></div>
           </div></div>
         </div>`;
         const paper = $("#iPaper", stage);
@@ -236,36 +308,41 @@ function introScenes() {
     },
     {
       title: "이 회의, 지금 얼마 쓰는 중?",
-      desc: `6명이 1시간 회의하면 인건비 약 ${comma(Math.round(meetHour / 1000) * 1000)}원 (평균 연봉 5,000만 원)`,
+      desc: `평균 연봉 5,000만 원인 6명이 1시간 회의하면 인건비 약 ${comma(Math.round(meetHour / 1000) * 1000)}원`,
       duration: 3400,
       play(stage, signal) {
-        const people = ["🧑‍💼", "👩‍💻", "🧑‍🔧", "👨‍💼", "👩‍🎨", "🧑‍💻"];
-        stage.innerHTML = `<div class="scene">
-          <div class="table-scene">
-            <div class="table-scene__table">회의 중…</div>
-            ${people
-              .map((p, i) => {
-                const a = (i / people.length) * Math.PI * 2 - Math.PI / 2;
-                const x = 130 + Math.cos(a) * 112;
-                const y = 100 + Math.sin(a) * 78;
-                return `<span class="avatar" style="left:${x}px;top:${y}px;animation-delay:${i * 90}ms">${p}</span>`;
-              })
-              .join("")}
-          </div>
-          <div class="meet-big" id="iMeet">₩0</div>
+        stage.innerHTML = `<div class="scene s4">
+          <div class="seats">${Array.from({ length: 6 }, (_, i) => `<span class="seat" style="animation-delay:${i * 80}ms">${String.fromCharCode(65 + i)}</span>`).join("")}</div>
+          <div class="housing"><span class="housing__cur">₩</span><span class="odo" id="iMeet"></span></div>
+          <p class="s4__cap" id="iMeetT">회의 00:00</p>
         </div>`;
-        const el = $("#iMeet", stage);
-        const t0 = performance.now();
+        const odo = new Odometer($("#iMeet", stage), { minDigits: 6, dur: 240 });
+        odo.set(0, { instant: true });
+        const cap = $("#iMeetT", stage);
+        const t0 = performance.now() + 500;
+        let last = 0;
         const tick = (now) => {
           if (signal.aborted) return;
-          const t = Math.min(1, (now - t0) / 2600);
-          el.textContent = `₩${comma(meetHour * t)}`;
+          const t = Math.max(0, Math.min(1, (now - t0) / 2400));
+          const e = t * t * (3 - 2 * t);
+          if (now - last > 90 || t === 1) {
+            odo.set(meetHour * e);
+            cap.textContent = `회의 ${hms(3600 * e)} · 1분에 ${comma(meetHour / 60)}원`;
+            last = now;
+          }
           if (t < 1) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
       },
     },
   ];
+  return scenes.map((sc) => ({
+    ...sc,
+    play(stage, signal) {
+      kinetic();
+      sc.play(stage, signal);
+    },
+  }));
 }
 
 /* =========================================================
@@ -357,7 +434,13 @@ function updateSetup() {
       : "만 원 단위로 입력해요";
 
   if (result && !tooBig) {
-    $("#netMonthly").textContent = won(result.monthlyNet);
+    const big = $("#netMonthly");
+    if (big.textContent !== won(result.monthlyNet)) {
+      big.textContent = won(result.monthlyNet);
+      big.classList.remove("is-pop");
+      void big.offsetWidth;
+      big.classList.add("is-pop");
+    }
     $("#netAnnual").textContent = `연 실수령액 ${fmt.wonKo(result.annualNet)} · 세전 시급 ${won(result.hourlyGross)} (월 209시간)`;
     $("#breakdown").innerHTML = breakdownRows(result);
   } else {
@@ -524,10 +607,12 @@ const saveMeet = () => store.set("meet", meet);
 const meetElapsed = (now = Date.now()) => meet.acc + (meet.running ? (now - meet.startedAt) / 1000 : 0);
 const meetPerSec = () => (meet.people * (meet.avg || 0) * 10000) / (12 * 209 * 3600);
 
+let meetOdo = null;
 function renderMeet() {
   const sec = meetElapsed();
   const cost = sec * meetPerSec();
-  $("#meetNum").textContent = won(cost);
+  if (!meetOdo) meetOdo = new Odometer($("#meetOdo"), { minDigits: 4, dur: 300 });
+  meetOdo.set(cost);
   $("#meetSub").textContent = `${hms(sec)} · 1분에 ${won(meetPerSec() * 60)}`;
   $("#meetToggle").textContent = meet.running ? "회의 끝" : sec > 0 ? "이어서 시작" : "회의 시작";
   $("#meetToggle").classList.toggle("btn--danger", meet.running);
@@ -594,7 +679,6 @@ function bindMeet() {
 /* =========================================================
  * 실시간 카운터
  * ========================================================= */
-const liveNum = $("#liveNum");
 let lastHundreds = -1;
 let lastSecondTick = -1;
 let rafId = 0;
@@ -622,15 +706,21 @@ function monthToDate(now, sch, todayEarned) {
   return days * daily + todayEarned;
 }
 
+let odo = null;
+let lastFrac = "";
 function setLiveNumber(value, live) {
+  if (!odo) odo = new Odometer($("#odo"), { minDigits: 5, dur: 360 });
   const int = Math.floor(value);
-  const frac = Math.floor((value - int) * 100);
-  const intText = comma(int);
-  liveNum.classList.toggle("is-long", intText.length > 8);
-  liveNum.classList.toggle("is-work", live);
-  liveNum.innerHTML = live
-    ? `${intText}<span class="live__frac">.${pad2(frac)}</span><span class="live__won">원</span>`
-    : `${intText}<span class="live__won">원</span>`;
+  const digits = Math.max(5, String(int).length);
+  const el = $("#odo");
+  el.classList.toggle("odo--sm", digits === 7);
+  el.classList.toggle("odo--xs", digits >= 8);
+  odo.set(int);
+  const frac = live ? `.${pad2(Math.floor((value - int) * 100))}` : "";
+  if (frac !== lastFrac) {
+    $("#liveFrac").textContent = frac;
+    lastFrac = frac;
+  }
 }
 
 function tick() {
@@ -712,19 +802,20 @@ function renderSlow(now, phase, worked, earned, sch) {
   const lunchMin = LUNCH / ps / 60;
   const workHourNet = ps * 3600;
   const conv = [
-    ["🚽", `${won(ps * 300)}`, "화장실 5분"],
-    ["☕", `${coffeeMin < 10 ? coffeeMin.toFixed(1) : Math.round(coffeeMin)}분 노동`, `커피 한 잔 (${comma(COFFEE)}원)`],
-    ["🍱", `${lunchMin < 10 ? lunchMin.toFixed(1) : Math.round(lunchMin)}분 노동`, `점심 한 끼 (${comma(LUNCH)}원)`],
-    ["📅", dday === 0 ? "오늘 월급날! 🎉" : `D-${dday}`, pay ? `월급날 ${pay.getMonth() + 1}월 ${pay.getDate()}일 (${DAY_NAMES[pay.getDay()]})` : "월급날"],
-    ["⏱️", won(workHourNet), "체감 시급 (실수령·실근무)"],
-    ["🗓️", fmt.wonKo(Math.round(monthToDate(now, sch, earned) / 100) * 100), "이번 달 누적 (근사치)"],
+    ["화장실 5분", won(ps * 300), true],
+    [`커피 한 잔 ${comma(COFFEE)}원`, `${coffeeMin < 10 ? coffeeMin.toFixed(1) : Math.round(coffeeMin)}분 노동`],
+    [`점심 한 끼 ${comma(LUNCH)}원`, `${lunchMin < 10 ? lunchMin.toFixed(1) : Math.round(lunchMin)}분 노동`],
+    [pay ? `월급날 ${pay.getMonth() + 1}/${pay.getDate()} (${DAY_NAMES[pay.getDay()]})` : "월급날", dday === 0 ? "오늘이에요!" : `D-${dday}`, true],
+    ["체감 시급 (실근무)", won(workHourNet)],
+    ["이번 달 누적 (근사)", won(Math.round(monthToDate(now, sch, earned) / 100) * 100)],
   ];
-  $("#conv").innerHTML = conv
+  const html = conv
     .map(
-      ([e, v, l]) =>
-        `<div class="conv__item"><span class="conv__emoji" aria-hidden="true">${e}</span><span class="conv__val">${v}</span><span class="conv__label">${l}</span></div>`
+      ([l, v, hot]) =>
+        `<div class="conv__row ${hot ? "is-hot" : ""}"><span class="conv__label">${l}</span><span class="conv__dots"></span><span class="conv__val">${v}</span></div>`
     )
     .join("");
+  if ($("#conv").innerHTML !== html) $("#conv").innerHTML = html;
 
   // 월급루팡
   const nowMs = now.getTime();
@@ -810,11 +901,11 @@ function drawReceipt(d) {
   const W = 540;
   const H = 675;
   const { canvas, ctx } = createCanvas(W, H, 2);
-  const bg = css("--color-bg") || "#0a0c10";
+  const bg = css("--art-housing") || "#1c1c1a";
   const brand = css("--brand") || "#2bd47d";
-  const paper = css("--gray-50") || "#f7f8fa";
-  const ink = css("--gray-900") || "#12151b";
-  const sub = css("--gray-500") || "#7b8494";
+  const paper = css("--art-slip") || "#fdfcf7";
+  const ink = css("--art-ink") || "#161615";
+  const sub = css("--art-ink-2") || "#6a675f";
   const deep = css("--brand-pressed") || "#1fb86a";
 
   ctx.fillStyle = bg;
@@ -931,7 +1022,7 @@ function drawReceipt(d) {
   y += 58;
   text("감사합니다. 내일도 무사히 출근하세요 :)", W / 2, y, { size: 12, color: sub, align: "center" });
 
-  text("2026 요율 기준 근사치 · 실시간 월급 카운터", W / 2, H - 24, { size: 13, color: css("--color-text-tertiary") || sub, align: "center" });
+  text("2026 요율 기준 근사치 · 실시간 월급 카운터", W / 2, H - 24, { size: 13, color: css("--art-wheel-shade") || sub, align: "center" });
   return canvas;
 }
 

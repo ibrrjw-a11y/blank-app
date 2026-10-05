@@ -24,6 +24,7 @@ import {
   prefersReducedMotion,
 } from "../shared/kit.js";
 import * as E from "./engine.js";
+import { flap, odometer, kinetic, tween, springEase, wait } from "./fx.js";
 import { createLineChart, createCandleChart, sparkline, palette, alpha } from "./chart.js";
 
 const store = createStore("life-stock");
@@ -48,39 +49,57 @@ function chg(cur, base, { abs = true } = {}) {
 }
 const score100 = (s) => Math.round(50 + 50 * s);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+// 받침에 따라 조사 고르기 (한자 오행은 한글 독음으로 판단)
+const HANJA_KO = { 木: "목", 火: "화", 土: "토", 金: "금", 水: "수" };
+function josa(word, withB, withoutB) {
+  const base = String(word).replace(/\([^)]*\)$/, "").trim();
+  const last = base.slice(-1);
+  const c = (HANJA_KO[last] || last).charCodeAt(0);
+  const has = c >= 0xac00 && c <= 0xd7a3 ? (c - 0xac00) % 28 > 0 : false;
+  return word + (has ? withB : withoutB);
+}
 const ymdText = (o) => `${o.y}.${String(o.m).padStart(2, "0")}.${String(o.d).padStart(2, "0")}`;
 
 /* =========================================================
- * 1. 인트로 모션그래픽
+ * 1. 인트로 모션그래픽 — 실제 단말기 화면이 움직이며 기능을 보여줘요
  * ========================================================= */
 const SAMPLE = { name: "홍길동", cal: "solar", y: 1994, m: 3, d: 15, h: 14, mi: 0, g: "M" };
+const clock = () => {
+  const d = new Date(Date.now() + (new Date().getTimezoneOffset() + 540) * 60000);
+  return [d.getHours(), d.getMinutes(), d.getSeconds()].map((v) => String(v).padStart(2, "0")).join(":");
+};
 
 function buildDemo(stage) {
   const S = E.analyze(SAMPLE);
-  const W = 320;
-  const H = 168;
+  const W = 340;
+  // 남는 세로 공간만큼 차트를 키워요 (차트 외 영역 ≈ 215px)
+  const sw = stage.clientWidth || 358;
+  const sh = stage.clientHeight || 0;
+  const H = Math.round(Math.max(172, Math.min(300, ((sh - 245) * W) / sw)));
   const top = 34;
-  const bot = 14;
+  const bot = 12;
   const step = 6;
   const pts = [];
   for (let i = 0; i <= S.price.length - 1; i += step) pts.push(S.price[i]);
   const min = Math.min(...pts) * 0.92;
-  const max = Math.max(...pts) * 1.12;
+  const max = Math.max(...pts) * 1.06;
   const x = (i) => (i / (pts.length - 1)) * W;
   const y = (v) => top + (1 - (v - min) / (max - min)) * (H - top - bot);
   const line = pts.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(" ");
   const area = `${line} L${W} ${H} L0 ${H} Z`;
   const toX = (monthIdx) => (monthIdx / (S.price.length - 1)) * W;
+  const grid = [0.25, 0.5, 0.75].map((f) => `<line x1="0" x2="${W}" y1="${top + f * (H - top - bot)}" y2="${top + f * (H - top - bot)}"/>`).join("") +
+    [1, 2, 3, 4, 5, 6, 7, 8].map((k) => `<line y1="${top}" y2="${H}" x1="${(k * W) / 9}" x2="${(k * W) / 9}"/>`).join("");
   const bands = S.daeun
-    .filter((d) => d.startAge < 90 && !d.pre)
+    .filter((d) => d.startAge < 86 && !d.pre)
     .map((d, k) => {
       const x0 = toX(Math.max(0, d.startAge * 12));
       const x1 = toX(Math.min(1080, (d.endAge + 1) * 12));
       const tone = d.score > 0.25 ? "up" : d.score < -0.25 ? "down" : "flat";
-      return `<g class="demo__band" style="animation-delay:${0.15 + k * 0.12}s">
-        <rect x="${x0}" y="0" width="${x1 - x0}" height="${H}" class="demo__bandbg ${k % 2 ? "is-odd" : ""}"/>
-        <text x="${(x0 + x1) / 2}" y="14" text-anchor="middle" class="demo__bandtxt is-${tone}">${E.gzKo(d.gz)}</text>
-        <text x="${(x0 + x1) / 2}" y="26" text-anchor="middle" class="demo__bandage">${d.startAge}세</text>
+      return `<g class="g-band ${k % 2 ? "is-odd" : ""}" style="animation-delay:${k * 70}ms">
+        <rect x="${x0}" y="0" width="${x1 - x0}" height="${H}"/>
+        <text x="${(x0 + x1) / 2}" y="13" text-anchor="middle" class="is-${tone}">${E.gzKo(d.gz)}</text>
+        <text x="${(x0 + x1) / 2}" y="25" text-anchor="middle" class="age">${d.startAge}</text>
       </g>`;
     })
     .join("");
@@ -88,7 +107,7 @@ function buildDemo(stage) {
   const px = x(peakI);
   const py = y(pts[Math.round(peakI)]);
   const peakYear = S.months[S.peakIdx].y;
-  const bw = 132;
+  const bw = 112;
   const bx = px - bw - 10 > 4 ? px - bw - 10 : Math.min(W - bw - 4, px + 10);
   const zx0 = toX(S.drawdown.from);
   const zx1 = toX(S.drawdown.to);
@@ -96,22 +115,21 @@ function buildDemo(stage) {
   const nowX = toX(nowT);
   const nowY = y(S.basePrice(nowT));
 
-  // 최근 14일 일봉
+  // 최근 16일 일봉
   const cs = [];
-  for (let k = 13; k >= 0; k--) cs.push(S.candle(E.addDays(TODAY, -k)));
+  for (let k = 15; k >= 0; k--) cs.push(S.candle(E.addDays(TODAY, -k)));
   const cmin = Math.min(...cs.map((c) => c.low));
   const cmax = Math.max(...cs.map((c) => c.high));
-  const cy = (v) => 44 + (1 - (v - cmin) / (cmax - cmin)) * (H - 70);
+  const cy = (v) => top + 6 + (1 - (v - cmin) / (cmax - cmin)) * (H - top - bot - 12);
   const cstep = W / cs.length;
   const candles = cs
     .map((c, i) => {
       const cx = cstep * i + cstep / 2;
-      const upc = c.close >= c.open ? "up" : "down";
       const t = cy(Math.max(c.open, c.close));
       const h = Math.max(2, Math.abs(cy(c.open) - cy(c.close)));
-      return `<g class="demo__candle is-${upc}" style="animation-delay:${i * 0.06}s">
+      return `<g class="g-candle is-${c.close >= c.open ? "up" : "down"}" style="animation-delay:${i * 45}ms">
         <line x1="${cx}" x2="${cx}" y1="${cy(c.high)}" y2="${cy(c.low)}"/>
-        <rect x="${cx - cstep * 0.3}" y="${t}" width="${cstep * 0.6}" height="${h}" rx="1"/>
+        <rect x="${cx - cstep * 0.3}" y="${t}" width="${cstep * 0.6}" height="${h}"/>
       </g>`;
     })
     .join("");
@@ -129,56 +147,71 @@ function buildDemo(stage) {
     const o = E.addDays(start, k);
     const l = E.lunarOf(o.y, o.m, o.d);
     const son = E.isSonEomneun(l.day);
-    return `<div class="demo__day ${son ? "is-son" : ""}" style="animation-delay:${0.5 + k * 0.07}s">${o.d}<small>${son ? "손없음" : "음" + l.day}</small></div>`;
+    return `<div class="term__day ${son ? "is-son" : ""}" style="animation-delay:${k * 60}ms">${o.m}/${o.d}<small>${son ? "손없음" : "음" + l.day}</small></div>`;
   }).join("");
 
   const nowP = S.dayPrice(TODAY);
-  const yChg = pct(nowP, E.START_PRICE);
+  const listed = pct(nowP, E.START_PRICE);
   const tapeItems = [
-    `${SAMPLE.name} (KRX:${S.code}) <b class="${sign(yChg)}">${arrow(yChg)} ${Math.abs(yChg).toFixed(1)}%</b>`,
-    `현재 대운 <b>${E.gzKo(S.daeunAt(TODAY.y).gz)}</b>`,
-    `올해 세운 <b>${E.gzKo(E.yearGZ(TODAY.y))}</b>`,
-    `🚀 사상 최고가 <b>${peakYear}년</b>`,
-    `업종 <b>${S.industry.sector}</b>`,
+    `${SAMPLE.name} ${S.code} <b class="${sign(listed)}">${arrow(listed)}${Math.abs(listed).toFixed(1)}%</b>`,
+    `대운 <b>${E.gzKo(S.daeunAt(TODAY.y).gz)}</b>`,
+    `세운 <b>${E.gzKo(E.yearGZ(TODAY.y))}</b>`,
+    `ATH <b>${peakYear}</b>`,
+    `일진 <b>${E.gzKo(E.dayGZ(TODAY.y, TODAY.m, TODAY.d))}</b>`,
+    `${S.industry.el} <b>${S.industry.sector.split(" · ")[1]}</b>`,
   ];
   const tape = tapeItems.map((t) => `<span>${t}</span>`).join("");
 
   stage.innerHTML = `
-  <div class="demo" data-scene="0">
-    <div class="demo__tape-wrap"><div class="demo__tape">${tape}${tape}</div></div>
-    <div class="demo__head">
-      <div>
-        <div class="demo__name"><b>${SAMPLE.name}</b>KRX:${S.code}</div>
-        <div class="demo__price t-num"><span id="demoPrice">${won(nowP)}</span>원</div>
-        <div class="demo__chg ${sign(yChg)}">${arrow(yChg)} ${Math.abs(yChg).toFixed(1)}% <span class="t-tertiary">상장 후</span></div>
-      </div>
-      <span class="badge">예시</span>
+  <div class="term" data-scene="0">
+    <div class="term__status"><span class="term__live"><i></i>KRX 인생시장</span><span id="demoClock">${clock()}</span></div>
+    <div class="tape-wrap"><div class="tape">${tape}${tape}</div></div>
+    <div class="term__quote">
+      <div class="term__name">${SAMPLE.name}<span id="demoCode"></span></div>
+      <div class="term__meta">예시 종목</div>
+      <div class="term__price"><span id="demoPrice"></span></div>
+      <div class="term__chg ${sign(listed)}" id="demoChg">${arrow(listed)} ${pctText(listed, 1)}</div>
     </div>
-    <svg class="demo__svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="예시 인생 주가 차트">
-      <defs>
-        <linearGradient id="demoGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" class="demo__stop1"/><stop offset="1" class="demo__stop2"/>
-        </linearGradient>
-      </defs>
-      <g class="demo__chartlayer">
-        ${bands}
-        <rect class="demo__zone" x="${zx0}" y="${top}" width="${zx1 - zx0}" height="${H - top - bot}"/>
-        <path class="demo__area" d="${area}" fill="url(#demoGrad)"/>
-        <path class="demo__line" d="${line}" pathLength="1"/>
-        <line class="demo__now" x1="${nowX}" x2="${nowX}" y1="${top}" y2="${H - bot}"/>
-        <circle class="demo__nowdot" cx="${nowX}" cy="${nowY}" r="3.5"/>
-        <g class="demo__cross"><line x1="${px}" x2="${px}" y1="${top - 4}" y2="${H - bot}"/></g>
-        <g class="demo__peak">
-          <rect x="${bx}" y="${py - 4}" width="${bw}" height="20" rx="10"/>
-          <text x="${bx + bw / 2}" y="${py + 10}" text-anchor="middle">🚀 사상 최고가 ${peakYear}년</text>
-          <circle cx="${px}" cy="${py}" r="4"/>
+    <div class="term__chart">
+      <svg class="term__svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="예시 인생 주가 차트">
+        <defs><linearGradient id="demoGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="g-stop1"/><stop offset="1" class="g-stop2"/></linearGradient></defs>
+        <g class="g-chart">
+          <g class="g-grid">${grid}</g>
+          ${bands}
+          <rect class="g-zone" x="${zx0}" y="${top}" width="${zx1 - zx0}" height="${H - top - bot}"/>
+          <path class="g-area" d="${area}" fill="url(#demoGrad)"/>
+          <path class="g-line" d="${line}" pathLength="1"/>
+          <line class="g-now" x1="${nowX}" x2="${nowX}" y1="${top}" y2="${H - bot}"/>
+          <circle class="g-nowdot" cx="${nowX}" cy="${nowY}" r="3"/>
+          <g class="g-cross" id="demoCross"><line x1="0" x2="0" y1="${top - 4}" y2="${H - bot}"/><circle cx="0" cy="0" r="3.5"/></g>
+          <g class="g-peak">
+            <rect x="${bx}" y="${py - 9}" width="${bw}" height="18" rx="2"/>
+            <text x="${bx + bw / 2}" y="${py + 4}" text-anchor="middle">🚀 사상 최고가 ${peakYear}</text>
+          </g>
         </g>
-      </g>
-      <g class="demo__candles">${candles}</g>
-    </svg>
-    <div class="demo__days">${days}</div>
+        <g class="g-candles">${candles}</g>
+      </svg>
+      <div class="term__readout" id="demoReadout"></div>
+    </div>
+    <div class="term__days">${days}</div>
   </div>`;
-  return { S, nowP };
+
+  // 크로스헤어 위치 (월 인덱스) → SVG 좌표
+  const crossTo = (mi) => {
+    const g = stage.querySelector("#demoCross");
+    if (!g) return;
+    const i = Math.max(0, Math.min(S.price.length - 1, Math.round(mi)));
+    const cx = toX(i);
+    const cyy = y(S.price[i]);
+    g.querySelector("line").setAttribute("x1", cx);
+    g.querySelector("line").setAttribute("x2", cx);
+    g.querySelector("circle").setAttribute("cx", cx);
+    g.querySelector("circle").setAttribute("cy", cyy);
+    const mo = S.months[i];
+    $("#demoReadout").textContent = `${Math.floor(i / 12)}세 · ${mo.y}.${String(mo.m).padStart(2, "0")} · ${won(S.price[i])}`;
+    return S.price[i];
+  };
+  return { S, nowP, nowT, crossTo };
 }
 
 function startIntro() {
@@ -189,46 +222,89 @@ function startIntro() {
     demo = buildDemo(stage);
   } catch (e) {
     console.error(e);
+    return;
   }
-  const el = () => stage.querySelector(".demo");
-  const set = (n) => el() && (el().dataset.scene = String(n));
+  const term = () => stage.querySelector(".term");
+  const set = (n) => term() && (term().dataset.scene = String(n));
+  const head = () => kinetic(root.querySelector(".intro__caption h2"));
+  const price = (v) => odometer($("#demoPrice"), `${won(v)}원`);
+  const clk = setInterval(() => {
+    const c = $("#demoClock");
+    if (c) c.textContent = clock();
+    else clearInterval(clk);
+  }, 1000);
+  flap($("#demoCode"), demo.S.code, { delay: 200 });
+  price(E.START_PRICE);
+
   intro?.stop();
   intro = runIntro({
     root,
     loop: true,
     scenes: [
       {
-        title: "내 인생이 주식이라면?",
-        desc: "생년월일시를 넣으면 대운·세운이 주가 차트가 돼요",
-        duration: 3400,
-        play() {
+        title: "생일을 넣으면 인생이 상장돼요",
+        desc: "0세 시가 10,000원. 생년월일시로 뽑은 사주 8글자가 평생 주가 차트가 돼요.",
+        duration: 3600,
+        play(_, signal) {
+          head();
           set(0);
-          const pe = $("#demoPrice");
-          if (pe && demo) countUp(pe, demo.nowP, { from: 10000, duration: 2200, format: (n) => won(n) });
+          price(E.START_PRICE);
+          flap($("#demoCode"), demo.S.code, { delay: 120 });
+          wait(700, signal).then(() => !signal.aborted && price(demo.nowP));
         },
       },
       {
         title: "대운은 추세, 세운은 등락",
-        desc: "10년 대운이 큰 흐름을, 해마다 세운이 출렁임을 만들어요",
-        duration: 3000,
-        play() {
+        desc: "10년마다 바뀌는 대운이 큰 흐름을, 해마다 바뀌는 세운이 출렁임을 만들어요.",
+        duration: 3600,
+        play(_, signal) {
+          head();
           set(1);
+          // 크로스헤어가 0세부터 오늘까지 훑으며 시세를 읽어요
+          let last = 0;
+          wait(500, signal).then(() =>
+            tween(
+              2400,
+              (t) => {
+                const v = demo.crossTo(t * demo.nowT);
+                const now = performance.now();
+                if (v && now - last > 160) {
+                  last = now;
+                  price(v);
+                }
+              },
+              { signal }
+            ).then(() => !signal.aborted && price(demo.nowP))
+          );
         },
       },
       {
-        title: "🚀 내 인생 최고가는 언제?",
-        desc: "사상 최고가와 최대 조정 구간을 미리 짚어줘요",
-        duration: 3200,
-        play() {
-          set(2);
-        },
-      },
-      {
-        title: "오늘의 시세와 길일까지",
-        desc: "매일 일진 일봉, 손 없는 날·이사 날짜를 챙겨줘요",
+        title: "내 인생 최고가는 언제?",
+        desc: "사상 최고가가 언제 오는지, 가장 크게 쉬어 가는 구간은 어디인지 짚어줘요.",
         duration: 3400,
+        play(_, signal) {
+          head();
+          set(2);
+          const from = demo.nowT;
+          const to = demo.S.peakIdx;
+          tween(
+            700,
+            (t) => {
+              const v = demo.crossTo(from + (to - from) * t);
+              if (t === 1 && v) price(v);
+            },
+            { ease: springEase, signal }
+          );
+        },
+      },
+      {
+        title: "오늘 시세, 이사 날짜까지",
+        desc: "매일 바뀌는 일진으로 그린 일봉과 손 없는 날·나한테 맞는 길일을 챙겨줘요.",
+        duration: 3600,
         play() {
+          head();
           set(3);
+          price(demo.nowP);
         },
       },
     ],
@@ -361,26 +437,30 @@ function ceremony() {
     .map((t) => `<span>${t}</span>`)
     .join("");
   inner.innerHTML = `
-    <div class="ceremony__bell" aria-hidden="true">🔔</div>
-    <p class="ceremony__kicker">KRX 인생시장 · 신규 상장 기념 타종</p>
-    <div class="card ticker-card">
-      <div class="ticker-card__top"><span class="badge">신규상장</span><span class="ticker-card__code t-num">KRX:${P.code}</span></div>
-      <div class="ticker-card__name">${esc(P.name)}</div>
-      <p class="ticker-card__sector">${P.industry.sector}</p>
+    <div class="bell-bar"><span>KRX 인생시장 · 신규 상장 공시</span><span class="bell-bar__dings" aria-label="타종"><span>땡</span><span>땡</span><span>땡</span></span></div>
+    <h2 class="ceremony__head" id="ceremonyHead">축 상장</h2>
+    <div class="ticker-card">
+      <div class="ticker-card__top"><span>종목코드</span><span class="ticker-card__code" id="ipoCode"></span></div>
+      <div class="ticker-card__name" id="ipoName"></div>
+      <p class="ticker-card__sector">${P.industry.el} · ${P.industry.sector}</p>
       <dl>
         <dt>상장일</dt><dd class="t-num">${ymdText(P.birth)}${P.input.cal === "lunar" ? " (양력)" : ""}</dd>
-        <dt>일간</dt><dd>${P.industry.el} · ${P.strengthLabel}</dd>
-        <dt>대운 시작</dt><dd>${dy.startAge}세 (${dy.startYear}년)</dd>
-        <dt>시가</dt><dd class="ticker-card__price t-num"><span id="ipoPrice">0</span>원</dd>
+        <dt>일간 체질</dt><dd>${P.industry.el} · ${P.strengthLabel}</dd>
+        <dt>첫 대운</dt><dd>${dy.startAge}세 ${E.gzKo(dy.gz)} (${dy.startYear}년)</dd>
+        <dt>시가</dt><dd class="ticker-card__price"><span id="ipoPrice"></span></dd>
       </dl>
     </div>
-    <p class="ceremony__msg">${P.industry.note}이에요.<br/>${P.timeKnown ? "" : "태어난 시간을 몰라 시주는 빼고 계산했어요."}</p>
-    <div class="ceremony__tape"><div class="demo__tape">${tape}${tape}</div></div>
+    <p class="ceremony__msg">${P.industry.note}이에요.${P.timeKnown ? "" : " 태어난 시간을 몰라 시주는 빼고 계산했어요."}</p>
+    <div class="tape-wrap"><div class="tape">${tape}${tape}</div></div>
     <button class="btn btn--primary btn--lg btn--block" id="toDash" type="button">첫 거래 시작하기</button>`;
   box.hidden = false;
   document.body.style.overflow = "hidden";
   haptic([30, 60, 30, 60, 80]);
-  countUp($("#ipoPrice"), 10000, { duration: 1400, format: (n) => won(n) });
+  kinetic($("#ceremonyHead"), { step: 60 });
+  flap($("#ipoCode"), P.code, { delay: 400, stagger: 60 });
+  flap($("#ipoName"), P.name, { delay: 600, stagger: 70, cycles: 4 });
+  odometer($("#ipoPrice"), "00,000원");
+  setTimeout(() => odometer($("#ipoPrice"), "10,000원", { stagger: 80 }), 900);
   confetti($("#confetti"));
   $("#toDash").addEventListener("click", () => {
     box.hidden = true;
@@ -392,20 +472,22 @@ function ceremony() {
 function confetti(canvas) {
   if (prefersReducedMotion()) return;
   const C = palette();
-  const colors = [C.up, C.warn, C.ok, C.down, C.text];
+  const colors = [C.amber || C.warn, C.text, C.up, C.down, C.text2];
   const w = (canvas.width = innerWidth);
   const h = (canvas.height = innerHeight);
   const ctx = canvas.getContext("2d");
   const parts = Array.from({ length: 140 }, (_, i) => ({
-    x: w / 2 + (Math.random() - 0.5) * 60,
-    y: h * 0.32,
-    vx: (Math.random() - 0.5) * 14,
+    x: Math.random() < 0.5 ? -10 : w + 10,
+    y: h * (0.15 + Math.random() * 0.3),
+    vx: 0,
     vy: -6 - Math.random() * 10,
     r: Math.random() * Math.PI,
     vr: (Math.random() - 0.5) * 0.4,
     s: 5 + Math.random() * 6,
     c: colors[i % colors.length],
   }));
+  // 양쪽에서 대포처럼 쏘아 올리는 티커 테이프
+  parts.forEach((p) => (p.vx = (p.x < 0 ? 1 : -1) * (5 + Math.random() * 9)));
   const t0 = performance.now();
   const tick = (now) => {
     const t = now - t0;
@@ -421,7 +503,7 @@ function confetti(canvas) {
       ctx.rotate(p.r);
       ctx.globalAlpha = Math.max(0, 1 - t / 3200);
       ctx.fillStyle = p.c;
-      ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
+      ctx.fillRect(-p.s, -1.5, p.s * 2, 3);
       ctx.restore();
     });
     if (t < 3200) requestAnimationFrame(tick);
@@ -477,15 +559,23 @@ function renderDash() {
 function renderQuote(ci) {
   const prev = P.dayPrice(E.addDays(TODAY, -1));
   const now = R.nowPrice;
+  const yearOpen = P.dayPrice({ y: TODAY.y, m: 1, d: 1 });
   $("#quote").innerHTML = `
     <div class="quote__top">
       <span class="quote__name">${esc(P.name)}</span>
-      <span class="quote__code t-num">KRX:${P.code}</span>
+      <span class="quote__code" id="qCode"></span>
     </div>
-    <span class="badge quote__sector">${P.industry.el} · ${P.industry.sector}</span>
-    <div class="quote__price t-num">${won(now)}<span class="t-title-03">원</span></div>
-    <div class="quote__chg t-num">${chg(now, prev)} <span class="t-tertiary t-label-03">전일 대비</span></div>
-    <div class="quote__meta t-num">상장 ${ymdText(P.birth)} · 시가 10,000원 · 상장 후 ${pctText(pct(now, 10000), 1)} · 🔥 ${ci.streak}일 연속 확인</div>`;
+    <div class="quote__sector">${P.industry.el} · ${P.industry.sector}</div>
+    <div class="quote__price"><span id="qPrice"></span><small>원</small></div>
+    <div class="quote__chg">${chg(now, prev)} <span class="t-tertiary t-label-03">전일 대비</span></div>
+    <div class="quote__grid">
+      <div><div class="kv-k">상장 후</div><div class="kv-v ${sign(now - 10000)}">${pctText(pct(now, 10000), 1)}</div></div>
+      <div><div class="kv-k">올해</div><div class="kv-v ${sign(now - yearOpen)}">${pctText(pct(now, yearOpen), 1)}</div></div>
+      <div><div class="kv-k">연속 확인</div><div class="kv-v amber">${ci.streak}일째</div></div>
+    </div>`;
+  flap($("#qCode"), P.code, { delay: 100 });
+  odometer($("#qPrice"), won(prev));
+  setTimeout(() => odometer($("#qPrice"), won(now)), 350);
 }
 
 /* ---------- 평생 차트 ---------- */
@@ -528,7 +618,7 @@ function lifeSpec(kind) {
         { i: nowT, kind: "today", label: "오늘" },
         { i: P.peakIdx, kind: "peak", label: `🚀 최고가 ${peak.y}년` },
       ],
-      xTicks: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90].map((a) => ({ i: a * 12, label: `${a}세` })),
+      xTicks: [10, 20, 30, 40, 50, 60, 70, 80].map((a) => ({ i: a * 12, label: `${a}세` })),
       tip: (i) => tipMonth(i, R.nowPrice),
     };
   }
@@ -557,20 +647,25 @@ function lifeSpec(kind) {
   }
   // 올해: 일 단위
   const y = TODAY.y;
+  // 올해는 주봉(7일 간격 종가)으로 보여줘요. 오늘은 항상 포함.
   const days = [];
-  for (let o = { y, m: 1, d: 1 }; o.y === y; o = E.addDays(o, 1)) days.push(o);
+  let k = 0;
+  for (let o = { y, m: 1, d: 1 }; o.y === y; o = E.addDays(o, 1), k++) {
+    const isToday = o.m === TODAY.m && o.d === TODAY.d;
+    if (k % 7 === 0 || isToday) days.push(o);
+  }
   const vals = days.map((o) => P.dayPrice(o));
   const ti = days.findIndex((o) => o.m === TODAY.m && o.d === TODAY.d);
   let pk = 0;
   vals.forEach((v, i) => v > vals[pk] && (pk = i));
   return {
     height: 240,
-    series: [{ values: vals, color: vals[vals.length - 1] >= vals[0] ? C.up : C.down, width: 1.6, fill: true, splitAt: ti }],
+    series: [{ values: vals, color: vals[vals.length - 1] >= vals[0] ? C.up : C.down, width: 2, fill: true, splitAt: ti }],
     markers: [
       { i: ti, kind: "today", label: "오늘" },
       { i: pk, kind: "peak", label: `🚀 올해 고점 ${days[pk].m}/${days[pk].d}` },
     ],
-    xTicks: [1, 3, 5, 7, 9, 11].map((m) => ({ i: days.findIndex((o) => o.m === m && o.d === 1), label: `${m}월` })),
+    xTicks: [1, 3, 5, 7, 9, 11].map((m) => ({ i: days.findIndex((o) => o.m === m), label: `${m}월` })),
     tip: (i) => {
       const o = days[i];
       const g = E.dayGZ(o.y, o.m, o.d);
@@ -603,7 +698,7 @@ function renderLife() {
     <div class="stat"><div class="stat__k">🚀 사상 최고가 예상</div><div class="stat__v t-num">${won(P.price[P.peakIdx])}원</div><div class="stat__s">${peak.y}년 · ${Math.floor(
       P.peakIdx / 12
     )}세</div></div>
-    <div class="stat"><div class="stat__k">📉 최대 조정 구간</div><div class="stat__v t-num down">${pctText(dd.depth * 100, 1)}</div><div class="stat__s">${Math.floor(
+    <div class="stat"><div class="stat__k">최대 조정 구간</div><div class="stat__v t-num down">${pctText(dd.depth * 100, 1)}</div><div class="stat__s">${Math.floor(
       dd.from / 12
     )}~${Math.floor(dd.to / 12)}세 (${P.months[dd.from].y}~${P.months[dd.to].y}년)</div></div>
     <div class="stat"><div class="stat__k">상장 후 수익률</div><div class="stat__v t-num ${sign(R.nowPrice - 10000)}">${pctText(
@@ -640,7 +735,7 @@ function renderCandles(ci) {
   const tc = cs[ti];
   const com = E.dayComment(P, tc);
   $("#candleTitle").textContent = `${m}월 일봉`;
-  $("#streakBadge").textContent = `🔥 ${ci.streak}일 연속`;
+  $("#streakBadge").textContent = `${ci.streak}일 연속 확인`;
   $("#todayBox").innerHTML = `
     <div class="today__row"><span class="today__k">오늘의 시세 · ${m}월 ${TODAY.d}일 ${E.gzKo(tc.gz)}일</span><span class="today__k">${com.god} 일진</span></div>
     <div class="today__row"><span class="today__price t-num">${won(tc.close)}원</span><span class="today__chg t-num">${chg(tc.close, tc.open)}</span></div>
@@ -692,7 +787,7 @@ function renderReport() {
     .map((s) => {
       const col = s.delta >= 0 ? C.up : C.down;
       return `<div class="sector">
-        <div class="sector__top"><span class="sector__name">${s.emoji} ${s.name}</span><span class="sector__d t-num ${sign(s.delta)}">${arrow(s.delta)}${Math.abs(
+        <div class="sector__top"><span class="sector__name">${s.name} <span class="t-tertiary t-label-03">${s.god}</span></span><span class="sector__d t-num ${sign(s.delta)}">${arrow(s.delta)}${Math.abs(
         s.delta
       )}</span></div>
         <div class="sector__v t-num">${s.value}</div>
@@ -703,7 +798,7 @@ function renderReport() {
     .join("");
   const favTxt = P.favorable.map((e) => `${E.elLabel(e)}(${E.GODS[P.rel(e)]})`).join(", ") || "뚜렷하지 않음";
   $("#sec-report").innerHTML = `
-    <div class="report__mast"><span>나 상장하기 리서치센터</span><span class="t-num">기업분석 · ${ymdText(TODAY)}</span></div>
+    <div class="report__mast"><span class="fn"><b>ANR</b>리서치센터</span><span class="t-num">기업분석 · ${ymdText(TODAY)}</span></div>
     <h2 class="t-title-03 report__title">${esc(P.name)}(${P.code}) · ${headline}</h2>
     <p class="t-body-03 t-secondary report__sub">${P.industry.sector} — ${P.industry.note}.</p>
     <div class="opinion">
@@ -724,7 +819,7 @@ function renderReport() {
     <h3>기업 개요 · 사주 원국</h3>
     <div class="pillars">${pillars}</div>
     <div class="els">${els}</div>
-    <div class="legend"><span><i style="background:var(--ls-up)"></i>유리한 오행</span><span><i style="background:var(--ls-down)"></i>불리한 오행</span><span><i style="background:var(--color-text-tertiary)"></i>중립</span></div>
+    <div class="legend"><span><i class="lg-up"></i>유리한 오행</span><span><i class="lg-down"></i>불리한 오행</span><span><i class="lg-neutral"></i>중립</span></div>
     <p class="note">일간 ${P.industry.el}, 나를 돕는 기운 비중 ${Math.round(P.ratio * 100)}%로 <b>${P.strengthLabel}</b>이에요. 유리한 오행: ${favTxt}.${
     P.timeKnown ? "" : " 태어난 시간을 몰라 시주는 빼고 계산했어요."
   } 재미로 보는 콘텐츠예요. 투자·인생 결정의 근거가 아니에요.</p>`;
@@ -740,7 +835,7 @@ function renderCalendar(el, prof, ym) {
   const days = E.monthCalendar(prof, y, m);
   const first = E.utc(y, m, 1).getUTCDay();
   const todayT = E.utc(TODAY.y, TODAY.m, TODAY.d).getTime();
-  const emo = Object.fromEntries(E.PURPOSES.map((p) => [p.key, p.emoji]));
+  const tag = (k) => { const p = E.PURPOSES.find((q) => q.key === k); return `<span class="tag tag--${k}" title="${p.name}">${p.name[0]}</span>`; };
   const monthsAhead = (y - TODAY.y) * 12 + (m - TODAY.m);
   const cells = [];
   for (let i = 0; i < first; i++) cells.push("<span></span>");
@@ -749,13 +844,13 @@ function renderCalendar(el, prof, ym) {
     const cls = [x.son && "is-son", t < todayT && "is-past", t === todayT && "is-today"].filter(Boolean).join(" ");
     const lunar = x.son ? "손없음" : `${x.lun.day === 1 ? Math.abs(x.lun.month) + "." : ""}${x.lun.day}`;
     cells.push(`<button type="button" class="cal__day ${cls}" data-i="${i}" aria-label="${m}월 ${x.d}일${x.son ? " 손 없는 날" : ""}">
-      <span class="cal__n t-num">${x.d}</span><span class="cal__l t-num">${lunar}</span><span class="cal__marks">${x.good.map((k) => emo[k]).join("")}</span></button>`);
+      <span class="cal__n t-num">${x.d}</span><span class="cal__l t-num">${lunar}</span><span class="cal__marks">${x.good.map(tag).join("")}</span></button>`);
   });
   const sons = days.filter((x) => x.son);
   const picks = prof
     ? `<div class="cal__picks">${E.PURPOSES.map((p) => {
         const ds = days.filter((x) => x.good.includes(p.key)).map((x) => `${x.d}일`);
-        return `<div class="pick"><b>${p.emoji} ${p.name}</b><span>${ds.length ? ds.join(", ") : "이번 달은 쉬어 가요"}</span></div>`;
+        return `<div class="pick"><b>${tag(p.key)} ${p.name}</b><span>${ds.length ? ds.join(", ") : "이번 달은 쉬어 가요"}</span></div>`;
       }).join("")}</div>`
     : "";
   el.innerHTML = `
@@ -766,7 +861,7 @@ function renderCalendar(el, prof, ym) {
     </div>
     <div class="cal__grid">${DOW.map((d) => `<span class="cal__dow">${d}</span>`).join("")}${cells.join("")}</div>
     <div class="cal__legend"><span><span class="sw"></span>손 없는 날 (음력 9·10·19·20·29·30일)</span>${
-      prof ? E.PURPOSES.map((p) => `<span>${p.emoji} ${p.name}</span>`).join("") : ""
+      prof ? E.PURPOSES.map((p) => `<span>${tag(p.key)} ${p.name}</span>`).join("") : ""
     }</div>
     ${picks}
     <p class="note">이번 달 손 없는 날: ${sons.map((x) => `${x.d}일(음 ${Math.abs(x.lun.month)}.${x.lun.day})`).join(", ")}.${
@@ -792,7 +887,7 @@ function openDay(x, prof) {
   if (prof) {
     const c = prof.candle({ y: x.y, m: x.m, d: x.d });
     const cm = E.dayComment(prof, c);
-    const names = x.good.map((k) => E.PURPOSES.find((p) => p.key === k)).map((p) => `${p.emoji} ${p.name}`);
+    const names = x.good.map((k) => E.PURPOSES.find((p) => p.key === k)).map((p) => p.name);
     mine = `<dt>내 일진 점수</dt><dd class="t-num ${sign(x.score)}">${score100(x.score)} / 100</dd>
       <dt>${prof === P ? "내" : ""} 주가</dt><dd class="t-num">${won(c.close)}원 ${chg(c.close, c.open, { abs: false })}</dd>
       <dt>추천</dt><dd>${names.length ? names.join(" · ") : "특별한 일정 없이 무난해요"}</dd>
@@ -830,7 +925,7 @@ function decodePartner(str) {
 async function sendMA() {
   const r = await share({
     title: "나 상장하기 · M&A 제안",
-    text: `${P.name} 주식이 상장했어요 📈 내 인생 사상 최고가는 ${P.months[P.peakIdx].y}년! 우리 합병하면 시너지 몇 %일까요?`,
+    text: `${P.name} 주식이 상장했어요. 내 인생 사상 최고가는 ${P.months[P.peakIdx].y}년! 우리 합병하면 시너지 몇 %일까요?`,
     url: maLink(),
   });
   if (r === "shared") toast("제안서를 보냈어요");
@@ -841,12 +936,11 @@ function renderMA() {
   const el = $("#sec-ma");
   if (!partner) {
     el.innerHTML = `
-      <div class="panel__head"><h2 class="t-title-04">M&amp;A 궁합</h2></div>
+      <div class="panel__head"><div><span class="fn"><b>M&amp;A</b>Merger</span><h2>M&amp;A 궁합</h2></div></div>
       <div class="ma__empty">
-        <div class="emoji" aria-hidden="true">🤝</div>
         <p class="t-body-02-strong">친구 종목과 합병해 볼까요?</p>
         <p class="t-body-03 t-secondary">링크를 받은 친구가 자기 생일을 넣으면 두 사람의 평생 차트를 겹쳐 보고 합병 시너지를 계산해요. 링크에는 내 생년월일시가 담겨요.</p>
-        <button class="btn btn--primary btn--block" type="button" id="maSend">🔗 M&amp;A 제안 링크 보내기</button>
+        <button class="btn btn--primary btn--block" type="button" id="maSend">M&amp;A 제안 링크 보내기</button>
       </div>`;
     $("#maSend").addEventListener("click", sendMA);
     return;
@@ -873,21 +967,21 @@ function renderMA() {
         : "사이클이 서로 독립적이라 각자 페이스대로 가요."
   );
   const fv = (X, Y) => (X.favor[Y.dmEl] > 0.3 ? "힘이 되는" : X.favor[Y.dmEl] < -0.3 ? "부담이 되는" : "무난한");
-  why.push(`${esc(B.name)}의 일간 ${B.industry.el}은 ${esc(P.name)}에게 ${fv(P, B)} 기운, ${esc(P.name)}의 ${P.industry.el}은 ${esc(B.name)}에게 ${fv(B, P)} 기운이에요.`);
+  why.push(`${esc(B.name)}의 일간 ${josa(B.industry.el, "은", "는")} ${esc(P.name)}에게 ${fv(P, B)} 기운, ${esc(P.name)}의 ${josa(P.industry.el, "은", "는")} ${esc(B.name)}에게 ${fv(B, P)} 기운이에요.`);
   M.fills.slice(0, 2).forEach((f) => {
     const [x, y] = f.to === "A" ? [P, B] : [B, P];
-    why.push(`${esc(x.name)}에게 부족한 ${E.elLabel(f.el)}을 ${esc(y.name)}이(가) 채워줘요.`);
+    why.push(`${esc(x.name)}에게 부족한 ${josa(E.elLabel(f.el), "을", "를")} ${josa(esc(y.name), "이", "가")} 채워줘요.`);
   });
   const tone = M.label.tone;
   el.innerHTML = `
-    <div class="panel__head"><h2 class="t-title-04">M&amp;A 궁합</h2><span class="t-label-03 t-tertiary">${esc(P.name)} × ${esc(B.name)}</span></div>
+    <div class="panel__head"><div><span class="fn"><b>M&amp;A</b>Merger</span><h2>M&amp;A 궁합</h2></div><span class="t-label-03 t-tertiary">${esc(P.name)} × ${esc(B.name)}</span></div>
     <div class="ma__hero">
-      <div class="t-label-02 t-secondary">합병 시너지</div>
-      <div class="ma__syn t-num ${tone === "flat" ? "flat" : sign(M.synergy)}">${M.synergy > 0 ? "+" : ""}${M.synergy}%</div>
+      <div><div class="t-label-02 t-secondary">합병 시너지</div>
+      <div class="ma__syn t-num ${tone === "flat" ? "flat" : sign(M.synergy)}">${M.synergy > 0 ? "+" : ""}${M.synergy}%</div></div>
       <span class="badge ma__label is-${tone}">${M.label.t}</span>
     </div>
     <div class="chart-wrap"><canvas id="maChart" aria-label="두 종목 겹쳐 보기"></canvas><div class="chart-tip" id="maTip" hidden></div></div>
-    <div class="legend"><span><i style="background:var(--ls-up)"></i>${esc(P.name)}</span><span><i style="background:var(--color-warning)"></i>${esc(
+    <div class="legend"><span><i class="lg-up"></i>${esc(P.name)}</span><span><i class="lg-amber"></i>${esc(
       B.name
     )}</span><span>${from}년=100 기준</span></div>
     <ul class="ma__why">${why.map((w) => `<li>${w}</li>`).join("")}</ul>
@@ -952,11 +1046,12 @@ function drawCard() {
   const H = 675;
   const { canvas, ctx } = createCanvas(W, H, 2);
   const F = CANVAS_FONT;
+  const MONO = C.mono || "monospace";
   ctx.fillStyle = C.bg;
   ctx.fillRect(0, 0, W, H);
   // 카드
   ctx.fillStyle = C.surface;
-  roundRect(ctx, 24, 24, W - 48, H - 48, 28);
+  roundRect(ctx, 24, 24, W - 48, H - 48, 8);
   ctx.fill();
   ctx.strokeStyle = C.border;
   ctx.lineWidth = 1;
@@ -964,13 +1059,13 @@ function drawCard() {
 
   const X = 52;
   ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = C.brand;
-  ctx.font = `700 16px ${F}`;
-  ctx.fillText("📈 나 상장하기", X, 72);
+  ctx.fillStyle = C.amber || C.warn;
+  ctx.font = `700 15px ${MONO}`;
+  ctx.fillText("KRX 인생시장 · 나 상장하기", X, 72);
   ctx.fillStyle = C.text3;
   ctx.textAlign = "right";
-  ctx.font = `600 15px ${F}`;
-  ctx.fillText(`KRX:${P.code}`, W - X, 72);
+  ctx.font = `700 15px ${MONO}`;
+  ctx.fillText(`${P.code}`, W - X, 72);
   ctx.textAlign = "left";
 
   ctx.fillStyle = C.text;
@@ -983,11 +1078,11 @@ function drawCard() {
   const prev = P.dayPrice(E.addDays(TODAY, -1));
   const p = pct(R.nowPrice, prev);
   ctx.fillStyle = C.text;
-  ctx.font = `800 52px ${F}`;
+  ctx.font = `700 52px ${MONO}`;
   const priceText = `${won(R.nowPrice)}원`;
   ctx.fillText(priceText, X, 226);
   ctx.fillStyle = p >= 0 ? C.up : C.down;
-  ctx.font = `700 20px ${F}`;
+  ctx.font = `700 19px ${MONO}`;
   ctx.fillText(`${arrow(p)} ${pctText(p)} 오늘   ·   상장 후 ${pctText(pct(R.nowPrice, 10000), 1)}`, X, 260);
 
   // 미니 차트
@@ -996,7 +1091,7 @@ function drawCard() {
   const cw = W - 2 * X;
   const ch = 190;
   ctx.fillStyle = C.sunken;
-  roundRect(ctx, cx0, cy0, cw, ch, 16);
+  roundRect(ctx, cx0, cy0, cw, ch, 4);
   ctx.fill();
   const vals = P.price;
   const n = vals.length;
@@ -1038,7 +1133,7 @@ function drawCard() {
   ctx.font = `800 13px ${F}`;
   const lw = ctx.measureText(label).width + 16;
   const lx = Math.max(cx0 + 6, Math.min(cx0 + cw - lw - 6, px(pk) - lw / 2));
-  roundRect(ctx, lx, py(vals[pk]) - 32, lw, 22, 11);
+  roundRect(ctx, lx, py(vals[pk]) - 32, lw, 22, 3);
   ctx.fill();
   ctx.fillStyle = C.bg;
   ctx.textAlign = "left";
@@ -1060,7 +1155,7 @@ function drawCard() {
   ctx.fillText("목표주가(12M)", X + 160, oy + 16);
   ctx.fillText("현재 대운", X + 320, oy + 16);
   ctx.fillStyle = opColor;
-  ctx.font = `800 26px ${F}`;
+  ctx.font = `700 26px ${MONO}`;
   ctx.fillText(`${op.code}`, X, oy + 48);
   ctx.fillStyle = C.text;
   ctx.fillText(`${won(R.target)}`, X + 160, oy + 48);
@@ -1068,12 +1163,10 @@ function drawCard() {
 
   ctx.fillStyle = C.text3;
   ctx.font = `500 12px ${F}`;
-  ctx.fillText("재미로 보는 콘텐츠예요 · 사주 대운·세운으로 그린 가상의 주가", X, H - 52);
-  ctx.textAlign = "right";
+  ctx.fillText("재미로 보는 콘텐츠예요 · 사주 대운·세운으로 그린 가상의 주가", X, H - 72);
   ctx.fillStyle = C.text2;
-  ctx.font = `700 12px ${F}`;
-  ctx.fillText(location.host ? `${location.host}/life-stock` : "나 상장하기", W - X, H - 52);
-  ctx.textAlign = "left";
+  ctx.font = `700 12px ${MONO}`;
+  ctx.fillText(`${location.host || "example.com"}/life-stock`, X, H - 52);
   return canvas;
 }
 
@@ -1176,16 +1269,14 @@ function init() {
       setTimeout(() => $("#sec-ma").scrollIntoView({ behavior: "smooth" }), 400);
       toast(`${incoming.name}님과의 합병 결과가 나왔어요`);
     } else {
-      toast("오늘의 시세가 나왔어요 📈");
+      toast(`${TODAY.m}월 ${TODAY.d}일 시세가 나왔어요`);
     }
     return;
   }
   if (incoming) {
     const inv = $("#maInvite");
     inv.hidden = false;
-    inv.innerHTML = `<span class="ma-invite__emoji" aria-hidden="true">🤝</span><div><p class="t-body-03-strong" style="margin:0">${esc(
-      incoming.name
-    )}님이 M&amp;A를 제안했어요</p><p class="t-caption-01 t-secondary" style="margin:0">내 주식을 상장하면 두 차트를 겹쳐 합병 시너지를 볼 수 있어요.</p></div>`;
+    inv.innerHTML = `<b>${esc(incoming.name)}님이 M&amp;A를 제안했어요</b><span>내 주식을 상장하면 두 차트를 겹쳐 합병 시너지를 볼 수 있어요.</span>`;
     $("#start").textContent = "내 주식 상장하고 합병 보기";
   }
   goIntro();

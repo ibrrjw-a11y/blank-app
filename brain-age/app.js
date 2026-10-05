@@ -18,7 +18,7 @@ import { KEYS, META, TIPS, computeAll, ageBand } from "./scoring.js";
 import { startIntro } from "./intro.js";
 import { howTo, countdown, doneScreen, PLAY, HOWTO } from "./games.js";
 import { rollMarkup, rollTo, radarSVG, lineSVG } from "./ui.js";
-import { brainMarkup, initPulses } from "./brain.js";
+import { gaugeSVG, setGauge } from "./instrument.js";
 import { drawShareCard, compareText } from "./card.js";
 
 const store = createStore("brain-age");
@@ -54,7 +54,7 @@ function renderChallengeBanner(el) {
   if (!c || !el) return;
   el.hidden = false;
   el.innerHTML = `
-    <span class="challenge__icon" aria-hidden="true">📩</span>
+    <span class="challenge__icon mono" aria-hidden="true">IN</span>
     <div class="grow">
       <p class="t-body-02-strong">${c.name ? `${esc(c.name)}님의 뇌 나이는 ${c.age}세!` : `도전장 도착! 상대의 뇌 나이는 ${c.age}세`}</p>
       <p class="t-caption-01 t-secondary">나도 재보고 나란히 비교해봐요</p>
@@ -82,7 +82,7 @@ function enterIntro() {
   const nudge = $("#nudge");
   if (last && daysSince(last.t) >= 7) {
     nudge.hidden = false;
-    nudge.textContent = `⏰ 마지막 측정 후 ${daysSince(last.t)}일 지났어요. 다시 재볼 때예요!`;
+    nudge.textContent = `마지막 측정 후 ${daysSince(last.t)}일 지났어요. 다시 재볼 때예요!`;
   } else if (last) {
     nudge.hidden = false;
     nudge.textContent = `지난 기록: 뇌 나이 ${last.age}세`;
@@ -99,7 +99,7 @@ function enterSetup() {
   if (real) $("#realAge").value = real;
   $("#gameList").innerHTML = KEYS.map(
     (k, i) => `<li class="setup__item">
-      <span class="setup__icon" aria-hidden="true">${META[k].icon}</span>
+      <span class="setup__icon mono" aria-hidden="true">${META[k].code}</span>
       <span class="grow"><span class="t-body-02-strong">${i + 1}. ${META[k].name}</span><br /><span class="t-caption-01 t-secondary">${HOWTO[k].lead}</span></span>
       <span class="t-caption-01 t-tertiary">${HOWTO[k].lines[HOWTO[k].lines.length - 1]}</span>
     </li>`
@@ -127,7 +127,7 @@ function readRealAge() {
 /* ---------- 게임 진행 ---------- */
 function renderSteps() {
   $("#steps").innerHTML = KEYS.map(
-    (k) => `<li class="game-step" data-k="${k}"><span aria-hidden="true">${META[k].icon}</span><span class="sr-only">${META[k].name}</span></li>`
+    (k, i) => `<li class="game-step" data-k="${k}"><span class="mono" aria-hidden="true">${i + 1}</span><span class="sr-only">${META[k].name}</span></li>`
   ).join("");
 }
 
@@ -217,8 +217,8 @@ function deltaText(rec) {
   const days = Math.floor((rec.t - prev.t) / DAY);
   const when = days >= 6 && days <= 8 ? "지난주보다" : days >= 1 ? `${days}일 전보다` : "지난번보다";
   const d = prev.age - rec.age;
-  if (d > 0) return `📉 ${when} <b>${d}살 젊어졌어요</b>`;
-  if (d < 0) return `📈 ${when} ${-d}살 많게 나왔어요. 컨디션 탓일 수 있어요`;
+  if (d > 0) return `${when} <b>${d}살 젊어졌어요</b> ↓${d}`;
+  if (d < 0) return `${when} ${-d}살 많게 나왔어요. 컨디션 탓일 수 있어요`;
   return `${when} 그대로예요. 꾸준하네요`;
 }
 
@@ -230,9 +230,9 @@ function cmpHTML(rec) {
     </form>`;
   }
   const d = rec.real - rec.age;
-  if (d > 0) return `<p class="res-cmp t-title-04">실제 나이 ${rec.real}세보다 <b class="t-primary">${d}살 젊어요</b> 🎉</p>`;
-  if (d < 0) return `<p class="res-cmp t-title-04">실제 나이 ${rec.real}세보다 ${-d}살 많게 나왔어요 😅</p><p class="t-caption-01 t-tertiary">피곤하면 이렇게 나오기도 해요. 푹 쉬고 다시 재봐요.</p>`;
-  return `<p class="res-cmp t-title-04">실제 나이 ${rec.real}세와 <b class="t-primary">똑같아요</b></p>`;
+  if (d > 0) return `<p class="res-cmp">실제 나이 ${rec.real}세보다 <mark>${d}살 젊어요</mark></p>`;
+  if (d < 0) return `<p class="res-cmp">실제 나이 ${rec.real}세보다 ${-d}살 많게 나왔어요</p><p class="report__small">피곤하면 이렇게 나오기도 해요. 푹 쉬고 다시 재봐요.</p>`;
+  return `<p class="res-cmp">실제 나이 ${rec.real}세와 <mark>똑같아요</mark></p>`;
 }
 
 function vsHTML(me, comp) {
@@ -243,30 +243,30 @@ function vsHTML(me, comp) {
     const a = me.raw[k];
     const b = c.raw[k];
     const win = a != null && b != null && a !== b ? (META[k].better === "low" ? (a < b ? "me" : "them") : a > b ? "me" : "them") : "";
-    const cell = (v, on) => `<span class="vs__cell t-num${on ? " is-win" : ""}">${v == null ? "–" : META[k].fmt(v)}${on ? " 👍" : ""}</span>`;
-    return `<li class="vs__row"><span class="vs__k">${META[k].icon} ${META[k].short}</span>${cell(a, win === "me")}${cell(b, win === "them")}</li>`;
+    const cell = (v, on) => `<span class="vs__cell t-num${on ? " is-win" : ""}">${v == null ? "–" : META[k].fmt(v)}</span>`;
+    return `<li class="vs__row"><span class="vs__k"><b class="mono">${META[k].code}</b> ${META[k].short}</span>${cell(a, win === "me")}${cell(b, win === "them")}</li>`;
   }).join("");
   const gap = Math.abs(me.age - c.age);
   const msg =
     gap <= 2
-      ? "거의 똑같아요! 역시 통하는 사이네요 😄"
+      ? "거의 똑같아요! 역시 통하는 사이네요"
       : me.age < c.age
         ? `이번엔 제가 조금 더 젊게 나왔어요. 다음엔 ${esc(who(c))}이랑 같이 재봐요!`
-        : `이번엔 ${esc(who(c))}이 한 수 위! 일주일 뒤에 다시 도전해봐요 💪`;
+        : `이번엔 ${esc(who(c))}이 한 수 위! 일주일 뒤에 다시 도전해봐요`;
   const myWins = KEYS.filter((k) => me.raw[k] != null && c.raw[k] != null && isBetter(k, me.raw[k], c.raw[k])).map((k) => META[k].short);
-  return `<div class="card card--flat vs">
-    <p class="t-label-02 t-primary">🤝 ${esc(who(c))}과 나란히 보기</p>
+  return `<div class="paper vs">
+    <p class="paper__title mono"><span>나란히 보기</span><span>나 & ${esc(c.name || "상대")}</span></p>
     <div class="vs__ages">
-      <div><span class="t-caption-01 t-secondary">나</span><b class="t-num">${me.age}</b><span class="t-label-02">세</span></div>
+      <div><span class="mono">나</span><b class="t-num">${me.age}<small>세</small></b></div>
       <span class="vs__and" aria-hidden="true">&amp;</span>
-      <div><span class="t-caption-01 t-secondary">${esc(c.name || "상대")}</span><b class="t-num">${c.age}</b><span class="t-label-02">세</span></div>
+      <div><span class="mono">${esc(c.name || "상대")}</span><b class="t-num">${c.age}<small>세</small></b></div>
     </div>
     <ul class="vs__list">
       <li class="vs__row vs__row--head"><span></span><span>나</span><span>${esc(c.name || "상대")}</span></li>
       ${rows}
     </ul>
-    <p class="t-body-03">${msg}${myWins.length ? ` 저는 ${myWins.join("·")} 쪽이 강했어요.` : ""}</p>
-    <p class="t-caption-01 t-tertiary">점선 그래프가 ${esc(who(c))} 결과예요. 순위가 아니라 같이 노는 비교예요.</p>
+    <p class="paper__text">${msg}${myWins.length ? ` 저는 ${myWins.join("·")} 쪽이 강했어요.` : ""}</p>
+    <p class="report__small">능력치 그래프의 점선이 ${esc(who(c))} 결과예요. 순위가 아니라 같이 노는 비교예요.</p>
   </div>`;
 }
 
@@ -281,87 +281,89 @@ function renderResult(rec, { fresh = false, newBest = new Set(), timesBefore = 0
   const nextLabel = `${next.getMonth() + 1}월 ${next.getDate()}일(${"일월화수목금토"[next.getDay()]})`;
   const overdue = Date.now() >= next.getTime();
 
+  const dt = new Date(rec.t);
+  const pad2 = (n) => String(n).padStart(2, "0");
+  const stamp = `${dt.getFullYear()}.${pad2(dt.getMonth() + 1)}.${pad2(dt.getDate())} ${pad2(dt.getHours())}:${pad2(dt.getMinutes())}`;
+  const no = String(Math.max(1, list.findIndex((r) => r.t === rec.t) + 1)).padStart(4, "0");
+
   $("#resultBody").innerHTML = `
   <div class="res stack gap-16">
-    <div class="res-hero">
-      <div class="res-hero__brain" aria-hidden="true">${brainMarkup()}</div>
-      <p class="t-label-02 t-secondary">당신의 뇌 나이</p>
-      <div class="res-age">${rollMarkup(rec.age, `${rec.age}세`)}<span class="res-age__unit">세</span></div>
-      <p class="t-body-03 t-secondary">${ageBand(rec.age)} 수준 · 재미로 보는 측정이에요</p>
+    <article class="paper report">
+      <header class="paper__title mono"><span>뇌 나이 검사 성적서</span><span>No.${no}</span></header>
+      <p class="report__meta mono">${stamp} · 5CH · 재미용</p>
+      <div class="report__main">
+        <div class="report__gauge">${gaugeSVG()}</div>
+        <div class="report__age">
+          <span class="report__k">뇌 나이</span>
+          <span class="report__num">${rollMarkup(rec.age, `${rec.age}세`)}<small>세</small></span>
+          <span class="report__band">${ageBand(rec.age)} 수준</span>
+        </div>
+      </div>
       ${cmpHTML(rec)}
-      ${delta ? `<p class="res-delta t-body-03">${delta}</p>` : ""}
-    </div>
+      ${delta ? `<p class="res-delta">${delta}</p>` : ""}
+      <span class="stamp report__stamp">${state.challenge ? "도전 완료" : "측정 완료"}</span>
+    </article>
 
     ${vsHTML(rec, comp)}
 
     <div class="res-actions stack gap-8">
-      <button class="btn btn--primary btn--lg btn--block" id="toParents">📩 ${state.challenge ? `${esc(who(state.challenge))}께 답장 보내기` : "부모님께 도전장 보내기"}</button>
+      <button class="btn btn--primary btn--lg btn--block btn--spring" id="toParents">${state.challenge ? `${esc(who(state.challenge))}께 답장 보내기` : "부모님께 도전장 보내기"}</button>
       <div class="res-actions__row">
-        <button class="btn btn--secondary btn--block" id="saveImage">🖼️ 결과 이미지</button>
-        <button class="btn btn--outline btn--block" id="again">🔁 다시 측정</button>
+        <button class="btn btn--secondary btn--block btn--spring" id="saveImage">성적서 이미지</button>
+        <button class="btn btn--outline btn--block btn--spring" id="again">다시 측정</button>
       </div>
     </div>
 
-    <div class="card card--flat res-radar">
-      <h2 class="t-title-04">다섯 가지 능력치</h2>
-      ${radarSVG(comp.skills, { compare: them })}
-      <p class="t-caption-01 t-tertiary">0~100점, 클수록 젊은 쪽이에요. ${them ? `점선은 ${esc(who(state.challenge))} 결과예요.` : ""}</p>
-    </div>
-
-    ${
-      comp.best && comp.weak && comp.best !== comp.weak
-        ? `<div class="res-bw">
-      <div class="card card--flat res-bw__item">
-        <span class="badge">가장 강한 능력</span>
-        <p class="t-title-04">${META[comp.best].icon} ${META[comp.best].name}</p>
-        <p class="t-body-03 t-secondary">${TIPS[comp.best].best}</p>
-      </div>
-      <div class="card card--flat res-bw__item">
-        <span class="badge badge--weak">더 키워볼 능력</span>
-        <p class="t-title-04">${META[comp.weak].icon} ${META[comp.weak].name}</p>
-        <p class="t-body-03 t-secondary">${TIPS[comp.weak].weak}</p>
-      </div>
-    </div>`
-        : ""
-    }
-
-    <div class="card card--flat">
-      <h2 class="t-title-04">게임별 기록</h2>
-      <ul class="res-games">
+    <section class="paper">
+      <p class="paper__title mono"><span>채널별 측정값</span><span>RAW → 환산</span></p>
+      <table class="report__table">
+        <thead><tr><th scope="col">채널</th><th scope="col">측정값</th><th scope="col">환산</th><th scope="col">개인 최고</th></tr></thead>
+        <tbody>
         ${KEYS.map((k) => {
           const v = rec.raw[k];
           const a = comp.ages[k];
-          return `<li class="res-game">
-            <span class="res-game__icon" aria-hidden="true">${META[k].icon}</span>
-            <span class="grow">
-              <span class="t-body-02-strong">${META[k].name}</span>${newBest.has(k) ? ` <span class="badge">🏅 최고 기록</span>` : ""}<br />
-              <span class="t-caption-01 t-tertiary">${v == null ? "이번엔 건너뛰었어요" : `개인 최고 ${META[k].fmt(best[k] ?? v)}`}${k === "hear" && rec.unsure ? " · 무음 문제 오답으로 절반 반영" : ""}</span>
-            </span>
-            <span class="res-game__v">
-              <b class="t-body-02-strong t-num">${v == null ? "–" : META[k].fmt(v)}</b><br />
-              <span class="t-caption-01 t-secondary">${a == null ? "" : `${a}세 느낌`}</span>
-            </span>
-          </li>`;
+          return `<tr>
+            <th scope="row"><b class="mono">${META[k].code}</b> ${META[k].name}</th>
+            <td class="mono">${v == null ? "건너뜀" : META[k].fmt(v)}${newBest.has(k) ? ` <em class="new">NEW</em>` : ""}</td>
+            <td class="mono">${a == null ? "–" : `${a}세`}</td>
+            <td class="mono">${v == null && best[k] == null ? "–" : META[k].fmt(best[k] ?? v)}</td>
+          </tr>`;
         }).join("")}
-      </ul>
-    </div>
+        </tbody>
+      </table>
+      ${rec.unsure ? `<p class="report__small">CH4: 소리 없는 문제에서 '들려요'를 눌러서 절반만 반영했어요.</p>` : ""}
+    </section>
 
-    <div class="card card--flat">
-      <div class="row between"><h2 class="t-title-04">뇌 나이 기록</h2><span class="t-caption-01 t-tertiary">${list.length}회 측정</span></div>
+    <section class="paper">
+      <p class="paper__title mono"><span>능력치</span><span>0–100</span></p>
+      <div class="res-radar">${radarSVG(comp.skills, { compare: them })}</div>
+      <p class="report__small">클수록 젊은 쪽이에요.${them ? ` 점선은 ${esc(who(state.challenge))} 결과예요.` : ""}</p>
+      ${
+        comp.best && comp.weak && comp.best !== comp.weak
+          ? `<div class="notes">
+        <div class="note"><p class="note__k mono">강점 · ${META[comp.best].code}</p><p class="note__t">${META[comp.best].name}</p><p class="note__d">${TIPS[comp.best].best}</p></div>
+        <div class="note"><p class="note__k mono">더 키워볼 것 · ${META[comp.weak].code}</p><p class="note__t">${META[comp.weak].name}</p><p class="note__d">${TIPS[comp.weak].weak}</p></div>
+      </div>`
+          : ""
+      }
+    </section>
+
+    <section class="paper paper--chart">
+      <p class="paper__title mono"><span>뇌 나이 기록지</span><span>${list.length}회 측정</span></p>
       ${
         list.length >= 2
-          ? `${lineSVG(list.slice(-10).map((r) => ({ t: r.t, age: r.age })), rec.real)}<p class="t-caption-01 t-tertiary">아래로 갈수록 젊어요. 최근 10회까지 보여줘요.</p>`
-          : `<div class="res-empty"><p class="t-body-03 t-secondary">다음 측정부터 그래프가 그려져요. 일주일 뒤 같은 시간에 재면 변화가 잘 보여요.</p></div>`
+          ? `${lineSVG(list.slice(-10).map((r) => ({ t: r.t, age: r.age })), rec.real)}<p class="report__small">아래로 갈수록 젊어요. 최근 10회까지 보여줘요.</p>`
+          : `<p class="paper__text">다음 측정부터 기록지에 선이 그려져요. 일주일 뒤 같은 시간대에 재면 변화가 잘 보여요.</p>`
       }
-    </div>
+    </section>
 
-    <div class="card res-remind">
-      <span class="res-remind__icon" aria-hidden="true">⏰</span>
+    <div class="remind">
+      <div class="remind__date mono"><span>NEXT</span><b>${next.getMonth() + 1}/${next.getDate()}</b></div>
       <div class="grow">
-        <p class="t-body-02-strong">${overdue ? "일주일이 지났어요. 다시 재볼 때예요!" : "7일 후 다시 재보세요"}</p>
-        <p class="t-caption-01 t-secondary">${overdue ? "같은 시간대에 재면 변화가 더 잘 보여요." : `다음 측정 추천일 ${nextLabel}. 같은 시간대에 재면 변화가 잘 보여요.`}</p>
+        <p class="t-body-02-strong">${overdue ? "일주일이 지났어요. 다시 재볼 때예요" : "7일 후 다시 재보세요"}</p>
+        <p class="t-caption-01 t-secondary">${overdue ? "같은 시간대에 재면 변화가 더 잘 보여요." : `${nextLabel}, 같은 시간대에 재면 변화가 잘 보여요.`}</p>
       </div>
-      <button class="btn btn--outline btn--sm" id="${overdue ? "againRemind" : "calendar"}">${overdue ? "지금 재기" : "캘린더 추가"}</button>
+      <button class="btn btn--outline btn--sm btn--spring" id="${overdue ? "againRemind" : "calendar"}">${overdue ? "지금 재기" : "캘린더 추가"}</button>
     </div>
 
     <p class="res-note t-caption-01 t-tertiary">
@@ -370,14 +372,15 @@ function renderResult(rec, { fresh = false, newBest = new Set(), timesBefore = 0
   </div>`;
 
   showView("result");
-  initPulses($("#resultBody"));
-  rollTo($("#resultBody .res-age .roll"), rec.age, { delay: fresh ? 250 : 0, duration: fresh ? 1800 : 600 });
+  const report = $("#resultBody .report");
+  const gauge = report.querySelector(".gauge-svg");
+  rollTo(report.querySelector(".roll"), rec.age, { delay: fresh ? 300 : 0, duration: fresh ? 1500 : 500 });
+  setGauge(gauge, 80, { anticipate: false, stiffness: 500, damping: 40 }).then(() =>
+    setTimeout(() => setGauge(gauge, rec.age).then(() => report.classList.add("is-done")), fresh ? 250 : 0)
+  );
   if (fresh) {
     haptic([10, 30, 10]);
-    setTimeout(() => $(".res-hero")?.classList.add("is-landed"), 1900);
-    if (timesBefore === 0) setTimeout(() => toast("첫 기록이 저장됐어요. 일주일 뒤에 비교해봐요"), 2200);
-  } else {
-    $(".res-hero").classList.add("is-landed");
+    if (timesBefore === 0) setTimeout(() => toast("첫 기록이 저장됐어요. 일주일 뒤에 비교해봐요"), 2400);
   }
 
   $("#toParents").onclick = () => openShare(rec);
@@ -407,7 +410,8 @@ function renderResult(rec, { fresh = false, newBest = new Set(), timesBefore = 0
 async function saveImage(rec, comp, btn) {
   btn.classList.add("is-loading");
   try {
-    const canvas = drawShareCard({ comp, raw: rec.raw, real: rec.real });
+    const no = Math.max(1, history().findIndex((r) => r.t === rec.t) + 1);
+    const canvas = drawShareCard({ comp, raw: rec.raw, real: rec.real, no, t: rec.t });
     await shareImage(canvas, {
       filename: `brain-age-${rec.age}.png`,
       title: "뇌 나이 측정소",
@@ -433,7 +437,7 @@ function addCalendar(date) {
     `DTSTAMP:${stamp}`,
     `DTSTART;VALUE=DATE:${ymd(date)}`,
     `DTEND;VALUE=DATE:${ymd(end)}`,
-    "SUMMARY:🧠 뇌 나이 다시 재기",
+    "SUMMARY:뇌 나이 다시 재기",
     `DESCRIPTION:일주일 전보다 젊어졌을까요? ${url}`,
     "BEGIN:VALARM",
     "TRIGGER:PT20H",
@@ -449,10 +453,10 @@ function addCalendar(date) {
 
 /* ---------- 도전장 보내기 ---------- */
 const TO = {
-  mom: { label: "👩 엄마", text: (a) => `엄마, 내 뇌 나이 ${a}세래. 엄마도 해봐! 🧠` },
-  dad: { label: "👨 아빠", text: (a) => `아빠, 내 뇌 나이 ${a}세래. 아빠도 해봐! 🧠` },
-  parents: { label: "👪 부모님", text: (a) => `엄마 아빠, 내 뇌 나이 ${a}세래. 두 분도 해보세요! 🧠` },
-  friend: { label: "🙋 친구", text: (a) => `나 뇌 나이 ${a}세 나왔어. 너도 해봐! 🧠` },
+  mom: { label: "엄마", text: (a) => `엄마, 내 뇌 나이 ${a}세래. 엄마도 해봐!` },
+  dad: { label: "아빠", text: (a) => `아빠, 내 뇌 나이 ${a}세래. 아빠도 해봐!` },
+  parents: { label: "부모님", text: (a) => `엄마 아빠, 내 뇌 나이 ${a}세래. 두 분도 해보세요!` },
+  friend: { label: "친구", text: (a) => `나 뇌 나이 ${a}세 나왔어. 너도 해봐!` },
 };
 
 function openShare(rec) {
@@ -461,8 +465,8 @@ function openShare(rec) {
   const options = { ...TO };
   if (c) {
     options.reply = {
-      label: `↩️ ${c.name || "보낸 사람"}`,
-      text: (a) => `${c.name ? `${c.name}, ` : ""}나도 해봤어! 내 뇌 나이는 ${a}세 🧠 우리 나란히 비교해봐`,
+      label: `답장: ${c.name || "보낸 사람"}`,
+      text: (a) => `${c.name ? `${c.name}, ` : ""}나도 해봤어! 내 뇌 나이는 ${a}세. 우리 나란히 비교해봐`,
     };
   }
   let to = c ? "reply" : store.get("to", "mom");

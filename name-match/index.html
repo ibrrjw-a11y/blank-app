@@ -19,6 +19,9 @@
     <meta property="og:url" content="https://example.com/name-match/" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💞</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Gaegu:wght@400;700&family=Jua&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
@@ -86,9 +89,9 @@
           </div>
 
           <!-- 여러 명 -->
-          <div class="card stack gap-16" id="groupPane">
+          <div class="page tape stack gap-16" id="groupPane">
             <div>
-              <h1 class="t-title-03 m0">이름을 붙여넣어 주세요</h1>
+              <h1 class="t-title-03 m0"><span class="mark">단톡방 이름</span>을 붙여넣어 주세요</h1>
               <p class="t-body-03 t-secondary m0">단톡방 멤버 목록을 복사해 붙여넣으면 쉼표·줄바꿈·띄어쓰기로 나눠서 넣어줘요. 2~12명까지 돼요.</p>
             </div>
             <div class="field" id="nameField">
@@ -110,13 +113,13 @@
           </div>
 
           <!-- 1:1 -->
-          <div class="card stack gap-16" id="onePane" hidden>
+          <div class="page tape stack gap-16" id="onePane" hidden>
             <div>
-              <h1 class="t-title-03 m0">두 사람 이름을 넣어 주세요</h1>
+              <h1 class="t-title-03 m0"><span class="mark">두 사람 이름</span>을 넣어 주세요</h1>
               <p class="t-body-03 t-secondary m0">순서를 바꾸면 결과가 달라서, 양쪽 방향을 모두 보여줘요.</p>
             </div>
             <label class="field"><span class="field__label">나</span><input class="input" id="oneA" maxlength="10" placeholder="예: 민수" autocomplete="off" /></label>
-            <div class="one-heart" aria-hidden="true">💞</div>
+            <div class="one-heart" aria-hidden="true"><svg class="pixel-heart" viewBox="0 0 7 6" width="32" height="28"><path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg></div>
             <label class="field"><span class="field__label">그 사람</span><input class="input" id="oneB" maxlength="10" placeholder="예: 지영" autocomplete="off" /></label>
             <span class="field__help" id="oneHelp">한글 이름만 계산해요</span>
             <button class="btn btn--primary btn--lg btn--block" id="oneBtn" disabled>궁합 보기</button>
@@ -137,13 +140,13 @@
         </header>
         <div class="stack gap-16 pad-b">
           <div class="shared-note" id="sharedNote" hidden>👀 친구가 보낸 궁합표예요. 우리 방 이름으로도 만들어 보세요!</div>
-          <div>
+          <div class="result-head">
             <p class="t-label-02 t-primary m0" id="resultKicker">단톡방 궁합표</p>
             <h1 class="t-title-02 m0" id="resultTitle">궁합표</h1>
           </div>
 
           <!-- 매트릭스 -->
-          <div class="card matrix-card" id="matrixCard">
+          <div class="page tape matrix-card" id="matrixCard">
             <p class="t-caption-01 t-secondary m0 matrix-legend">
               <b>가로줄</b> 사람이 <b>세로줄</b> 사람을 생각하는 마음이에요. 칸을 누르면 계산 과정을 보여줘요.
             </p>

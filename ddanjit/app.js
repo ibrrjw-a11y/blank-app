@@ -15,7 +15,12 @@ let intro;
 let cleanup = null;
 
 /* ---------- 라우팅 ---------- */
+function closeSheets() {
+  $$(".sheet.is-open, .sheet-scrim.is-open").forEach((el) => el.classList.remove("is-open"));
+}
+
 function route() {
+  closeSheets();
   const id = location.hash.replace("#", "");
   cleanup?.();
   cleanup = null;
@@ -42,6 +47,7 @@ function leaveIntro(target) {
 /* ---------- 인트로 ---------- */
 function startIntro() {
   setView("intro");
+  splitHeadline();
   const target = location.hash.replace("#", "");
   const btn = $("#start");
   if (byId[target]) btn.textContent = `추천받은 ${byId[target].emoji} ${byId[target].name} 하러 가기`;
@@ -91,8 +97,8 @@ function introScenes() {
   const [gx, gy] = P(35.15, 126.9);
   return [
     {
-      title: "🔍 줌아웃",
-      desc: "확 당겨진 그림이 틀릴 때마다 한 칸씩 멀어져요. 점점 보이면 맞혀요",
+      title: `<span class="pix">GAME 1</span>줌아웃`,
+      desc: "틀릴 때마다 한 칸씩 멀어지는 그림, 점점 보이면 맞혀요",
       duration: 3600,
       play(stage) {
         cabinet(stage).innerHTML = `<div class="sc sc-zoom">
@@ -107,8 +113,8 @@ function introScenes() {
       },
     },
     {
-      title: "🧭 오늘의 동네",
-      desc: "틀려도 거리와 방향이 힌트예요. 점점 가까워지는 감각!",
+      title: `<span class="pix">GAME 2</span>오늘의 동네`,
+      desc: "틀려도 거리와 방향이 힌트. 점점 가까워지는 감각",
       duration: 3400,
       play(stage) {
         cabinet(stage).innerHTML = `<div class="sc sc-town">
@@ -127,8 +133,8 @@ function introScenes() {
       },
     },
     {
-      title: "💸 그때 그 가격",
-      desc: "“1980년 짜장면은?” 업·다운 힌트로 그 시절 가격을 좁혀가요",
+      title: `<span class="pix">GAME 3</span>그때 그 가격`,
+      desc: "업·다운 힌트로 그 시절 물가를 좁혀가요",
       duration: 3600,
       play(stage) {
         cabinet(stage).innerHTML = `<div class="sc sc-price">
@@ -147,8 +153,8 @@ function introScenes() {
       },
     },
     {
-      title: "📼 추억 연대기",
-      desc: "카드를 시간 순서대로 끼워 넣어요. 당신은 몇 년대 감성?",
+      title: `<span class="pix">GAME 4</span>추억 연대기`,
+      desc: "추억 카드를 시간 순서대로 끼워 넣어요",
       duration: 3800,
       play(stage) {
         cabinet(stage).innerHTML = `<div class="sc sc-time">
@@ -162,6 +168,23 @@ function introScenes() {
       },
     },
   ];
+}
+
+/* ---------- 키네틱 타이포: 글자 단위 분해 ---------- */
+export function splitChars(text) {
+  return Array.from(text)
+    .map((c, i) => (c === " " ? `<span class="sp"> </span>` : `<span class="ch" style="--i:${i}">${esc(c)}</span>`))
+    .join("");
+}
+
+function splitHeadline() {
+  let i = 0;
+  $$("[data-split]").forEach((el) => {
+    const text = el.textContent;
+    el.innerHTML = Array.from(text)
+      .map((c) => (c === " " ? `<span class="sp"> </span>` : `<span class="ch" style="--i:${i++}" aria-hidden="true">${esc(c)}</span>`))
+      .join("");
+  });
 }
 
 /* ---------- 허브 ---------- */
@@ -179,20 +202,24 @@ function showHub() {
   const statuses = GAMES.map((g) => ({ g, s: statusOf(g) }));
   const doneCount = statuses.filter((x) => x.s.kind === "done").length;
   const d = new Date(DATE + "T00:00:00");
-  const dateLabel = `${d.getMonth() + 1}월 ${d.getDate()}일 ${"일월화수목금토"[d.getDay()]}요일`;
+  const dateLabel = `${d.getMonth() + 1}월 ${d.getDate()}일`;
+  const weekday = `${"일월화수목금토"[d.getDay()]}요일`;
 
   $("#hub").innerHTML = `
     <header class="topbar">
       <span class="topbar__brand"><span class="hub-logo" aria-hidden="true">🕹️</span>딴짓 오락실</span>
-      <span class="streak-chip ${os.streak ? "is-on" : ""}" title="하루에 한 게임 이상 끝낸 날이 이어진 수">🔥 ${os.streak}일 연속</span>
+      <span class="streak-chip ${os.streak ? "is-on" : ""}" title="하루에 한 게임 이상 끝낸 날이 이어진 수">연속 ${os.streak}일</span>
     </header>
     <section class="hub-hero">
-      <p class="t-label-02 t-primary hub-hero__no">오늘의 딴짓 #${DAY}</p>
-      <h2 class="t-title-01 hub-hero__title">${dateLabel}</h2>
-      <div class="hub-progress" role="img" aria-label="오늘 ${doneCount}/4 완료">
-        ${statuses.map((x) => `<i class="${x.s.kind === "done" ? (x.s.sum.won ? "is-win" : "is-done") : x.s.kind === "doing" ? "is-doing" : ""}"></i>`).join("")}
+      <p class="hub-hero__no">STAGE ${DAY} · 오늘의 딴짓</p>
+      <h2 class="hub-hero__title">${splitChars(dateLabel)}<span class="hub-hero__wd">${weekday}</span></h2>
+      <span class="seg" title="다음 문제까지"><small>다음 문제</small><span data-countdown>${fmtCountdown(msToNextPuzzle())}</span></span>
+      <div class="hub-hero__meta">
+        <span class="lamps" role="img" aria-label="오늘 ${doneCount}/4 완료">
+          ${statuses.map((x) => `<i class="${x.s.kind === "done" ? (x.s.sum.won ? "is-win" : "is-done") : x.s.kind === "doing" ? "is-doing" : ""}"></i>`).join("")}
+        </span>
+        <span class="t-body-03 t-secondary">오늘 <b class="t-num">${doneCount}/4</b> 클리어</span>
       </div>
-      <p class="t-body-03 t-secondary hub-hero__meta">오늘 <b class="t-num">${doneCount}/4</b> 완료 · 다음 문제까지 <b class="t-num" data-countdown>${fmtCountdown(msToNextPuzzle())}</b></p>
     </section>
     <section class="tiles">
       ${statuses
@@ -213,7 +240,7 @@ function showHub() {
     ${
       doneCount === GAMES.length
         ? `<section class="card card--flat all-done">
-            <p class="t-title-04">오늘 딴짓 끝! 🎉</p>
+            <p class="t-title-04">오늘 딴짓 끝!</p>
             <p class="t-body-03 t-secondary">내일 자정(한국 시간)에 새 문제가 나와요.</p>
             <button class="btn btn--primary btn--block" id="share-all">오늘 결과 한 번에 공유하기</button>
           </section>`
@@ -270,7 +297,9 @@ function openGame(g) {
         confetti();
         haptic([18, 40, 18]);
       } else haptic(30);
-      setTimeout(() => openResult(g, s), sum.won ? 1100 : 1300);
+      setTimeout(() => {
+        if (location.hash.replace("#", "") === g.id) openResult(g, s);
+      }, sum.won ? 1100 : 1300);
     },
     openResult() {
       openResult(g, state);
@@ -291,7 +320,7 @@ function openResult(g, s) {
   sheet.innerHTML = `
     <div class="res">
       <div class="res__head">
-        <span class="res__emoji is-pop" aria-hidden="true">${sum.won ? "🎉" : "🫠"}</span>
+        <span class="res__badge pix ${sum.won ? "is-win" : ""}">${sum.won ? "CLEAR!" : "GAME OVER"}</span>
         <h2 class="t-title-02">${esc(sum.headline)}</h2>
         <p class="res__grid">${esc(sum.grid)}</p>
       </div>

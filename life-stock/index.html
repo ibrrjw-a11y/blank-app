@@ -20,6 +20,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=IBM+Plex+Sans+KR:wght@500;700&display=swap" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="application/ld+json">
@@ -68,10 +70,10 @@
         <div class="intro__stage" aria-hidden="true"></div>
         <div class="intro__steps"></div>
         <div class="intro__caption" aria-live="polite"></div>
-        <div class="ma-invite card card--flat" id="maInvite" hidden></div>
+        <div class="ma-invite" id="maInvite" hidden></div>
         <div class="intro__cta">
           <button class="btn btn--primary btn--lg btn--block" id="start">내 주식 상장하기</button>
-          <button class="btn btn--ghost btn--block" id="openCal" type="button">📅 손 없는 날 달력만 보기</button>
+          <button class="btn btn--ghost btn--block" id="openCal" type="button">손 없는 날 달력만 보기 →</button>
         </div>
       </section>
 
@@ -84,7 +86,7 @@
         </header>
         <form id="form" class="stack gap-24 form" novalidate>
           <div>
-            <p class="t-label-02 t-primary">KRX 인생시장 · 신규 상장 신청</p>
+            <span class="fn"><b>IPO</b>KRX 인생시장 · 신규 상장 신청</span>
             <h1 class="t-title-01 form__title">내 인생을 상장해 볼까요?</h1>
             <p class="t-body-03 t-secondary">생년월일시로 사주 8글자를 뽑고, 대운·세운을 주가로 바꿔요.</p>
           </div>
@@ -128,7 +130,7 @@
             <span class="field__help" id="gHelp"></span>
           </fieldset>
 
-          <button class="btn btn--primary btn--lg btn--block" type="submit" id="submit">🔔 상장하기</button>
+          <button class="btn btn--primary btn--lg btn--block" type="submit" id="submit">상장 신청하기</button>
           <p class="t-caption-01 t-tertiary t-center">입력한 정보는 이 기기에만 저장돼요. 재미로 보는 콘텐츠예요.</p>
         </form>
       </section>
@@ -136,7 +138,7 @@
       <!-- 3) 대시보드 -->
       <section data-view="dash" hidden id="dash">
         <header class="topbar">
-          <a class="topbar__brand" href="./">📈 나 상장하기</a>
+          <a class="topbar__brand" href="./"><span class="fn"><b>KRX</b></span>나 상장하기</a>
           <button class="btn btn--ghost btn--sm" type="button" id="shareTop">공유하기</button>
         </header>
 
@@ -152,7 +154,7 @@
 
         <section class="panel" id="sec-chart">
           <div class="panel__head">
-            <h2 class="t-title-04">평생 차트</h2>
+            <div><span class="fn"><b>GP</b>Lifetime</span><h2>평생 차트</h2></div>
             <div class="seg seg--sm" role="tablist" aria-label="기간" id="rangeTabs">
               <button type="button" class="seg__btn" data-range="all" aria-pressed="true">전체</button>
               <button type="button" class="seg__btn" data-range="10y" aria-pressed="false">10년</button>
@@ -171,7 +173,7 @@
 
         <section class="panel" id="sec-candle">
           <div class="panel__head">
-            <h2 class="t-title-04" id="candleTitle">이번 달 일봉</h2>
+            <div><span class="fn"><b>OHLC</b>Daily</span><h2 id="candleTitle">이번 달 일봉</h2></div>
             <span class="badge" id="streakBadge"></span>
           </div>
           <div class="today" id="todayBox"></div>
@@ -183,7 +185,7 @@
 
         <section class="panel" id="sec-cal">
           <div class="panel__head">
-            <h2 class="t-title-04">택일 캘린더</h2>
+            <div><span class="fn"><b>CAL</b>Lucky days</span><h2>택일 캘린더</h2></div>
           </div>
           <div class="cal" id="calMain"></div>
         </section>
@@ -191,11 +193,11 @@
         <section class="panel" id="sec-ma"></section>
 
         <section class="panel share-panel">
-          <h2 class="t-title-04">내 종목 자랑하기</h2>
+          <span class="fn"><b>SHR</b>Share</span><h2>내 종목 자랑하기</h2>
           <p class="t-body-03 t-secondary">결과 카드를 저장하거나 링크를 보내 친구 종목과 합병해 보세요.</p>
           <div class="stack gap-8">
-            <button class="btn btn--primary btn--block" type="button" id="shareImg">📷 결과 카드 저장하기</button>
-            <button class="btn btn--outline btn--block" type="button" id="shareLink">🔗 M&amp;A 제안 링크 보내기</button>
+            <button class="btn btn--primary btn--block" type="button" id="shareImg">결과 카드 저장하기</button>
+            <button class="btn btn--outline btn--block" type="button" id="shareLink">링크로 공유하기</button>
             <button class="btn btn--ghost btn--block" type="button" id="reset">다른 사람 상장하기</button>
           </div>
         </section>

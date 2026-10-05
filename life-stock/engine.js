@@ -275,10 +275,15 @@ export function analyze(input) {
     const r = seededRandom(seed ^ hashString(`${o.y}-${o.m}-${o.d}`))();
     return clamp(0.8 * gzScore(dayGZ(o.y, o.m, o.d)) + 0.45 * (r - 0.5), -1, 1);
   };
+  // 그날 일진(짧은 출렁임) + 최근 열흘 일진의 지수평균(며칠씩 이어지는 흐름)
   const dayPrice = (o) => {
-    const s0 = dayScore(o);
-    const s1 = dayScore(addDays(o, -1));
-    return basePrice(tOf(o)) * Math.exp(0.028 * (0.65 * s0 + 0.35 * s1));
+    let ema = 0;
+    let wsum = 0;
+    for (let k = 0, w = 1; k < 14; k++, w *= 0.85) {
+      ema += w * dayScore(addDays(o, -k));
+      wsum += w;
+    }
+    return basePrice(tOf(o)) * Math.exp(0.006 * dayScore(o) + 0.016 * (ema / wsum));
   };
   const candle = (o) => {
     const prev = addDays(o, -1);
@@ -344,10 +349,10 @@ export function daeunLabel(P, dy) {
 //  - 연애 = 남성은 재성, 여성은 관성 (전통 해석) + 식상(표현력) 절반
 //  - 건강 = 세운 오행이 원국 균형을 돕는지(부족한 오행 보충 +, 과다 오행 가중 -)
 export const SECTORS = [
-  { key: "money", name: "재물", emoji: "💰" },
-  { key: "love", name: "연애", emoji: "💘" },
-  { key: "health", name: "건강", emoji: "🩺" },
-  { key: "work", name: "직장", emoji: "💼" },
+  { key: "money", name: "재물", god: "재성" },
+  { key: "love", name: "연애", god: "재·관·식상" },
+  { key: "health", name: "건강", god: "오행 균형" },
+  { key: "work", name: "직장", god: "관성" },
 ];
 export function sectorValue(P, key, year) {
   const sy = yearGZ(year);
@@ -496,10 +501,10 @@ export function dayComment(P, c) {
 
 // 택일: 카테고리별 날짜 점수
 export const PURPOSES = [
-  { key: "interview", name: "면접", emoji: "💼", god: 3 },
-  { key: "confess", name: "고백", emoji: "💘", god: null },
-  { key: "move", name: "이사", emoji: "📦", god: null },
-  { key: "contract", name: "계약", emoji: "✍️", god: 2 },
+  { key: "interview", name: "면접", god: 3 },
+  { key: "confess", name: "고백", god: null },
+  { key: "move", name: "이사", god: null },
+  { key: "contract", name: "계약", god: 2 },
 ];
 export function monthCalendar(P, y, m) {
   const n = daysInMonth(y, m);

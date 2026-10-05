@@ -17,6 +17,9 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&display=swap" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="application/ld+json">
@@ -47,99 +50,118 @@
   </head>
   <body>
     <main class="app">
-      <!-- 1) 첫 화면: 모션그래픽 -->
+      <!-- 1) 첫 화면: 생중계 형식 모션그래픽 -->
       <section class="intro" id="intro" data-view="intro">
-        <div class="intro__head row between">
-          <span class="topbar__brand"><span aria-hidden="true">🎯</span> 누가 쏠래?</span>
-          <span class="badge">벌칙 추첨 레이스</span>
+        <div class="bc-top">
+          <span class="live-bug"><i></i>LIVE</span>
+          <span class="wordmark">누가 쏠래?</span>
+          <span class="odo" aria-hidden="true"><span class="odo__col"></span><span class="odo__col"></span><b>:</b><span class="odo__col"></span><span class="odo__col"></span><b>.</b><span class="odo__col"></span></span>
         </div>
         <div class="intro__stage" aria-hidden="true"></div>
-        <div class="intro__steps"></div>
-        <div class="intro__caption" aria-live="polite"></div>
+        <div class="bc-steps" role="group" aria-label="장면"></div>
+        <div class="intro__caption" aria-live="polite">
+          <h1 class="kinetic" aria-label="누가 쏠래?"></h1>
+          <p class="intro__desc t-body-03"></p>
+        </div>
         <div class="intro__cta">
-          <p class="intro__invite t-body-03 t-center" id="invite" hidden></p>
-          <button class="btn btn--primary btn--lg btn--block" id="start">내기 시작하기</button>
-          <button class="btn btn--ghost btn--block" id="introLedger" hidden>📒 벌칙 장부 보기</button>
+          <p class="intro__invite t-label-02" id="invite" hidden></p>
+          <button class="btn btn--primary btn--lg btn--block btn--go" id="start"><span>내기 시작하기</span><span class="btn--go__arrow" aria-hidden="true">→</span></button>
+          <button class="btn btn--ghost btn--block" id="introLedger" hidden>벌칙 장부 보기</button>
         </div>
       </section>
 
       <!-- 2) 설정 -->
       <section data-view="setup" class="setup" hidden>
-        <header class="topbar">
-          <button class="topbar__brand btn--reset" id="toIntro" aria-label="처음 화면으로"><span aria-hidden="true">🎯</span> 누가 쏠래?</button>
-          <button class="btn btn--ghost btn--sm" id="openLedger">📒 장부</button>
+        <header class="topbar bc-bar">
+          <button class="wordmark btn--reset" id="toIntro" aria-label="처음 화면으로">누가 쏠래?</button>
+          <button class="btn btn--ghost btn--sm" id="openLedger">벌칙 장부</button>
         </header>
 
-        <div class="stack gap-16 setup__body">
+        <div class="setup__hero">
+          <p class="bc-kicker">PRE-RACE · 출전 등록</p>
+          <h1 class="setup__title">오늘은<br /><em>누가 쏠래?</em></h1>
+        </div>
+
+        <div class="stack gap-24 setup__body">
           <div class="groups" id="groups" hidden>
-            <p class="t-label-02 t-secondary">저장된 그룹</p>
+            <p class="bc-label">저장된 그룹</p>
             <div class="groups__row" id="groupRow"></div>
           </div>
 
-          <div class="card card--flat stack gap-12">
-            <div class="row between">
-              <h2 class="t-title-04 m0">누가 참여해요?</h2>
-              <span class="t-label-02 t-tertiary t-num" id="count">0 / 12명</span>
+          <div class="bc-block">
+            <div class="bc-head">
+              <span class="bc-tag">01</span>
+              <h2 class="bc-h">출전 선수</h2>
+              <span class="bc-count t-num" id="count">0/12</span>
             </div>
             <form class="row gap-8" id="addForm" autocomplete="off">
               <label class="sr-only" for="nameInput">이름</label>
-              <input class="input grow" id="nameInput" maxlength="60" placeholder="이름 입력 (쉼표로 여러 명)" enterkeyhint="done" />
+              <input class="input grow" id="nameInput" maxlength="60" placeholder="이름 (쉼표로 여러 명)" enterkeyhint="done" />
               <button class="btn btn--secondary" type="submit">추가</button>
             </form>
             <div class="names" id="names" aria-live="polite"></div>
             <div class="row gap-8 wrap">
-              <button class="chip" type="button" id="samplePaste">예시: 철수, 영희, 민수</button>
+              <button class="chip" type="button" id="samplePaste">예시 넣기: 철수, 영희, 민수</button>
+              <button class="chip" type="button" id="saveGroup" hidden>그룹으로 저장</button>
               <button class="chip" type="button" id="clearNames" hidden>모두 지우기</button>
-              <button class="chip" type="button" id="saveGroup" hidden>⭐ 그룹으로 저장</button>
             </div>
-            <p class="field__help" id="nameHelp">쉼표나 띄어쓰기로 구분하면 한 번에 여러 명을 넣을 수 있어요.</p>
           </div>
 
-          <div class="card card--flat stack gap-12">
-            <h2 class="t-title-04 m0">누가 당첨돼요?</h2>
+          <div class="bc-block">
+            <div class="bc-head">
+              <span class="bc-tag">02</span>
+              <h2 class="bc-h">당첨 규칙</h2>
+            </div>
             <div class="seg" role="radiogroup" aria-label="당첨 규칙">
-              <button class="seg__btn" role="radio" data-rule="last" aria-checked="true">🐢 꼴찌가 당첨</button>
-              <button class="seg__btn" role="radio" data-rule="first" aria-checked="false">🐇 1등이 당첨</button>
+              <button class="seg__btn" role="radio" data-rule="last" aria-checked="true">꼴찌가 당첨</button>
+              <button class="seg__btn" role="radio" data-rule="first" aria-checked="false">1등이 당첨</button>
             </div>
           </div>
 
-          <div class="card card--flat stack gap-12">
-            <h2 class="t-title-04 m0">벌칙은 뭐예요?</h2>
+          <div class="bc-block">
+            <div class="bc-head">
+              <span class="bc-tag">03</span>
+              <h2 class="bc-h">벌칙</h2>
+            </div>
             <label class="sr-only" for="penalty">벌칙</label>
             <input class="input" id="penalty" maxlength="20" placeholder="예: 커피 쏘기" value="커피 쏘기" />
             <div class="row gap-8 wrap" id="penaltyChips">
-              <button class="chip" type="button" data-p="커피 쏘기">☕ 커피</button>
-              <button class="chip" type="button" data-p="점심 쏘기">🍱 점심</button>
-              <button class="chip" type="button" data-p="아이스크림 쏘기">🍦 아이스크림</button>
-              <button class="chip" type="button" data-p="설거지">🧽 설거지</button>
+              <button class="chip" type="button" data-p="커피 쏘기">커피</button>
+              <button class="chip" type="button" data-p="점심 쏘기">점심</button>
+              <button class="chip" type="button" data-p="아이스크림 쏘기">아이스크림</button>
+              <button class="chip" type="button" data-p="설거지">설거지</button>
             </div>
           </div>
 
-          <div class="stack gap-12">
-            <h2 class="t-title-04 m0">어떻게 정할까요?</h2>
+          <div class="bc-block">
+            <div class="bc-head">
+              <span class="bc-tag">04</span>
+              <h2 class="bc-h">종목</h2>
+            </div>
             <div class="modes" role="radiogroup" aria-label="게임 방식">
               <button class="mode" role="radio" data-mode="race" aria-checked="true">
-                <span class="mode__emoji" aria-hidden="true">🏁</span>
-                <span class="mode__text"><span class="t-label-01">레이스 <span class="badge">추천</span></span>
-                <span class="t-caption-01 t-secondary">구슬이 코스를 굴러요. 아이템으로 개입!</span></span>
+                <span class="mode__no" aria-hidden="true">A</span>
+                <span class="mode__text"><span class="mode__name">레이스</span>
+                <span class="t-caption-01 t-secondary">구슬이 코스를 굴러요. 아이템으로 개입</span></span>
+                <span class="mode__pick">메인</span>
               </button>
               <button class="mode" role="radio" data-mode="battle" aria-checked="false">
-                <span class="mode__emoji" aria-hidden="true">💥</span>
-                <span class="mode__text"><span class="t-label-01">배틀로얄</span>
+                <span class="mode__no" aria-hidden="true">B</span>
+                <span class="mode__text"><span class="mode__name">배틀로얄</span>
                 <span class="t-caption-01 t-secondary">줄어드는 링에서 서로 밀어내요</span></span>
               </button>
               <button class="mode" role="radio" data-mode="barrel" aria-checked="false">
-                <span class="mode__emoji" aria-hidden="true">🏴‍☠️</span>
-                <span class="mode__text"><span class="t-label-01">통아저씨</span>
-                <span class="t-caption-01 t-secondary">폰을 돌려가며 구멍 찌르기. 튀어나오면 당첨</span></span>
+                <span class="mode__no" aria-hidden="true">C</span>
+                <span class="mode__text"><span class="mode__name">통아저씨</span>
+                <span class="t-caption-01 t-secondary">폰을 돌려 구멍 찌르기. 해적이 튀면 당첨</span></span>
               </button>
             </div>
           </div>
         </div>
 
         <div class="setup__cta">
-          <p class="t-caption-01 t-tertiary t-center" id="ctaHint">2명 이상 넣어 주세요</p>
-          <button class="btn btn--primary btn--lg btn--block" id="go" disabled>레이스 시작하기</button>
+          <p class="t-caption-01 t-tertiary" id="ctaHint">2명 이상 넣어 주세요</p>
+          <button class="btn btn--primary btn--lg btn--block btn--go" id="go" disabled><span id="goLabel">레이스 시작하기</span><span class="btn--go__arrow" aria-hidden="true">→</span></button>
         </div>
       </section>
 
@@ -147,7 +169,7 @@
       <section data-view="play" class="play" hidden>
         <header class="play__bar">
           <button class="btn btn--ghost btn--icon" id="quit" aria-label="그만하기">✕</button>
-          <span class="t-label-01" id="playTitle">레이스</span>
+          <span class="play__title"><span class="live-bug"><i></i>LIVE</span><span id="playTitle">레이스</span></span>
           <span class="play__right">
             <span class="rec" id="rec" hidden><i></i>REC</span>
           </span>
@@ -159,27 +181,31 @@
       <!-- 4) 결과 -->
       <section data-view="result" class="result" hidden>
         <div class="result__hero">
-          <p class="t-label-02 t-secondary" id="resMode">레이스 결과</p>
+          <p class="bc-kicker" id="resMode">FINAL · 레이스</p>
           <div class="stamp" id="stamp">
             <span class="stamp__emoji" id="stampEmoji">☕</span>
             <span class="stamp__text" id="stampText"></span>
           </div>
-          <p class="t-body-02 t-secondary" id="resPenalty"></p>
-          <p class="result__debt t-label-02" id="resDebt" hidden></p>
+          <p class="result__penalty" id="resPenalty"></p>
+          <p class="result__debt" id="resDebt" hidden></p>
         </div>
 
+        <div class="bc-head">
+          <span class="bc-tag">FINAL</span>
+          <h2 class="bc-h">최종 순위</h2>
+        </div>
         <ol class="ranks" id="ranks"></ol>
 
         <div class="stack gap-8">
-          <button class="btn btn--primary btn--lg btn--block" id="again">🔁 다시 하기</button>
+          <button class="btn btn--primary btn--lg btn--block btn--go" id="again"><span>한 판 더</span><span class="btn--go__arrow" aria-hidden="true">↻</span></button>
           <div class="result__grid">
-            <button class="btn btn--outline" id="shareCard">🖼️ 결과 카드 저장</button>
-            <button class="btn btn--outline" id="shareLink">💬 단톡방에 보내기</button>
+            <button class="btn btn--outline" id="shareCard">결과 카드 저장</button>
+            <button class="btn btn--outline" id="shareLink">단톡방에 보내기</button>
           </div>
-          <button class="btn btn--secondary btn--block" id="saveVideo" hidden>🎬 레이스 영상 저장</button>
+          <button class="btn btn--secondary btn--block" id="saveVideo" hidden>레이스 영상 저장</button>
           <div class="result__grid">
-            <button class="btn btn--ghost" id="resLedger">📒 장부 보기</button>
-            <button class="btn btn--ghost" id="resSetup">⚙️ 설정 바꾸기</button>
+            <button class="btn btn--ghost" id="resLedger">벌칙 장부</button>
+            <button class="btn btn--ghost" id="resSetup">설정 바꾸기</button>
           </div>
           <div class="card card--flat row gap-12 result__save" id="resSave" hidden>
             <span class="grow t-body-03">이 멤버를 그룹으로 저장하면 다음엔 한 번에 불러와요</span>
@@ -190,12 +216,15 @@
 
       <!-- 5) 벌칙 장부 -->
       <section data-view="ledger" class="ledger" hidden>
-        <header class="topbar">
+        <header class="topbar bc-bar">
           <button class="btn btn--ghost btn--sm" id="ledgerBack">← 돌아가기</button>
-          <span class="t-label-01">📒 벌칙 장부</span>
-          <span class="ledger__spacer"></span>
+          <span class="wordmark wordmark--sm">벌칙 장부</span>
         </header>
-        <p class="t-body-03 t-secondary">우리끼리만 보는 장부예요. 이 폰에만 저장돼요.</p>
+        <div class="setup__hero">
+          <p class="bc-kicker">SEASON STANDINGS</p>
+          <h1 class="setup__title">우리끼리<br /><em>빚 장부</em></h1>
+          <p class="t-body-03 t-secondary m0">이 폰에만 저장돼요. 다른 사람과 비교하지 않아요.</p>
+        </div>
         <div id="ledgerBody" class="stack gap-16"></div>
       </section>
 

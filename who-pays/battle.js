@@ -310,7 +310,7 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
     ctx.fillStyle = tk.sunken;
     ctx.fill();
     ctx.setLineDash([6, 8]);
-    ctx.strokeStyle = alpha(tk.danger, 0.4);
+    ctx.strokeStyle = alpha(tk.brand, 0.4);
     ctx.lineWidth = 1.5;
     ctx.stroke();
     ctx.setLineDash([]);
@@ -424,7 +424,7 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
       ctx.textBaseline = "middle";
       const tw = ctx.measureText(label).width + 12;
       roundRect(ctx, x - tw / 2, y + r + 4, tw, 18, 9);
-      ctx.fillStyle = isD ? tk.danger : "rgba(8,9,12,0.62)";
+      ctx.fillStyle = isD ? tk.brand : "rgba(8,9,12,0.62)";
       ctx.fill();
       ctx.fillStyle = isD ? "#fff" : tk.text;
       ctx.fillText(label, x, y + r + 13.5);
@@ -492,7 +492,7 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
       ctx.globalAlpha = slowA;
       ctx.textAlign = "left";
       ctx.font = `800 12px ${CANVAS_FONT}`;
-      ctx.fillStyle = tk.danger;
+      ctx.fillStyle = tk.brand;
       ctx.beginPath();
       ctx.arc(20, 70, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -552,9 +552,9 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
         ctx.fillStyle = "rgba(8,9,12,0.72)";
         ctx.fill();
         ctx.lineWidth = 5;
-        ctx.strokeStyle = tk.danger;
+        ctx.strokeStyle = tk.brand;
         ctx.stroke();
-        ctx.fillStyle = tk.danger;
+        ctx.fillStyle = tk.brand;
         ctx.textBaseline = "middle";
         ctx.fillText(text, 0, 2, tw - 24);
         ctx.restore();

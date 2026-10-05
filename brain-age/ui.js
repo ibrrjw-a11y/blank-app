@@ -24,7 +24,7 @@ export function rollTo(el, n, { delay = 0, duration = 1600 } = {}) {
     void s.offsetWidth;
     const target = (REPEAT - 1) * 10 + digits[i];
     const apply = () => {
-      s.style.transition = reduce ? "none" : `transform ${duration + i * 280}ms cubic-bezier(.12,.75,.18,1)`;
+      s.style.transition = reduce ? "none" : `transform ${duration + i * 280}ms cubic-bezier(.3,1.35,.5,1)`;
       s.style.transform = `translateY(${-target}em)`;
     };
     if (reduce) apply();
@@ -54,7 +54,7 @@ export function radarSVG(skills, { compare = null, size = 300 } = {}) {
     const v = skills[k];
     const anchor = Math.abs(x - cx) < 4 ? "middle" : x > cx ? "start" : "end";
     const dx = anchor === "start" ? -10 : anchor === "end" ? 10 : 0;
-    return `<text class="rd-label" x="${x + dx}" y="${y - 2}" text-anchor="${anchor}">${META[k].icon} ${META[k].short}</text>
+    return `<text class="rd-label" x="${x + dx}" y="${y - 2}" text-anchor="${anchor}">${META[k].short}</text>
       <text class="rd-val${v == null ? " is-skip" : ""}" x="${x + dx}" y="${y + 15}" text-anchor="${anchor}">${v == null ? "건너뜀" : v}</text>`;
   }).join("");
   const dots = KEYS.map((k, i) => {

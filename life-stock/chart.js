@@ -5,8 +5,8 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 
 export function palette() {
   return {
-    up: css("--ls-up"),
-    down: css("--ls-down"),
+    up: css("--art-up"),
+    down: css("--art-down"),
     brand: css("--color-primary"),
     warn: css("--color-warning"),
     ok: css("--color-success"),
@@ -20,6 +20,8 @@ export function palette() {
     sunken: css("--color-surface-sunken"),
     bg: css("--color-bg"),
     font: css("--font-sans"),
+    mono: css("--art-num") || css("--font-mono"),
+    amber: css("--art-amber"),
   };
 }
 
@@ -64,9 +66,11 @@ export function roundRectPath(ctx, x, y, w, h, r) {
 
 const fmtShort = (v) => {
   if (v >= 1e8) return (v / 1e8).toFixed(1) + "억";
-  if (v >= 1e4) return (v / 1e4).toFixed(v >= 1e5 ? 0 : 1) + "만";
+  if (v >= 1e5) return (v / 1e4).toFixed(0) + "만";
+  if (v >= 1e4) return (v / 1e4).toFixed(2) + "만";
   return Math.round(v).toLocaleString("ko-KR");
 };
+const fmtFull = (v) => Math.round(v).toLocaleString("ko-KR");
 
 /*
  * 선 차트
@@ -140,7 +144,7 @@ export function createLineChart(canvas, tipEl) {
 
     // 가로 그리드 + 오른쪽 축
     ctx.textAlign = "left";
-    ctx.font = `500 10px ${P.font}`;
+    ctx.font = `500 10px ${P.mono}`;
     for (let k = 0; k <= 3; k++) {
       const v = min + ((max - min) * (k + 0.5)) / 4;
       const yy = Math.round(y(v)) + 0.5;
@@ -226,7 +230,7 @@ export function createLineChart(canvas, tipEl) {
     });
 
     // x축 눈금
-    ctx.font = `500 10px ${P.font}`;
+    ctx.font = `500 10px ${P.mono}`;
     ctx.fillStyle = P.text3;
     ctx.textAlign = "center";
     (spec.xTicks || []).forEach((t) => {
@@ -238,7 +242,7 @@ export function createLineChart(canvas, tipEl) {
     if (cross != null) {
       const i = Math.round(cross);
       const xx = x(i);
-      ctx.strokeStyle = alpha(P.text, 0.7);
+      ctx.strokeStyle = P.amber;
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(xx + 0.5, padT - 4);
@@ -263,12 +267,12 @@ export function createLineChart(canvas, tipEl) {
       ctx.stroke();
       ctx.setLineDash([]);
       // 축 위 현재 값
-      ctx.fillStyle = P.text;
-      roundRectPath(ctx, w - padR + 2, yy0 - 9, padR - 3, 18, 4);
+      ctx.fillStyle = P.amber;
+      roundRectPath(ctx, w - padR + 2, yy0 - 9, padR - 3, 18, 2);
       ctx.fill();
       ctx.fillStyle = P.bg;
       ctx.textAlign = "left";
-      ctx.font = `700 10px ${P.font}`;
+      ctx.font = `700 10px ${P.mono}`;
       ctx.fillText(fmtShort(spec.series[0].values[i]), w - padR + 5, yy0 + 3.5);
       if (tipEl && spec.tip) {
         tipEl.innerHTML = spec.tip(i);
@@ -341,7 +345,7 @@ function pill(ctx, P, text, cx, cy, bg, fg, w, padR, bold) {
   const tw = ctx.measureText(text).width + 12;
   const x0 = Math.max(2, Math.min(w - padR - tw - 2, cx - tw / 2));
   ctx.fillStyle = bg;
-  roundRectPath(ctx, x0, cy - 9, tw, 18, 9);
+  roundRectPath(ctx, x0, cy - 9, tw, 18, 3);
   ctx.fill();
   ctx.fillStyle = fg;
   ctx.textAlign = "left";
@@ -374,7 +378,7 @@ export function createCandleChart(canvas, { onPick } = {}) {
     const bw = Math.max(3, step * 0.62);
     const y = (v) => padT + (1 - (v - min) / (max - min)) * (h - padT - padB);
     geom = { step, n };
-    ctx.font = `500 10px ${P.font}`;
+    ctx.font = `500 10px ${P.mono}`;
     for (let k = 0; k <= 3; k++) {
       const v = min + ((max - min) * (k + 0.5)) / 4;
       const yy = Math.round(y(v)) + 0.5;
@@ -387,7 +391,7 @@ export function createCandleChart(canvas, { onPick } = {}) {
       ctx.setLineDash([]);
       ctx.fillStyle = P.text3;
       ctx.textAlign = "left";
-      ctx.fillText(fmtShort(v), w - padR + 6, yy + 3);
+      ctx.fillText(fmtFull(v), w - padR + 4, yy + 3);
     }
     candles.forEach((c, i) => {
       const cx = step * i + step / 2;
