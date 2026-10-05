@@ -16,7 +16,7 @@ import {
   showView,
   renderMoreSites,
   createCanvas,
-  roundRect,
+
   wrapText,
   CANVAS_FONT,
   countUp,
@@ -189,8 +189,9 @@ const gapTier = (g) => GAP_TIERS.find((t) => g >= t.min);
 const tiles = (type, cls = "") =>
   `<div class="flaps ${cls}">${[...type].map((l) => `<span class="flap">${esc(l)}</span>`).join("")}</div>`;
 
-async function flipTile(el, to, { spins = 2, signal } = {}) {
+async function flipTile(el, to, { spins = 2, signal, onSwap } = {}) {
   if (prefersReducedMotion()) {
+    onSwap?.();
     el.textContent = to;
     return;
   }
@@ -203,6 +204,7 @@ async function flipTile(el, to, { spins = 2, signal } = {}) {
     el.classList.add("is-flip");
     await sleep(140);
     if (signal?.aborted) return;
+    if (s === 0) onSwap?.();
     el.textContent = letter;
     await sleep(150);
   }
@@ -236,110 +238,188 @@ function renderTypeGrid(el, selected, onPick, { label } = {}) {
   );
 }
 
-/* ---------- 인트로 ---------- */
+/* ---------- 인트로 (진·콜라주 보드) ---------- */
 let intro = null;
-const AVATARS = [
-  { e: "🐶", x: -138, y: -78 },
-  { e: "🦊", x: 138, y: -78 },
-  { e: "🐰", x: -150, y: 46 },
-  { e: "🐻", x: 150, y: 46 },
-  { e: "🐱", x: 0, y: -146 },
+const BOARD_W = 360;
+const BOARD_H = 470;
+const FRIENDS = [
+  { n: "지수", x: 272, y: 14, r: -8, c: "kraft" },
+  { n: "현우", x: 288, y: 148, r: 7, c: "white" },
+  { n: "수아", x: 252, y: 268, r: -5, c: "accent" },
 ];
-const SHOTS = ["E!", "분위기 메이커", "S", "즉흥파", "T", "P!"];
+// 친구 → 사진으로 날아가는 손글씨 화살표 (끝점, 끝 방향)
+const ARROWS = [
+  { d: "M284 66 C 270 94, 244 78, 214 104", ex: 214, ey: 104, dx: -30, dy: 26 },
+  { d: "M288 184 C 266 204, 246 158, 220 176", ex: 220, ey: 176, dx: -26, dy: 18 },
+  { d: "M256 300 C 234 306, 222 284, 206 252", ex: 206, ey: 252, dx: -16, dy: -32 },
+];
+const NOTES = [
+  { t: "분위기 메이커!", x: 112, y: 4, r: -5 },
+  { t: "계획 0개 ㅋㅋ", x: 196, y: 220, r: 6 },
+  { t: "완전 T임", x: 258, y: 336, r: -7 },
+];
+
+function arrowHead({ ex, ey, dx, dy }) {
+  const a = Math.atan2(dy, dx);
+  const len = 13;
+  const p = (s) => `${(ex - len * Math.cos(a + s)).toFixed(1)} ${(ey - len * Math.sin(a + s)).toFixed(1)}`;
+  return `M${p(0.5)} L${ex} ${ey} L${p(-0.5)}`;
+}
 
 function buildIntroStage(stage) {
   stage.innerHTML = `
-    <div class="mx" data-scene="0">
-      <span class="mx__ex">예시 화면</span>
-      <div class="mx__center">
-        <div class="mx__mirror">
-          <div class="mx__glass">
-            <svg class="mx__sil" viewBox="0 0 120 150" aria-hidden="true">
-              <circle cx="60" cy="50" r="26" />
-              <path d="M12 150c0-36 21-62 48-62s48 26 48 62z" />
-            </svg>
-          </div>
+    <div class="board" data-scene="0">
+      <span class="board__ex">예시</span>
+      <div class="photo">
+        <span class="tape tape--l"></span><span class="tape tape--r"></span>
+        <div class="photo__img">
+          <svg class="photo__sil" viewBox="0 0 120 150" aria-hidden="true">
+            <circle cx="60" cy="50" r="26" />
+            <path d="M12 150c0-36 21-62 48-62s48 26 48 62z" />
+          </svg>
         </div>
-        <span class="mx__self">나: <b>INFP</b></span>
-        ${AVATARS.map(
-          (a, i) =>
-            `<span class="mx__friend" style="--x:${a.x}px;--y:${a.y}px;--i:${i}">${a.e}</span>`
+        <span class="photo__cap">나</span>
+      </div>
+      <div class="selftag">
+        나: INFP
+        <svg class="selftag__x" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M4 26 C 30 10, 50 34, 72 16 S 104 28, 116 12" pathLength="1" />
+        </svg>
+      </div>
+      <svg class="arrows" viewBox="0 0 ${BOARD_W} ${BOARD_H}" aria-hidden="true">
+        ${ARROWS.map(
+          (a, i) => `<g style="--i:${i}"><path d="${a.d}" pathLength="1" /><path class="head" d="${arrowHead(a)}" pathLength="1" /></g>`
         ).join("")}
-        ${SHOTS.map((t, i) => {
-          const a = AVATARS[i % AVATARS.length];
-          return `<span class="mx__shot" style="--x:${a.x}px;--y:${a.y}px;--i:${i}">${t}</span>`;
-        }).join("")}
-      </div>
-      <div class="mx__board">
-        <span class="mx__board-label">친구들 눈엔</span>
-        ${tiles("INFP")}
-      </div>
-      <div class="mx__meter">
-        <div class="row between"><span class="t-label-02">반전 지수</span><b class="t-title-03 t-num" id="mxGap">0%</b></div>
-        <div class="mx__track"><i></i></div>
+      </svg>
+      ${FRIENDS.map(
+        (f, i) =>
+          `<span class="pal pal--${f.c}" style="left:${f.x}px;top:${f.y}px;--r:${f.r}deg;--i:${i}">${f.n}</span>`
+      ).join("")}
+      ${NOTES.map(
+        (nt, i) => `<span class="scrawl" style="left:${nt.x}px;top:${nt.y}px;--r:${nt.r}deg;--i:${i}">${nt.t}</span>`
+      ).join("")}
+      <div class="board__letters">${tiles("INFP", "flaps--board")}</div>
+      <div class="ticket">
+        <span class="ticket__label">반전 지수</span>
+        <span class="odo t-num" aria-hidden="true">
+          <span class="odo__col"><span class="odo__strip">${"0123456789"
+            .split("")
+            .map((d) => `<i>${d}</i>`)
+            .join("")}</span></span><span class="odo__col"><span class="odo__strip">${"0123456789"
+            .split("")
+            .map((d) => `<i>${d}</i>`)
+            .join("")}</span></span><span class="odo__pct">%</span>
+        </span>
+        <span class="stamp">대반전</span>
       </div>
     </div>`;
+}
+
+function fitBoard(stage) {
+  const board = $(".board", stage);
+  if (!board) return;
+  const s = Math.min(1.12, stage.clientWidth / BOARD_W, stage.clientHeight / BOARD_H);
+  board.style.setProperty("--fit", s.toFixed(3));
+}
+
+// 제목만 글자 단위로 튀어 오르게 (본문은 고정)
+function kinetic(root) {
+  const h = $(".intro__caption h2", root);
+  if (!h) return;
+  let i = 0;
+  h.innerHTML = h.textContent
+    .split(" ")
+    .map(
+      (w) =>
+        `<span class="kw">${[...w].map((c) => `<span class="kc" style="--i:${i++}">${esc(c)}</span>`).join("")}</span>`
+    )
+    .join(" ");
+}
+
+function setOdo(board, value) {
+  const digits = String(value).padStart(2, "0").slice(-2);
+  $$(".odo__strip", board).forEach((s, i) => s.style.setProperty("--d", digits[i]));
 }
 
 function startIntro() {
   const root = $("#intro");
   const stage = $(".intro__stage", root);
   buildIntroStage(stage);
-  const mx = $(".mx", stage);
-  const board = $(".mx__board", mx);
+  fitBoard(stage);
+  const board = $(".board", stage);
+  const letters = $(".board__letters", board);
+  const enter = (scene) => {
+    board.dataset.scene = scene;
+  };
   const scenes = [
     {
       title: "나는 내가 INFP인 줄 알았어요",
       desc: "먼저 내가 생각하는 내 MBTI를 골라요.",
-      duration: 2800,
+      duration: 2900,
       play() {
-        mx.dataset.scene = "1";
-        $$(".flap", board).forEach((f, i) => {
+        board.dataset.scene = "0";
+        void board.offsetWidth; // 애니메이션 처음부터 다시
+        $$(".flap", letters).forEach((f, i) => {
           f.textContent = "INFP"[i];
-          f.classList.remove("is-changed", "is-flip");
+          f.classList.add("is-plain");
+          f.classList.remove("is-flip");
         });
-        $(".mx__track i", mx).style.width = "0%";
-        $("#mxGap", mx).textContent = "0%";
+        setOdo(board, 0);
+        enter("1");
+        kinetic(root);
       },
     },
     {
       title: "친구들이 나에 대해 답해요",
       desc: "단톡방에 링크를 보내면 친구들이 12문항으로 나를 골라줘요.",
-      duration: 3400,
+      duration: 3600,
       play() {
-        mx.dataset.scene = "2";
+        enter("2");
+        kinetic(root);
       },
     },
     {
       title: "친구들 눈엔 ESTP",
       desc: "3명이 답하면 남이 보는 내 MBTI가 열려요.",
-      duration: 3800,
+      duration: 4000,
       play(_, signal) {
-        mx.dataset.scene = "3";
-        sleep(300).then(() => !signal.aborted && flipAll(board, "ESTP", { from: "INFP", stagger: 320, signal }));
+        enter("3");
+        kinetic(root);
+        sleep(prefersReducedMotion() ? 0 : 760).then(async () => {
+          const els = $$(".flap", letters);
+          await Promise.all(
+            els.map(async (el, i) => {
+              await sleep(i * 300);
+              if (signal.aborted) return;
+              await flipTile(el, "ESTP"[i], { spins: 2, signal, onSwap: () => el.classList.remove("is-plain") });
+            })
+          );
+        });
       },
     },
     {
       title: "반전 지수 75%",
       desc: "내가 보는 나와 남이 보는 나, 얼마나 다를까요?",
-      duration: 3600,
+      duration: 3800,
       play(_, signal) {
-        mx.dataset.scene = "4";
-        $$(".flap", board).forEach((f, i) => {
+        $$(".flap", letters).forEach((f, i) => {
           f.textContent = "ESTP"[i];
-          if ("INFP"[i] !== "ESTP"[i]) f.classList.add("is-changed");
+          f.classList.remove("is-plain");
         });
-        requestAnimationFrame(() => {
-          if (signal.aborted) return;
-          $(".mx__track i", mx).style.width = "75%";
-          countUp($("#mxGap", mx), 75, { duration: 1200, format: (v) => `${Math.round(v)}%` });
-        });
+        enter("4");
+        kinetic(root);
+        sleep(prefersReducedMotion() ? 0 : 420).then(() => !signal.aborted && setOdo(board, 75));
       },
     },
   ];
   intro?.stop();
   intro = runIntro({ root, scenes, loop: true });
 }
+
+window.addEventListener("resize", () => {
+  const stage = $("#intro .intro__stage");
+  if (stage && intro) fitBoard(stage);
+});
 
 function stopIntro() {
   intro?.stop();
@@ -526,7 +606,7 @@ function askQuiz() {
     qs: FRIEND_QS,
     name,
     head: `<div class="row gap-12 ask-head">
-        <span class="ask-head__mirror" aria-hidden="true">🪞</span>
+        <span class="ask-head__q" aria-hidden="true">?</span>
         <div class="grow">
           <h1 class="t-title-03">${esc(N(name, "은"))} 어떤 사람일까요?</h1>
           <p class="t-body-03 t-secondary">정답은 없어요. 평소의 ${esc(N(name, "을"))} 떠올리며 골라 주세요.</p>
@@ -585,10 +665,10 @@ function renderGuess({ owner, answers, from, note, url, again = false, fresh = f
       ${again ? `<span class="badge">이미 답했어요</span>` : ""}
     </div>
     <div class="stack gap-16">
-      <div class="card card--raised guess-hero t-center">
+      <div class="card card--raised guess-hero">
         <p class="t-label-02 t-primary">내 눈에 비친 ${esc(N(name, "은"))}</p>
         ${tiles(fresh ? "????" : t, "flaps--lg")}
-        <p class="t-title-03">${info.emoji} ${esc(info.nick)}</p>
+        <p class="nick">${esc(info.nick)}</p>
         <ul class="trait-list">${info.traits.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
         <div class="lean">
           ${lean
@@ -765,11 +845,11 @@ function renderMe(first = false) {
     </div>`;
 
   const locked = `
-    <div class="card card--raised locked t-center">
+    <div class="card card--raised locked">
       <p class="t-label-02 t-secondary">친구들 눈에 비친 ${esc(name)}</p>
       ${tiles(n ? an.type : "MBTI", "flaps--lg is-blur")}
       <div class="locked__veil">
-        <span class="locked__icon" aria-hidden="true">🔒</span>
+        <span class="locked__tape" aria-hidden="true">공개 전</span>
         <p class="t-body-02-strong">${UNLOCK - n}명 더 답하면 열려요</p>
         <p class="t-caption-01 t-secondary">${n ? `지금은 ${n}명뿐이라 한두 명 생각에 크게 흔들려요` : "친구가 답하면 여기에 하나씩 쌓여요"}</p>
       </div>
@@ -802,7 +882,7 @@ function renderMe(first = false) {
           : "친구들 눈에 비친 나는"
       }</p>
       ${tiles(an.type, "flaps--lg")}
-      <p class="t-title-03">${othersInfo.emoji} ${esc(othersInfo.nick)}</p>
+      <p class="nick">${esc(othersInfo.nick)}</p>
       ${an.top ? `<p class="t-caption-01 t-secondary">친구 ${n}명 중 ${an.top[1]}명이 각자 ${an.top[0]}로 봤어요</p>` : ""}
       ${
         o.self
@@ -851,7 +931,7 @@ function renderMe(first = false) {
 
     <div class="card type-card">
       <p class="t-label-02 t-primary">남이 보는 ${esc(name)} · ${an.type}</p>
-      <h2 class="t-title-02">${othersInfo.emoji} ${esc(othersInfo.nick)}</h2>
+      <h2 class="t-title-01">${esc(othersInfo.nick)}</h2>
       <ul class="trait-list trait-list--left">${othersInfo.traits.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
       <p class="t-label-02">친구들이 이렇게 느껴요</p>
       <div class="stack gap-8">${othersInfo.feels.map((x) => `<p class="bubble">“${esc(x)}”</p>`).join("")}</div>
@@ -871,7 +951,7 @@ function renderMe(first = false) {
               const match = o.self ? [...g].filter((c, i) => c === o.self[i]).length : null;
               return `<div class="card card--flat friend">
                 <div class="row gap-12">
-                  <span class="friend__avatar" aria-hidden="true">${unlocked ? TYPES[g].emoji : "🔒"}</span>
+                  <span class="friend__avatar" aria-hidden="true">${esc([...r.f][0] || "?")}</span>
                   <div class="grow">
                     <p class="t-label-01">${esc(r.f)}</p>
                     <p class="t-caption-01 t-tertiary">${fmtDate(r.t)}</p>
@@ -959,6 +1039,7 @@ function renderMe(first = false) {
     sc.onclick = async () => {
       sc.classList.add("is-loading");
       try {
+        await document.fonts?.ready;
         const canvas = drawCard(o, an);
         await shareImage(canvas, {
           filename: `others-mbti-${an.type}.png`,
@@ -1020,109 +1101,136 @@ function drawCard(o, an) {
   const { canvas, ctx } = createCanvas(W, H, 2);
   const c = {
     brand: tok("--brand"),
-    soft: tok("--brand-soft"),
-    on: tok("--brand-on"),
-    surface: tok("--color-surface"),
-    sunken: tok("--color-surface-sunken"),
-    text: tok("--color-text"),
-    sub: tok("--color-text-secondary"),
-    ter: tok("--color-text-tertiary"),
-    border: tok("--color-border"),
+    paper: tok("--art-paper"),
+    white: tok("--art-white"),
+    kraft: tok("--art-kraft"),
+    ink: tok("--art-ink"),
+    inkSoft: tok("--art-ink-soft"),
+    note: tok("--art-note"),
+    tape: tok("--art-tape"),
   };
-  const F = (w, s) => `${w} ${s}px ${CANVAS_FONT}`;
-  ctx.fillStyle = c.soft;
-  ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = c.surface;
-  roundRect(ctx, 24, 24, W - 48, H - 48, 32);
-  ctx.fill();
+  // 캔버스는 CSS var()를 못 읽으므로 글꼴 목록을 직접 적는다
+  const display = `"Black Han Sans", ${CANVAS_FONT}`;
+  const latin = `"Archivo Black", "Arial Black", Impact, ${CANVAS_FONT}`;
+  const hand = `"Nanum Pen Script", ${CANVAS_FONT}`;
+  const serif = `Georgia, "Times New Roman", ${CANVAS_FONT}`;
+  const F = (w, s, fam = CANVAS_FONT) => `${w} ${s}px ${fam}`;
+  const rot = (x, y, deg, fn) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate((deg * Math.PI) / 180);
+    fn();
+    ctx.restore();
+  };
 
+  // 종이 + 복사기 점
+  ctx.fillStyle = c.paper;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = c.ink;
+  ctx.globalAlpha = 0.05;
+  for (let y = 0; y < H; y += 9) for (let x = (y / 9) % 2 ? 4 : 0; x < W; x += 9) ctx.fillRect(x, y, 1.6, 1.6);
+  ctx.globalAlpha = 1;
+
+  // 제목
   ctx.textBaseline = "alphabetic";
   ctx.textAlign = "left";
-  ctx.fillStyle = c.brand;
-  ctx.font = F(700, 17);
-  ctx.fillText("🪞 남이 정해주는 MBTI", 56, 78);
-  ctx.fillStyle = c.text;
-  ctx.font = F(800, 30);
-  ctx.fillText(`${o.name}의 MBTI, 친구들 생각은?`.slice(0, 22), 56, 124);
-
-  // 두 칸: 내가 보는 나 / 남이 보는 나
-  const boxY = 156;
-  const boxW = 196;
-  const boxH = 176;
-  ctx.fillStyle = c.sunken;
-  roundRect(ctx, 56, boxY, boxW, boxH, 20);
-  ctx.fill();
-  ctx.fillStyle = c.brand;
-  roundRect(ctx, W - 56 - boxW, boxY, boxW, boxH, 20);
-  ctx.fill();
-  ctx.textAlign = "center";
-  const lx = 56 + boxW / 2;
-  const rx = W - 56 - boxW / 2;
-  ctx.font = F(600, 15);
-  ctx.fillStyle = c.sub;
-  ctx.fillText("내가 보는 나", lx, boxY + 38);
-  ctx.fillStyle = c.on;
-  ctx.fillText("친구들이 보는 나", rx, boxY + 38);
-  ctx.font = F(800, 54);
-  ctx.fillStyle = c.sub;
-  ctx.fillText(o.self || "?", lx, boxY + 108);
-  ctx.fillStyle = c.on;
-  ctx.fillText(an.type, rx, boxY + 108);
-  ctx.font = F(500, 14);
-  ctx.fillStyle = c.sub;
-  ctx.fillText(o.self ? TYPES[o.self].nick : "", lx, boxY + 146);
-  ctx.fillStyle = c.on;
-  ctx.fillText(TYPES[an.type].nick, rx, boxY + 146);
-  ctx.fillStyle = c.ter;
-  ctx.font = F(800, 22);
-  ctx.fillText("→", W / 2, boxY + boxH / 2 + 8);
-
-  // 반전 지수
-  ctx.textAlign = "left";
-  const gy = 384;
-  ctx.fillStyle = c.text;
-  ctx.font = F(700, 18);
-  ctx.fillText("반전 지수", 56, gy);
-  ctx.textAlign = "right";
-  ctx.fillStyle = c.brand;
-  ctx.font = F(800, 34);
-  ctx.fillText(o.self ? `${an.gap}%` : "-", W - 56, gy + 4);
-  ctx.fillStyle = c.sunken;
-  roundRect(ctx, 56, gy + 20, W - 112, 14, 7);
-  ctx.fill();
-  if (an.gap > 0) {
+  ctx.fillStyle = c.ink;
+  ctx.font = F(800, 22, display);
+  ctx.fillText("남이 정해주는", 40, 62);
+  rot(184, 54, -4, () => {
     ctx.fillStyle = c.brand;
-    roundRect(ctx, 56, gy + 20, Math.max(14, ((W - 112) * an.gap) / 100), 14, 7);
-    ctx.fill();
-  }
+    ctx.fillRect(-4, -22, 74, 30);
+    ctx.fillStyle = c.ink;
+    ctx.font = F(800, 22, latin);
+    ctx.fillText("MBTI", 2, 2);
+  });
+  ctx.font = F(800, 34, display);
+  ctx.fillText(`${o.name}, 친구들 눈엔`.slice(0, 16), 40, 118);
+
+  // 내가 보는 나 (지워진 메모)
+  rot(52, 150, -3, () => {
+    ctx.fillStyle = c.note;
+    ctx.fillRect(0, 0, 200, 64);
+    ctx.fillStyle = c.ink;
+    ctx.font = F(400, 36, hand);
+    ctx.fillText(`나: ${o.self || "?"}`, 18, 44);
+    ctx.strokeStyle = c.brand;
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(10, 40);
+    ctx.bezierCurveTo(60, 18, 110, 52, 190, 24);
+    ctx.stroke();
+  });
+
+  // 남이 보는 나 (오려 붙인 글자)
+  const styles = [
+    { bg: c.ink, fg: c.paper, font: latin, r: -5, w: 800 },
+    { bg: c.brand, fg: c.ink, font: display, r: 4, w: 800 },
+    { bg: c.kraft, fg: c.ink, font: serif, r: -2, w: 700 },
+    { bg: c.white, fg: c.ink, font: latin, r: 6, line: true, w: 800 },
+  ];
+  [...an.type].forEach((ch, i) => {
+    const st = styles[i];
+    rot(40 + 58 + i * 116, 316, st.r, () => {
+      ctx.fillStyle = st.bg;
+      ctx.fillRect(-50, -62, 100, 124);
+      if (st.line) {
+        ctx.strokeStyle = c.ink;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(-44, -56, 88, 112);
+      }
+      ctx.fillStyle = st.fg;
+      ctx.textAlign = "center";
+      ctx.font = F(st.w || 400, 78, st.font);
+      ctx.fillText(ch, 0, 28);
+    });
+  });
   ctx.textAlign = "left";
-  ctx.fillStyle = c.sub;
-  ctx.font = F(500, 15);
-  ctx.fillText(`${gapTier(an.gap).label} · 친구 ${an.n}명이 답했어요`, 56, gy + 62);
+  ctx.fillStyle = c.ink;
+  ctx.font = F(800, 26, display);
+  ctx.fillText(TYPES[an.type].nick, 40, 430);
 
-  // 한마디
-  const qy = 474;
-  ctx.fillStyle = c.sunken;
-  roundRect(ctx, 56, qy, W - 112, 108, 18);
-  ctx.fill();
-  ctx.fillStyle = c.text;
-  ctx.font = F(600, 18);
-  if (an.best) {
-    wrapText(ctx, `“${an.best.m}”`, 76, qy + 40, W - 152, 26);
-    ctx.fillStyle = c.sub;
-    ctx.font = F(500, 14);
-    ctx.fillText(`- ${an.best.f}`, 76, qy + 92);
-  } else {
-    wrapText(ctx, `${TYPES[an.type].feels[0]}`, 76, qy + 40, W - 152, 26);
-    ctx.fillStyle = c.sub;
-    ctx.font = F(500, 14);
-    ctx.fillText("- 친구들이 이렇게 느껴요", 76, qy + 92);
-  }
+  // 반전 지수 티켓
+  rot(40, 456, 1.5, () => {
+    ctx.fillStyle = c.white;
+    ctx.fillRect(0, 0, 220, 96);
+    ctx.strokeStyle = c.ink;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, 220, 96);
+    ctx.fillStyle = c.ink;
+    ctx.font = F(800, 18, display);
+    ctx.fillText("반전 지수", 16, 30);
+    ctx.font = F(800, 48, latin);
+    ctx.fillText(o.self ? `${an.gap}%` : "-", 16, 82);
+    ctx.fillStyle = c.inkSoft;
+    ctx.font = F(600, 13);
+    ctx.textAlign = "right";
+    ctx.fillText(gapTier(an.gap).label, 206, 30);
+  });
+  ctx.textAlign = "left";
+  ctx.fillStyle = c.inkSoft;
+  ctx.font = F(600, 15);
+  ctx.fillText(`친구 ${an.n}명이 답했어요`, 40, 584);
 
-  ctx.fillStyle = c.ter;
+  // 한마디 메모 + 테이프
+  rot(292, 452, -3, () => {
+    ctx.fillStyle = c.note;
+    ctx.fillRect(0, 0, 210, 140);
+    ctx.fillStyle = c.tape;
+    ctx.fillRect(66, -12, 80, 24);
+    ctx.fillStyle = c.ink;
+    ctx.font = F(400, 26, hand);
+    const text = an.best ? an.best.m : TYPES[an.type].feels[0];
+    wrapText(ctx, `“${text}”`, 14, 42, 184, 28);
+    ctx.font = F(400, 20, hand);
+    ctx.fillText(`- ${an.best ? an.best.f : "친구들"}`, 14, 126);
+  });
+
+  ctx.fillStyle = c.inkSoft;
   ctx.font = F(500, 13);
-  ctx.textAlign = "center";
-  ctx.fillText(`나도 받아보기 · ${location.host}${location.pathname}`, W / 2, H - 52);
+  ctx.textAlign = "left";
+  ctx.fillText(`나도 받아보기 · ${location.host}${location.pathname}`, 40, H - 36);
   return canvas;
 }
 

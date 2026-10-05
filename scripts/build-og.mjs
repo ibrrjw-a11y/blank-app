@@ -65,6 +65,11 @@ for (const t of targets) {
     console.log("skip (no site yet)", t.slug);
     continue;
   }
+  // 사이트가 직접 만든 og.png 는 덮어쓰지 않는다 (--force 로 강제)
+  if (fs.existsSync(path.join(dir, "og.png")) && !process.argv.includes("--force")) {
+    console.log("keep existing og.png", t.slug || "(hub)");
+    continue;
+  }
   await page.setContent(html(t));
   await page.screenshot({ path: path.join(dir, "og.png") });
   console.log("og.png", t.slug || "(hub)");
