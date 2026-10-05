@@ -15,6 +15,8 @@ export function placeOverlays(root, m) {
   const g = m.geo;
   const slot = root.querySelector(".coin-slot");
   if (slot) Object.assign(slot.style, { left: `${g.slot.x}px`, top: `${g.slot.y}px`, width: `${g.slot.w}px`, height: `${g.slot.h}px` });
+  const sign = root.querySelector(".marquee");
+  if (sign) sign.style.top = `${g.top}px`;
   const tag = root.querySelector(".tape");
   if (tag) Object.assign(tag.style, { left: `${Math.max(4, g.cx - g.R - 12)}px`, top: `${g.domeCy - g.R * 0.62}px` });
 }
@@ -71,12 +73,15 @@ export function startIntro(root) {
     const g = m.geo;
     const out = m.out;
     if (!out) return;
+    out.hidden = tt > 0.05;
     const cx = g.cx;
-    const cy = g.bodyTop + g.bh * 0.12;
+    const cy = g.domeCy + g.R * 0.02;
     ctx.save();
     ctx.fillStyle = art.paper;
-    ctx.globalAlpha = 0.82 * clamp01(tt / 0.3);
-    ctx.fillRect(0, g.domeCy - g.R * 0.2, g.W, g.H);
+    ctx.globalAlpha = 0.78 * clamp01(tt / 0.3);
+    ctx.beginPath();
+    ctx.arc(g.cx, g.domeCy, g.R + 2, 0, Math.PI * 2);
+    ctx.fill();
     ctx.globalAlpha = 1;
     const rise = spring(tt / 0.55);
     const x = out.x + (cx - out.x) * rise;
@@ -112,7 +117,7 @@ export function startIntro(root) {
       const pw = Math.min(g.W * 0.62, 230);
       const ph = 130 * u;
       ctx.save();
-      ctx.translate(cx, y - 40);
+      ctx.translate(cx, y - 62);
       ctx.rotate(-0.04);
       ctx.fillStyle = "#fff";
       ctx.shadowColor = "rgba(0,0,0,0.18)";

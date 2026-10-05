@@ -510,3 +510,4 @@ body.is-playing .site-footer { display: none; }
 .more-sites__cat { border-color: var(--art-w16-edge); }
 .more-sites__name { color: var(--art-burn); }
 .site-footer { color: var(--art-burn); opacity: 0.7; }
+.board-wrap:has(.endcard:not([hidden])) + .play__hint { visibility: hidden; }

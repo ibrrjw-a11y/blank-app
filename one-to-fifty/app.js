@@ -634,7 +634,11 @@ function pressCall(btn, fn) {
 
 /* ---------- 탭 숨김 → 일시정지 ---------- */
 function onVisibility() {
-  if (!document.hidden) return;
+  if (!document.hidden) {
+    if (!$("#intro").hidden && !demo) startDemo();
+    return;
+  }
+  stopDemo();
   if (G.phase === "run" && !G.paused) {
     G.paused = true;
     G.pausedAt = performance.now();

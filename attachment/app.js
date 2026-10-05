@@ -77,7 +77,7 @@ function mapSVG({ pins = [], ghosts = [], link = false, id = "" } = {}) {
           <g class="at-pin__head" transform="translate(${PX(p.avo)} ${PY(p.anx)})">
             <ellipse class="at-pin__shadow" cx="3" cy="4" rx="8" ry="4" />
             <circle r="8" /><circle class="at-pin__shine" cx="-2.5" cy="-2.5" r="2.5" />
-            ${p.label ? `<text class="at-pin__label" x="${p.avo > 70 ? -12 : 12}" y="-10" text-anchor="${p.avo > 70 ? "end" : "start"}">${esc(p.label)}</text>` : ""}
+            ${p.label ? `<text class="at-pin__label" x="${p.avo > 70 ? -12 : 12}" y="${i === 1 ? 24 : -10}" text-anchor="${p.avo > 70 ? "end" : "start"}">${esc(p.label)}</text>` : ""}
           </g>
         </g>`
       )

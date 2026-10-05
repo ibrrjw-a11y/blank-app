@@ -50,7 +50,13 @@ export function startIntro({ canvas, jamakLayer, sub, confettiCanvas }) {
     }
   };
 
-  const onResize = () => view.resize();
+  let lastW = canvas.getBoundingClientRect().width;
+  const onResize = () => {
+    const w = canvas.getBoundingClientRect().width;
+    if (Math.abs(w - lastW) < 1) return;
+    lastW = w;
+    view.resize();
+  };
   addEventListener("resize", onResize);
   document.fonts?.ready?.then(() => !stopped && view.buildFace());
 

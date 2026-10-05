@@ -97,8 +97,12 @@ function redraw() {
   view?.draw(theta, 0);
 }
 
+let lastW = 0;
 addEventListener("resize", () => {
   if (!view) return;
+  const w = wheelCanvas.getBoundingClientRect().width;
+  if (Math.abs(w - lastW) < 1) return;
+  lastW = w;
   view.resize();
   if (!spinning) redraw();
 });

@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#efe6d2;display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px}
+.lt-art{width:100%;height:auto;background:#f6efdf}
+.lt-body{fill:#f6efdf;stroke:#2e2418;stroke-width:1.6;stroke-linejoin:round}
+.lt-shade{fill:url(#lt-hatch)}
+.lt-hatch-line{stroke:#2e2418}
+.lt-line{fill:none;stroke:#2e2418;stroke-width:1.2;stroke-linecap:round}
+.lt-thick{fill:none;stroke:#2e2418;stroke-width:5;stroke-linecap:round}
+.lt-dot{fill:#2e2418}
+.lt-ground{fill:none;stroke:#2e2418;stroke-dasharray:1 3}
+.lt-water path{fill:none;stroke:#2e2418;stroke-width:1}
+.lt-art--sil .lt-body{fill:#2e2418;opacity:.2;stroke:none}
+p{margin:0;font:12px sans-serif}
+</style></head><body><script type="module">
+import {ART, animalSVG, ensureDefs} from "../art.js";
+ensureDefs();
+for (const k of Object.keys(ART)) { const d=document.createElement('div'); d.innerHTML=animalSVG(k)+'<p>'+k+'</p>'; document.body.appendChild(d); }
+const d=document.createElement('div'); d.innerHTML=animalSVG('fox',{silhouette:true}); document.body.appendChild(d);
+</script></body></html>

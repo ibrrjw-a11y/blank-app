@@ -138,18 +138,21 @@ export function createMachine(canvas) {
   function geometry(W, H) {
     const signH = 44;
     const baseH = 16;
-    const R = Math.max(60, Math.min(W * 0.36, (H - signH - baseH) * 0.31));
+    const R = Math.max(60, Math.min(W * 0.4, (H - signH - baseH) * 0.33));
+    const bw = Math.min(W - 12, R * 2.3);
+    const domeH = R * 1.74 + 2;
+    const bh = Math.max(120, Math.min(H - signH - baseH - domeH, R * 2.05));
+    const top = Math.max(0, Math.round((H - (signH + domeH + bh + baseH)) / 2));
     const cx = W / 2;
-    const domeCy = signH + R + 2;
+    const domeCy = top + signH + R + 2;
     const bodyTop = domeCy + R * 0.74;
-    const bw = Math.min(W - 12, R * 2.32);
     const bx = cx - bw / 2;
-    const bodyBot = H - baseH;
-    const bh = Math.max(120, bodyBot - bodyTop);
-    const knob = { x: bx + bw * 0.71, y: bodyTop + bh * 0.4, r: Math.min(bw * 0.15, bh * 0.2) };
-    const slot = { x: bx + bw * 0.08, y: bodyTop + bh * 0.13, w: bw * 0.36, h: Math.max(52, bh * 0.22) };
-    const chute = { x: bx + bw * 0.08, y: bodyTop + bh * 0.52, w: bw * 0.4, h: bh * 0.36 };
-    return { W, H, R, cx, domeCy, bodyTop, floorY: bodyTop - 8, bx, bw, bh, bodyBot, knob, slot, chute, holeX: cx, signH };
+    const bodyBot = bodyTop + bh;
+    const knob = { x: bx + bw * 0.71, y: bodyTop + bh * 0.36, r: Math.min(bw * 0.16, bh * 0.19) };
+    const slot = { x: bx + bw * 0.08, y: bodyTop + bh * 0.13, w: bw * 0.36, h: Math.max(52, bh * 0.2) };
+    const chute = { x: bx + bw * 0.08, y: bodyTop + bh * 0.5, w: bw * 0.4, h: bh * 0.36 };
+    const decal = { x: bx + bw * 0.54, y: knob.y + knob.r * 1.65, w: bw * 0.38, h: bodyTop + bh * 0.86 - (knob.y + knob.r * 1.65) };
+    return { W, H, R, top, cx, domeCy, bodyTop, floorY: bodyTop - 8, bx, bw, bh, bodyBot, knob, slot, chute, decal, holeX: cx, signH };
   }
 
   /* ---------- 캡슐 채우기 ---------- */
@@ -414,7 +417,7 @@ export function createMachine(canvas) {
     ctx.save();
     rrect(ctx, chute.x + 6, chute.y + 6, chute.w - 12, chute.h - 12, 9);
     ctx.clip();
-    if (out && out.phase !== "wait") {
+    if (out && out.phase !== "wait" && !out.hidden) {
       const sq = squash(out.t - out.land, out.amp || 0.3);
       drawCapsule(ctx, out.x, out.y + out.r * sq * 0.8, out.r, out.color, out.gold, art, { rot: out.rot, sx: 1 + sq, sy: 1 - sq });
     }
@@ -427,6 +430,30 @@ export function createMachine(canvas) {
     ctx.fillStyle = "rgba(255,255,255,0.75)";
     ctx.textAlign = "center";
     ctx.fillText("꺼내는 곳", chute.x + chute.w / 2, chute.y + chute.h + 12);
+
+    // 사용법 스티커
+    const dc = g.decal;
+    if (dc.h > 54) {
+      ctx.save();
+      ctx.translate(dc.x + dc.w / 2, dc.y + dc.h / 2);
+      ctx.rotate(-0.03);
+      rrect(ctx, -dc.w / 2, -dc.h / 2, dc.w, dc.h, 8);
+      ctx.fillStyle = art.cream;
+      ctx.fill();
+      ctx.strokeStyle = art.ink;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      const lines = ["사용법", "① 동전 넣기", "② 손잡이 한 바퀴", "③ 캡슐 꺼내기"];
+      const fs = Math.max(11, Math.min(16, dc.h / 6.2, dc.w / 8.5));
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      lines.forEach((ln, k) => {
+        ctx.font = k ? `700 ${fs}px ${art.pen}` : `400 ${fs + 1}px ${art.display}`;
+        ctx.fillStyle = k ? art.ink : art.brand;
+        ctx.fillText(ln, -dc.w / 2 + 10, -dc.h / 2 + 14 + k * (dc.h - 24) / 3.3, dc.w - 16);
+      });
+      ctx.restore();
+    }
 
     // 손잡이
     const kr = knob.r;
@@ -578,9 +605,8 @@ export function createMachine(canvas) {
     ctx.restore();
   }
 
-  function api() {}
   resize();
-  return Object.assign(api, {
+  return {
     resize,
     fill,
     jiggle,
@@ -609,5 +635,5 @@ export function createMachine(canvas) {
     set hand(v) {
       hand = v;
     },
-  });
+  };
 }

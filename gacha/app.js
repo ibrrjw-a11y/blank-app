@@ -374,7 +374,8 @@ function placePlay() {
   const k = g.knob;
   Object.assign($("#knobBtn").style, { left: `${k.x - k.r * 1.4}px`, top: `${k.y - k.r * 1.4}px`, width: `${k.r * 2.8}px`, height: `${k.r * 2.8}px` });
   const hint = $("#crankHint");
-  Object.assign(hint.style, { left: "auto", right: `${Math.max(4, g.W - (g.bx + g.bw) + 2)}px`, top: `${Math.max(48, g.domeCy - g.R * 0.15)}px` });
+  Object.assign(hint.style, { left: `${Math.max(4, g.cx - g.R + 6)}px`, top: `${g.domeCy - g.R * 0.62}px` });
+  $("#playMachine .marquee").style.top = `${g.top}px`;
 }
 
 function tick(now) {
@@ -432,7 +433,11 @@ function bindCrank() {
       crank.moved = false;
       crank.downAt = performance.now();
       crank.lastA = Math.atan2(y - k.y, x - k.x);
-      cv.setPointerCapture?.(e.pointerId);
+      try {
+        cv.setPointerCapture(e.pointerId);
+      } catch {
+        /* noop */
+      }
       haptic(4);
     } else if (Math.hypot(x - m.geo.cx, y - m.geo.domeCy) < m.geo.R) {
       m.jiggle(0.9);
@@ -486,7 +491,8 @@ function showReveal(cap) {
   const rev = $("#reveal");
   const capEl = $("#revealCap");
   capEl.className = `reveal__cap${cap.gold ? " is-gold" : ""}`;
-  capEl.style.setProperty("--top", art.caps[cap.color % art.caps.length]);
+  if (cap.gold) capEl.style.removeProperty("--top");
+  else capEl.style.setProperty("--top", art.caps[cap.color % art.caps.length]);
   capEl.style.setProperty("--tw", "0deg");
   capEl.style.setProperty("--gap", "0px");
   $("#paper").className = "paper";
@@ -559,7 +565,11 @@ function closeReveal() {
     tw.x0 = tw.lastX = e.clientX;
     tw.moved = false;
     tw.down = true;
-    rev.setPointerCapture?.(e.pointerId);
+    try {
+      rev.setPointerCapture(e.pointerId);
+    } catch {
+      /* noop */
+    }
   });
   rev.addEventListener("pointermove", (e) => {
     if (!tw.down || tw.open) return;
@@ -595,6 +605,7 @@ function renderDraw(fresh = false) {
   if (!session) return;
   const s = session;
   $("#drawTitle").textContent = s.mode === "one" ? "한 명씩 뽑기" : `당첨 ${s.wins} · 꽝 ${s.names.length - s.wins}`;
+  $("#signSub").textContent = s.mode === "one" ? `${s.names.length}명` : `금색 ${s.wins}`;
   renderLeft();
   const turnEl = $("#turn");
   if (s.mode === "win" && s.picks.length < s.names.length) {

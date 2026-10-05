@@ -124,7 +124,7 @@ body {
   align-items: baseline;
   gap: var(--sp-8);
   margin: 0;
-  padding: var(--sp-4) var(--sp-16);
+  padding: var(--sp-8) var(--sp-10);
   border-radius: var(--r-8);
   background:
     radial-gradient(circle, var(--art-gold-light) 0 2px, transparent 2.5px) 0 0 / var(--sp-10) var(--sp-10),
@@ -138,7 +138,13 @@ body {
 
 @keyframes bulbs { 50% { background-position: var(--sp-6) var(--sp-6), 0 0; } }
 
-.marquee__main { font: 400 26px/1.2 var(--font-display); letter-spacing: 0.02em; }
+.marquee__main {
+  padding: 0 var(--sp-6);
+  border-radius: var(--r-4);
+  background: var(--color-primary);
+  font: 400 26px/1.2 var(--font-display);
+  letter-spacing: 0.02em;
+}
 .marquee__sub {
   padding: 0 var(--sp-6);
   border-radius: var(--r-4);
@@ -940,3 +946,5 @@ button.history__item {
 }
 
 button.history__item:active { background: var(--color-surface-sunken); }
+
+.reveal:focus { outline: none; }

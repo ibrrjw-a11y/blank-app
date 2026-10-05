@@ -12,6 +12,8 @@ import {
   showView,
   openSheet,
   renderMoreSites,
+  renderCrumb,
+  prefersReducedMotion,
   downloadBlob,
 } from "../shared/kit.js";
 import { KEYS, META, TIPS, computeAll, ageBand } from "./scoring.js";
@@ -510,12 +512,23 @@ function openShare(rec) {
 
 /* ---------- 이벤트 ---------- */
 function init() {
-  renderMoreSites($("#more"), "brain-age");
+  renderCrumb($("#crumb"));
+  renderMoreSites($("#more"));
   renderChallengeBanner($("#challengeIntro"));
   renderChallengeBanner($("#challengeSetup"));
   enterIntro();
 
-  $("#start").onclick = () => enterSetup();
+  // 측정 개시: 덮개가 열리고 버튼이 눌린 뒤 램프가 켜지면 준비 화면으로
+  $("#start").onclick = () => {
+    const b = $("#start");
+    if (b.classList.contains("is-armed")) return;
+    b.classList.add("is-armed");
+    haptic([8, 60, 14]);
+    setTimeout(() => {
+      b.classList.remove("is-armed");
+      enterSetup();
+    }, prefersReducedMotion() ? 60 : 640);
+  };
   $("#openHistory").onclick = () => {
     const last = lastRecord();
     if (last) renderResult(last);

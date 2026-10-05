@@ -424,6 +424,7 @@ body {
 }
 
 .at-check--again {
+  grid-template-rows: auto;
   margin-top: var(--sp-24);
   border-radius: var(--r-4);
 }
@@ -1016,6 +1017,8 @@ body {
   color: var(--art-lead-soft);
 }
 
+.at-doc .at-calc li { font: inherit; }
+
 .at-calc {
   margin: 0;
   padding-left: var(--sp-20);
@@ -1029,9 +1032,9 @@ body {
   border: 1.5px solid var(--art-lead);
 }
 
-.at-example__row {
+.at-doc .at-example__row {
   display: grid;
-  grid-template-columns: 5.5em auto 1.2em auto;
+  grid-template-columns: 5.5em 5.2em 1.4em auto;
   align-items: baseline;
   gap: var(--sp-8);
   margin: 0;
@@ -1043,7 +1046,7 @@ body {
   color: var(--brand);
 }
 
-.at-example__out {
+.at-doc .at-example__out {
   margin: var(--sp-8) 0 0;
   font: 700 13px/1.6 var(--art-typed);
 }

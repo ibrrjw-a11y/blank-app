@@ -47,10 +47,10 @@ export function conflicts(rungs, a, y, dy = 0, gap = GAP) {
 
 // 탭한 높이 근처에서 빈자리를 찾는다
 export function findSlot(rungs, a, y, dy = 0) {
-  for (let k = 0; k <= 12; k++) {
-    for (const s of k ? [1, -1] : [1]) {
-      const yy = y + s * k * 0.012;
-      if (yy < Y_MIN + 0.02 || yy + dy > Y_MAX - 0.02) continue;
+  for (let k = 0; k <= 160; k++) {
+    for (const sg of k ? [1, -1] : [1]) {
+      const yy = y + sg * k * 0.006;
+      if (yy < Y_MIN + 0.02 || yy + dy > Y_MAX - 0.02 || yy + dy < Y_MIN + 0.02) continue;
       if (!conflicts(rungs, a, yy, dy)) return yy;
     }
   }
@@ -184,10 +184,10 @@ export function chalkStroke(ctx, pts, { color = CHALK.white, width = 3, seed = 1
     ctx.globalCompositeOperation = "destination-out";
     ctx.globalAlpha = 0.85;
     for (let i = 0; i < out.length; i++) {
-      if (rand() < 0.42) {
+      if (rand() < 0.26) {
         const [x, y] = out[i];
         ctx.beginPath();
-        ctx.arc(x + (rand() - 0.5) * width, y + (rand() - 0.5) * width, 0.45 + rand() * width * 0.22, 0, 6.283);
+        ctx.arc(x + (rand() - 0.5) * width, y + (rand() - 0.5) * width, 0.3 + rand() * width * 0.13, 0, 6.283);
         ctx.fill();
       }
     }

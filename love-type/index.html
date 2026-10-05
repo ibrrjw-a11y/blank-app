@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>연애 유형 테스트 | 연애 동물 테스트 - 연애 세포 도감 8종</title>
+    <meta
+      name="description"
+      content="연애 유형 테스트 12문항으로 표현·속도·거리 세 가지 연애 습성을 재서 리트리버, 여우, 고슴도치 등 8가지 연애 동물 중 나를 찾아요. 잘 맞는 동물과 안 맞는 동물, 친구와의 관계도 도감 형식으로 보여줘요."
+    />
+    <meta name="keywords" content="연애 유형 테스트, 연애 스타일 테스트, 연애 동물 테스트, 연애 세포 테스트, 연애 성향 테스트, 동물 유형 테스트, 연애 궁합" />
+    <link rel="canonical" href="https://example.com/love-type/" />
+    <meta name="theme-color" content="#efe6d2" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/love-type/" />
+    <meta property="og:title" content="연애 세포 테스트 - 연애할 때 나는 어떤 동물?" />
+    <meta property="og:description" content="12문항으로 찾는 나의 연애 동물. 8종 도감을 채워 보세요." />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='8' width='80' height='84' rx='4' fill='%23365b3f'/><rect x='18' y='16' width='64' height='68' fill='none' stroke='%23d8b45f' stroke-width='3'/><path d='M40 70 L44 40 L50 52 L56 40 L60 70Z' fill='%23d8b45f'/></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Song+Myung&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="../test-kit/base.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "연애 세포 테스트 - 연애 동물 도감",
+            "url": "https://example.com/love-type/",
+            "description": "12문항으로 표현·속도·거리 연애 습성을 재서 8가지 연애 동물 중 하나를 알려주는 무료 연애 유형 테스트.",
+            "applicationCategory": "EntertainmentApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "연애 동물은 몇 종류인가요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "표현(직진·은근), 속도(불꽃·뭉근), 거리(껌딱지·따로또같이) 세 습성의 조합으로 8종이에요. 리트리버, 치타, 펭귄, 늑대, 수달, 여우, 고슴도치, 고양이." }
+              },
+              {
+                "@type": "Question",
+                "name": "학명은 진짜인가요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "아니요. 라틴어 단어를 섞어 재미로 지은 가짜 학명이에요. 실제 동물의 생태와도 관계없어요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app lt">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 도감 한 쪽 -->
+      <section class="tk-intro lt-intro" data-view="intro">
+        <header class="lt-mast">
+          <p class="lt-mast__ed">Vol. II · 연애 동물 도감</p>
+          <h1 class="lt-mast__title">연애 세포 테스트</h1>
+          <p class="lt-mast__sub"><i>Bestiarium Amoris</i> · 연애할 때 나는 어떤 동물?</p>
+        </header>
+        <div class="tk-stage lt-stage" id="stage" aria-hidden="true"></div>
+        <button type="button" class="lt-cover" id="start">
+          <span class="lt-cover__board">
+            <span class="lt-cover__frame">
+              <span class="lt-cover__small">FIELD GUIDE</span>
+              <span class="lt-cover__title">도감 펼치기</span>
+              <span class="lt-cover__meta">관찰 12항목 · 약 2분</span>
+            </span>
+          </span>
+          <span class="lt-cover__pages" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="lt-shelf" id="openShelf" hidden></button>
+      </section>
+
+      <!-- 2) 관찰 일지 (문항) -->
+      <section class="tk-view lt-quiz" data-view="quiz" hidden>
+        <div class="lt-page">
+          <div class="lt-quizbar">
+            <button type="button" class="lt-back" id="quizBack">← 앞 항목</button>
+            <span class="lt-quizbar__no" id="quizCount">관찰 항목 01 / 12</span>
+          </div>
+          <div class="lt-ruler" aria-hidden="true"><i id="quizRuler"></i><span id="quizTicks"></span></div>
+          <div class="lt-qwrap" id="quizCard"></div>
+        </div>
+      </section>
+
+      <!-- 3) 결과 -->
+      <section class="tk-view lt-res" data-view="result" hidden></section>
+
+      <!-- 4) 친구 표본 -->
+      <section class="tk-view lt-res" data-view="friend" hidden></section>
+
+      <!-- 5) 내 도감 (수집 페이지) -->
+      <section class="tk-view lt-res" data-view="shelf" hidden></section>
+
+      <!-- SEO 본문: 도감 일러두기 -->
+      <article class="seo lt-doc">
+        <header class="lt-doc__head">
+          <p>일러두기</p>
+          <h2>이 도감을 읽는 법</h2>
+        </header>
+
+        <h3>세 가지 습성</h3>
+        <table class="lt-table">
+          <thead><tr><th>습성</th><th>한쪽</th><th>다른 쪽</th></tr></thead>
+          <tbody>
+            <tr><th>표현</th><td>직진 <code>D</code> · 좋으면 바로 말함</td><td>은근 <code>S</code> · 행동으로 보여 줌</td></tr>
+            <tr><th>속도</th><td>불꽃 <code>F</code> · 마음이 빨리 생김</td><td>뭉근 <code>W</code> · 천천히 스며듦</td></tr>
+            <tr><th>거리</th><td>껌딱지 <code>C</code> · 함께가 좋음</td><td>따로또같이 <code>I</code> · 각자 시간 필요</td></tr>
+          </tbody>
+        </table>
+
+        <h3>분류 예시</h3>
+        <div class="lt-specimen">
+          <p class="lt-specimen__title">채집 기록 No. 0317</p>
+          <ul>
+            <li><span>표현</span> 직진 3 : 은근 1.5 <b>→ D</b></li>
+            <li><span>속도</span> 불꽃 1 : 뭉근 3.5 <b>→ W</b></li>
+            <li><span>거리</span> 껌딱지 3.5 : 따로 1 <b>→ C</b></li>
+          </ul>
+          <p class="lt-specimen__out">D · W · C → <b>펭귄</b> <i>Aptenodytes fidelis</i></p>
+          <p class="lt-specimen__note">"마음 생기는 데 오래 걸리지만, 정하면 기념일 달력부터 만든다."</p>
+        </div>
+        <p class="lt-doc__small">축마다 4항목, 그중 한 항목은 1.5점이라 동점이 나오지 않아요.</p>
+
+        <h3>수록 동물 8종</h3>
+        <table class="lt-table lt-table--species">
+          <thead><tr><th>번호</th><th>이름 · 학명</th><th>습성</th><th>공생</th></tr></thead>
+          <tbody>
+            <tr><td>I</td><td>리트리버 <i>Canis devotus</i></td><td>DFC</td><td>수달</td></tr>
+            <tr><td>II</td><td>치타 <i>Acinonyx subitus</i></td><td>DFI</td><td>여우</td></tr>
+            <tr><td>III</td><td>펭귄 <i>Aptenodytes fidelis</i></td><td>DWC</td><td>고슴도치</td></tr>
+            <tr><td>IV</td><td>늑대 <i>Canis lupus cautus</i></td><td>DWI</td><td>고양이</td></tr>
+            <tr><td>V</td><td>수달 <i>Lutra manutenens</i></td><td>SFC</td><td>리트리버</td></tr>
+            <tr><td>VI</td><td>여우 <i>Vulpes ludens</i></td><td>SFI</td><td>치타</td></tr>
+            <tr><td>VII</td><td>고슴도치 <i>Erinaceus lentus</i></td><td>SWC</td><td>펭귄</td></tr>
+            <tr><td>VIII</td><td>고양이 <i>Felis secreta</i></td><td>SWI</td><td>늑대</td></tr>
+          </tbody>
+        </table>
+        <p class="lt-doc__small">천적은 세 습성이 모두 반대인 동물이에요. 예: 리트리버(DFC) ↔ 고양이(SWI).</p>
+
+        <h3>채집자 문답</h3>
+        <details>
+          <summary>학명은 진짜인가요?</summary>
+          <p>아니요. 라틴어 단어를 섞어 재미로 지은 가짜 학명이에요. 예를 들어 수달의 manutenens는 "손을 잡고 있는"이라는 뜻으로 붙였어요.</p>
+        </details>
+        <details>
+          <summary>도감은 어떻게 채워요?</summary>
+          <p>테스트를 할 때마다 나온 동물이 내 도감에 표시돼요. 기분이나 연애 상황에 따라 다른 동물이 나오기도 해요. 친구 결과 링크를 열면 그 동물은 "친구에게서 관찰"로 따로 표시돼요.</p>
+        </details>
+        <details>
+          <summary>친구랑 궁합도 볼 수 있어요?</summary>
+          <p>내 결과 링크를 친구가 열고 테스트를 마치면, 두 표본을 나란히 놓고 같은 종·공생·천적·친척 관계 중 무엇인지 알려 줘요.</p>
+        </details>
+        <details>
+          <summary>제 답은 저장되나요?</summary>
+          <p>서버로 보내지 않아요. 도감 기록은 지금 쓰는 브라우저에만 남아요.</p>
+        </details>
+        <p class="lt-doc__small">재미로 보는 테스트예요. 성격 검사나 진단이 아니에요.</p>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">재미로 보는 연애 유형 테스트예요. 동물 설명과 학명은 모두 지어낸 것이에요.</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

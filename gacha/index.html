@@ -142,8 +142,9 @@
         </header>
         <p class="turn" id="turn" hidden></p>
         <div class="machine machine--play" id="playMachine">
+          <p class="marquee" aria-hidden="true"><span class="marquee__main">제비뽑기</span><span class="marquee__sub" id="signSub">한 명씩</span></p>
           <canvas class="machine__canvas" aria-label="캡슐 뽑기 기계. 손잡이를 돌려요"></canvas>
-          <p class="tape tape--hint" id="crankHint">손잡이를 빙글 돌려요<br />꾹 누르고 있어도 돌아가요</p>
+          <p class="tape tape--hint" id="crankHint">오른쪽 손잡이를<br />빙글 돌려요 ↘<br />꾹 눌러도 돼요</p>
           <button class="knob-btn" id="knobBtn" type="button" aria-label="손잡이 한 바퀴 돌리기"></button>
           <div class="reveal" id="reveal" hidden>
             <div class="reveal__cap" id="revealCap" aria-hidden="true"><span class="reveal__top"></span><span class="reveal__bottom"></span></div>

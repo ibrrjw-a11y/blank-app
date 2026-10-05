@@ -64,6 +64,7 @@
   </head>
   <body>
     <main class="app">
+      <nav id="crumb"></nav>
       <!-- 1) 첫 화면: 회로 뇌 모션그래픽 -->
       <section class="intro" id="intro" data-view="intro">
         <header class="intro-head">
@@ -77,8 +78,18 @@
         <div class="intro__cta">
           <div class="challenge" id="challengeIntro" hidden></div>
           <p class="intro-nudge t-label-02" id="nudge" hidden></p>
-          <button class="btn btn--primary btn--lg btn--block btn--spring" id="start">측정 시작 (약 2분)</button>
-          <button class="btn btn--ghost btn--block" id="openHistory" hidden>지난 성적서 보기</button>
+          <button class="arm" id="start" type="button" aria-label="측정 개시, 약 2분">
+            <span class="arm__well" aria-hidden="true">
+              <span class="arm__btn"></span>
+              <span class="arm__guard"><i>OPEN</i></span>
+            </span>
+            <span class="arm__plate">
+              <b>측정 개시</b>
+              <small class="mono">START · 5CH · 약 2분</small>
+            </span>
+            <span class="arm__lamp" aria-hidden="true"><i></i><small class="mono">READY</small></span>
+          </button>
+          <button class="slipbtn mono" id="openHistory" type="button" hidden>▤ 지난 성적서 꺼내기</button>
         </div>
       </section>
 
@@ -127,97 +138,104 @@
         <div id="resultBody"></div>
       </section>
 
-      <!-- 5) SEO 본문 -->
-      <article class="seo" id="about">
-        <h2>뇌 나이 측정소는 어떤 테스트인가요?</h2>
-        <p>
-          반응속도 테스트, 기억력 테스트, 색 구분, 고주파 청력 테스트, 암산을 미니게임 5개로 묶은 <b>재미용 뇌 나이 테스트</b>예요. 게임마다
-          20~30초씩, 모두 합쳐 2분 정도면 끝나요. 각 점수를 나이로 바꾼 뒤 가중 평균을 내서 "뇌 나이"를 보여줘요. 신체나이 테스트처럼 가볍게
-          즐기고, 부모님이나 친구에게 도전장을 보내 같이 해보세요.
-        </p>
+      <!-- 5) SEO 본문: 측정 절차서 (실험 보고서 형식) -->
+      <article class="seo labdoc" id="about">
+        <header class="labdoc__head">
+          <p class="labdoc__no mono"><span>문서 BA-05-SOP</span><span>재미용 · 비진단</span></p>
+          <h2>뇌 나이 테스트 측정 절차서</h2>
+          <dl class="labdoc__meta">
+            <div><dt class="mono">측정 시간</dt><dd>약 2분</dd></div>
+            <div><dt class="mono">채널</dt><dd>5개 미니게임</dd></div>
+            <div><dt class="mono">결과 범위</dt><dd>15~80세</dd></div>
+          </dl>
+        </header>
 
-        <h3>CH1 반응속도 테스트 (순발력 테스트)</h3>
-        <p>
-          화면이 초록색으로 바뀌는 순간 탭해요. 5번 재고 가장 느린 1번을 뺀 평균을 써요. 초록색이 되기 전에 누르면 다시 하고 30ms를 더해요.
-        </p>
-        <h3>CH2 순간기억 (기억력 테스트)</h3>
-        <p>3×3 칸에 불이 들어오는 순서를 기억해서 똑같이 눌러요. 맞힐 때마다 순서가 한 칸씩 길어지고, 따라 누른 최대 길이가 점수예요.</p>
-        <h3>CH3 색 구분 테스트</h3>
-        <p>여러 칸 가운데 색이 살짝 다른 한 칸을 찾아요. 단계가 오를수록 칸은 많아지고 색 차이는 작아져요. 30초 동안 통과한 단계 수가 점수예요.</p>
-        <h3>CH4 고주파 청력 테스트 (귀 나이)</h3>
-        <p>
-          8kHz에서 19kHz까지 점점 높아지는 소리가 들리는지 답해요. 나이가 들수록 높은 소리부터 덜 들리는 경향이 있다고 알려져 있어서 흔히
-          "귀 나이 테스트"라고 불러요. 중간에 소리가 없는 문제를 하나 섞어 "들려요"를 습관처럼 누르는지 확인해요. 볼륨은 중간 이하로, 가능하면
-          이어폰으로 해주세요.
-        </p>
-        <h3>CH5 순간계산</h3>
-        <p>한 자리·두 자리 덧셈, 뺄셈, 곱셈을 숫자 패드로 30초 동안 풀어요. 맞힌 개수가 점수예요.</p>
+        <section class="labdoc__sec">
+          <h3><span class="mono">1.</span> 측정 항목표</h3>
+          <div class="labdoc__scroll">
+            <table class="labdoc__table">
+              <thead><tr><th scope="col">CH</th><th scope="col">항목</th><th scope="col">방법</th><th scope="col">기록</th></tr></thead>
+              <tbody>
+                <tr><th scope="row" class="mono">CH1</th><td>반응속도</td><td>초록불이 켜지는 순간 탭. 5회 중 가장 느린 1회를 빼고 평균. 먼저 누르면 +30ms</td><td class="mono">ms ↓</td></tr>
+                <tr><th scope="row" class="mono">CH2</th><td>순간기억</td><td>3×3 칸에 켜진 순서대로 누르기. 맞힐 때마다 한 칸씩 길어지고 기회는 2번</td><td class="mono">칸 ↑</td></tr>
+                <tr><th scope="row" class="mono">CH3</th><td>색 구분</td><td>색이 살짝 다른 한 칸 찾기. 30초, 틀리면 2초 감소</td><td class="mono">단계 ↑</td></tr>
+                <tr><th scope="row" class="mono">CH4</th><td>고주파 청력</td><td>8kHz→19kHz 소리가 들리는지 답하기. 무음 문제 1개 포함, 건너뛰기 가능</td><td class="mono">kHz ↑</td></tr>
+                <tr><th scope="row" class="mono">CH5</th><td>순간계산</td><td>한 자리·두 자리 덧셈·뺄셈·곱셈을 숫자 패드로. 30초</td><td class="mono">문제 ↑</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="labdoc__note mono">↓ 낮을수록 젊게 · ↑ 높을수록 젊게 환산</p>
+        </section>
 
-        <h3>반응속도 평균은 어느 정도인가요?</h3>
-        <p>
-          눈으로 보고 누르는 단순 반응 시간은 일반적으로 0.2~0.3초 안팎이라고 알려져 있어요. 스마트폰에서는 화면과 터치 지연이 더해져서 이보다
-          조금 길게 나오는 게 보통이에요. 이 사이트의 점수는 기기마다 차이가 있으니 다른 기기 기록과 직접 비교하기보다 같은 기기에서 내 기록의
-          변화를 보는 데 써주세요.
-        </p>
+        <section class="labdoc__sec">
+          <h3><span class="mono">2.</span> 환산 기준 (앵커값)</h3>
+          <ul class="anchors">
+            <li><b class="mono">CH1</b><span>200ms → 15세</span><span>260ms → 20세</span><span>310ms → 40세</span><span>360ms → 58세</span></li>
+            <li><b class="mono">CH2</b><span>9칸 → 17세</span><span>7칸 → 28세</span><span>5칸 → 50세</span><span>3칸 → 74세</span></li>
+            <li><b class="mono">CH3</b><span>26단계 → 20세</span><span>18단계 → 36세</span><span>10단계 → 60세</span></li>
+            <li><b class="mono">CH4</b><span>17kHz → 24세</span><span>15kHz → 40세</span><span>12kHz → 52세</span></li>
+            <li><b class="mono">CH5</b><span>18문제 → 21세</span><span>12문제 → 37세</span><span>6문제 → 60세</span></li>
+          </ul>
+          <p class="labdoc__note">앵커 사이는 직선으로 이어요. 종합은 가중 평균이에요. 반응 25%, 기억·색·계산 각 20%, 청력 15%. 청력을 건너뛰면 나머지 4개로, 무음 문제에 "들려요"를 누르면 청력을 절반만 반영해요. 연령별 표본으로 만든 규준이 아니라 재미용 기준이에요.</p>
+        </section>
 
-        <h3>뇌 나이는 어떻게 계산하나요?</h3>
-        <p>
-          게임마다 "이 정도면 대략 몇 살 느낌" 하는 앵커를 몇 개 정하고 그 사이를 이어서 나이로 바꿔요. 예를 들어 반응속도 260ms는 20세 정도,
-          고주파 청력 17kHz는 25세 미만, 15kHz는 40세 전후, 12kHz는 50세 이상으로 잡았어요. 다섯 게임을 가중 평균(청력을 건너뛰면 나머지
-          4개로)해서 15~80세 사이로 보여줘요. 연령별 표본으로 만든 규준이 아니라 재미를 위한 대략적인 기준이에요.
-        </p>
+        <section class="labdoc__sec">
+          <h3><span class="mono">3.</span> 예시 성적서</h3>
+          <div class="sample">
+            <p class="sample__head mono"><span>뇌 나이 검사 성적서</span><span>예시</span></p>
+            <table class="sample__table">
+              <tbody>
+                <tr><th scope="row">CH1 반응속도</th><td class="mono">268ms</td><td class="mono">23세</td></tr>
+                <tr><th scope="row">CH2 순간기억</th><td class="mono">7칸</td><td class="mono">28세</td></tr>
+                <tr><th scope="row">CH3 색 구분</th><td class="mono">20단계</td><td class="mono">32세</td></tr>
+                <tr><th scope="row">CH4 고주파 청력</th><td class="mono">16kHz</td><td class="mono">32세</td></tr>
+                <tr><th scope="row">CH5 순간계산</th><td class="mono">14문제</td><td class="mono">31세</td></tr>
+              </tbody>
+            </table>
+            <p class="sample__sum"><span>가중 평균</span><b>29<small>세</small></b></p>
+            <p class="sample__line">실제 나이 34세 → 5살 젊게 나왔어요</p>
+            <span class="stamp sample__stamp">예시</span>
+          </div>
+        </section>
 
-        <h3>이렇게 써보세요</h3>
-        <ol>
-          <li>실제 나이를 넣으면 "실제보다 몇 살 젊은지" 비교해줘요. 넣지 않아도 돼요.</li>
-          <li>게임 5개를 차례로 해요. 청력 테스트는 건너뛸 수 있어요.</li>
-          <li>결과 이미지를 저장하거나 부모님께 도전장 링크를 보내요.</li>
-          <li>일주일 뒤 같은 시간에 다시 재서 기록 그래프로 변화를 봐요.</li>
-        </ol>
+        <section class="labdoc__sec">
+          <h3><span class="mono">4.</span> 측정 조건</h3>
+          <ol class="cond">
+            <li><b class="mono">환경</b>조용한 곳, 화면 밝기 중간 이상</li>
+            <li><b class="mono">청력</b>이어폰 권장, 볼륨은 중간 이하. 스마트폰 스피커는 높은 소리를 잘 못 내요</li>
+            <li><b class="mono">재측정</b>7일 뒤 같은 기기, 같은 시간대. 기록지 그래프로 변화를 봐요</li>
+            <li><b class="mono">참고</b>눈으로 보고 누르는 단순 반응은 흔히 0.2~0.3초 안팎으로 알려져 있어요. 폰은 화면·터치 지연이 더해져 조금 길게 나와요</li>
+          </ol>
+        </section>
 
-        <h3>자주 묻는 질문</h3>
-        <details>
-          <summary>청력 테스트 소리가 안 들려요.</summary>
-          <p>
-            스마트폰 스피커는 높은 주파수를 잘 못 내는 경우가 많아요. 이어폰을 연결하고 볼륨을 중간 정도로 맞춘 뒤 다시 해보세요. 무음 모드인지도
-            확인해주세요. 그래도 안 들리면 청력은 건너뛰고 나머지 4개로 뇌 나이를 계산해요. 귀 건강을 위해 볼륨을 갑자기 크게 올리지는 마세요.
-          </p>
-        </details>
-        <details>
-          <summary>결과가 매번 달라요.</summary>
-          <p>
-            정상이에요. 반응속도와 기억력은 잠, 피로, 집중도, 기기, 화면 밝기에 따라 쉽게 달라져요. 같은 기기로 비슷한 시간대에 여러 번 재고, 한 번의
-            숫자보다 기록 그래프의 흐름을 보는 게 좋아요.
-          </p>
-        </details>
-        <details>
-          <summary>의학적 의미가 있나요?</summary>
-          <p>
-            없어요. 이 테스트는 재미로 보는 측정이고 의학적 진단이나 검사가 아니에요. 치매나 난청 같은 질환을 판단할 수 없어요. 기억력이나 청력이
-            걱정된다면 의료기관에서 상담받아 보세요.
-          </p>
-        </details>
-        <details>
-          <summary>신체나이 테스트와 같은 건가요?</summary>
-          <p>
-            비슷하게 가볍게 즐기는 콘텐츠예요. 다만 체력이나 몸 상태가 아니라 반응, 기억, 색 구분, 고음 듣기, 암산처럼 머리와 감각을 쓰는 미니게임만
-            재요.
-          </p>
-        </details>
-        <details>
-          <summary>기록은 어디에 저장되나요?</summary>
-          <p>
-            지금 쓰는 브라우저에만 저장돼요. 서버로 보내지 않아요. 그래서 다른 앱이나 기기에서는 기록이 따로 보여요. 도전장 링크에는 내가 보내기로 한
-            이름과 점수만 담겨요.
-          </p>
-        </details>
-        <details>
-          <summary>부모님께 도전장은 어떻게 보내요?</summary>
-          <p>
-            결과 화면에서 "부모님께 도전장 보내기"를 누르고 받는 사람을 고르면 카카오톡 같은 메신저로 링크를 보낼 수 있어요. 받은 사람이 끝까지
-            해보면 두 사람 결과를 나란히 보여줘요.
-          </p>
-        </details>
+        <section class="labdoc__sec">
+          <h3><span class="mono">5.</span> 문의 기록</h3>
+          <details>
+            <summary><span class="mono">Q1</span> 청력 테스트 소리가 안 들려요.</summary>
+            <p>스마트폰 스피커는 높은 주파수를 잘 못 내는 경우가 많아요. 이어폰을 연결하고 볼륨을 중간 정도로 맞춘 뒤 다시 해보세요. 무음 모드도 확인해주세요. 그래도 안 들리면 청력은 건너뛰고 나머지 4개로 계산해요.</p>
+          </details>
+          <details>
+            <summary><span class="mono">Q2</span> 결과가 매번 달라요.</summary>
+            <p>정상이에요. 잠, 피로, 집중도, 기기, 화면 밝기에 따라 쉽게 달라져요. 같은 기기로 비슷한 시간대에 여러 번 재고 기록지의 흐름을 봐주세요.</p>
+          </details>
+          <details>
+            <summary><span class="mono">Q3</span> 의학적 의미가 있나요?</summary>
+            <p>없어요. 재미로 보는 측정이고 의학적 진단이나 검사가 아니에요. 치매나 난청 같은 질환을 판단할 수 없어요. 걱정된다면 의료기관에서 상담받아 보세요.</p>
+          </details>
+          <details>
+            <summary><span class="mono">Q4</span> 신체나이 테스트와 같은 건가요?</summary>
+            <p>비슷하게 가볍게 즐기는 콘텐츠예요. 다만 체력이 아니라 반응, 기억, 색 구분, 고음 듣기, 암산만 재요.</p>
+          </details>
+          <details>
+            <summary><span class="mono">Q5</span> 기록은 어디에 저장되나요?</summary>
+            <p>지금 쓰는 브라우저에만 저장돼요. 서버로 보내지 않아요. 도전장 링크에는 내가 적은 이름과 점수만 담겨요.</p>
+          </details>
+          <details>
+            <summary><span class="mono">Q6</span> 부모님께 도전장은 어떻게 보내요?</summary>
+            <p>결과 화면에서 "부모님께 도전장 보내기"를 누르고 받는 사람을 고르면 메신저로 링크를 보낼 수 있어요. 받은 사람이 끝까지 하면 두 사람 결과를 나란히 보여줘요.</p>
+          </details>
+        </section>
+        <p class="labdoc__foot mono"><span>작성 BA-05</span><span>본 측정은 재미용이며 의학적 진단이 아님</span></p>
       </article>
 
       <nav id="more" aria-label="다른 놀이"></nav>
