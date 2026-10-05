@@ -70,6 +70,28 @@ node scripts/build-dream-pages.mjs                  # 꿈해몽 SEO 페이지 �
 - 실시간 멀티플레이(각자 폰으로 동시 참여), 응답 자동 수집, 전국 집계를 하려면 DB가 필요하다 → Supabase/Firebase 연동이 다음 단계.
 - 어디가?의 실제 가게 데이터는 기본이 OpenStreetMap이고, `where-to-go/config.js`에 카카오 JavaScript 키를 넣으면 카카오 장소 검색을 쓴다.
 
+## 사이트별 디자인 장르 (AI티 방지)
+
+| 사이트 | 장르 | 제목 서체 |
+|---|---|---|
+| 누가 쏠래? | F1·e스포츠 중계 그래픽 | Black Han Sans, Anton |
+| 나 상장하기 | 증권 단말기·스플릿 플랩 | IBM Plex Mono / Sans KR |
+| 어디가? | 지하철 노선도·사인 시스템 | Gothic A1, Archivo |
+| 딴짓 오락실 | 오락실 캐비닛·CRT | Black Han Sans, Press Start 2P |
+| 꿈 사주 | 한지·먹·도장 | Song Myung |
+| 남이 정해주는 MBTI | 진(zine) 콜라주 | Black Han Sans, Nanum Pen Script |
+| 실시간 월급 카운터 | 감열지 영수증·기계식 카운터 | IBM Plex Mono / Sans KR |
+| 인생 진행률 | 스위스 타이포·정보 디자인 | Archivo Black, Gothic A1 |
+| 단톡방 궁합표 | 2000년대 다이어리·싸이월드 | Jua, Gaegu, DotGothic16 |
+| 뇌 나이 측정소 | 실험실 계측기·오실로스코프 | IBM Plex Mono / Sans KR |
+| 커플 D-day 룸 | 필름 사진·편지지 | Gowun Batang, Nanum Pen Script |
+
+## 외부 연동 (선택)
+
+- **어디가? 실제 가게**: `where-to-go/config.js`의 `kakaoJsKey`에 카카오 JavaScript 키를 넣고, 카카오 개발자 콘솔 → 플랫폼 → Web에 배포 도메인을 등록한다. 키가 없으면 OpenStreetMap(무료) → 내장 메뉴 목록 순으로 동작한다.
+- **날씨 가중치**: Open-Meteo(무료, 키 없음).
+- 제목 서체는 Google Fonts, 본문은 Pretendard CDN에서 불러온다.
+
 ## 검증
 
 ```bash

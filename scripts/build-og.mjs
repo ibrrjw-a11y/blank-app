@@ -28,24 +28,21 @@ function brandOf(slug) {
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
-function html({ emoji, name, desc, keyword, brand }) {
+function html({ name, desc, keyword, brand, index }) {
+  // 단색 종이 + 사이트 포인트 색 하나. 그라디언트·빛 효과 없음
   return `<!doctype html><html><head><meta charset="utf-8"><style>
   *{margin:0;box-sizing:border-box}
-  body{width:1200px;height:630px;font-family:"Pretendard Variable",Pretendard,"Noto Sans KR",sans-serif;
-    background:#0a0c10;color:#fff;display:flex;align-items:center;padding:0 88px;position:relative;overflow:hidden}
-  .glow{position:absolute;width:720px;height:720px;right:-160px;top:-120px;border-radius:50%;
-    background:radial-gradient(circle,${brand} 0%,transparent 65%);opacity:.55}
-  .ring{position:absolute;right:120px;top:155px;width:320px;height:320px;border-radius:50%;
-    border:2px solid ${brand}55;display:grid;place-items:center}
-  .emoji{font-size:168px;line-height:1}
-  .text{position:relative;max-width:640px}
-  .kw{display:inline-block;padding:10px 20px;border-radius:999px;background:${brand}33;color:#fff;font-size:26px;font-weight:600;margin-bottom:28px}
-  h1{font-size:84px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
-  p{font-size:36px;color:#c4cad4;margin-top:20px;line-height:1.4}
-  .foot{position:absolute;left:88px;bottom:48px;font-size:24px;color:#7b8494}
+  body{width:1200px;height:630px;font-family:"Black Han Sans","Pretendard Variable",Pretendard,"Noto Sans KR",sans-serif;
+    background:#f2efe6;color:#111;position:relative;overflow:hidden;padding:72px 88px}
+  .bar{position:absolute;right:0;top:0;bottom:0;width:300px;background:${brand}}
+  .no{position:absolute;right:56px;bottom:40px;font:800 180px/1 "Archivo",sans-serif;color:#111;letter-spacing:-.04em}
+  .kw{font:600 28px/1 "Pretendard Variable",sans-serif;letter-spacing:.02em;border-bottom:3px solid #111;display:inline-block;padding-bottom:12px}
+  h1{margin-top:64px;font-size:112px;font-weight:900;letter-spacing:-.04em;line-height:1.02;max-width:760px}
+  p{margin-top:28px;font:500 38px/1.35 "Pretendard Variable",sans-serif;color:#3d4451;max-width:720px}
+  .foot{position:absolute;left:88px;bottom:48px;font:600 24px/1 "Pretendard Variable",sans-serif;color:#5a6372}
   </style></head><body>
-  <div class="glow"></div><div class="ring"><div class="emoji">${emoji}</div></div>
-  <div class="text"><div class="kw">${esc(keyword)}</div><h1>${esc(name)}</h1><p>${esc(desc)}</p></div>
+  <div class="bar"></div><div class="no">${index}</div>
+  <div class="kw">${esc(keyword)}</div><h1>${esc(name)}</h1><p>${esc(desc)}</p>
   <div class="foot">놀이터 · 익숙한 놀이를 조금 다르게</div>
   </body></html>`;
 }
@@ -55,8 +52,8 @@ const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.route(/^https?:/, (r) => r.abort());
 
 const targets = [
-  { slug: "", emoji: "🎡", name: "놀이터", desc: "테스트·추첨·계산기를 친구랑 같이 노는 방식으로", keyword: "11가지 놀이", brand: "#8b7bff" },
-  ...SITES.map((s) => ({ ...s, brand: brandOf(s.slug) })),
+  { slug: "", name: "놀이터", desc: "테스트·추첨·계산기를 친구랑 같이 노는 방식으로", keyword: "11가지 놀이", brand: "#ff4b1f", index: "11" },
+  ...SITES.map((s, i) => ({ ...s, brand: brandOf(s.slug), index: String(i + 1).padStart(2, "0") })),
 ];
 
 for (const t of targets) {

@@ -98,6 +98,8 @@ a {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  /* 슬라이드 인 같은 모션이 가로 스크롤을 만들지 않게 (sticky는 유지) */
+  overflow-x: clip;
 }
 
 .topbar {

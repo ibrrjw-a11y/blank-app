@@ -109,8 +109,9 @@ body { background: var(--color-bg); }
 }
 
 /* ---------- 인트로 ---------- */
-.intro { min-height: calc(100dvh - 56px); padding-top: var(--sp-4); }
-.intro__stage { min-height: 404px; }
+.intro { min-height: calc(100dvh - 56px); padding-top: var(--sp-8); }
+/* 무대는 남는 세로 공간을 모두 차지하고, 카드는 JS가 그 크기에 맞춰 확대·축소한다 */
+.intro__stage { flex: 1 1 0; min-height: 280px; }
 .intro__caption { text-align: left; min-height: 96px; }
 .intro__caption .t-title-02 {
   font: var(--title-01);
@@ -118,9 +119,11 @@ body { background: var(--color-bg); }
   font-weight: 900;
   letter-spacing: -0.04em;
 }
-.intro__caption .kw { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: var(--sp-2); }
+/* 단어는 통째로 줄바꿈, 글자는 제자리에서 튀어나옴 (마스크로 자르지 않음) */
+.intro__caption .kw { display: inline-block; vertical-align: top; }
 .intro__caption .kc { display: inline-block; transform-origin: 50% 100%; }
-.intro__steps { justify-content: flex-start; position: relative; gap: var(--sp-16); margin: var(--sp-12) 0 var(--sp-12) var(--sp-2); }
+.intro__caption p { word-break: keep-all; }
+.intro__steps { justify-content: flex-start; position: relative; gap: var(--sp-16); margin: var(--sp-12) 0 var(--sp-10) var(--sp-2); }
 .intro__steps::before {
   content: "";
   position: absolute;
@@ -154,21 +157,30 @@ body { background: var(--color-bg); }
   position: relative;
   flex: none;
   width: 340px;
-  height: 404px;
+  height: 500px;
   border-radius: var(--r-24);
   overflow: hidden;
+  isolation: isolate;
   background: var(--art-paper);
-  box-shadow: inset 0 0 0 1px var(--color-border);
+  transform-origin: center;
 }
-@media (max-width: 370px) {
-  .wi { transform: scale(0.84); transform-origin: top center; }
+/* 카드 테두리를 그림 위에 그려서 노선이 카드 밖으로 나가 보이지 않게 */
+.wi::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--color-border-strong);
+  pointer-events: none;
 }
-.wi-svg { position: absolute; left: 0; top: 0; width: 340px; height: 360px; }
+.wi-svg { position: absolute; left: 0; top: 0; width: 340px; height: 456px; }
 .wi-led {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 6;
   display: flex;
   align-items: center;
   gap: var(--sp-10);
@@ -181,33 +193,37 @@ body { background: var(--color-bg); }
 .wi-led__txt { font: var(--label-02); font-family: var(--font-display); font-weight: 800; color: var(--art-led); white-space: nowrap; letter-spacing: 0.02em; }
 .wi-go {
   position: absolute;
-  left: 188px;
-  top: 300px;
-  padding: var(--sp-6) var(--sp-12);
+  left: 170px;
+  top: 352px;
+  z-index: 3;
+  padding: var(--sp-8) var(--sp-16);
   border-radius: var(--r-full);
   background: var(--color-primary);
   color: var(--color-on-primary);
-  font: var(--label-02);
+  font: var(--label-01);
   white-space: nowrap;
-  z-index: 3;
+  box-shadow: var(--shadow-m);
 }
 .wi-bg { fill: var(--art-paper); }
 .wi-river { fill: var(--art-river); }
-.wi-river__t { font: var(--label-03); fill: var(--art-l4); opacity: 0.7; }
+.wi-river__t { font: var(--label-02); fill: var(--art-l4); }
 .wi-ln { fill: none; stroke: var(--l); stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 .wi-ln--main { stroke-width: 9; }
+.wi-term { fill: none; stroke: var(--art-board); stroke-width: 4; stroke-linecap: round; }
 .wi-stations circle { fill: var(--color-surface); stroke: var(--art-board); stroke-width: 3; }
-.wi-linelabel { font: var(--label-03); font-family: var(--font-num); fill: var(--brand-on); }
-.wi-map .wi-linelabel { paint-order: stroke; stroke: var(--art-l2); stroke-width: 14px; stroke-linejoin: round; }
+.wi-stations .wi-stop { stroke-width: 2.5; }
+.wi-stl text { font: var(--label-03); fill: var(--color-text-secondary); paint-order: stroke; stroke: var(--art-paper); stroke-width: 3px; stroke-linejoin: round; }
+.wi-linebadge { fill: var(--l); stroke: var(--art-paper); stroke-width: 2; }
+.wi-linelabel { font: var(--label-03); font-family: var(--font-num); font-weight: 800; fill: var(--brand-on); }
 
 .wi-legs,
 .wi-kms,
 .wi-xfer,
 .wi-board,
+.wi-strip,
 .wi-sign,
 .wi-duel,
 .wi-vs,
-.wi-score,
 .wi-crown,
 .wi-spark,
 .wi-go { visibility: hidden; }
@@ -216,15 +232,15 @@ body { background: var(--color-bg); }
 .wi[data-scene="2"] .wi-xfer,
 .wi[data-scene="2"] .wi-sign,
 .wi[data-scene="3"] .wi-board,
+.wi[data-scene="4"] .wi-strip,
 .wi[data-scene="4"] .wi-duel,
 .wi[data-scene="4"] .wi-vs,
-.wi[data-scene="4"] .wi-score,
 .wi[data-scene="4"] .wi-crown,
 .wi[data-scene="4"] .wi-spark,
 .wi[data-scene="4"] .wi-go { visibility: visible; }
 .wi[data-scene="3"] .wi-pin,
 .wi[data-scene="4"] .wi-pin { visibility: hidden; }
-.wi[data-scene="4"] .wi-map { opacity: 0.22; }
+.wi[data-scene="4"] .wi-map { opacity: 0.18; }
 
 .wi-leg,
 .wi-leg-case { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
@@ -239,6 +255,7 @@ body { background: var(--color-bg); }
 
 .wi-sign {
   position: absolute;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: var(--sp-6);
@@ -253,7 +270,7 @@ body { background: var(--color-bg); }
 .wi-sign b { font: var(--title-04); font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em; }
 .wi-sign__sub { font: var(--label-03); color: var(--color-text-secondary); }
 
-.wi-pin { position: absolute; width: 0; height: 0; }
+.wi-pin { position: absolute; z-index: 1; width: 0; height: 0; }
 .wi-pin__body { position: absolute; left: -16px; bottom: 2px; width: 32px; height: 42px; transform-origin: 50% 100%; }
 .wi-pin__head {
   position: absolute;
@@ -312,45 +329,68 @@ body { background: var(--color-bg); }
 .wi-tag--below { left: 14px; top: -14px; }
 
 .wi-board__bg { fill: var(--art-board); }
-.wi-board__h { font: var(--label-03); fill: var(--art-led); }
+.wi-board__rule { stroke: var(--art-board-line); stroke-width: 1; }
+.wi-board__h { font: var(--label-02); fill: var(--art-led); }
 .wi-board__h--r { fill: var(--color-text-tertiary); }
 .wi-row { transform-box: fill-box; transform-origin: center; }
 .wi-row__g { font: var(--label-03); font-family: var(--font-display); font-weight: 800; fill: var(--brand-on); }
-.wi-row__n { font: var(--label-01); font-family: var(--font-display); font-weight: 800; fill: var(--brand-on); letter-spacing: -0.02em; }
+.wi-row__n { font: var(--title-04); font-family: var(--font-display); font-weight: 800; fill: var(--brand-on); letter-spacing: -0.02em; }
 .wi-row__t { font: var(--label-03); fill: var(--art-led); }
 .wi-br path { fill: none; stroke: var(--l); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 .wi-br__dot,
 .wi-br__fin { fill: var(--color-surface); stroke: var(--art-board); stroke-width: 2; transform-box: fill-box; transform-origin: center; }
 .wi-br__fin { fill: var(--art-led); stroke-width: 3; }
 
+/* 장면 4: 대진 진행 노선 */
+.wi-strip__track { stroke: var(--color-border-strong); stroke-width: 6; stroke-linecap: round; }
+.wi-strip__done,
+.wi-strip__win { fill: none; stroke: var(--art-l2); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+.wi-strip__st { transform-box: fill-box; transform-origin: center; fill: var(--color-surface); stroke: var(--art-board); stroke-width: 3; }
+.wi-strip__st--done { fill: var(--art-l2); stroke: var(--art-paper); }
+.wi-strip__st--now { stroke-width: 4; }
+.wi-strip__st--goal { fill: var(--color-surface); stroke: var(--art-led); stroke-width: 4; }
+.wi.is-won .wi-strip__st--goal { fill: var(--art-led); stroke: var(--art-board); }
+.wi-strip__t { font: var(--label-03); fill: var(--color-text); }
+
 .wi-duel {
   position: absolute;
-  top: 148px;
+  left: 24px;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 138px;
-  padding-top: var(--sp-16);
-  border-radius: var(--r-8);
+  width: 292px;
+  border-radius: var(--r-12);
   background: var(--color-surface);
-  box-shadow: inset 0 0 0 2px var(--art-board), var(--shadow-l);
+  box-shadow: inset 0 0 0 3px var(--art-board), var(--shadow-l);
   overflow: visible;
+  transform-origin: 50% 50%;
 }
-.wi-duel--a { left: 24px; transform-origin: 50% 100%; z-index: 2; }
-.wi-duel--b { left: 178px; transform-origin: 50% 100%; z-index: 1; }
-.wi-duel__lb { position: absolute; left: var(--sp-8); top: var(--sp-8); display: grid; place-items: center; width: 22px; height: 22px; border-radius: var(--r-full); background: var(--l); color: var(--brand-on); font: var(--label-03); font-family: var(--font-display); font-weight: 800; }
-.wi-duel b { margin: var(--sp-12) 0 var(--sp-12); font: var(--title-03); font-family: var(--font-display); font-weight: 900; letter-spacing: -0.04em; }
-.wi-duel__bar { align-self: stretch; padding: var(--sp-4) 0; border-radius: 0 0 var(--r-8) var(--r-8); background: var(--l); color: var(--brand-on); font: var(--label-03); text-align: center; }
-.wi-vote { position: absolute; top: -6px; padding: var(--sp-2) var(--sp-6); border-radius: var(--r-4); background: var(--art-board); color: var(--art-led); font: var(--label-02); font-family: var(--font-num); opacity: 0; }
+.wi-duel--a { top: 108px; z-index: 3; }
+.wi-duel--b { top: 272px; }
+.wi-duel__top { display: flex; align-items: center; gap: var(--sp-8); padding: var(--sp-12) var(--sp-16) 0; font: var(--label-03); color: var(--color-text-secondary); }
+.wi-duel__lb { display: grid; place-items: center; width: 24px; height: 24px; border-radius: var(--r-full); background: var(--l); color: var(--brand-on); font: var(--label-03); font-family: var(--font-display); font-weight: 800; }
+.wi-duel b { padding: var(--sp-4) var(--sp-16) var(--sp-10); font: var(--display-02); font-family: var(--font-display); font-weight: 900; letter-spacing: -0.05em; }
+.wi-duel__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-8) var(--sp-12) var(--sp-8) var(--sp-16);
+  border-radius: 0 0 var(--r-12) var(--r-12);
+  background: var(--l);
+  color: var(--brand-on);
+  font: var(--label-02);
+}
+.wi-tally { display: inline-block; padding: var(--sp-2) var(--sp-10); border-radius: var(--r-4); background: var(--art-board); color: var(--art-led); font: var(--label-01); font-family: var(--font-num); font-weight: 800; font-variant-numeric: tabular-nums; }
+.wi-vote { position: absolute; top: -8px; padding: var(--sp-2) var(--sp-6); border-radius: var(--r-4); background: var(--art-board); color: var(--art-led); font: var(--label-02); font-family: var(--font-num); opacity: 0; }
 .wi-vs {
   position: absolute;
-  left: 170px;
-  top: 202px;
-  z-index: 3;
+  left: 260px;
+  top: 254px;
+  z-index: 4;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: var(--r-full);
   background: var(--color-surface);
   box-shadow: inset 0 0 0 4px var(--art-board);
@@ -359,9 +399,8 @@ body { background: var(--color-bg); }
   font-weight: 800;
   transform: translate(-50%, -50%);
 }
-.wi-score { position: absolute; left: 170px; top: 296px; padding: var(--sp-4) var(--sp-12); border-radius: var(--r-4); background: var(--art-board); color: var(--art-led); font: var(--title-04); font-family: var(--font-num); font-weight: 800; white-space: nowrap; }
-.wi-crown { position: absolute; left: 172px; top: 84px; font-size: var(--sp-48); line-height: 1; z-index: 4; transform-origin: 50% 100%; }
-.wi-spark { position: absolute; left: 172px; top: 110px; z-index: 3; }
+.wi-crown { position: absolute; left: 170px; top: 146px; font-size: var(--sp-48); line-height: 1; z-index: 5; transform-origin: 50% 100%; }
+.wi-spark { position: absolute; left: 170px; top: 172px; z-index: 4; }
 .wi-spark i { position: absolute; left: -2px; top: -8px; width: 4px; height: 16px; border-radius: var(--r-full); background: var(--art-led); opacity: 0; }
 .wi-spark i:nth-child(odd) { background: var(--art-l2); }
 
@@ -1041,3 +1080,6 @@ body { background: var(--color-bg); }
 /* 닫힌 시트는 화면·탭 순서에서 완전히 숨김 */
 .sheet { visibility: hidden; transition: transform var(--dur-slow) var(--ease-standard), visibility 0s linear var(--dur-slow); }
 .sheet.is-open { visibility: visible; transition: transform var(--dur-slow) var(--ease-standard); }
+.wi[data-scene="4"] .wi-stl,
+.wi[data-scene="4"] .wi-linebadge,
+.wi[data-scene="4"] .wi-linelabel { visibility: hidden; }

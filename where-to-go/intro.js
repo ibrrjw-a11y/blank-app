@@ -26,7 +26,7 @@ const PINS = [
 const MID = { x: 184, y: 220 };
 // 직선거리 근사치 (geo.js 계산과 같은 방식)
 const KM = [
-  { t: "5.6km", x: 132, y: 238 },
+  { t: "5.6km", x: 136, y: 202 },
   { t: "4.8km", x: 250, y: 160 },
   { t: "6.5km", x: 216, y: 300 },
 ];
@@ -39,7 +39,7 @@ const STOPS = [
   { x: 56, y: 290, t: "합정", dx: -10, dy: 4, a: "end" },
   { x: 176, y: 48, t: "혜화", dx: 12, dy: 4, a: "start" },
   { x: 140, y: 300, t: "동작", dx: -10, dy: 4, a: "end" },
-  { x: 290, y: 220, t: "약수", dx: 12, dy: 4, a: "start", onLine: "l6" },
+  { x: 236, y: 220, t: "약수", dx: 0, dy: 20, a: "middle" },
 ];
 const CANDS = [
   ["한", "l2", "김치찌개", "국물"],
@@ -194,7 +194,7 @@ function build(stage) {
   return stage.querySelector(".wi");
 }
 
-// 헤드라인만 글자 단위로 튀어 오름 (본문은 고정). 단어 단위로 줄바꿈되고, 세로 방향만 가린다.
+// 헤드라인만 글자 단위로 튀어 오름 (본문은 고정). 가리지 않고 제자리에서 커지므로 줄바꿈·글자가 잘리지 않는다.
 function kinetic(root, reduce) {
   const h = root.querySelector(".intro__caption h2");
   if (!h || reduce) return;
@@ -206,10 +206,10 @@ function kinetic(root, reduce) {
   h.querySelectorAll(".kc").forEach((c, i) => {
     c.animate(
       [
-        { transform: "translateY(100%) scaleY(1.35)" },
-        { transform: "translateY(0) scaleY(1)" },
+        { transform: "translateY(0.35em) scale(0.3, 0.6)", opacity: 0 },
+        { transform: "translateY(0) scale(1, 1)", opacity: 1 },
       ],
-      { duration: 720, delay: i * 28, easing: SPRING, fill: "backwards" }
+      { duration: 620, delay: i * 24, easing: SPRING, fill: "backwards" }
     );
   });
 }
@@ -244,6 +244,7 @@ export function startIntro(root) {
     live = [];
     timers.forEach(clearTimeout);
     timers = [];
+    wi.classList.remove("is-won");
     wi.dataset.scene = scene;
   };
   const draw = (el, delay, duration = 700, easing = IN_OUT) =>
@@ -280,7 +281,7 @@ export function startIntro(root) {
     {
       title: "출발역만 찍으면",
       desc: "친구마다 있는 역이나 내 위치를 넣어요",
-      duration: 3100,
+      duration: 3000,
       play() {
         clear("1");
         kinetic(root, reduce);
@@ -295,7 +296,7 @@ export function startIntro(root) {
     {
       title: "딱 중간역이 나와요",
       desc: "신촌·왕십리·사당이면 이태원이에요",
-      duration: 3300,
+      duration: 3200,
       play() {
         clear("2");
         kinetic(root, reduce);
@@ -316,7 +317,7 @@ export function startIntro(root) {
     {
       title: "근처 후보로 대진표 완성",
       desc: "메뉴나 근처 실제 가게가 8강·16강으로 줄 서요",
-      duration: 3500,
+      duration: 3200,
       play() {
         clear("3");
         kinetic(root, reduce);
@@ -335,7 +336,7 @@ export function startIntro(root) {
         );
         qa(".wi-br path").forEach((p, i) => draw(p, 1450 + (i < 8 ? 0 : i < 12 ? 380 : 700), 420));
         qa(".wi-br__dot").forEach((d, i) => pop(d, 1750 + (i < 4 ? 0 : 380), 500));
-        pop(q(".wi-br__fin"), 2450, 700);
+        pop(q(".wi-br__fin"), 2300, 700);
       },
     },
     {
@@ -416,7 +417,7 @@ export function startIntro(root) {
             { transform: `rotate(${i * 45}deg) translateY(-14px) scaleY(0.2)`, opacity: 1 },
             { transform: `rotate(${i * 45}deg) translateY(-46px) scaleY(1)`, opacity: 1, offset: 0.5 },
             { transform: `rotate(${i * 45}deg) translateY(-60px) scaleY(0.2)`, opacity: 0 },
-          ], { duration: 600, delay: 3820 })
+          ], { duration: 600, delay: 3820, fill: "forwards" })
         );
         later(() => led("1위 김치찌개 · 지도로 바로 연결"), 3800);
         A(q(".wi-go"), [
