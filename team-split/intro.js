@@ -29,6 +29,17 @@ export function startIntro(root) {
   function measure() {
     L = layoutPiles(box.clientWidth, 3, 3, { step: 26, maxCard: 100 });
     box.style.height = `${L.height}px`;
+    // 펠트에 인쇄된 자리 (덱 자리 + 팀 자리)
+    box.querySelectorAll(".spot").forEach((el) => el.remove());
+    const spot = (x, y, w, h, label) => {
+      const el = document.createElement("span");
+      el.className = "spot";
+      Object.assign(el.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+      el.textContent = label;
+      box.appendChild(el);
+    };
+    spot(L.deck.x - 6, L.deck.y - 6, L.cardW + 12, L.cardH + 12, "DECK");
+    L.piles.forEach((p, t) => spot(p.x - 5, p.y - 5, L.cardW + 10, L.cardH + 2 * L.step + 10, `${t + 1}팀`));
   }
 
   async function once() {
@@ -81,6 +92,7 @@ export function startIntro(root) {
       order.map((c, k) => {
         setTimeout(() => table.flip(c, true), 80 + k * 60);
         const p = L.piles[c._team];
+        c.style.zIndex = 40 + c._slot;
         return table.move(c, { x: p.x, y: p.y + c._slot * L.step, r: 0 }, { dur: 420, delay: k * 60, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" });
       })
     );
@@ -104,6 +116,8 @@ export function startIntro(root) {
       table.move(jieun, { x: p1.x, y: p1.y + L.step, r: 0 }, { dur: 520, arc: 46, spin: 18, land: true }),
       table.move(haneul, { x: p0.x, y: p0.y + L.step, r: 0 }, { dur: 520, delay: 90, arc: 30, spin: -14, land: true }),
     ]);
+    jieun.style.zIndex = 41;
+    haneul.style.zIndex = 41;
     jieun.classList.remove("is-bad");
     jieun.classList.add("is-ok");
     [[jieun, 1], [haneul, 0]].forEach(([c, t]) => {

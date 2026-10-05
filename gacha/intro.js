@@ -1,6 +1,6 @@
 // 첫 화면: 캡슐이 돔에 쏟아져 쌓이고 → 장갑 손이 손잡이를 딸깍딸깍 → 캡슐이 데구르르 → 비틀어 열면 "민지 당첨"
-import { prefersReducedMotion, CANVAS_FONT } from "../shared/kit.js";
-import { createMachine, drawCapsule, spring, squash, clamp01 } from "./machine.js";
+import { prefersReducedMotion } from "../shared/kit.js";
+import { createMachine, drawCapsule, spring, clamp01 } from "./machine.js";
 
 const LOOP = 8.2;
 const TAGS = [
@@ -201,7 +201,7 @@ export function startIntro(root) {
   }
 
   function staticFrame() {
-    m.fill(items().filter((x) => x.id !== "g"));
+    m.fill(items());
     m.dispense("g", () => {});
     for (let k = 0; k < 160; k++) m.update(1 / 60);
     m.setKnob(Math.PI * 2);
@@ -226,8 +226,6 @@ export function startIntro(root) {
     raf = requestAnimationFrame(loop);
   }
 
-  void CANVAS_FONT;
-  void squash;
   return {
     stop() {
       alive = false;

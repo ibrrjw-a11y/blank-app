@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>꼰대 테스트 | 꼰대력 테스트 - 꼰대 지수 0~100 젊꼰 판정서</title>
+    <meta
+      name="description"
+      content="꼰대 테스트 15문항(회사·친구·가족 상황)으로 내 꼰대 지수를 0~100점으로 재요. 무균 신입부터 라떼 명장까지 5단계와 직함이 적힌 꼰대력 판정서를 받고, 친구와 지수를 비교해 보세요."
+    />
+    <meta name="keywords" content="꼰대 테스트, 꼰대력 테스트, 꼰대 지수, 젊꼰 테스트, 꼰대 자가진단, 라떼 테스트, 젊은 꼰대" />
+    <link rel="canonical" href="https://example.com/kkondae/" />
+    <meta name="theme-color" content="#1f2733" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/kkondae/" />
+    <meta property="og:title" content="꼰대력 테스트 - 꼰대력 판정서 발급" />
+    <meta property="og:description" content="회사·친구·가족 15개 상황으로 재는 꼰대 지수. 판정서에 찍힌 내 직함은?" />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='12' y='12' width='76' height='76' rx='6' fill='none' stroke='%23c8281e' stroke-width='8'/><text x='50' y='64' font-size='40' text-anchor='middle' fill='%23c8281e' font-family='serif'>꼰</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;700;800&family=IBM+Plex+Mono:wght@500;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="../test-kit/base.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "꼰대력 테스트",
+            "url": "https://example.com/kkondae/",
+            "description": "회사·친구·가족 15개 상황으로 꼰대 지수(0~100)와 5단계 등급을 판정하는 무료 꼰대 테스트.",
+            "applicationCategory": "EntertainmentApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "꼰대 지수는 어떻게 계산하나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "15문항 각각 0~2점, 합계 30점 만점을 100점으로 바꿔요. 예를 들어 합계 19점이면 63점이에요." }
+              },
+              {
+                "@type": "Question",
+                "name": "젊꼰은 몇 점부터인가요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "40~59점이 '젊꼰 경보' 단계예요. 말투는 쿨한데 속으로 '그래도 이건 아니지'가 자주 떠오르는 구간이에요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app kd">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 결재판 위 기안문 -->
+      <section class="tk-intro kd-intro" data-view="intro">
+        <div class="kd-folder">
+          <p class="kd-folder__label" aria-hidden="true">결 재</p>
+          <div class="kd-sheet kd-sheet--intro">
+            <div class="kd-doctop">
+              <div class="kd-doctop__title">
+                <span class="kd-doctop__kind">기 안 용 지</span>
+                <h1>꼰대력 테스트<small>꼰대 지수 측정의 건</small></h1>
+              </div>
+              <table class="kd-sign" id="introSign" aria-hidden="true">
+                <tr><th>담당</th><th>팀장</th><th>부장</th></tr>
+                <tr><td data-s="0"></td><td data-s="1"></td><td data-s="2"></td></tr>
+              </table>
+            </div>
+            <div class="tk-stage kd-stage" id="stage" aria-hidden="true"></div>
+            <button type="button" class="kd-stamp" id="start">
+              <span class="kd-stamp__tool" aria-hidden="true"><i class="kd-stamp__knob"></i><i class="kd-stamp__neck"></i><i class="kd-stamp__base"></i></span>
+              <span class="kd-stamp__text"><b>결재 올리기</b><small>15문항 · 약 2분 · 판정서 즉시 발급</small></span>
+              <span class="kd-stamp__ink" aria-hidden="true">상신</span>
+            </button>
+            <button type="button" class="kd-ledger-link" id="lastResult" hidden></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) 문항 -->
+      <section class="tk-view kd-quiz" data-view="quiz" hidden>
+        <div class="kd-sheet">
+          <div class="kd-doctop kd-doctop--quiz">
+            <div class="kd-doctop__title">
+              <span class="kd-doctop__kind">상 황 조 사 서</span>
+              <p class="kd-qcount" id="quizCount">문항 01 / 15</p>
+            </div>
+            <table class="kd-sign" id="quizSign" aria-hidden="true">
+              <tr><th>담당</th><th>팀장</th><th>부장</th></tr>
+              <tr><td data-s="0"></td><td data-s="1"></td><td data-s="2"></td></tr>
+            </table>
+          </div>
+          <div class="kd-qwrap" id="quizCard"></div>
+          <div class="kd-quizfoot">
+            <button type="button" class="kd-btn-line" id="quizBack">◀ 이전 문항</button>
+            <span class="kd-page" id="quizPage">- 1 -</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3) 판정서 -->
+      <section class="tk-view kd-res" data-view="result" hidden></section>
+
+      <!-- 4) 받은 판정서 -->
+      <section class="tk-view kd-res" data-view="friend" hidden></section>
+
+      <!-- SEO 본문: 사내 공문 -->
+      <article class="seo kd-doc">
+        <p class="kd-doc__org">심 심 상 가 &nbsp;꼰 대 력 심 사 위 원 회</p>
+        <table class="kd-doc__meta">
+          <tbody>
+            <tr><th>수신</th><td>전 직원 및 그 가족, 친구</td></tr>
+            <tr><th>제목</th><td>꼰대력 테스트(꼰대 지수 자가진단) 시행 안내</td></tr>
+          </tbody>
+        </table>
+        <div class="kd-doc__body">
+          <p>1. 귀하의 무궁한 발전을 기원합니다.</p>
+          <p>2. 회사·친구·가족 상황에서 나도 모르게 나오는 꼰대력을 아래와 같이 측정하오니 참고하시기 바랍니다.</p>
+
+          <h2>가. 측정 방법</h2>
+          <table class="kd-table">
+            <tbody>
+              <tr><th>문항</th><td>15개 (회사 5 · 친구 5 · 가족 5)</td></tr>
+              <tr><th>배점</th><td>문항당 0점 · 1점 · 2점, 합계 30점</td></tr>
+              <tr><th>환산</th><td>합계 ÷ 30 × 100 = 꼰대 지수 (소수점 반올림)</td></tr>
+              <tr><th>예시</th><td>합계 19점 → 19 ÷ 30 × 100 = <b>63점</b> → 4단계 「잔소리 정규직」</td></tr>
+            </tbody>
+          </table>
+
+          <h2>나. 문항 예시</h2>
+          <div class="kd-sample">
+            <p class="kd-sample__q">[회사] 후배가 이어폰을 끼고 일해요.</p>
+            <ol>
+              <li>일만 잘하면 상관없어요 <span>0점</span></li>
+              <li>급할 때 부르기 어려우니 한쪽만 빼 달라고 해요 <span>1점</span></li>
+              <li>"회사가 독서실이야?" <span>2점</span></li>
+            </ol>
+          </div>
+
+          <h2>다. 판정 기준</h2>
+          <table class="kd-table kd-table--tiers">
+            <thead><tr><th>지수</th><th>단계</th><th>부여 직함</th></tr></thead>
+            <tbody>
+              <tr><td>0~19</td><td>1단계 무균 신입</td><td>자유로운 인턴</td></tr>
+              <tr><td>20~39</td><td>2단계 라떼 시음</td><td>라떼 시음 대리</td></tr>
+              <tr><td>40~59</td><td>3단계 젊꼰 경보</td><td>젊꼰 과장</td></tr>
+              <tr><td>60~79</td><td>4단계 잔소리 정규직</td><td>잔소리 부장</td></tr>
+              <tr><td>80~100</td><td>5단계 라떼 명장</td><td>라떼 명예회장</td></tr>
+            </tbody>
+          </table>
+          <p class="kd-doc__note">※ 부문별(회사·친구·가족) 지수도 따로 계산해 판정서에 적어 드려요. 예: 회사 80 · 친구 30 · 가족 50이면 "회사에서 특히 꼰대력이 높음".</p>
+
+          <h2>라. 질의 회신</h2>
+          <details>
+            <summary>질의) 꼰대 지수가 높으면 나쁜 사람인가요?</summary>
+            <p>회신) 아니요. 걱정과 경험에서 나온 말이 많아요. 다만 듣는 사람에게는 지적으로 들릴 수 있으니 판정서의 개선 권고를 참고해 주세요.</p>
+          </details>
+          <details>
+            <summary>질의) 젊꼰은 몇 점부터인가요?</summary>
+            <p>회신) 40~59점이 3단계 「젊꼰 경보」예요. 겉으로는 쿨한데 속으로 '그래도 이건 아니지'가 자주 떠오르는 구간이에요.</p>
+          </details>
+          <details>
+            <summary>질의) 친구랑 비교할 수 있나요?</summary>
+            <p>회신) 판정서를 친구에게 발송하면 친구가 내 판정서를 보고 바로 결재를 올릴 수 있어요. 끝나면 두 판정서를 나란히 놓은 합동 결재표가 나와요.</p>
+          </details>
+          <details>
+            <summary>질의) 기록은 어디에 남나요?</summary>
+            <p>회신) 서버에 보내지 않아요. 지금 쓰는 브라우저의 "문서 대장"에만 남아서 지난번 지수와 비교할 수 있어요.</p>
+          </details>
+          <p class="kd-doc__end">붙임 &nbsp;없음. &nbsp;끝.</p>
+          <p class="kd-doc__note">재미로 보는 테스트예요. 인사 평가나 성격 진단에 쓸 수 없어요.</p>
+        </div>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">재미로 보는 테스트예요. 판정서는 어떤 효력도 없어요.</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

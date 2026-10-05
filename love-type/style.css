@@ -613,7 +613,7 @@ body::before {
 
 .lt-measure__row {
   display: grid;
-  grid-template-columns: 5.4em 1fr 5.4em;
+  grid-template-columns: 6.2em 1fr 6.2em;
   align-items: center;
   gap: var(--sp-8);
   font: 400 14px/1.2 var(--font-display);
