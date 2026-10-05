@@ -1158,3 +1158,6 @@ body {
 @keyframes at-grow {
   to { transform: scaleX(1); }
 }
+
+.at-loop path { opacity: 0; }
+.is-circled .at-loop path { opacity: 1; }
