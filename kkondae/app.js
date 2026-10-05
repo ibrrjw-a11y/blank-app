@@ -42,11 +42,11 @@ function seal(text, { square = false, cls = "" } = {}) {
   return `<span class="kd-seal ${square ? "kd-seal--square" : ""} ${cls}" style="--r:${r}deg"><i>${text}</i></span>`;
 }
 
-function stampSign(table, idx, animate = true) {
+function stampSign(table, idx, animate = true, buzz = false) {
   const cell = $(`[data-s="${idx}"]`, table);
   if (!cell || cell.firstChild) return;
   cell.innerHTML = seal(SIGNS[idx], { cls: animate ? "is-slam" : "" });
-  if (animate) haptic(14);
+  if (buzz) haptic(14);
 }
 
 function clearSign(table) {
@@ -216,7 +216,7 @@ function renderQ({ q, idx, total, dir, selected, answers }) {
       let delay = 380;
       if (n % 5 === 0) {
         await wait(prefersReducedMotion() ? 0 : 200);
-        stampSign(sign, n / 5 - 1, true);
+        stampSign(sign, n / 5 - 1, true, true);
         delay = 620;
       }
       await wait(prefersReducedMotion() ? 0 : delay);
