@@ -591,6 +591,7 @@ main.app { overflow-x: clip; }
 
 /* 시작 버튼: 테이프로 붙인 스티커 */
 .sticker-btn {
+  --off: 6px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -598,30 +599,33 @@ main.app { overflow-x: clip; }
   justify-content: center;
   gap: var(--sp-2);
   width: 100%;
-  min-height: 72px;
-  padding: var(--sp-12) var(--sp-56, 56px) var(--sp-12) var(--sp-20);
-  border: 2px solid var(--art-ink);
+  min-height: 78px;
+  padding: var(--sp-12) 56px calc(var(--sp-12) + var(--off)) var(--sp-20);
+  border: 0;
   border-radius: var(--r-4);
-  background: var(--color-surface);
+  /* 흰 스티커 + 뒤에 겹친 분홍 종이 (그림자 대신 종이 두 장) */
+  background:
+    linear-gradient(var(--color-surface), var(--color-surface)) 0 0 / calc(100% - var(--off)) calc(100% - var(--off)) no-repeat,
+    linear-gradient(var(--brand-soft), var(--brand-soft)) var(--off) var(--off) / calc(100% - var(--off)) calc(100% - var(--off)) no-repeat;
   color: var(--art-ink);
   text-align: left;
   cursor: pointer;
   rotate: -1.2deg;
-  transition: rotate 420ms var(--spring), transform 420ms var(--spring);
+  transition: rotate 420ms var(--spring), transform 420ms var(--spring), background-position 420ms var(--spring);
   -webkit-user-select: none;
   user-select: none;
 }
-/* 뒤에 겹친 분홍 종이 (스티커 그림자 대신) */
+/* 스티커 테두리 */
 .sticker-btn::after {
   content: "";
   position: absolute;
-  inset: 0;
-  z-index: -1;
+  left: 0;
+  top: 0;
+  right: var(--off);
+  bottom: var(--off);
+  border: 2px solid var(--art-ink);
   border-radius: var(--r-4);
-  background: var(--brand-soft);
-  border: 2px solid var(--color-primary);
-  transform: translate(5px, 5px);
-  transition: transform 420ms var(--spring);
+  pointer-events: none;
 }
 /* 마스킹 테이프 */
 .sticker-btn::before {
@@ -634,16 +638,18 @@ main.app { overflow-x: clip; }
   background: var(--art-tape);
   opacity: 0.9;
   rotate: -5deg;
+  z-index: 1;
 }
 .sticker-btn__t { font: 700 26px/32px var(--font-hand); letter-spacing: -0.02em; }
 .sticker-btn__sub { font: 700 15px/18px var(--font-hand); color: var(--art-pen); }
-.sticker-btn__heart { position: absolute; right: var(--sp-16); top: 50%; margin-top: -12px; animation: beat 1100ms var(--spring) infinite; }
-.sticker-btn:active:not(:disabled) { rotate: 0deg; transform: translate(4px, 4px); transition-duration: 90ms; }
-.sticker-btn:active:not(:disabled)::after { transform: translate(1px, 1px); transition-duration: 90ms; }
-.sticker-btn:disabled { cursor: not-allowed; border-color: var(--color-border-strong); color: var(--color-text-tertiary); rotate: 0deg; }
-.sticker-btn:disabled::after { border-color: var(--color-border); background: var(--color-surface-sunken); }
-.sticker-btn:disabled .mark { background-size: 0 0; }
-.sticker-btn--sm { min-height: 60px; padding-right: var(--sp-20); align-items: center; text-align: center; rotate: 0.8deg; }
+.sticker-btn__heart { position: absolute; right: calc(var(--sp-16) + var(--off)); top: 50%; margin-top: -15px; animation: beat 1100ms var(--spring) infinite; }
+/* 누르면 스티커가 뒤 종이 위로 꾹 눌려 붙는다 */
+.sticker-btn:active:not(:disabled) { rotate: 0deg; transform: translate(4px, 4px); background-position: 0 0, 2px 2px; transition-duration: 90ms; }
+.sticker-btn:disabled { cursor: not-allowed; color: var(--color-text-tertiary); rotate: 0deg; background: linear-gradient(var(--color-surface-sunken), var(--color-surface-sunken)) 0 0 / calc(100% - var(--off)) calc(100% - var(--off)) no-repeat; }
+.sticker-btn:disabled::after { border-color: var(--color-border-strong); border-style: dashed; }
+.sticker-btn:disabled::before { opacity: 0.4; }
+.sticker-btn:disabled .mark { animation: none; background-size: 0 0; }
+.sticker-btn--sm { min-height: 66px; padding-right: calc(var(--sp-20) + var(--off)); align-items: center; text-align: center; rotate: 0.8deg; }
 .sticker-btn--sm .sticker-btn__t { font-size: 24px; }
 .sticker-btn--sm::before { left: 50%; margin-left: -32px; }
 .sticker-btn.is-loading { pointer-events: none; opacity: 0.6; }
@@ -683,9 +689,11 @@ main.app { overflow-x: clip; }
 .seo .diary__title { margin: var(--sp-8) 0 var(--sp-16); font: 700 30px/38px var(--font-hand); color: var(--art-ink); letter-spacing: -0.02em; }
 .seo .diary__h { margin: var(--sp-32) 0 var(--sp-8); font: 700 22px/28px var(--font-hand); color: var(--art-ink); }
 .diary__steps { margin: 0; padding: 0; list-style: none; }
-.seo .diary__steps li { display: flex; gap: var(--sp-10); padding: var(--sp-6) 0; font: 700 18px/26px var(--font-hand); color: var(--art-ink); border-bottom: 1px dashed var(--art-grid); }
+.seo .diary__steps li { position: relative; padding: var(--sp-6) 0 var(--sp-6) 34px; font: 700 18px/26px var(--font-hand); color: var(--art-ink); border-bottom: 1px dashed var(--art-grid); }
 .diary__steps b {
-  flex: none;
+  position: absolute;
+  left: 0;
+  top: var(--sp-8);
   display: grid;
   place-items: center;
   width: 24px;
@@ -748,3 +756,6 @@ main.app { overflow-x: clip; }
 .more-sites__item:nth-child(even) { rotate: 0.7deg; }
 .more-sites__name { font: 700 19px/22px var(--font-hand); }
 .more-sites__cat { border-radius: var(--r-4); border-width: 2px; border-color: var(--art-ink); font: 700 17px/20px var(--font-hand); background: var(--color-surface); }
+.intro .intro__cta { gap: var(--sp-4); margin-top: var(--sp-12); }
+.intro .hl-tab { margin-top: var(--sp-4); }
+.intro .sticker-btn { min-height: 74px; }

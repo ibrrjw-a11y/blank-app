@@ -7,7 +7,7 @@ export const CATEGORIES = [
   { id: "fortune", path: "fortune", name: "운세·꿈해몽", short: "운세", desc: "대운 차트, 꿈 풀이, 손 없는 날", keyword: "사주 · 대운 · 꿈해몽" },
   { id: "game", path: "game", name: "미니게임", short: "게임", desc: "하루 3분 딴짓, 순발력 게임", keyword: "웹게임 · 데일리 퀴즈 · 반응속도" },
   { id: "calc", path: "calc", name: "생활 계산기", short: "계산기", desc: "실수령액, 만나이, 인생 진행률", keyword: "연봉 실수령액 · 만나이 계산기" },
-  { id: "together", path: "together", name: "커플·친구", short: "같이", desc: "디데이, 이름궁합, 약속 장소", keyword: "커플 디데이 · 이름궁합 · 중간지점" },
+  { id: "together", path: "together", name: "커플·친구", short: "같이", desc: "이름궁합, 약속 장소·메뉴 정하기", keyword: "이름궁합 · 중간지점 · 점심메뉴" },
 ];
 
 export const TOOLS = [
@@ -49,7 +49,6 @@ export const TOOLS = [
   { path: "life-progress", cat: "calc", name: "인생 진행률", desc: "내 인생을 4,000칸으로" },
 
   // 커플·친구
-  { path: "couple-dday", cat: "together", name: "커플 디데이", desc: "100일·1주년 계산과 오늘의 질문" },
   { path: "name-match", cat: "together", name: "단톡방 궁합표", desc: "이름 N명 전원 이름궁합" },
   { path: "where-to-go", cat: "together", name: "어디가?", desc: "메뉴·장소 월드컵과 중간지점" },
 ];

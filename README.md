@@ -15,7 +15,6 @@
 | `/life-progress/` | 인생 진행률 | 만나이 계산기 | 인생 4,000칸 그리드, 남은 크리스마스, 버킷리스트 |
 | `/name-match/` | 단톡방 궁합표 | 이름궁합 | 이름 N명 전원 궁합 매트릭스, 짝사랑 지수 |
 | `/brain-age/` | 뇌 나이 측정소 | 반응속도 테스트 | 미니게임 5종으로 뇌 나이, 부모님께 도전장 |
-| `/couple-dday/` | 커플 D-day 룸 | 커플 100일 계산기 | 둘 다 답해야 열리는 오늘의 질문 |
 
 ## 구조
 
@@ -66,7 +65,6 @@ node scripts/build-dream-pages.mjs                  # 꿈해몽 SEO 페이지 �
 
 모든 사이트는 서버 없이 동작한다. 친구 간 데이터는 **링크(URL)에 담아 주고받고**, 개인 기록은 브라우저(localStorage)에 저장한다.
 
-- 카카오톡 인앱 브라우저와 크롬은 저장소가 따로라서, 기록이 기기·앱마다 분리된다. (남이 정해주는 MBTI, 커플 D-day는 "보관 링크"로 보완)
 - 실시간 멀티플레이(각자 폰으로 동시 참여), 응답 자동 수집, 전국 집계를 하려면 DB가 필요하다 → Supabase/Firebase 연동이 다음 단계.
 - 어디가?의 실제 가게 데이터는 기본이 OpenStreetMap이고, `where-to-go/config.js`에 카카오 JavaScript 키를 넣으면 카카오 장소 검색을 쓴다.
 
@@ -84,7 +82,6 @@ node scripts/build-dream-pages.mjs                  # 꿈해몽 SEO 페이지 �
 | 인생 진행률 | 스위스 타이포·정보 디자인 | Archivo Black, Gothic A1 |
 | 단톡방 궁합표 | 2000년대 다이어리·싸이월드 | Jua, Gaegu, DotGothic16 |
 | 뇌 나이 측정소 | 실험실 계측기·오실로스코프 | IBM Plex Mono / Sans KR |
-| 커플 D-day 룸 | 필름 사진·편지지 | Gowun Batang, Nanum Pen Script |
 
 ## 외부 연동 (선택)
 

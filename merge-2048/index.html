@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>2048 게임 | 숫자 합치기 게임 - 나무 타일로 하는 2048 퍼즐</title>
+    <meta
+      name="description"
+      content="2048 게임을 나무 타일로. 같은 숫자끼리 밀어서 합치는 숫자 합치기 퍼즐이에요. 스와이프·방향키 조작, 한 판에 한 번 되돌리기, 자동 저장으로 이어하기, 최고 점수와 판 사진 공유까지."
+    />
+    <meta name="keywords" content="2048 게임, 2048, 숫자 합치기 게임, 2048 퍼즐, 숫자 퍼즐, 2048 하기, 합치기 게임" />
+    <link rel="canonical" href="https://example.com/merge-2048/" />
+    <meta name="theme-color" content="#5a3a24" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/merge-2048/" />
+    <meta property="og:title" content="2048 - 나무 타일 숫자 합치기" />
+    <meta property="og:description" content="밀어서 탁! 같은 숫자끼리 합쳐 2048 만들기. 내 점수, 깨볼래요?" />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='6' y='6' width='88' height='88' rx='14' fill='%23c99556'/><text x='50' y='66' font-size='40' text-anchor='middle' font-family='Georgia' font-weight='900' fill='%233a1c0a'>2048</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;800;900&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "2048 나무 타일",
+            "url": "https://example.com/merge-2048/",
+            "description": "같은 숫자끼리 밀어서 합치는 2048 숫자 합치기 퍼즐",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "되돌리기는 몇 번 할 수 있나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "한 판에 한 번이에요. 바로 직전 한 수만 되돌릴 수 있어요." }
+              },
+              {
+                "@type": "Question",
+                "name": "하던 판이 저장되나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "한 번 밀 때마다 이 기기 브라우저에 자동 저장돼요. 다시 들어오면 이어서 할 수 있어요." }
+              },
+              {
+                "@type": "Question",
+                "name": "2048을 만들면 끝나나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "아니요. 2048을 만들면 축하 화면이 뜨고, 계속 밀어서 4096 이상도 만들 수 있어요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 나무 판이 혼자 밀리는 데모 -->
+      <section class="intro" id="intro" data-view="intro">
+        <h1 class="hero" id="hero" aria-label="같은 숫자끼리 탁 합쳐요, 2048 숫자 합치기 게임">
+          <span class="hero__row" data-row="1"></span>
+          <span class="hero__row" data-row="2"></span>
+        </h1>
+        <div class="demo">
+          <div id="demoBoard" aria-hidden="true"></div>
+          <p class="demo__burn" aria-hidden="true">4×4 · 밀어서 합치기</p>
+        </div>
+        <div class="cta">
+          <div class="dare-slip" id="challengeIntro" hidden></div>
+          <button class="woodbtn" id="start" type="button">
+            <span class="woodbtn__tile"><b id="startWord">시작</b></span>
+            <span class="woodbtn__txt"><b id="startLabel">새 판 깔기</b><small id="startSub">스와이프나 방향키로 밀어요</small></span>
+          </button>
+          <button class="linkbtn" id="fresh" type="button" hidden>하던 판 버리고 새 판</button>
+        </div>
+      </section>
+
+      <!-- 2) 게임 -->
+      <section class="play" data-view="play" hidden>
+        <div class="dare-slip" id="challengePlay" hidden></div>
+        <header class="plaques">
+          <div class="plaque"><span>점수</span><b id="score">0</b><i class="plaque__plus" id="plus"></i></div>
+          <div class="plaque plaque--best"><span>최고</span><b id="best">0</b></div>
+        </header>
+        <div class="tools">
+          <button class="peg" id="undo" type="button"><span>한 수 무르기</span><small id="undoLeft">1번</small></button>
+          <button class="peg" id="photo" type="button"><span>판 사진</span></button>
+          <button class="peg" id="newGame" type="button"><span>새 판</span></button>
+        </div>
+        <div class="board-wrap">
+          <div id="board" role="application" aria-label="2048 판. 스와이프하거나 방향키로 밀어요"></div>
+          <div class="endcard" id="endcard" hidden></div>
+        </div>
+        <p class="play__hint">밀면 같은 숫자끼리 탁 합쳐져요 · ← ↑ → ↓ 키도 돼요</p>
+        <section class="ledger" id="ledger" hidden></section>
+        <button class="linkbtn" id="home" type="button">처음 화면으로</button>
+      </section>
+
+      <!-- 3) SEO 본문: 나무 상자 설명서 -->
+      <article class="seo crate" id="about">
+        <header class="crate__head">
+          <p class="crate__stencil">취급 설명서</p>
+          <h2>2048 나무 타일 퍼즐</h2>
+          <p class="crate__meta">구성: 4×4 판 1개 · 나무 타일 2부터 · 되돌리기 한 판에 1회</p>
+        </header>
+
+        <section class="crate__sec">
+          <h3><span>1</span>노는 법</h3>
+          <ol class="crate__list">
+            <li>판을 한 방향으로 밀면 모든 타일이 그쪽 끝까지 미끄러져요.</li>
+            <li>같은 숫자 둘이 부딪치면 하나로 합쳐져요. 2+2=4, 4+4=8.</li>
+            <li>밀 때마다 빈칸에 새 타일이 하나 놓여요. 10번 중 9번은 2, 1번은 4예요.</li>
+            <li>판이 꽉 차서 더 밀 곳이 없으면 끝. 2048을 만들면 성공이고, 계속 이어갈 수 있어요.</li>
+          </ol>
+        </section>
+
+        <section class="crate__sec">
+          <h3><span>2</span>밀기 예시 (← 왼쪽으로)</h3>
+          <div class="rowex">
+            <div class="rowex__line"><span class="w w2">2</span><span class="w w2">2</span><span class="w w4">4</span><span class="w"></span><em>→</em><span class="w w4">4</span><span class="w w4">4</span><span class="w"></span><span class="w"></span></div>
+            <p>한 번 밀 때 한 타일은 한 번만 합쳐져요. 4·4는 다음에 한 번 더 밀어야 8이 돼요.</p>
+            <div class="rowex__line"><span class="w w2">2</span><span class="w w2">2</span><span class="w w2">2</span><span class="w w2">2</span><em>→</em><span class="w w4">4</span><span class="w w4">4</span><span class="w"></span><span class="w"></span></div>
+            <p>네 개가 같으면 앞에서부터 둘씩 짝을 지어요.</p>
+            <div class="rowex__line"><span class="w w8">8</span><span class="w"></span><span class="w w8">8</span><span class="w w16">16</span><em>→</em><span class="w w16">16</span><span class="w w16">16</span><span class="w"></span><span class="w"></span></div>
+            <p>사이에 빈칸이 있어도 미끄러져서 만나면 합쳐져요.</p>
+          </div>
+        </section>
+
+        <section class="crate__sec">
+          <h3><span>3</span>잘 쌓는 요령</h3>
+          <ul class="crate__tips">
+            <li><b>모서리 하나 정하기</b>가장 큰 타일을 왼쪽 아래 같은 한 모서리에 붙여두고, 그 반대 방향(↑)은 꼭 필요할 때만 밀어요.</li>
+            <li><b>줄 순서 맞추기</b>아랫줄을 왼쪽부터 512 · 256 · 128 · 64처럼 큰 순서로 세워두면 한 번에 연달아 합쳐져요.</li>
+            <li><b>점수 계산</b>합쳐서 생긴 숫자가 그대로 점수예요. 8+8=16이면 16점. 2048 하나를 2만으로 만들면 합친 점수가 20,480점이에요.</li>
+            <li><b>무르기 아끼기</b>한 판에 한 번뿐이에요. 큰 타일이 모서리에서 빠져나갔을 때 쓰는 게 좋아요.</li>
+          </ul>
+        </section>
+
+        <section class="crate__sec">
+          <h3><span>4</span>나무 등급표</h3>
+          <table class="woods">
+            <tbody>
+              <tr><td><span class="w w2">2</span></td><td>단풍나무</td><td><span class="w w128">128</span></td><td>마호가니</td></tr>
+              <tr><td><span class="w w4">4</span></td><td>자작나무</td><td><span class="w w256">256</span></td><td>호두나무</td></tr>
+              <tr><td><span class="w w8">8</span></td><td>소나무</td><td><span class="w w512">512</span></td><td>짙은 호두</td></tr>
+              <tr><td><span class="w w16">16</span></td><td>참나무</td><td><span class="w w1024">1024</span></td><td>웬지</td></tr>
+              <tr><td><span class="w w32">32</span></td><td>티크</td><td><span class="w w2048">2048</span></td><td>흑단 + 금상감</td></tr>
+              <tr><td><span class="w w64">64</span></td><td>체리</td><td></td><td></td></tr>
+            </tbody>
+          </table>
+          <p class="crate__note">숫자가 커질수록 더 짙고 무거운 나무가 돼요. 128부터는 숫자를 태우지 않고 밝은 나무로 박아 넣어요.</p>
+        </section>
+
+        <section class="crate__sec">
+          <h3><span>5</span>설명서 Q&amp;A</h3>
+          <details>
+            <summary>되돌리기는 몇 번 할 수 있나요?</summary>
+            <p>한 판에 한 번이에요. 바로 직전 한 수만 되돌릴 수 있어요.</p>
+          </details>
+          <details>
+            <summary>하던 판이 저장되나요?</summary>
+            <p>한 번 밀 때마다 이 기기 브라우저에 자동 저장돼요. 다시 들어오면 첫 화면 버튼이 "이어하기"로 바뀌어요.</p>
+          </details>
+          <details>
+            <summary>2048을 만들면 끝나나요?</summary>
+            <p>아니요. 축하 화면이 뜨고, 계속 밀어서 4096 이상도 만들 수 있어요.</p>
+          </details>
+          <details>
+            <summary>친구랑 점수를 겨룰 수 있나요?</summary>
+            <p>판이 끝나면 "도전장 보내기"로 내 점수가 담긴 링크를 보낼 수 있어요. 친구가 열면 "민지의 기록 12,340점, 깨볼래요?"가 먼저 떠요.</p>
+          </details>
+          <details>
+            <summary>판이 안 밀려요.</summary>
+            <p>그 방향으로 움직일 타일이 하나도 없으면 판이 살짝 흔들리기만 해요. 다른 방향으로 밀어보세요.</p>
+          </details>
+        </section>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">하던 판과 기록은 이 기기에만 저장돼요.</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
