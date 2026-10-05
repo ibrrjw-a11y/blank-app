@@ -898,7 +898,7 @@ body.is-playing .site-footer {
 .report__small { margin-top: var(--sp-8) !important; font: var(--caption-01); color: var(--art-ink-2); }
 
 .report {
-  padding-bottom: var(--sp-24);
+  padding-bottom: calc(var(--sp-64) + var(--sp-8));
   animation: print 900ms var(--art-snap) both;
   -webkit-mask-image: radial-gradient(circle at 7px 100%, transparent 4px, #000 4.5px);
   mask-image: radial-gradient(circle at 7px 100%, transparent 4px, #000 4.5px);
@@ -942,7 +942,7 @@ body.is-playing .site-footer {
 }
 .res-real { display: flex; gap: var(--sp-8); }
 .res-real .input { flex: 1; min-width: 0; background: var(--art-paper); color: var(--art-ink); border-color: var(--art-ink); }
-.report__stamp { right: var(--sp-12); bottom: var(--sp-40); mix-blend-mode: multiply; }
+.report__stamp { right: var(--sp-16); bottom: var(--sp-20); mix-blend-mode: multiply; }
 .report.is-done .report__stamp { animation: stamp-in 460ms var(--art-spring) both; }
 
 /* 숫자 오도미터 */

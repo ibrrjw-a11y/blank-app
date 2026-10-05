@@ -454,7 +454,7 @@ function bindRooms() {
     title = t;
     $("#resultTitle").textContent = t;
     closeSheet?.();
-    toast("저장했어요. 첫 화면에서 다시 열 수 있어요");
+    toast("방을 저장했어요");
     haptic(12);
   });
 }

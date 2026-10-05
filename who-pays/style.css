@@ -135,7 +135,7 @@ body {
   padding: 0 var(--sp-12);
   background: var(--art-chalk);
   color: var(--art-ink);
-  font: 400 17px/26px var(--font-display);
+  font: 800 17px/26px var(--font-display);
   font-synthesis: none;
   transform: skewX(var(--art-skew));
 }

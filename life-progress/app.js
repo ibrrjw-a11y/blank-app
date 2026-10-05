@@ -27,7 +27,6 @@ const DAY = 86400000;
 const YEAR_DAYS = 365.2425;
 const WD = ["일", "월", "화", "수", "목", "금", "토"];
 const ZODIAC = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
-const ZODIAC_EMOJI = ["🐭", "🐮", "🐯", "🐰", "🐲", "🐍", "🐴", "🐑", "🐵", "🐔", "🐶", "🐷"];
 const DEFAULT_LIFE = 83.5; // 통계청 2023년 생명표 기대수명
 
 /* ---------- 날짜 ---------- */
@@ -75,6 +74,30 @@ function alpha(hex, a) {
   if (!m) return hex;
   const n = parseInt(m[1], 16);
   return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+// 자리별로 굴러가는 숫자 (스프링은 CSS)
+function odometer(el, text) {
+  if (el.dataset.odo === text) return;
+  el.dataset.odo = text;
+  el.classList.add("odo");
+  el.classList.remove("is-on");
+  el.setAttribute("aria-label", text);
+  const strip = "01234567890123456789"
+    .split("")
+    .map((n) => `<span>${n}</span>`)
+    .join("");
+  let k = 0;
+  el.innerHTML = [...text]
+    .map((ch) =>
+      /\d/.test(ch)
+        ? `<span class="odo__col" aria-hidden="true" style="--d:${ch};--i:${k++}"><span class="odo__strip">${strip}</span></span>`
+        : `<span class="odo__ch" aria-hidden="true">${ch}</span>`,
+    )
+    .join("");
+  if (prefersReducedMotion()) return el.classList.add("is-on");
+  void el.offsetWidth;
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-on")));
 }
 
 /* ---------- 상태 ---------- */
@@ -213,6 +236,7 @@ function renderCalc(animate = false) {
   res.hidden = false;
   if (asOf < b) {
     $("#ageAsOf").textContent = "기준일이 생일보다 앞이에요";
+    $("#ageMan").dataset.odo = "";
     $("#ageMan").textContent = "–";
     return;
   }
@@ -220,8 +244,7 @@ function renderCalc(animate = false) {
   const [ay] = parts(asOf);
   const age = manAge(b, asOf);
   $("#ageAsOf").textContent = `${asOf === today ? "오늘" : longDate(asOf)} 기준 · ${dotDate(b)}생`;
-  if (animate) countUp($("#ageMan"), age, { duration: 700, format: (n) => String(Math.round(n)) });
-  else $("#ageMan").textContent = age;
+  odometer($("#ageMan"), String(age));
   $("#ageYear").textContent = `${ay - by}세`;
   $("#ageKor").textContent = `${ay - by + 1}살`;
   const nb = nextBirthday(b, asOf);
@@ -230,7 +253,7 @@ function renderCalc(animate = false) {
   const leapNote = bm === 2 && bd === 29 && nb.slice(5) === "03-01" ? " · 평년이라 3월 1일 기준" : "";
   $("#nextBdaySub").textContent = `${longDate(nb)} · 만 ${manAge(b, nb)}세${leapNote}`;
   const zi = (((by - 4) % 12) + 12) % 12;
-  $("#zodiac").textContent = `${ZODIAC_EMOJI[zi]} ${ZODIAC[zi]}띠`;
+  $("#zodiac").textContent = `${ZODIAC[zi]}띠`;
   $("#zodiacSub").textContent = bm <= 2 ? "1~2월생은 설·입춘 기준으로 앞 해 띠일 수 있어요" : "양력 출생 연도 기준";
   const lived = diffDays(b, asOf) + 1;
   if (animate) countUp($("#livedDays"), lived, { duration: 900, format: (n) => `${fmt.num(Math.round(n))}일째` });
@@ -260,10 +283,10 @@ function renderBanner() {
   el.hidden = false;
   el.innerHTML =
     near === 0
-      ? `<span class="bday-banner__ico" aria-hidden="true">🎂</span><div><p class="t-body-02-strong">생일 축하해요! 오늘부터 만 ${age}세예요</p><p class="t-caption-01">그리드에 새로운 한 줄이 시작됐어요. 첫 칸을 멋지게 채워봐요.</p></div>`
+      ? `<span class="bday-banner__no t-num">${age}</span><div><p class="t-body-02-strong">생일 축하해요. 오늘부터 만 ${age}세예요</p><p class="t-caption-01">그리드에 새 줄이 시작됐어요. 첫 칸을 멋지게 채워봐요.</p></div>`
       : near > 0
-        ? `<span class="bday-banner__ico" aria-hidden="true">🎈</span><div><p class="t-body-02-strong">생일 주간이에요 · D-${near}</p><p class="t-caption-01">곧 만 ${age + 1}세가 돼요. 지금 줄의 마지막 칸이에요.</p></div>`
-        : `<span class="bday-banner__ico" aria-hidden="true">🎉</span><div><p class="t-body-02-strong">생일 주간이에요 · 만 ${age}세 ${-near + 1}일째</p><p class="t-caption-01">새 줄의 첫 칸을 채우는 중이에요.</p></div>`;
+        ? `<span class="bday-banner__no t-num">D-${near}</span><div><p class="t-body-02-strong">생일 주간이에요</p><p class="t-caption-01">곧 만 ${age + 1}세가 돼요. 지금 줄의 마지막 칸이에요.</p></div>`
+        : `<span class="bday-banner__no t-num">+${-near}</span><div><p class="t-body-02-strong">생일 주간이에요 · 만 ${age}세</p><p class="t-caption-01">새 줄의 첫 칸을 채우는 중이에요.</p></div>`;
   void g;
 }
 
@@ -324,17 +347,16 @@ function drawGridFrame(now) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, W, H);
   const brand = token("--brand");
-  const left = token("--color-border-strong");
-  const text = token("--color-text");
+  const white = token("--art-white");
+  const left = token("--art-dot-left");
   const ter = token("--color-text-tertiary");
-  const success = token("--color-success");
   const r = Math.max(1.2, pitch * (state.unit === "week" ? 0.34 : 0.36));
   const t = grid.sweep;
   const filled = Math.floor(current * t);
 
   // 나이 라벨 (10년마다)
   ctx.fillStyle = ter;
-  ctx.font = `600 10px ${CANVAS_FONT}`;
+  ctx.font = `600 10px ${token("--art-num") || CANVAS_FONT}`;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
   for (let row = 0; row * u.cols < total; row++) {
@@ -354,25 +376,25 @@ function drawGridFrame(now) {
     ctx.fill();
   };
   dots(filled, total, left);
-  dots(0, filled, brand);
+  dots(0, filled, white);
   // 스윕 앞머리 빛
   if (t < 1 && filled > 0) {
     const [x, y] = cellXY(filled);
-    ctx.fillStyle = alpha(brand, 0.35);
+    ctx.fillStyle = alpha(brand, 0.6);
     ctx.beginPath();
-    ctx.arc(x, y, r * 4, 0, Math.PI * 2);
+    ctx.arc(x, y, r * 2.4, 0, Math.PI * 2);
     ctx.fill();
   }
   // 버킷리스트 깃발
   goals.forEach((g) => {
     const [x, y] = cellXY(g.idx);
-    ctx.strokeStyle = g.done ? success : text;
+    ctx.strokeStyle = brand;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(x, y, r + 2.5, 0, Math.PI * 2);
     ctx.stroke();
     if (g.done) {
-      ctx.fillStyle = success;
+      ctx.fillStyle = brand;
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fill();
@@ -382,11 +404,11 @@ function drawGridFrame(now) {
   if (t >= 1) {
     const [x, y] = cellXY(current);
     const p = prefersReducedMotion() ? 0.5 : (Math.sin(now / 320) + 1) / 2;
-    ctx.fillStyle = alpha(text, 0.18 + 0.2 * p);
+    ctx.fillStyle = alpha(brand, 0.2 + 0.25 * p);
     ctx.beginPath();
     ctx.arc(x, y, r * (2.2 + 1.6 * p), 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = text;
+    ctx.fillStyle = brand;
     ctx.beginPath();
     ctx.arc(x, y, r * 1.15, 0, Math.PI * 2);
     ctx.fill();
@@ -450,8 +472,7 @@ window.addEventListener("resize", () => {
 function renderProgress(animate) {
   const m = lifeModel(state.birth, state.life);
   const pctText = (n) => n.toFixed(1);
-  if (animate) countUp($("#pct"), m.pct, { duration: 1400, format: pctText });
-  else $("#pct").textContent = pctText(m.pct);
+  odometer($("#pct"), pctText(m.pct));
   $("#pbar").style.width = `${m.pct}%`;
   const dayShare = 100 / m.totalDays;
   $("#todayShare").textContent = `오늘 하루는 인생의 약 ${dayShare.toFixed(4)}%예요. 기대수명 ${state.life}세 가정.`;
@@ -497,32 +518,28 @@ $("#lifeExp").addEventListener("change", (e) => setLife(e.target.value));
 function renderStats(animate) {
   const s = emotionalStats(state.birth, state.life);
   const items = [
-    { ico: "🎄", k: "남은 크리스마스", v: s.christmas, unit: "번", sub: "기대수명 가정" },
-    { ico: "🛋️", k: "남은 주말", v: s.weekends, unit: "번", sub: "남은 토요일 수" },
-    { ico: "🌸", k: "남은 봄", v: s.springs, unit: "번", sub: "3~5월, 기대수명 가정" },
-    { ico: "📅", k: "살아온 날", v: s.lived, unit: "일째", sub: "태어난 날 = 1일째" },
-    { ico: "💓", k: "심장이 뛴 횟수", v: s.beats / 1e8, unit: "억 번", sub: "대략, 분당 70회 가정", digits: 1, approx: true },
-    { ico: "🌍", k: "지구가 태양을 돈 횟수", v: s.orbits, unit: "바퀴", sub: "살아온 날 ÷ 365.26일", digits: 1, approx: true },
-    { ico: "😴", k: "잠든 시간", v: s.sleepYears, unit: "년", sub: "하루 8시간 가정", digits: 1, approx: true },
-    { ico: "⏳", k: "남은 시간", v: Math.max(0, diffDays(s.today, s.end)), unit: "일", sub: "기대수명까지, 평균일 뿐이에요", approx: true },
+    { k: "남은 크리스마스", v: s.christmas, unit: "번", sub: "기대수명까지, 가정치", accent: true },
+    { k: "남은 주말", v: s.weekends, unit: "번", sub: "남은 토요일 수" },
+    { k: "남은 봄", v: s.springs, unit: "번", sub: "3~5월, 가정치" },
+    { k: "살아온 날", v: s.lived, unit: "일째", sub: "태어난 날 = 1일째" },
+    { k: "심장이 뛴 횟수", v: s.beats / 1e8, unit: "억 번", sub: "대략, 분당 70회 가정", digits: 1, approx: true },
+    { k: "지구가 태양을 돈 횟수", v: s.orbits, unit: "바퀴", sub: "살아온 날 ÷ 365.26일", digits: 1, approx: true },
+    { k: "잠든 시간", v: s.sleepYears, unit: "년", sub: "하루 8시간 가정", digits: 1, approx: true },
+    { k: "기대수명까지", v: Math.max(0, diffDays(s.today, s.end)), unit: "일", sub: "평균일 뿐, 예측이 아니에요", approx: true },
   ];
+  const letters = "abcdefgh";
   $("#statGrid").innerHTML = items
     .map(
-      (it, i) => `<div class="stat" style="--i:${i}">
-        <span class="stat__ico" aria-hidden="true">${it.ico}</span>
-        <span class="stat__k">${it.k}</span>
-        <strong class="stat__v t-num">${it.approx ? "약 " : ""}<b data-v="${it.v}" data-d="${it.digits || 0}">0</b>${it.unit}</strong>
-        <span class="stat__s">${it.sub}</span>
+      (it, i) => `<div class="fig ${it.accent ? "fig--accent" : ""}">
+        <span class="fig__no">03.${letters[i]}</span>
+        <strong class="fig__v t-num">${it.approx ? "<em>약</em>" : ""}<span class="fig__n" data-v="${fmt.num(it.digits ? it.v : Math.round(it.v), it.digits || 0)}"></span><small>${it.unit}</small></strong>
+        <span class="fig__k">${it.k}</span>
+        <span class="fig__s">${it.sub}</span>
       </div>`,
     )
     .join("");
-  $$("#statGrid b").forEach((b) => {
-    const v = Number(b.dataset.v);
-    const d = Number(b.dataset.d);
-    const f = (n) => fmt.num(d ? n : Math.round(n), d);
-    if (animate) countUp(b, v, { duration: 1100, format: f });
-    else b.textContent = f(v);
-  });
+  $$("#statGrid .fig__n").forEach((n) => odometer(n, n.dataset.v));
+  void animate;
   renderParents();
 }
 function renderParents() {
@@ -565,7 +582,7 @@ function renderMiles() {
       const g = diffDays(today, x.date);
       return `<li class="mile ${isPast ? "is-past" : ""} ${i === firstUp ? "is-next" : ""}">
         <div class="mile__main">
-          <span class="mile__t">${x.title}${x.hot && !isPast ? ` <span class="badge">특별</span>` : ""}</span>
+          <span class="mile__t">${x.title}${x.hot && !isPast ? `<span class="mile__hot">KEY</span>` : ""}</span>
           <span class="mile__s">${longDate(x.date)} · ${x.sub}</span>
         </div>
         <span class="mile__d t-num">${isPast ? "지났어요" : g === 0 ? "오늘!" : `D-${fmt.num(g)}`}</span>
