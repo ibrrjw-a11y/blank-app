@@ -65,11 +65,13 @@
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
     "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
   --font-mono: "SF Mono", "Roboto Mono", ui-monospace, Menlo, monospace;
+  /* 사이트 개성용 제목 서체. 사이트마다 하나만 골라 덮어쓴다 (본문은 --font-sans 유지) */
+  --font-display: var(--font-sans);
 
-  --display-01: 800 44px/56px var(--font-sans);
-  --display-02: 800 36px/46px var(--font-sans);
-  --title-01: 700 28px/38px var(--font-sans);
-  --title-02: 700 24px/34px var(--font-sans);
+  --display-01: 800 44px/56px var(--font-display);
+  --display-02: 800 36px/46px var(--font-display);
+  --title-01: 700 28px/38px var(--font-display);
+  --title-02: 700 24px/34px var(--font-display);
   --title-03: 700 20px/30px var(--font-sans);
   --title-04: 700 18px/28px var(--font-sans);
   --body-01: 400 17px/28px var(--font-sans);

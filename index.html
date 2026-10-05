@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>놀이터 - 테스트·추첨·계산기를 조금 다르게</title>
     <meta name="description" content="룰렛, 사주, 꿈해몽, MBTI, 월급 계산기, 이름궁합까지. 익숙한 테스트와 도구를 친구와 같이 즐기는 방식으로 바꿨어요." />
-    <meta name="theme-color" content="#0a0c10" />
+    <meta name="theme-color" content="#f2efe6" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:title" content="놀이터 - 테스트·추첨·계산기를 조금 다르게" />
@@ -13,121 +13,305 @@
     <meta property="og:image" content="og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="https://example.com/" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎡</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23ff4b1f' font-family='sans-serif' font-weight='900'>놀</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Archivo:wght@500;800&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="shared/components.css" />
     <style>
+      /* 허브: 놀이공원 안내판 + 인덱스 목차. 단색 종이 + 강한 주황 하나 */
       :root {
-        --brand: #8b7bff;
-        --brand-pressed: #7564f0;
-        --brand-soft: #241f45;
+        --brand: #ff4b1f;
+        --brand-pressed: #e03a10;
+        --brand-soft: #ffe2d9;
         --brand-on: #fff;
+        --font-display: "Black Han Sans", "Pretendard Variable", sans-serif;
+        --art-paper: #f2efe6;
+        --art-ink: #111111;
+        --art-num: "Archivo", "Pretendard Variable", sans-serif;
+        --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
       }
-      .hub-hero {
+      body {
+        background: var(--art-paper);
+        color: var(--art-ink);
+      }
+      .hero {
         position: relative;
-        padding: var(--sp-48) 0 var(--sp-32);
+        display: flex;
+        flex-direction: column;
+        padding: 72px 0 var(--sp-32);
+      }
+      .hero__tag {
+        position: absolute;
+        top: var(--sp-24);
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-between;
+        font: 500 12px/16px var(--art-num);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      /* 스플릿 플랩 안내판: 사이트 이름이 착착 넘어간다 */
+      .board {
+        position: relative;
+        display: block;
+        margin: var(--sp-16) 0 var(--sp-48);
+        padding: var(--sp-16);
+        border-radius: var(--r-8);
+        background: var(--art-ink);
+        color: var(--art-paper);
+        text-decoration: none;
+        transform: rotate(1.5deg);
+        box-shadow: var(--shadow-m);
+        animation: board-in 900ms var(--spring) both;
+      }
+      @keyframes board-in {
+        from { transform: translateY(-40px) rotate(-6deg); opacity: 0; }
+        to { transform: rotate(1.5deg); opacity: 1; }
+      }
+      .board__label {
+        display: flex;
+        justify-content: space-between;
+        font: 500 11px/14px var(--art-num);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.6;
+      }
+      .board__cells {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px;
+        margin: var(--sp-12) 0 var(--sp-8);
+        min-height: 52px;
+      }
+      .flap {
+        position: relative;
+        width: 34px;
+        height: 46px;
+        perspective: 200px;
+        font: 400 28px/46px var(--font-display);
+        text-align: center;
+      }
+      .flap > span {
+        position: absolute;
+        inset: 0;
+        border-radius: var(--r-4);
+        background: #222;
+        backface-visibility: hidden;
+      }
+      .flap::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 1px;
+        background: var(--art-ink);
+      }
+      .flap.is-flip > span {
+        animation: flap 420ms var(--spring) both;
+        animation-delay: calc(var(--i) * 45ms);
+      }
+      @keyframes flap {
+        0% { transform: rotateX(90deg); }
+        100% { transform: rotateX(0); }
+      }
+      .board__desc {
+        font: var(--body-03);
+        color: var(--brand);
+        min-height: 22px;
+      }
+      .hero__title {
+        margin: 0;
+        font: 400 clamp(88px, 31vw, 150px) / 0.88 var(--font-display);
+        letter-spacing: -0.04em;
+      }
+      .hero__title .ch {
+        display: inline-block;
+        transform-origin: 50% 100%;
+        animation: drop 900ms var(--spring) both;
+        animation-delay: calc(var(--i) * 90ms + 150ms);
+      }
+      .hero__title .ch:nth-child(2) {
+        color: var(--brand);
+      }
+      @keyframes drop {
+        0% { transform: translateY(-120%) scaleY(1.25); }
+        55% { transform: translateY(0) scale(1.12, 0.82); }
+        75% { transform: translateY(-6%) scale(0.96, 1.05); }
+        100% { transform: none; }
+      }
+      .hero__lead {
+        margin: var(--sp-16) 0 0;
+        font: var(--body-01);
+        max-width: 18em;
+        animation: kit-fade-up 500ms var(--ease-standard) 900ms both;
+      }
+      /* 돌아가는 간판: 실제 사이트 이름이 계속 넘어간다 */
+      .marquee {
+        margin: var(--sp-24) calc(var(--gutter) * -1) 0;
+        overflow: hidden;
+        background: var(--art-ink);
+        color: var(--art-paper);
+        transform: rotate(-2deg);
+        animation: kit-fade-up 500ms var(--ease-standard) 1100ms both;
+      }
+      .marquee__track {
+        display: flex;
+        width: max-content;
+        animation: slide 26s linear infinite;
+      }
+      .marquee__item {
+        padding: var(--sp-12) var(--sp-16);
+        font: 400 22px/28px var(--font-display);
+        white-space: nowrap;
+      }
+      .marquee__item::after {
+        content: "●";
+        margin-left: var(--sp-16);
+        color: var(--brand);
+        font-size: 12px;
+        vertical-align: middle;
+      }
+      @keyframes slide {
+        to { transform: translateX(-50%); }
+      }
+      /* 목차 */
+      .index {
+        padding: var(--sp-32) 0 var(--sp-64);
+      }
+      .index__head {
+        display: flex;
+        justify-content: space-between;
+        padding-bottom: var(--sp-8);
+        border-bottom: 2px solid var(--art-ink);
+        font: 500 12px/16px var(--art-num);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .row {
+        position: relative;
+        isolation: isolate;
+        display: grid;
+        grid-template-columns: 44px 1fr auto;
+        gap: var(--sp-12);
+        align-items: baseline;
+        padding: var(--sp-16) 0;
+        border-bottom: 1px solid color-mix(in srgb, var(--art-ink) 18%, transparent);
+        text-decoration: none;
         overflow: hidden;
       }
-      .hub-orbit {
-        position: relative;
-        height: 260px;
-        margin-bottom: var(--sp-24);
-      }
-      .hub-orbit__item {
+      .row::before {
+        content: "";
         position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 52px;
-        height: 52px;
-        margin: -26px 0 0 -26px;
-        display: grid;
-        place-items: center;
-        font-size: 26px;
-        border-radius: var(--r-16);
-        background: var(--color-surface-raised);
-        box-shadow: var(--shadow-m);
-        animation: hub-orbit 18s linear infinite;
-        animation-delay: calc(var(--i) * -18s / var(--n));
+        inset: 0;
+        background: var(--art-ink);
+        transform: scaleY(0);
+        transform-origin: bottom;
+        transition: transform 380ms var(--spring);
+        z-index: -1;
       }
-      .hub-orbit__core {
-        position: absolute;
-        inset: 50% auto auto 50%;
-        width: 96px;
-        height: 96px;
-        margin: -48px 0 0 -48px;
-        border-radius: 50%;
-        background: radial-gradient(circle at 35% 30%, #b7adff, var(--brand) 55%, #3b2fb8);
-        box-shadow: 0 0 60px rgba(139, 123, 255, 0.55);
-        animation: hub-pulse 3s ease-in-out infinite;
+      .row:active::before {
+        transform: scaleY(1);
       }
-      @keyframes hub-orbit {
-        from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
-        to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+      .row:active {
+        color: var(--art-paper);
       }
-      @keyframes hub-pulse {
-        50% { transform: scale(1.08); }
+      @media (hover: hover) {
+        .row:hover::before { transform: scaleY(1); }
+        .row:hover { color: var(--art-paper); }
       }
-      .hub-list {
-        display: grid;
-        gap: var(--sp-8);
-        padding-bottom: var(--sp-48);
+      .row__num {
+        font: 800 14px/20px var(--art-num);
+        color: var(--brand);
       }
-      .hub-item {
-        display: flex;
-        align-items: center;
-        gap: var(--sp-16);
-        padding: var(--sp-16);
-        border-radius: var(--r-16);
-        background: var(--color-surface);
-        text-decoration: none;
-        transition: transform var(--dur-fast);
+      .row__name {
+        font: 400 26px/32px var(--font-display);
+        letter-spacing: -0.01em;
       }
-      .hub-item:active { transform: scale(0.98); }
-      .hub-item__emoji {
-        flex: none;
-        width: 48px;
-        height: 48px;
-        display: grid;
-        place-items: center;
-        font-size: 24px;
-        border-radius: var(--r-12);
-        background: var(--color-surface-raised);
+      .row__desc {
+        display: block;
+        margin-top: var(--sp-4);
+        font: var(--body-03);
+        opacity: 0.7;
       }
-      .hub-item__kw { color: var(--color-text-tertiary); }
+      .row__arrow {
+        font: 800 20px/1 var(--art-num);
+        transition: transform 300ms var(--spring);
+      }
+      .row:active .row__arrow {
+        transform: translateX(4px) rotate(-45deg);
+      }
+      .row.is-in {
+        animation: row-in 640ms var(--spring) both;
+        animation-delay: calc(var(--i) * 55ms);
+      }
+      @keyframes row-in {
+        from { transform: translateX(-24px); opacity: 0; }
+        to { transform: none; opacity: 1; }
+      }
+      .foot {
+        padding: 0 0 var(--sp-48);
+        font: var(--caption-01);
+        opacity: 0.6;
+      }
     </style>
   </head>
   <body>
     <main class="app">
-      <section class="hub-hero">
-        <div class="hub-orbit" id="orbit" aria-hidden="true"><div class="hub-orbit__core"></div></div>
-        <h1 class="t-display-02 t-center" style="margin: 0">놀이터</h1>
-        <p class="t-body-01 t-secondary t-center" style="margin: 8px 0 0">
-          익숙한 테스트·추첨·계산기를<br />친구랑 같이 노는 방식으로 바꿨어요
-        </p>
+      <section class="hero">
+        <div class="hero__tag"><span>Vol.01 — 11 Games</span><span id="date"></span></div>
+        <a class="board" id="board" href="#">
+          <div class="board__label"><span>Now Playing</span><span id="boardNo">01/11</span></div>
+          <div class="board__cells" id="cells" aria-live="polite"></div>
+          <div class="board__desc" id="boardDesc"></div>
+        </a>
+        <h1 class="hero__title" aria-label="놀이터"><span class="ch" style="--i: 0">놀</span><span class="ch" style="--i: 1">이</span><span class="ch" style="--i: 2">터</span></h1>
+        <p class="hero__lead">맨날 하던 룰렛, 사주, 꿈해몽, 월급 계산기.<br />친구랑 같이 놀 수 있게 판을 바꿨어요.</p>
+        <div class="marquee" aria-hidden="true"><div class="marquee__track" id="marquee"></div></div>
       </section>
-      <section class="hub-list" id="list"></section>
+      <section class="index">
+        <div class="index__head"><span>No.</span><span>오늘 뭐 하고 놀까</span></div>
+        <nav id="list"></nav>
+      </section>
+      <footer class="foot">재미로 즐기는 콘텐츠예요. 기록은 내 브라우저에만 저장돼요.</footer>
     </main>
     <script type="module">
       import { SITES } from "./shared/sites.js";
-      const orbit = document.getElementById("orbit");
-      SITES.forEach((s, i) => {
-        const el = document.createElement("div");
-        el.className = "hub-orbit__item";
-        el.style.setProperty("--i", i);
-        el.style.setProperty("--n", SITES.length);
-        el.textContent = s.emoji;
-        orbit.appendChild(el);
-      });
-      document.getElementById("list").innerHTML = SITES.map(
-        (s) => `<a class="hub-item" href="${s.slug}/">
-          <span class="hub-item__emoji" aria-hidden="true">${s.emoji}</span>
-          <span class="stack gap-4 grow">
-            <span class="t-title-04">${s.name}</span>
-            <span class="t-body-03 t-secondary">${s.desc}</span>
-            <span class="t-caption-01 hub-item__kw">${s.keyword}</span>
-          </span>
+      const d = new Date();
+      document.getElementById("date").textContent = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+      const names = SITES.map((s) => `<span class="marquee__item">${s.name}</span>`).join("");
+      document.getElementById("marquee").innerHTML = names + names;
+      const list = document.getElementById("list");
+      list.innerHTML = SITES.map(
+        (s, i) => `<a class="row" href="${s.slug}/" style="--i:${i}">
+          <span class="row__num">${String(i + 1).padStart(2, "0")}</span>
+          <span><span class="row__name">${s.name}</span><span class="row__desc">${s.desc} · ${s.keyword}</span></span>
+          <span class="row__arrow" aria-hidden="true">→</span>
         </a>`
       ).join("");
+      // 안내판: 2.6초마다 다음 놀이로 글자가 넘어간다
+      const board = document.getElementById("board");
+      const cells = document.getElementById("cells");
+      let cur = 0;
+      function flip() {
+        const s = SITES[cur];
+        board.href = `${s.slug}/`;
+        document.getElementById("boardNo").textContent = `${String(cur + 1).padStart(2, "0")}/${SITES.length}`;
+        cells.innerHTML = [...s.name].map((c, i) => `<span class="flap is-flip" style="--i:${i}"><span>${c === " " ? "&nbsp;" : c}</span></span>`).join("");
+        document.getElementById("boardDesc").textContent = s.desc;
+        cur = (cur + 1) % SITES.length;
+      }
+      flip();
+      setInterval(flip, 2600);
+
+      // 화면에 들어올 때 줄마다 튀어 들어온다
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.isIntersecting && (e.target.classList.add("is-in"), io.unobserve(e.target))),
+        { threshold: 0.2 }
+      );
+      list.querySelectorAll(".row").forEach((r) => io.observe(r));
     </script>
   </body>
 </html>
