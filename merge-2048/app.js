@@ -107,6 +107,15 @@ function startDemo() {
   const view = new BoardView($("#demoBoard"));
   view.el.classList.add("tray--demo");
   const g = new Game();
+  // 빈 판으로 시작하면 첫 화면이 텅 비어 보인다: 몇 수 미리 둔 판에서 시연을 시작
+  const warm = (n) => {
+    for (let k = 0; k < n; k++) {
+      const d = autoMove(g);
+      if (!d) break;
+      g.move(d);
+    }
+  };
+  warm(16);
   view.bind(g);
   view.sync(g);
   if (prefersReducedMotion()) {
@@ -132,6 +141,7 @@ function startDemo() {
     if (!d || g.max >= 256) {
       timer = setTimeout(() => {
         g.reset();
+        warm(16);
         view.sync(g);
         timer = setTimeout(step, 700);
       }, 1400);

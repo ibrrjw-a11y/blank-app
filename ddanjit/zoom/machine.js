@@ -37,7 +37,7 @@ function moreBlock() {
   const more = $("#more");
   if (!more) return;
   const title = $(".more-sites__title", more);
-  if (title) title.innerHTML = `<span class="pix">NEXT</span>렌즈를 옆 기계로`;
+  if (title) title.innerHTML = `<span class="pix" aria-hidden="true">NEXT</span>렌즈를 옆 기계로`;
 }
 
 export function machine() {
