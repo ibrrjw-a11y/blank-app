@@ -93,6 +93,29 @@ function circleSVG() {
   return `<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path class="circle-draw" d="M58 3 C 88 2, 99 12, 97 22 C 94 36, 30 40, 8 31 C -4 25, 4 6, 30 4 C 44 3, 60 4, 66 7"/></svg>`;
 }
 
+// 손으로 그린 하트 낙서
+function doodleHeart(size = 34, cls = "") {
+  return `<svg class="doodle ${cls}" viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true"><path d="M12 20.5 C 5 15, 1.5 10.5, 3.6 6.2 C 5.6 2.3, 10.4 3, 12 7.4 C 13.4 3.2, 18.6 2.2, 20.4 6 C 22.6 10.6, 18.4 15.4, 12.2 20.6 M10.6 19 C 6 15.4, 3.2 11, 5 7.4"/></svg>`;
+}
+
+// 미니 궁합표 스티커 (진짜 계산값)
+function miniMatrix(list, m) {
+  const head = `<span></span>${list.map((n) => `<span class="mm__h">${n.slice(-1)}</span>`).join("")}`;
+  const rows = list
+    .map(
+      (n, i) =>
+        `<span class="mm__h">${n.slice(-1)}</span>${list
+          .map((_, j) =>
+            i === j
+              ? `<span class="mm__c is-self">♥</span>`
+              : `<span class="mm__c ${m[i][j] >= 60 ? "is-hot" : ""}" style="--p:${m[i][j]}">${m[i][j]}</span>`
+          )
+          .join("")}`
+    )
+    .join("");
+  return `<div class="sticker mm" style="--n:${list.length}">${head}${rows}</div>`;
+}
+
 function introScenes() {
   const A = "지유";
   const B = "하은";
@@ -101,23 +124,26 @@ function introScenes() {
   const net = ["지유", "하은", "민수", "지영", "서준"];
   const m = matrix(net);
   const hl = highlights(net, m);
-  const W = 340;
-  const H = 340;
+  const W = 360;
+  const H = 400;
+  const C = { x: W / 2, y: 178 };
   const pos = net.map((_, i) => {
     const a = (i / net.length) * Math.PI * 2 - Math.PI / 2;
-    return { x: W / 2 + Math.cos(a) * 118, y: H / 2 + Math.sin(a) * 118 };
+    return { x: C.x + Math.cos(a) * 138, y: C.y + Math.sin(a) * 134 };
   });
   const rowHTML = (row, cls = "") =>
     `<div class="i-row ${cls}">${row.map((d) => `<span class="i-digit">${d}</span>`).join("")}</div>`;
+  const crushFrom = net[hl.crush.from];
+  const crushTo = net[hl.crush.to];
 
   const nodesSVG = (delayBase = 0) =>
     net
       .map(
         (n, i) =>
-          `<g class="net-node" style="animation-delay:${delayBase + i * 90}ms"><circle cx="${pos[i].x}" cy="${pos[i].y}" r="30"/><text x="${pos[i].x}" y="${pos[i].y}">${n}</text></g>`
+          `<g class="net-node" style="animation-delay:${delayBase + i * 90}ms"><circle cx="${pos[i].x}" cy="${pos[i].y}" r="36"/><text x="${pos[i].x}" y="${pos[i].y}">${n}</text></g>`
       )
       .join("");
-  const edge = (i, j, shrink = 34) => {
+  const edge = (i, j, shrink = 40) => {
     const a = pos[i];
     const b = pos[j];
     const dx = b.x - a.x;
@@ -135,36 +161,55 @@ function introScenes() {
         const e = edge(i, j);
         const avg = (m[i][j] + m[j][i]) / 2;
         out.push(
-          `<line class="net-line ${cls}" x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" style="animation-delay:${k++ * delayStep}ms;stroke-width:${1 + avg / 30}"/>`
+          `<line class="net-line ${cls}" x1="${e.x1}" y1="${e.y1}" x2="${e.x2}" y2="${e.y2}" style="animation-delay:${k++ * delayStep}ms;stroke-width:${1 + avg / 28}"/>`
         );
       }
     return out.join("");
   };
+  // 아래쪽 테이프 붙은 메모 스티커
+  const tagSVG = (text, delay = 0) => {
+    const y = 362;
+    return `<g class="net-tag" style="animation-delay:${delay}ms"><rect x="${W / 2 - 92}" y="${y - 22}" width="184" height="44" rx="4" transform="rotate(-3 ${W / 2} ${y})"/><rect class="tape" x="${W / 2 - 26}" y="${y - 32}" width="52" height="16" transform="rotate(6 ${W / 2} ${y - 24})"/><text x="${W / 2}" y="${y}" transform="rotate(-3 ${W / 2} ${y})">${text}</text></g>`;
+  };
 
-  return [
+  const scenes = [
     {
       title: "이름 획수를 세어요",
       desc: `${A}와 ${B}, 글자를 번갈아 세우고 획수를 적어요`,
-      duration: 3000,
+      duration: 3200,
       play(stage) {
-        stage.innerHTML = `<div class="scene scene--col">
-          <div class="i-names"><span class="mark">${A}</span>${pixelHeart(30)}<span class="t-b">${B}</span></div>
+        stage.innerHTML = `<div class="scene">
+          <div class="i-names"><span class="mark">${A}</span>${pixelHeart(40)}<span class="t-b">${B}</span></div>
           <div class="i-row i-letters">${letters
-            .map((l, i) => `<span class="i-letter is-${l.from}" style="animation-delay:${250 + i * 110}ms">${l.ch}</span>`)
+            .map((l, i) => `<span class="i-letter is-${l.from}" style="animation-delay:${80 + i * 70}ms">${l.ch}<small>${l.strokes}획</small></span>`)
             .join("")}</div>
           <div class="i-row i-digits">${r.rows[0]
-            .map((d, i) => `<span class="i-digit is-rain" style="animation-delay:${900 + i * 180}ms">${d}</span>`)
+            .map((d, i) => `<span class="i-digit is-rain" style="animation-delay:${380 + i * 130}ms">${d}</span>`)
             .join("")}</div>
+          <div class="i-deco">
+            ${miniMatrix(net.slice(0, 3), m)}
+            <div class="i-deco__col">
+              <span class="sticker sticker--note">💔 짝사랑도 찾아줘요</span>
+              <div class="row gap-8">${doodleHeart(34)}${doodleHeart(26, "is-b")}${doodleHeart(30)}</div>
+            </div>
+          </div>
         </div>`;
       },
     },
     {
       title: "옆끼리 더해서 두 자리까지",
       desc: "더한 값의 일의 자리만 남기며 한 줄씩 내려가요",
-      duration: 3200,
+      duration: 3400,
       play(stage, signal) {
-        stage.innerHTML = `<div class="scene scene--col"><div class="i-pyr" id="iPyr">${rowHTML(r.rows[0])}</div></div>`;
+        stage.innerHTML = `<div class="scene">
+          ${doodleHeart(40, "is-float is-tl")}${doodleHeart(30, "is-float is-tr is-b")}${doodleHeart(34, "is-float is-br")}
+          <p class="i-who">${A} → ${B}</p>
+          <div class="i-row i-letters is-sm">${letters.map((l) => `<span class="i-letter is-${l.from}">${l.ch}</span>`).join("")}</div>
+          <div class="i-pyr" id="iPyr">${rowHTML(r.rows[0])}</div>
+          <div class="i-result" id="iRes"></div>
+        </div>`;
         const pyr = $("#iPyr", stage);
+        const res = $("#iRes", stage);
         r.rows.slice(1).forEach((row, k) => {
           setTimeout(() => {
             if (signal.aborted) return;
@@ -173,13 +218,10 @@ function introScenes() {
             if (last) {
               setTimeout(() => {
                 if (signal.aborted) return;
-                pyr.insertAdjacentHTML(
-                  "beforeend",
-                  `<div class="i-score">${r.score}%</div><p class="t-secondary m0 i-score-cap">${josa(A, "이/가")} ${josa(B, "을/를")} 생각하는 마음</p>`
-                );
-              }, 520);
+                res.innerHTML = `<div class="i-score">${r.score}%</div><p class="i-score-cap">${josa(A, "이/가")} ${josa(B, "을/를")} 생각하는 마음</p>`;
+              }, 420);
             }
-          }, 300 + k * 380);
+          }, 250 + k * 340);
         });
       },
     },
@@ -188,46 +230,55 @@ function introScenes() {
       desc: "최대 12명, 모든 조합의 궁합을 표 한 장으로 그려요",
       duration: 3000,
       play(stage) {
-        stage.innerHTML = `<div class="scene"><svg viewBox="0 0 ${W} ${H}">
-          ${linesSVG("is-draw", 70)}
-          ${nodesSVG(250)}
-          <g class="i-core-g"><text class="i-core" x="${W / 2}" y="${H / 2}">${r.score}%</text></g>
+        stage.innerHTML = `<div class="scene scene--svg"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+          ${linesSVG("is-draw", 60)}
+          ${nodesSVG(200)}
+          <g class="i-core-g"><text class="i-core" x="${C.x}" y="${C.y}">${r.score}%</text></g>
+          ${tagSVG(`${net.length}명 · 마음 ${net.length * (net.length - 1)}개 ✏️`, 900)}
         </svg></div>`;
       },
     },
     {
       title: "방향마다 마음이 달라요",
-      desc: `${net[hl.crush.from]}→${net[hl.crush.to]} ${hl.crush.high}%, ${net[hl.crush.to]}→${net[hl.crush.from]} ${hl.crush.low}%. 이게 짝사랑이에요`,
+      desc: `${crushFrom}→${crushTo} ${hl.crush.high}%, ${crushTo}→${crushFrom} ${hl.crush.low}%. 이게 짝사랑이에요`,
       duration: 3600,
       play(stage) {
-        const e = edge(hl.crush.from, hl.crush.to, 36);
-        const back = edge(hl.crush.to, hl.crush.from, 36);
-        // 두 화살표를 살짝 벌려서 그린다
-        const off = 9;
+        const e = edge(hl.crush.from, hl.crush.to, 42);
+        const back = edge(hl.crush.to, hl.crush.from, 42);
+        const off = 10;
         const nx = -e.uy * off;
         const ny = e.ux * off;
         const mx = (e.x1 + e.x2) / 2;
         const my = (e.y1 + e.y2) / 2;
         const head = (x, y, ux, uy) =>
-          `M${x - ux * 12 - uy * 8} ${y - uy * 12 + ux * 8} L${x} ${y} L${x - ux * 12 + uy * 8} ${y - uy * 12 - ux * 8}`;
-        stage.innerHTML = `<div class="scene"><svg viewBox="0 0 ${W} ${H}">
+          `M${x - ux * 14 - uy * 9} ${y - uy * 14 + ux * 9} L${x} ${y} L${x - ux * 14 + uy * 9} ${y - uy * 14 - ux * 9}`;
+        stage.innerHTML = `<div class="scene scene--svg"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
           ${linesSVG("is-dim", 0)}
           <path class="net-arrow-back" d="M${back.x1 - nx} ${back.y1 - ny} L${back.x2 - nx} ${back.y2 - ny}"/>
-          <path class="net-arrow is-draw" d="M${e.x1 + nx} ${e.y1 + ny} L${e.x2 + nx} ${e.y2 + ny} ${head(e.x2 + nx, e.y2 + ny, e.ux, e.uy).replace("M", "M")}"/>
+          <path class="net-arrow is-draw" d="M${e.x1 + nx} ${e.y1 + ny} L${e.x2 + nx} ${e.y2 + ny} ${head(e.x2 + nx, e.y2 + ny, e.ux, e.uy)}"/>
           ${nodesSVG(0)}
-          <text class="net-label net-label--hot" x="${mx + nx * 2.6}" y="${my + ny * 2.6}">${hl.crush.high}%</text>
-          <text class="net-label net-label--cold" x="${mx - nx * 2.6}" y="${my - ny * 2.6}">${hl.crush.low}%</text>
-          <g class="net-tag" style="animation-delay:700ms"><rect x="${W / 2 - 70}" y="${H - 14}" width="140" height="40" rx="4" transform="rotate(-3 ${W / 2} ${H + 6})"/><rect class="tape" x="${W / 2 - 22}" y="${H - 24}" width="44" height="16" transform="rotate(7 ${W / 2} ${H - 16})"/><text x="${W / 2}" y="${H + 6}" transform="rotate(-3 ${W / 2} ${H + 6})">💔 짝사랑 발견!</text></g>
+          <text class="net-label net-label--hot" x="${mx + nx * 2.8}" y="${my + ny * 2.8}">${hl.crush.high}%</text>
+          <text class="net-label net-label--cold" x="${mx - nx * 2.8}" y="${my - ny * 2.8}">${hl.crush.low}%</text>
+          ${tagSVG("💔 짝사랑 발견!", 700)}
         </svg></div>`;
       },
     },
-  ].map((sc) => ({
+  ];
+  return scenes.map((sc) => ({
     ...sc,
     play(stage, signal) {
       kinetic();
       sc.play(stage, signal);
     },
   }));
+}
+
+function setDiaryDate() {
+  const el = $("#diaryDate");
+  if (!el) return;
+  const d = new Date();
+  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  el.textContent = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${days[d.getDay()]}`;
 }
 
 /* =========================================================
@@ -916,6 +967,7 @@ function init() {
     return;
   }
 
+  setDiaryDate();
   const intro = runIntro({ root: $("#intro"), scenes: introScenes() });
   $("#start").addEventListener("click", () => {
     intro.stop();

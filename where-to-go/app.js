@@ -146,9 +146,9 @@ function weatherText(w, stage = "main") {
   if (!w) return "";
   const t = `${Math.round(w.temp)}℃`;
   const food = stage === "main" || stage === "meal";
-  if (w.rainy) return food ? `🌧️ 비 와서 국물 메뉴 가중치 ↑ (${t})` : `🌧️ 비 와서 실내 코스 가중치 ↑ (${t})`;
-  if (w.cold) return food ? `🥶 ${t}로 쌀쌀해서 국물 메뉴 가중치 ↑` : `🥶 ${t}로 추워서 실내 코스 가중치 ↑`;
-  if (w.hot) return food ? `🥵 ${t}로 더워서 가벼운 메뉴 가중치 ↑` : "";
+  if (w.rainy) return food ? `비 와서 국물 메뉴 가중치 ↑ (${t})` : `비 와서 실내 코스 가중치 ↑ (${t})`;
+  if (w.cold) return food ? `${t}로 쌀쌀해서 국물 메뉴 가중치 ↑` : `${t}로 추워서 실내 코스 가중치 ↑`;
+  if (w.hot) return food ? `${t}로 더워서 가벼운 메뉴 가중치 ↑` : "";
   return "";
 }
 
@@ -1235,13 +1235,7 @@ function openRoom(id) {
   const { items, rows } = roomAggregate(room);
   const byName = Object.fromEntries(items.map((x) => [x.n, x]));
   const hostPlayed = room.replies.some((r) => r.name === room.host);
-  $("#room").innerHTML = `
-    <div class="view-head">
-      <span class="eyebrow">링크로 각자 고르기 · ${MODES[room.mode]?.n || ""}</span>
-      <h2 class="t-title-02">${room.replies.length ? `답장 ${room.replies.length}개가 모였어요` : "친구들 답장을 기다려요"}</h2>
-      <p class="t-body-03 t-secondary">${room.at ? `${esc(room.at)} 근처 · ` : ""}후보 ${items.length}개</p>
-    </div>
-    <div class="card card--flat block">
+  const shareCard = `    <div class="card card--flat block">
       <ol class="how">
         <li>아래 버튼으로 후보 링크를 단톡방에 보내요.</li>
         <li>친구들이 각자 폰에서 월드컵을 하고 '결과 보내기'로 답장 링크를 보내요.</li>
@@ -1256,7 +1250,8 @@ function openRoom(id) {
         <button class="btn btn--secondary btn--block" data-act="roomPlay" data-id="${room.id}">${hostPlayed ? "내 결과 다시 하기" : "나도 월드컵 하기"}</button>
       </div>
     </div>
-    <div class="card card--flat block" style="margin-top: var(--sp-12)">
+`;
+  const pasteCard = `    <div class="card card--flat block" style="margin-top: var(--sp-12)">
       <div class="block__title"><h3>답장 링크 붙여넣기</h3></div>
       <div class="add-row" style="margin-top: 0">
         <input class="input" id="replyInput" placeholder="https://…?reply=…" autocomplete="off" />
@@ -1264,7 +1259,8 @@ function openRoom(id) {
       </div>
       <p class="block__hint">답장은 서버 없이 링크에 담겨 와요. 다른 브라우저에서 열렸다면 링크를 복사해서 여기에 붙여넣어 주세요.</p>
     </div>
-    ${
+`;
+  const results = `    ${
       room.replies.length
         ? `<h3 class="section-t">각자의 1위</h3>
           <div class="stack gap-8">${room.replies
@@ -1285,6 +1281,15 @@ function openRoom(id) {
           <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="roomFinal" data-id="${room.id}">${esc(euro(rows[0].name))} 확정하기 →</button></div>`
         : `<div class="empty"><div class="empty__k"></div><p class="t-body-03">아직 답장이 없어요. 링크를 보내고 기다려 주세요.</p></div>`
     }
+`;
+  $("#room").innerHTML = `
+    <div class="view-head">
+      <span class="eyebrow">링크로 각자 고르기 · ${MODES[room.mode]?.n || ""}</span>
+      <h2 class="t-title-02">${room.replies.length ? `답장 ${room.replies.length}개가 모였어요` : "친구들 답장을 기다려요"}</h2>
+      <p class="t-body-03 t-secondary">${room.at ? `${esc(room.at)} 근처 · ` : ""}후보 ${items.length}개</p>
+    </div>
+    ${room.replies.length ? results + `<h3 class="section-t">친구 더 부르기</h3>` + shareCard : shareCard + results}
+    ${pasteCard}
     <h3 class="section-t">후보</h3>
     <div class="mini-cands" style="justify-content: flex-start">${items.map((x) => `<span>${lb(x)}${esc(x.n)}</span>`).join("")}</div>`;
   go("room");
@@ -1443,7 +1448,7 @@ function renderReport() {
       ? `<div class="card card--flat block team-card"><div class="team-card__t"><div class="t-label-01">${esc(team.names.join(", "))}</div>
           <div class="t-caption-01 t-secondary">${team.loc ? `${esc(locLabel(team.loc))} 근처` : "회사 위치 없음"}</div></div>
           <button class="btn btn--primary btn--sm" data-act="teamGo">바로 고르기</button>
-          <button class="btn btn--ghost btn--sm btn--icon" data-act="delTeam" aria-label="팀 삭제">🗑️</button></div>`
+          <button class="btn btn--ghost btn--sm btn--icon" data-act="delTeam" aria-label="팀 삭제">✕</button></div>`
       : `<div class="notice">점심 설정 화면에서 '이 구성으로 팀 저장'을 누르면 다음부터 한 번에 시작할 수 있어요.</div>`
   }`;
   if (!logs.length) {
@@ -1470,7 +1475,7 @@ function renderReport() {
     places[l.place].c++;
   });
   const placeList = Object.values(places).sort((a, b) => b.c - a.c).slice(0, 5);
-  const pkLabel = pk == null ? "" : pk < 30 ? "골고루 먹는 편이에요 👍" : pk < 60 ? "취향이 꽤 뚜렷해요" : "편식 주의! 새로운 분류 어때요?";
+  const pkLabel = pk == null ? "" : pk < 30 ? "골고루 먹는 편이에요" : pk < 60 ? "취향이 꽤 뚜렷해요" : "편식 주의! 새로운 분류 어때요?";
   el.innerHTML = `${head}
     <div class="stats">
       <div class="stat"><div class="stat__k">이번 달 기록</div><div class="stat__v">${ml.length}<small>번</small></div></div>

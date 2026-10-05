@@ -577,8 +577,10 @@ body::before {
 
 /* 장면 3: 달력 + 도감 */
 .i3 {
-  justify-content: center;
-  gap: var(--sp-20);
+  justify-content: space-evenly;
+  gap: var(--sp-16);
+  padding-top: var(--sp-20);
+  padding-bottom: var(--sp-20);
 }
 
 .i3__streak {
@@ -715,8 +717,37 @@ body::before {
 .i3__open {
   display: flex;
   align-items: center;
-  gap: var(--sp-12);
-  font: var(--body-03-strong);
+  gap: var(--sp-16);
+  padding: var(--sp-12);
+  border: 1.5px dashed color-mix(in srgb, var(--art-ink) 40%, transparent);
+  border-radius: var(--r-4);
+}
+
+.i3__rep {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  flex: 1;
+  min-width: 0;
+}
+
+.i3__rep b {
+  font: var(--title-04);
+  font-family: var(--font-display);
+}
+
+.i3__bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.i3__bars i {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: linear-gradient(var(--art-seal), var(--art-seal)) no-repeat,
+    color-mix(in srgb, var(--art-ink) 12%, transparent);
+  background-size: 0% 100%;
 }
 
 .i3__stamp {

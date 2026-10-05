@@ -202,8 +202,49 @@ body::before {
 /* 장면 1: 폴라로이드 두 장 + 빨간 실 */
 .sc-meet .pola { position: absolute; width: 148px; }
 .sc-meet .pola figcaption { font: 26px/28px var(--art-hand); color: var(--art-ink); }
-.sc-meet .pola--a { left: 4%; top: 6%; --r: -7deg; }
-.sc-meet .pola--b { right: 5%; top: 40%; --r: 6deg; }
+.sc-meet .pola--a { left: 4%; top: 3%; --r: -7deg; }
+.sc-meet .pola--b { right: 5%; top: 27%; --r: 6deg; }
+/* 아래쪽을 채우는 편지·달력 띠 */
+.rise-in { animation: rise-in 820ms var(--art-spring) both; animation-delay: var(--delay, 0ms); }
+@keyframes rise-in {
+  0% { translate: 0 120%; opacity: 0; }
+  20% { opacity: 1; }
+  100% { translate: 0 0; }
+}
+.peek-letter {
+  position: absolute;
+  left: 2%;
+  bottom: 3%;
+  width: 60%;
+  padding: var(--sp-12) var(--sp-16) var(--sp-16);
+  background: repeating-linear-gradient(var(--art-letter) 0 25px, var(--art-rule) 25px 26px);
+  box-shadow: 0 10px 22px -8px rgba(46, 38, 34, 0.4);
+  transform: rotate(-4deg);
+}
+.peek-letter small { display: block; font: var(--label-03); color: var(--art-ink-soft); letter-spacing: 0.06em; }
+.peek-letter p { margin: var(--sp-6) 0 0; font: 28px/26px var(--art-hand); color: var(--art-ink); }
+.cal-strip {
+  position: absolute;
+  right: 0;
+  bottom: 22%;
+  display: flex;
+  background: var(--art-letter);
+  box-shadow: 0 8px 18px -8px rgba(46, 38, 34, 0.4);
+  transform: rotate(5deg);
+}
+.cal-strip span {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 40px;
+  border-left: 1px solid var(--art-rule);
+  font: 400 14px/1 var(--font-display);
+  color: var(--art-ink-soft);
+}
+.cal-strip span:first-child { border-left: 0; }
+.cal-strip .is-on { color: var(--brand); font-weight: 700; box-shadow: inset 0 0 0 2px var(--brand); border-radius: var(--r-full); }
+.cal-strip i { position: absolute; top: -22px; font: 20px/1 var(--art-hand); font-style: normal; color: var(--brand); white-space: nowrap; }
 .drop { animation: drop 820ms var(--art-spring-soft) both; animation-delay: var(--delay, 0ms); }
 @keyframes drop {
   0% { transform: translateY(-160%) rotate(calc(var(--r) * -2)); }
@@ -256,7 +297,7 @@ body::before {
 }
 
 /* 장면 2: 오도미터 폴라로이드 + 소인 */
-.sc-count .pola { position: absolute; left: 4%; top: 4%; width: 80%; --r: -3deg; }
+.sc-count .pola { position: absolute; left: 3%; top: 2%; width: 86%; --r: -3deg; }
 .sc-count .pola__photo { aspect-ratio: 4 / 3.2; display: grid; place-items: center; }
 .sc-count .pola figcaption { font: 26px/30px var(--art-hand); color: var(--art-ink); }
 .sc-count .pola figcaption small { font: var(--caption-01); color: var(--art-ink-soft); }
@@ -291,7 +332,27 @@ body::before {
   border-radius: inherit;
 }
 .postmark b { display: block; font: 700 15px/20px var(--font-display); }
-.sc-count .postmark { right: 2%; top: 46%; }
+.sc-count .postmark { right: -2%; top: 46%; z-index: 2; }
+.ticket {
+  position: absolute;
+  left: 2%;
+  bottom: 19%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-12) var(--sp-20) var(--sp-12) var(--sp-16);
+  background: var(--art-kraft);
+  color: var(--art-ink);
+  border-left: 3px dashed var(--art-paper);
+  transform: rotate(3deg);
+  -webkit-mask: radial-gradient(circle at 100% 50%, transparent 9px, #000 9.5px);
+  mask: radial-gradient(circle at 100% 50%, transparent 9px, #000 9.5px);
+  box-shadow: 0 8px 18px -8px rgba(46, 38, 34, 0.4);
+}
+.ticket small { font: var(--label-03); letter-spacing: 0.1em; color: var(--art-ink-soft); }
+.ticket b { font: 700 20px/26px var(--font-display); }
+.sc-count .stamp--tilt { position: absolute; right: 6%; bottom: 1%; z-index: 3; width: 96px; height: 112px; transform: rotate(8deg); }
 .slam { animation: slam 620ms var(--art-back) both; animation-delay: var(--delay, 0ms); }
 @keyframes slam {
   0% { transform: scale(2.2) rotate(-24deg); opacity: 0; }
@@ -322,7 +383,22 @@ body::before {
 .odo__ch { display: inline-block; height: 1em; line-height: 1; }
 
 /* 장면 3: 편지봉투가 열리며 두 답이 나온다 */
-.sc-env { display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: var(--sp-16); }
+.sc-env { display: flex; flex-direction: column; justify-content: center; padding: 150px 0 72px; }
+.link-slip {
+  position: absolute;
+  right: 0;
+  bottom: 2%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-8) var(--sp-12);
+  background: var(--art-letter);
+  box-shadow: 0 8px 18px -8px rgba(46, 38, 34, 0.4);
+  transform: rotate(-3deg);
+  clip-path: polygon(0 4%, 6% 0, 14% 5%, 24% 0, 36% 4%, 50% 0, 64% 5%, 78% 0, 90% 4%, 100% 0, 100% 100%, 0 100%);
+}
+.link-slip code { font: 600 11px/14px var(--art-imprint); color: var(--art-ink-soft); }
+.link-slip span { font: 22px/24px var(--art-hand); color: var(--brand); }
 .sc-env__q {
   position: absolute;
   left: 0;
@@ -504,7 +580,7 @@ body::before {
 }
 .stamp b { font: 700 24px/28px var(--font-display); }
 .stamp small { font: var(--label-03); opacity: 0.85; }
-.sc-cal .stamp { right: 0; bottom: 6%; opacity: 0; }
+.sc-cal .stamp { right: 0; bottom: 2%; opacity: 0; z-index: 2; }
 .sc-cal .stamp.is-on { animation: stamp-drop 760ms var(--art-spring) both; }
 @keyframes stamp-drop {
   0% { transform: translateY(-80px) scale(1.5) rotate(20deg); opacity: 0; }
@@ -793,3 +869,4 @@ body::before {
   .hang-tag,
   .pair.is-arriving .note { animation: none !important; }
 }
+.link-slip--ics { right: auto; left: 2%; bottom: 4%; transform: rotate(2deg); }

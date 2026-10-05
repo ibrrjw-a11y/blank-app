@@ -507,45 +507,76 @@ export function drawSlowmo(ctx, w, h, slowA, sinceStart, tk) {
   ctx.restore();
 }
 
-// 라이브 타이밍 타워. rows: [{i, name, color, gap, hot}] 순위순. pos: 행별 스프링 상태 저장소
-export function drawTower(ctx, rows, pos, dt, tk, { x = 10, y = 10, title = "LIVE", total = rows.length } = {}) {
-  const rowH = 19;
-  const wdt = 118;
-  slant(ctx, x, y, wdt, 16, 0);
+// 라이브 타이밍 타워. rows: [{i, name, color, gap, hot, rank, slot?}] 순위순. pos: 슬롯별 상태 저장소
+// 행 높이는 고정이고, 순위가 바뀌면 그 행 안에서만 내용이 위로 굴러 바뀐다 (글자가 겹치지 않음)
+export function drawTower(ctx, rows, pos, dt, tk, { x = 10, y = 10, title = "LIVE", total = rows.length, scale = 1, wdt = 118 } = {}) {
+  const S = scale;
+  const rowH = Math.round(19 * S);
+  const hh = Math.round(16 * S);
+  const box = Math.round(18 * S);
+  ctx.save();
   ctx.fillStyle = tk.brand;
-  ctx.fill();
+  ctx.fillRect(x, y, wdt, hh);
   ctx.fillStyle = "#fff";
-  ctx.font = `400 11px ${tk.num}`;
+  ctx.font = `400 ${Math.round(11 * S)}px ${tk.num}`;
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
-  ctx.fillText(title, x + 6, y + 8.5);
+  ctx.fillText(title, x + 6, y + hh / 2 + 0.5);
   ctx.textAlign = "right";
-  ctx.fillText(`${total} 명`, x + wdt - 6, y + 8.5);
-  rows.forEach((r, k) => {
-    const slot = r.slot ?? k;
-    const st = pos[r.i] || (pos[r.i] = { p: slot, v: 0 });
-    if (Math.abs(st.p - slot) > 4) st.p = slot;
-    const f = (slot - st.p) * 280 - st.v * 20;
-    st.v += f * dt;
-    st.p += st.v * dt;
-    const ry = y + 18 + st.p * (rowH + 1);
-    ctx.fillStyle = r.hot ? tk.brand : "rgba(10,11,13,0.84)";
-    ctx.fillRect(x, ry, wdt, rowH);
-    ctx.fillStyle = tk.chalk;
-    ctx.fillRect(x, ry, 18, rowH);
-    ctx.fillStyle = tk.bg;
-    ctx.font = `400 12px ${tk.num}`;
-    ctx.textAlign = "center";
-    ctx.fillText(String(r.rank), x + 9, ry + rowH / 2 + 1);
+  ctx.fillText(`${total} 명`, x + wdt - 6, y + hh / 2 + 0.5);
+
+  const content = (r, ry) => {
+    if (r.hot) {
+      ctx.fillStyle = tk.brand;
+      ctx.fillRect(x + box, ry, wdt - box, rowH);
+    }
     ctx.fillStyle = r.color;
-    ctx.fillRect(x + 20, ry + 3, 3, rowH - 6);
+    ctx.fillRect(x + box + 3, ry + 3 * S, 3 * S, rowH - 6 * S);
     ctx.fillStyle = "#fff";
-    ctx.font = `700 11px ${CANVAS_FONT}`;
+    ctx.font = `700 ${Math.round(11 * S)}px ${CANVAS_FONT}`;
     ctx.textAlign = "left";
-    ctx.fillText(r.name, x + 28, ry + rowH / 2 + 1, 54);
+    ctx.fillText(r.name, x + box + 10 * S, ry + rowH / 2 + 1, wdt * 0.45);
     ctx.textAlign = "right";
-    ctx.font = `400 10px ${tk.num}`;
+    ctx.font = `400 ${Math.round(10 * S)}px ${tk.num}`;
     ctx.fillStyle = r.hot ? "#fff" : tk.text2;
     ctx.fillText(r.gap, x + wdt - 5, ry + rowH / 2 + 1);
+  };
+
+  rows.forEach((r, k) => {
+    const slot = r.slot ?? k;
+    const key = "s" + slot;
+    let st = pos[key];
+    if (!st) st = pos[key] = { cur: r, prev: null, age: 9 };
+    if (st.cur.i !== r.i) {
+      st.prev = st.cur;
+      st.age = 0;
+    }
+    st.cur = r;
+    st.age += dt;
+    const ry = y + hh + 2 + slot * (rowH + 1);
+    // 고정 바탕 + 순위 칸
+    ctx.fillStyle = "rgba(10,11,13,0.88)";
+    ctx.fillRect(x, ry, wdt, rowH);
+    ctx.fillStyle = tk.chalk;
+    ctx.fillRect(x, ry, box, rowH);
+    ctx.fillStyle = tk.bg;
+    ctx.font = `400 ${Math.round(12 * S)}px ${tk.num}`;
+    ctx.textAlign = "center";
+    ctx.fillText(String(r.rank), x + box / 2, ry + rowH / 2 + 1);
+    // 굴러 바뀌는 내용 (행 안으로 잘라냄)
+    const p = Math.min(1, st.age / 0.26);
+    const e = 1 - Math.pow(1 - p, 3);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x + box, ry, wdt - box, rowH);
+    ctx.clip();
+    if (st.prev && p < 1) content(st.prev, ry - e * rowH);
+    content(r, ry + (1 - e) * rowH);
+    ctx.restore();
+    if (p < 1) {
+      ctx.fillStyle = alpha(tk.chalk, 0.5 * (1 - p));
+      ctx.fillRect(x + box, ry, wdt - box, 2);
+    }
   });
+  ctx.restore();
 }

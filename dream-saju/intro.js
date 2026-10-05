@@ -250,7 +250,7 @@ export function startIntro(root) {
       path.setAttribute("d", `M${x} ${y - 22} C ${x} ${(y + ty) / 2}, ${tx} ${(y + ty) / 2 + 20}, ${tx} ${ty}`);
       path.setAttribute("pathLength", "1");
       svg.appendChild(path);
-      anim(path, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 520, delay: 700 + i * 80, easing: OUT });
+      anim(path, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 520, delay: 320 + i * 70, easing: OUT });
       const ghost = document.createElement("span");
       ghost.className = "meteor";
       ghost.innerHTML = `<span class="meteor__icon">${COLS[i].emoji}</span>`;
@@ -262,27 +262,27 @@ export function startIntro(root) {
           { transform: `translate(${x}px, ${y - 30}px) scale(.8)`, opacity: 1, offset: 0.25 },
           { transform: `translate(${tx}px, ${ty - 40}px) scale(.3)`, opacity: 0 },
         ],
-        { duration: 700, delay: 760 + i * 80, easing: FALL }
+        { duration: 700, delay: 360 + i * 70, easing: FALL }
       );
     });
 
     // 3) 카드 등장 → 뒤집기
     anim(card, [{ transform: "translateY(30px) scale(.2) rotate(-10deg)", opacity: 0 }, { transform: "none", opacity: 1 }], {
       duration: 620,
-      delay: 1150,
+      delay: 380,
       easing: SPRING,
     });
     const [back, front] = [card.querySelector(".icard__back"), card.querySelector(".icard__front")];
-    anim(back, [{ transform: "rotateY(0deg)" }, { transform: "rotateY(180deg)" }], { duration: 640, delay: 1800, easing: SPRING });
-    anim(front, [{ transform: "rotateY(-180deg)" }, { transform: "rotateY(0deg)" }], { duration: 640, delay: 1800, easing: SPRING });
-    anim(card.querySelector(".icard__head"), [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 420, delay: 2250 });
+    anim(back, [{ transform: "rotateY(0deg)" }, { transform: "rotateY(180deg)" }], { duration: 640, delay: 1250, easing: SPRING });
+    anim(front, [{ transform: "rotateY(-180deg)" }, { transform: "rotateY(0deg)" }], { duration: 640, delay: 1250, easing: SPRING });
+    anim(card.querySelector(".icard__head"), [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 420, delay: 1700 });
     card.querySelectorAll(".icard__bar").forEach((b, i) =>
-      anim(b, [{ backgroundSize: "0% 100%" }, { backgroundSize: "var(--v) 100%" }], { duration: 600, delay: 2300 + i * 90 })
+      anim(b, [{ backgroundSize: "0% 100%" }, { backgroundSize: "var(--v) 100%" }], { duration: 600, delay: 1750 + i * 90 })
     );
 
     // 4) 도장: 들어 올렸다가(예비동작) → 쾅 → 찌그러짐·흔들림·인주 튐
     const seal = scene.querySelector(".bigseal");
-    const T = 2650;
+    const T = 2150;
     anim(
       seal,
       [
@@ -351,7 +351,9 @@ export function startIntro(root) {
         ).join("")}</div>
         <div class="i3__dex">${DEX.map((e) => `<span class="i3__cell"><span>${e}</span></span>`).join("")}</div>
         <div class="i3__count">꿈 도감 <b class="t-num">0</b> / 48 <span class="brushbar"><i></i></span></div>
-        <div class="i3__open"><span class="i3__stamp">月</span><span>이번 달 꿈 리포트가 열렸어요</span></div>
+        <div class="i3__open"><span class="i3__stamp">月</span>
+          <div class="i3__rep"><b>이번 달 꿈 리포트</b>
+            <span class="i3__bars"><i style="--v:82%"></i><i style="--v:56%"></i><i style="--v:34%"></i></span></div></div>
       </div>`;
     kinetic();
     const col = scene.querySelector(".odo__col");
@@ -376,7 +378,7 @@ export function startIntro(root) {
     const bar = scene.querySelector(".i3__count .brushbar i");
     order.forEach((idx, n) => {
       const c = cells[idx];
-      const delay = 1350 + n * 130;
+      const delay = 1150 + n * 130;
       later(
         () => {
           c.classList.add("is-on");
@@ -392,7 +394,10 @@ export function startIntro(root) {
       });
     });
     const open = scene.querySelector(".i3__open");
-    anim(open, [{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: 3050 });
+    anim(open, [{ opacity: 0.35 }, { opacity: 1 }], { duration: 200, delay: 3050 });
+    open.querySelectorAll(".i3__bars i").forEach((b, i) =>
+      anim(b, [{ backgroundSize: "0% 100%" }, { backgroundSize: "var(--v) 100%" }], { duration: 600, delay: 3250 + i * 100, easing: SPRING })
+    );
     anim(
       open.querySelector(".i3__stamp"),
       [
@@ -402,7 +407,7 @@ export function startIntro(root) {
       ],
       { duration: 420, delay: 3050, easing: SLAM }
     );
-    anim(open.lastElementChild, [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 420, delay: 3300 });
+
   }
 
   const ctl = runIntro({

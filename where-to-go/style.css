@@ -1037,3 +1037,7 @@ body { background: var(--color-bg); }
 .mini-cands .lb { width: 20px; height: 20px; }
 
 .fly { position: fixed; z-index: 80; pointer-events: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r-full); background: var(--l); color: var(--brand-on); font: var(--label-03); font-family: var(--font-display); font-weight: 800; }
+
+/* 닫힌 시트는 화면·탭 순서에서 완전히 숨김 */
+.sheet { visibility: hidden; transition: transform var(--dur-slow) var(--ease-standard), visibility 0s linear var(--dur-slow); }
+.sheet.is-open { visibility: visible; transition: transform var(--dur-slow) var(--ease-standard); }

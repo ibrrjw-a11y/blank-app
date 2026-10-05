@@ -62,15 +62,22 @@ body {
   100% { transform: none; opacity: 1; }
 }
 
+/* 장면은 무대 높이를 꽉 채우고, 내용은 그 안 가운데에 모은다 */
+.intro__stage { padding: var(--sp-8) 0; }
 .scene {
   position: relative;
+  align-self: stretch;
   width: 100%;
-  max-width: 340px;
-  height: 340px;
-  margin-bottom: var(--sp-24);
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-12);
 }
+.scene--svg svg { flex: 1; width: 100%; height: auto; min-height: 380px; }
 .scene--col { display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.scene svg { width: 100%; height: 100%; overflow: visible; }
+.scene--svg svg { overflow: visible; }
 
 .i-names {
   display: flex;
@@ -479,3 +486,90 @@ h2.t-title-04,
 
 /* 등장 애니메이션 중 커지는 요소가 가로 스크롤을 만들지 않게 */
 main.app { overflow-x: clip; }
+
+/* ---------- 다이어리 머리말 ---------- */
+.diary-head { position: relative; padding: var(--sp-4) 0 var(--sp-4) var(--sp-8); }
+.diary-head__row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
+.stamp {
+  display: inline-block;
+  padding: var(--sp-2) var(--sp-8);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--r-4);
+  color: var(--color-primary);
+  font: 400 13px/18px var(--font-pixel);
+  letter-spacing: 0.04em;
+  rotate: -4deg;
+  animation: slap 520ms var(--spring) both;
+}
+.diary-head__weather { font: 700 17px/22px var(--font-hand); color: var(--art-pen); }
+.diary-head__title { display: flex; align-items: center; gap: var(--sp-8); margin: var(--sp-6) 0 0; font: 700 40px/46px var(--font-hand); color: var(--art-ink); letter-spacing: -0.02em; }
+.diary-head__title .pixel-heart { animation: beat 1100ms var(--spring) infinite; }
+.diary-head__sub { margin: 0; font: 700 17px/22px var(--font-hand); color: var(--color-text-secondary); }
+
+/* ---------- 인트로 장면 크기 키우기 ---------- */
+.i-names { font-size: 50px; line-height: 56px; gap: var(--sp-16); }
+.i-letters { margin-top: 0; gap: var(--sp-10); }
+.i-letter { width: 76px; height: 76px; font-size: 42px; flex-direction: column; display: flex; align-items: center; justify-content: center; gap: var(--sp-2); }
+.i-letter small { font: 400 12px/14px var(--font-pixel); color: var(--color-text-tertiary); }
+.i-letters.is-sm .i-letter { width: 56px; height: 52px; font-size: 32px; animation: none; }
+.i-digits { gap: var(--sp-10); min-height: 64px; }
+.i-digit { width: 76px; height: 60px; font-size: 52px; }
+
+.i-deco { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-16); width: 100%; margin-top: var(--sp-8); }
+.i-deco__col { display: flex; flex-direction: column; align-items: center; gap: var(--sp-12); flex: 1; }
+
+.sticker {
+  position: relative;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-m);
+  animation: slap 560ms var(--spring) 650ms both;
+}
+.sticker::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 48px;
+  height: 16px;
+  margin-left: -24px;
+  background: var(--art-tape);
+  opacity: 0.9;
+  rotate: -5deg;
+}
+.sticker--note { padding: var(--sp-10) var(--sp-16); font: 700 19px/24px var(--font-hand); color: var(--color-primary); rotate: 3deg; animation-delay: 800ms; }
+
+.mm {
+  display: grid;
+  grid-template-columns: repeat(calc(var(--n) + 1), 28px);
+  gap: 2px;
+  padding: var(--sp-12) var(--sp-10) var(--sp-10);
+  rotate: -4deg;
+}
+.mm__h { display: grid; place-items: center; height: 28px; font: 700 15px/1 var(--font-hand); color: var(--art-ink); }
+.mm__c {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  border: 1px solid var(--art-grid);
+  background: color-mix(in srgb, var(--color-primary) calc(var(--p, 0) * 0.9%), var(--color-surface));
+  font: 400 11px/1 var(--font-pixel);
+  color: var(--art-ink);
+}
+.mm__c.is-hot { color: var(--brand-on); }
+.mm__c.is-self { border-color: transparent; color: var(--color-primary); }
+
+.doodle { fill: none; stroke: var(--color-primary); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 90; stroke-dashoffset: 90; animation: draw 700ms cubic-bezier(0.3, 0.7, 0.2, 1) 900ms forwards; overflow: visible; }
+.doodle.is-b { stroke: var(--art-pen); animation-delay: 1050ms; }
+.doodle.is-float { position: absolute; animation-delay: 200ms; }
+.doodle.is-tl { left: var(--sp-8); top: 12%; rotate: -14deg; }
+.doodle.is-tr { right: var(--sp-12); top: 22%; rotate: 12deg; }
+.doodle.is-br { right: var(--sp-32); bottom: 0; rotate: -8deg; }
+
+.i-who { margin: 0; font: 700 26px/30px var(--font-hand); color: var(--color-text-secondary); }
+.i-pyr { padding: var(--sp-4) var(--sp-16); }
+.i-pyr .i-digit { width: 60px; height: 46px; font-size: 42px; }
+.i-result { display: flex; align-items: center; gap: var(--sp-12); min-height: 72px; }
+.i-result .i-score { margin: 0; font-size: 72px; }
+.i-result .i-score-cap { margin: 0; max-width: 8em; font: 700 20px/24px var(--font-hand); color: var(--color-text-secondary); }
+
+.net-node text { font-size: 22px; }

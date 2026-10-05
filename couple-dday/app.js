@@ -1076,6 +1076,8 @@ function sceneMeet(stage, signal) {
     <figure class="pola pola--a drop"><span class="pola__pin"></span><div class="pola__photo"><span class="pola__date">'25 5 12</span></div><figcaption>민수</figcaption></figure>
     <figure class="pola pola--b drop" style="--delay:200ms"><span class="pola__pin"></span><div class="pola__photo"><span class="pola__date">'25 5 12</span></div><figcaption>지은</figcaption></figure>
     <svg class="sc-meet__string" aria-hidden="true"><path /></svg>
+    <div class="peek-letter rise-in" style="--delay:500ms"><small>2025.5.12 · 첫 편지</small><p>오늘부터 1일,<br />우리 잘 지내보자</p></div>
+    <div class="cal-strip rise-in" style="--delay:750ms"><span>10</span><span>11</span><span class="is-on">12<i>1일</i></span><span>13</span><span>14</span></div>
   </div>`;
   const sc = $(".sc-meet", stage);
   const path = $("path", sc);
@@ -1123,6 +1125,8 @@ function sceneCount(stage, signal) {
     <figure class="pola drop"><div class="pola__photo"><p class="big-d t-num"><span class="odo"></span></p><span class="pola__date">'25 8 19</span></div>
       <figcaption><span class="ink-in" style="--delay:1100ms">함께한 2,376시간</span><small>민수 & 지은 · 사귄 날 = 1일</small></figcaption></figure>
     <div class="postmark slam" style="--delay:1500ms"><span>2025<b>5.12</b>사귄 날</span></div>
+    <div class="ticket rise-in" style="--delay:700ms"><small>ADMIT TWO · 함께한</small><b class="t-num">14주 · 2,376시간</b></div>
+    <div class="stamp stamp--tilt rise-in" style="--delay:950ms"><small>다음 기념일</small><b>200일</b><small>D-100</small></div>
   </div>`;
   const odo = $(".odo", stage);
   odometer(odo, "D+100", { on: false });
@@ -1143,6 +1147,7 @@ function sceneQuestion(stage, signal) {
       <div class="env__seal">봉인</div>
       <div class="env__checks"><span>나 답함</span><span>너 답함</span></div>
     </div>
+    <div class="link-slip rise-in" style="--delay:250ms"><code>…/couple-dday/?a=Xk9…</code><span>지은에게 링크로 보냄 →</span></div>
   </div>`;
   const env = $(".env", stage);
   const [c1, c2] = $$(".env__checks span", stage);
@@ -1167,18 +1172,19 @@ function sceneCalendar(stage, signal) {
   stage.innerHTML = `<div class="sc sc-cal">
     <div class="cal"><div class="cal__head"><b>8월</b><span>2025 · 우리 달력</span></div><div class="cal__grid">${cells.join("")}</div></div>
     <span class="cal__note">8월 19일, 우리 100일!</span>
+    <div class="link-slip link-slip--ics rise-in" style="--delay:300ms"><code>100일.ics · 저장됨</code><span>하루 전 아침 9시 알림</span></div>
     <div class="stamp"><small>기념일</small><b>100일</b><small>D-day</small></div>
   </div>`;
   const sc = $(".sc-cal", stage);
-  later(signal, 820, () => {
+  later(signal, 520, () => {
     const cal = $(".cal", sc);
     const note = $(".cal__note", sc);
     note.style.left = `${cal.offsetLeft + 12}px`;
     note.style.top = `${cal.offsetTop + cal.offsetHeight + 28}px`;
     $(".cal__circle", sc).classList.add("is-on");
   });
-  later(signal, 1400, () => $(".cal__note", sc).classList.add("is-on"));
-  later(signal, 1800, () => $(".stamp", sc).classList.add("is-on"));
+  later(signal, 900, () => $(".cal__note", sc).classList.add("is-on"));
+  later(signal, 250, () => $(".stamp", sc).classList.add("is-on"));
 }
 
 const SCENES = [
