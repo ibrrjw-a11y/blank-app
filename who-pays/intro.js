@@ -184,7 +184,7 @@ export function startIntro(root) {
 
     // 그리드 확정 → 위쪽 절반: 타이밍 타워 + 큰 숫자
     if (t > 1.75) {
-      tower([0, 1, 2, 3], ["GRID", "GRID", "GRID", "GRID"], dt, { title: "STARTING GRID", x: 10, y: 10 });
+      tower([0, 1, 2, 3], ["GRID", "GRID", "GRID", "GRID"], dt, { title: "GRID", x: 10, y: 10 });
       const k = spring((t - 1.85) / 0.55);
       const bx = w - 10 - 128 + (1 - k) * 200;
       ctx.save();

@@ -209,6 +209,14 @@ body {
 
 .odo b,
 .odo__col {
+  display: block;
+  height: var(--odo-h);
+  line-height: var(--odo-h);
+}
+
+.odo b { font-weight: 400; padding: 0 1px; color: var(--color-text-tertiary); }
+
+.odo__col {
   position: relative;
   width: 0.6em;
   overflow: hidden;
