@@ -545,7 +545,14 @@ body {
 .seo-table tbody tr:last-child td { border-bottom: 0; }
 .seo-table--num td { text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 .seo-table--num { font: var(--caption-01); }
+.seo-table--num th,
+.seo-table--num td { padding: var(--sp-8) var(--sp-6); }
+.seo-table--num thead th { text-align: right; }
+.seo-table--num thead th:first-child { text-align: left; }
 .seo ol { padding-left: var(--sp-20); }
 
 /* 잉크색 버튼 (회의 중 정지 버튼) */
 .btn--ink { --_bg: var(--art-ink); --_fg: var(--art-slip); --_bg-pressed: var(--art-housing-2); }
+
+/* 등장 애니메이션 중 커지는 요소가 가로 스크롤을 만들지 않게 */
+main.app { overflow-x: clip; }

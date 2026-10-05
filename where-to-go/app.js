@@ -617,23 +617,24 @@ function startBracket() {
   renderMatch(true);
 }
 
+const SPRING = "linear(0, 0.161, 0.362, 0.577, 0.781, 0.959, 1.1, 1.199, 1.258, 1.279, 1.269, 1.237, 1.19, 1.136, 1.082, 1.033, 0.992, 0.961, 0.941, 0.931, 0.929, 0.935, 0.945, 0.958, 0.972, 0.985, 0.997, 1.006, 1.013, 1.017, 1.018, 1.018, 1.015, 1.012, 1.009, 1.006, 1.002, 1, 0.998, 0.996, 1)";
+const FALL = "cubic-bezier(0.55, 0, 1, 0.45)";
+
 function mcardHTML(it, side) {
   const phone = G.vote === "phone";
-  let sub;
-  if (it.kind === "place") sub = `${it.c}${it.dist != null ? ` · ${fmtDist(it.dist)} · 도보 약 ${walkMin(it.dist)}분` : ""}`;
-  else if (it.kind === "menu") sub = `${it.g} · ${PRICE_LABEL[it.p] || ""}`;
-  else sub = it.kind === "cafe" ? "카페" : "놀거리";
-  const tags = (it.t || []).slice(0, 3);
-  return `<button class="mcard" data-act="pick" data-side="${side}">
-    <span class="mcard__e" aria-hidden="true">${it.e}</span>
-    <span class="mcard__n">${esc(it.n)}</span>
-    <span class="mcard__s">${esc(sub)}</span>
-    ${tags.length ? `<span class="mcard__tags">${tags.map((t) => `<span>${esc(t)}</span>`).join("")}</span>` : ""}
-    ${
+  let cat;
+  if (it.kind === "place") cat = `${it.c}${it.dist != null ? ` · ${fmtDist(it.dist)}` : ""}`;
+  else if (it.kind === "menu") cat = `${it.g} · ${PRICE_LABEL[it.p] || ""}`;
+  else cat = it.kind === "cafe" ? "카페" : "놀거리";
+  const bar = it.kind === "place" && it.dist != null ? `도보 약 ${walkMin(it.dist)}분 (직선)` : (it.t || []).slice(0, 3).join(" · ") || cat;
+  return `<button class="mcard" data-act="pick" data-side="${side}" style="--l: ${lineOf(it)}">
+    <span class="mcard__top">${lb(it)}<span class="mcard__cat">${esc(cat)}</span><span class="mcard__e" aria-hidden="true">${it.e}</span></span>
+    <span class="mcard__n ${it.n.length > 7 ? "is-long" : ""}">${esc(it.n)}</span>
+    <span class="mcard__bar"><span>${esc(bar)}</span>${
       phone
-        ? `<span class="tally"><span class="tally__n" data-tally="${side}">0표</span><span class="tally__dots">${G.voters.map(() => "<i></i>").join("")}</span></span>`
-        : ""
-    }
+        ? `<span class="tally"><span class="tally__dots">${G.voters.map(() => "<i></i>").join("")}</span><span class="tally__n" data-tally="${side}">0표</span></span>`
+        : `<span aria-hidden="true">${side ? "▼" : "▲"}</span>`
+    }</span>
   </button>`;
 }
 
@@ -645,16 +646,16 @@ function renderMatch(enter) {
   G.tally = [0, 0];
   const slots = Array.from({ length: b.matches }, (_, k) =>
     k < b.next.length
-      ? `<span class="strip__slot is-filled">${b.next[k].e}</span>`
-      : `<span class="strip__slot ${k === b.i ? "is-now" : ""}">${b.matches === 1 ? "👑" : ""}</span>`
+      ? `<span class="strip__slot is-filled" style="--l: ${lineOf(b.next[k])}">${esc(glyphOf(b.next[k]))}</span>`
+      : `<span class="strip__slot ${b.matches === 1 ? "is-final" : k === b.i ? "is-now" : ""}">${b.matches === 1 ? "1" : ""}</span>`
   ).join("");
   $("#match").innerHTML = `
     ${stageSteps()}
     <div class="match-head">
-      <span class="match-head__t">${G.mode === "date" ? `${STAGE[st.k].n} ` : ""}${b.label}${b.size === 2 ? " 🏆" : ""}</span>
+      <span class="match-head__t">${G.mode === "date" ? `${STAGE[st.k].n} ` : ""}${b.label}</span>
       <span class="match-head__s">${b.size === 2 ? "마지막 대결" : `${b.i + 1} / ${b.matches}`}</span>
     </div>
-    <div class="strip" aria-label="다음 라운드 진출">${slots}</div>
+    <div class="strip" aria-label="다음 라운드 진출 ${b.next.length}/${b.matches}">${slots}</div>
     <div class="arena">
       ${mcardHTML(A, 0)}
       <div class="vs" aria-hidden="true">VS</div>
@@ -670,55 +671,59 @@ function renderMatch(enter) {
     <button class="btn btn--ghost btn--block btn--sm" data-act="quit">그만두기</button>`;
   if (enter && !reduce) {
     const cards = $$("#match .mcard");
-    const ease = "cubic-bezier(0.3, 0, 0.2, 1)";
+    // 위아래에서 밀려 들어와 가운데서 부딪히고(스쿼시) 제자리로 튐
     cards[0].animate(
       [
-        { transform: "translate(-30%, -40%) rotate(-8deg)", opacity: 0 },
-        { transform: "translate(0, 10px) rotate(1deg)", opacity: 1, offset: 0.6 },
-        { transform: "translate(0, -4px)", offset: 0.82 },
+        { transform: "translate(-110%, 0) rotate(-6deg)", opacity: 0 },
+        { transform: "translate(0, 0) rotate(0) scale(1, 1)", opacity: 1, offset: 0.55, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+        { transform: "translate(0, 8px) scale(1.03, 0.94)", offset: 0.7 },
+        { transform: "translate(0, -3px) scale(0.99, 1.02)", offset: 0.85 },
         { transform: "none", opacity: 1 },
       ],
-      { duration: 560, easing: ease }
+      { duration: 620, easing: FALL }
     );
     cards[1].animate(
       [
-        { transform: "translate(30%, 40%) rotate(8deg)", opacity: 0 },
-        { transform: "translate(0, -10px) rotate(-1deg)", opacity: 1, offset: 0.6 },
-        { transform: "translate(0, 4px)", offset: 0.82 },
+        { transform: "translate(110%, 0) rotate(6deg)", opacity: 0 },
+        { transform: "translate(0, 0) rotate(0) scale(1, 1)", opacity: 1, offset: 0.55, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+        { transform: "translate(0, -8px) scale(1.03, 0.94)", offset: 0.7 },
+        { transform: "translate(0, 3px) scale(0.99, 1.02)", offset: 0.85 },
         { transform: "none", opacity: 1 },
       ],
-      { duration: 560, easing: ease }
+      { duration: 620, easing: FALL, delay: 40 }
+    );
+    $$("#match .mcard__n").forEach((n, i) =>
+      n.animate([{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 420, delay: 260 + i * 60, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" })
     );
     $("#match .vs").animate(
-      [
-        { transform: "translate(-50%, -50%) scale(0)", opacity: 0 },
-        { transform: "translate(-50%, -50%) scale(1.5)", opacity: 1, offset: 0.5 },
-        { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
-      ],
-      { duration: 420, delay: 300, easing: "cubic-bezier(0.3, 0, 0, 1.2)", fill: "backwards" }
+      [{ transform: "translate(0, -50%) scale(0) rotate(-90deg)" }, { transform: "translate(0, -50%) scale(1) rotate(0)" }],
+      { duration: 640, delay: 320, easing: SPRING, fill: "backwards" }
     );
   }
 }
 
-function flyTo(fromEl, toEl, emoji) {
+function flyTo(fromEl, toEl, item) {
   if (!fromEl || !toEl || reduce) return sleep(0);
   const a = fromEl.getBoundingClientRect();
   const b = toEl.getBoundingClientRect();
   const fly = document.createElement("div");
   fly.className = "fly";
-  fly.textContent = emoji;
-  fly.style.left = `${a.left}px`;
-  fly.style.top = `${a.top}px`;
+  fly.style.setProperty("--l", lineOf(item));
+  fly.textContent = glyphOf(item);
+  fly.style.left = `${a.left + a.width / 2 - 14}px`;
+  fly.style.top = `${a.top + a.height / 2 - 14}px`;
   document.body.appendChild(fly);
   const dx = b.left + b.width / 2 - (a.left + a.width / 2);
   const dy = b.top + b.height / 2 - (a.top + a.height / 2);
   const anim = fly.animate(
     [
-      { transform: "translate(0, 0) scale(1)" },
-      { transform: `translate(${dx * 0.4}px, ${dy * 0.4 - 40}px) scale(1.15)`, offset: 0.35 },
-      { transform: `translate(${dx}px, ${dy}px) scale(0.3)` },
+      { transform: "translate(0, 0) scale(1.6)" },
+      { transform: `translate(${dx * 0.3}px, ${dy * 0.3 - 30}px) scale(1.3, 1.9)`, offset: 0.3 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.8, 1.2)`, offset: 0.8 },
+      { transform: `translate(${dx}px, ${dy}px) scale(1.3, 0.7)`, offset: 0.9 },
+      { transform: `translate(${dx}px, ${dy}px) scale(1)` },
     ],
-    { duration: 560, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" }
+    { duration: 560, easing: "cubic-bezier(0.65, 0, 0.35, 1)", fill: "forwards" }
   );
   return anim.finished.then(() => fly.remove(), () => fly.remove());
 }
@@ -733,24 +738,28 @@ async function pick(side) {
   const lose = cards[1 - side];
   haptic(15);
   if (!reduce) {
-    win.animate([{ transform: "scale(1)" }, { transform: "scale(1.04)" }, { transform: "scale(1)" }], { duration: 300 });
+    win.animate(
+      [{ transform: "scale(1)" }, { transform: "scale(0.95, 1.05)", offset: 0.3 }, { transform: "scale(1.04, 0.97)", offset: 0.6 }, { transform: "scale(1)" }],
+      { duration: 420, easing: "ease" }
+    );
     lose.animate(
       [
-        { opacity: 1, transform: "none" },
-        { opacity: 0, transform: `translateY(${side ? -36 : 36}px) scale(0.86) rotate(${side ? -5 : 5}deg)` },
+        { transform: "translate(0, 0) rotate(0)", opacity: 1 },
+        { transform: `translate(${side ? -10 : 10}px, ${side ? -14 : 14}px) rotate(${side ? -3 : 3}deg)`, opacity: 1, offset: 0.25 },
+        { transform: `translate(${side ? -40 : 40}px, ${side ? -160 : 160}px) rotate(${side ? -16 : 16}deg)`, opacity: 0 },
       ],
-      { duration: 380, easing: "cubic-bezier(0.4, 0, 1, 1)", fill: "forwards" }
+      { duration: 460, easing: FALL, fill: "forwards" }
     );
   }
   const slot = $$("#match .strip__slot")[b.i];
-  await flyTo(win.querySelector(".mcard__e"), slot, b.pair[side].e);
+  await flyTo(win.querySelector(".lb"), slot, b.pair[side]);
   const res = b.pick(side);
   G.busy = false;
   if (b.done) {
     finishStage();
     return;
   }
-  if (res.roundDone) toast(`${b.label} 진출 확정! ${b.round.map((x) => x.e).join(" ")}`, 1800);
+  if (res.roundDone) toast(`${b.label} 진출: ${b.round.map((x) => x.n).join(", ")}`, 2000);
   renderMatch(true);
 }
 
@@ -880,35 +889,47 @@ function actionsHTML(w, near) {
   </div>`;
 }
 
+// 역명판 모양 결과 카드: 가운데 큰 이름, 아래 노선색 띠에 이전·다음 순위
+function signHTML(w, { kicker, prev, next }) {
+  const long = w.n.length > 6;
+  return `<div class="sign" style="--l: ${lineOf(w)}">
+    <div class="sign__crown" aria-hidden="true">👑</div>
+    <div class="sign__top">${lb(w, "lb--lg")}<span class="sign__k">${esc(kicker)}</span></div>
+    <div class="sign__body"><span class="sign__e" aria-hidden="true">${w.e || ""}</span><h2 class="sign__n ${long ? "is-long" : ""}">${esc(w.n)}</h2></div>
+    <div class="sign__bar"><span>${prev ? `← ${esc(prev)}` : ""}</span><span>${next ? `${esc(next)} →` : ""}</span></div>
+  </div>`;
+}
+
+function courseHTML(wins, near, kinds) {
+  return `<ol class="course card card--flat">
+    ${wins
+      .map((w, i) => {
+        const L = mapLinks(w, near);
+        return `<li style="--l: var(--art-${STAGE[kinds[i]].l})"><span class="course__dot" aria-hidden="true"></span><div class="course__body">
+          <div class="course__k">${i + 1}코스 · ${STAGE[kinds[i]].n}${w.kind === "place" ? ` · ${esc(w.c)}` : ""}</div>
+          <div class="course__n">${esc(w.n)}</div>
+          <div class="course__links">
+            <a class="btn btn--outline btn--sm" href="${L.kakao}" target="_blank" rel="noopener">카카오맵</a>
+            <a class="btn btn--outline btn--sm" href="${L.naver}" target="_blank" rel="noopener">네이버</a>
+            ${L.route ? `<a class="btn btn--secondary btn--sm" href="${L.route}" target="_blank" rel="noopener">길찾기</a>` : ""}
+          </div></div></li>`;
+      })
+      .join("")}
+  </ol>`;
+}
+
 function renderResult() {
   const el = $("#result");
   const near = G.loc ? locLabel(G.loc) : "";
   const guest = G.guest;
   if (G.mode === "date") {
     el.innerHTML = `
-      <div class="hero">
-        <div class="hero__crown" aria-hidden="true">👑</div>
-        <div class="hero__e">💑</div>
-        <h2 class="hero__n t-title-01">오늘의 데이트 코스</h2>
-        <p class="hero__s t-body-03">${near ? `${esc(near)} 근처 · ` : ""}세 번의 월드컵으로 완성했어요</p>
+      <div class="view-head">
+        <span class="eyebrow">오늘의 데이트 코스${near ? ` · ${esc(near)} 근처` : ""}</span>
+        <h2 class="t-title-02">${G.stages.map((s) => esc(s.winner.n)).join(" → ")}</h2>
+        <p class="t-body-03 t-secondary">세 번의 월드컵으로 완성한 코스예요.</p>
       </div>
-      <h3 class="section-t">코스</h3>
-      <ol class="course card">
-        ${G.stages
-          .map((s, i) => {
-            const w = s.winner;
-            const L = mapLinks(w, near);
-            return `<li><span class="course__dot" aria-hidden="true">${w.e}</span><div class="course__body">
-              <div class="course__k">${i + 1}코스 · ${STAGE[s.k].n}</div>
-              <div class="course__n">${esc(w.n)}</div>
-              <div class="course__links">
-                <a class="btn btn--outline btn--sm" href="${L.kakao}" target="_blank" rel="noopener">카카오맵</a>
-                <a class="btn btn--outline btn--sm" href="${L.naver}" target="_blank" rel="noopener">네이버</a>
-                ${L.route ? `<a class="btn btn--secondary btn--sm" href="${L.route}" target="_blank" rel="noopener">길찾기</a>` : ""}
-              </div></div></li>`;
-          })
-          .join("")}
-      </ol>
+      ${courseHTML(G.stages.map((s) => s.winner), near, G.stages.map((s) => s.k))}
       <p class="block__hint">순서는 자유롭게 바꿔도 돼요. 영업시간은 지도 앱에서 꼭 확인해 주세요.</p>
       ${shareActions()}`;
     go("result");
@@ -916,8 +937,10 @@ function renderResult() {
   }
   const st = G.stages[0];
   const w = st.winner;
+  const rk = st.ranking || [];
+  const kicker = guest ? `${guest.name}의 1위` : G.mode === "group" ? "오늘 모임 1위" : "오늘 점심 1위";
   const sub = guest
-    ? `${esc(guest.name)}의 1위예요`
+    ? `${esc(guest.host)}이 보낸 월드컵 결과예요`
     : G.mode === "group"
       ? `${near ? `${esc(near)} 근처에서 만나요` : "오늘 모임은 여기로!"}`
       : `${near ? `${esc(near)} 근처 · ` : ""}오늘 점심은 이걸로!`;
@@ -925,16 +948,11 @@ function renderResult() {
     w.kind === "place" ? w.c : w.g,
     w.kind === "place" && w.dist != null ? `${fmtDist(w.dist)} (직선)` : null,
     w.kind === "menu" ? PRICE_LABEL[w.p] : null,
-    G.vote === "phone" ? "다같이 투표로 결정" : G.vote === "link" && !guest ? "링크 투표 합산" : null,
+    G.vote === "phone" ? "다같이 투표" : G.vote === "link" && !guest ? "링크 투표 합산" : null,
   ].filter(Boolean);
   el.innerHTML = `
-    <div class="hero">
-      <div class="hero__crown" aria-hidden="true">👑</div>
-      <div class="hero__e">${w.e}</div>
-      <h2 class="hero__n t-display-02">${esc(w.n)}</h2>
-      <p class="hero__s t-body-02">${sub}</p>
-      <div class="hero__badges">${badges.map((b) => `<span class="badge">${esc(b)}</span>`).join("")}</div>
-    </div>
+    ${signHTML(w, { kicker, prev: rk[1] ? `${rk[1].label} ${rk[1].item.n}` : "", next: rk[2] ? `${rk[2].label} ${rk[2].item.n}` : "" })}
+    <p class="sign-sub">${badges.map((b) => `<span class="badge">${esc(b)}</span>`).join("")} ${sub}</p>
     ${
       guest
         ? `<div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="sendReply">${esc(guest.host)}에게 결과 보내기 →</button></div>
@@ -946,9 +964,9 @@ function renderResult() {
     ${G.mode === "lunch" && !guest ? logBoxHTML(w) : ""}
     <h3 class="section-t">순위 <small>${G.vote === "link" && !guest ? "보르다 점수 합산" : "대진 결과"}</small></h3>
     <ol class="rank-list">
-      ${(st.ranking || [])
+      ${rk
         .slice(0, 8)
-        .map((r, i) => `<li><span class="r">${i === 0 ? "👑" : esc(r.label)}</span><span class="e">${r.item.e}</span><span class="n">${esc(r.item.n)}</span><span class="x">${i === 0 ? esc(r.label) : ""}</span></li>`)
+        .map((r, i) => `<li><span class="r">${i === 0 ? "1위" : esc(r.label)}</span>${lb(r.item)}<span class="n">${esc(r.item.n)}</span><span class="x">${i === 0 ? esc(r.label) : ""}</span></li>`)
         .join("")}
     </ol>
     ${guest ? `<div class="actions"><button class="btn btn--ghost btn--wide" data-act="toIntroFresh">우리도 따로 정해보기</button></div>` : shareActions()}`;
@@ -994,7 +1012,7 @@ async function loadNearbyFor(w) {
 function logBoxHTML(w) {
   const already = getLogs().some((l) => l.d === todayKey() && l.id === w.key);
   if (already) return logDoneHTML(w.kind === "place" ? w.n : null);
-  return `<div class="card log-box" id="logBox">
+  return `<div class="card card--flat log-box" id="logBox">
     <div class="block__title"><h3>오늘 점심으로 기록할까요?</h3></div>
     ${w.kind === "menu" ? `<input class="input" id="logPlace" maxlength="30" placeholder="간 가게 이름 (선택 · 단골 도장용)" />` : ""}
     <button class="btn btn--primary btn--block" data-act="logLunch" style="margin-top: var(--sp-8)">점심 기록하기</button>
@@ -1006,9 +1024,9 @@ function logDoneHTML(place) {
   const month = todayKey().slice(0, 7);
   const n = getLogs().filter((l) => l.d.startsWith(month)).length;
   const visits = place ? getLogs().filter((l) => l.place === place).length : 0;
-  return `<div class="card log-box is-done" id="logBox">
+  return `<div class="card card--flat log-box is-done" id="logBox">
     <div class="block__title"><h3>기록했어요! 이번 달 ${n}번째 점심</h3></div>
-    ${place ? `<p class="t-body-03" style="margin: 0">${esc(place)} 도장 ${visits}개 ${visits >= 3 ? "· 🏅 단골 인증!" : `· 단골까지 ${3 - visits}번`}</p>` : ""}
+    ${place ? `<p class="t-body-03" style="margin: 0">${esc(place)} 도장 ${visits}개 ${visits >= 3 ? "· 단골 인증!" : `· 단골까지 ${3 - visits}번`}</p>` : ""}
     <button class="btn btn--secondary btn--block btn--sm" data-act="report" style="margin-top: var(--sp-12)">이번 달 점심 리포트 보기</button>
   </div>`;
 }
@@ -1228,7 +1246,7 @@ function openRoom(id) {
         <button class="btn btn--secondary btn--block" data-act="roomPlay" data-id="${room.id}">${hostPlayed ? "내 결과 다시 하기" : `나(${esc(room.host)})도 월드컵 하기`}</button>
       </div>
     </div>
-    <div class="card block" style="margin-top: var(--sp-12)">
+    <div class="card card--flat block" style="margin-top: var(--sp-12)">
       <div class="block__title"><h3>답장 링크 붙여넣기</h3></div>
       <div class="add-row" style="margin-top: 0">
         <input class="input" id="replyInput" placeholder="https://…?reply=…" autocomplete="off" />
@@ -1240,25 +1258,25 @@ function openRoom(id) {
       room.replies.length
         ? `<h3 class="section-t">각자의 1위</h3>
           <div class="stack gap-8">${room.replies
-            .map((r) => `<div class="reply"><b>${esc(r.name)}</b><span>${byName[r.k[0][0]]?.e || r.k[0][1] || ""} ${esc(r.k[0][0])}</span></div>`)
+            .map((r) => `<div class="reply"><b>${esc(r.name)}</b><span>1위 ${esc(r.k[0][0])}</span></div>`)
             .join("")}</div>
           <h3 class="section-t">합산 순위 <small>보르다 점수</small></h3>
           <div class="bars bars--lead">${rows
             .slice(0, 8)
             .map(
-              (r) => `<div class="bar">
-                <div class="bar__top"><span>${byName[r.name]?.e || ""} ${esc(r.name)}</span><small>${fmtScore(r.score)}점 / ${r.max}</small></div>
+              (r) => `<div class="bar" style="--l: ${lineOf(byName[r.name])}">
+                <div class="bar__top"><span>${esc(r.name)}</span><small>${fmtScore(r.score)}점 / ${r.max}</small></div>
                 <div class="bar__track"><div class="bar__fill" style="width: ${r.max ? Math.max(2, (r.score / r.max) * 100) : 0}%"></div></div>
-                ${r.firsts.length ? `<div class="bar__who">👑 ${esc(r.firsts.join(", "))}의 1위</div>` : ""}
+                ${r.firsts.length ? `<div class="bar__who">${esc(r.firsts.join(", "))}의 1위</div>` : ""}
               </div>`
             )
             .join("")}</div>
           <p class="block__hint">우승 ${items.length - 1}점, 준우승 ${items.length - 2}점을 받고, 같은 라운드에서 떨어진 후보끼리는 점수를 나눠 가져요.</p>
-          <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="roomFinal" data-id="${room.id}">👑 ${esc(rows[0].name)}(으)로 확정하기</button></div>`
+          <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="roomFinal" data-id="${room.id}">${esc(rows[0].name)}(으)로 확정하기 →</button></div>`
         : `<div class="empty"><div class="empty__k"></div><p class="t-body-03">아직 답장이 없어요. 링크를 보내고 기다려 주세요.</p></div>`
     }
     <h3 class="section-t">후보</h3>
-    <div class="mini-cands" style="justify-content: flex-start">${items.map((x) => `<span>${x.e} ${esc(x.n)}</span>`).join("")}</div>`;
+    <div class="mini-cands" style="justify-content: flex-start">${items.map((x) => `<span>${lb(x)}${esc(x.n)}</span>`).join("")}</div>`;
   go("room");
 }
 
@@ -1310,11 +1328,11 @@ function renderGuest(p) {
   const items = p.c.map(expand);
   const m = MODES[p.m] || MODES.lunch;
   $("#guest").innerHTML = `
-    <div class="card guest-card" style="margin-top: var(--sp-16)">
-      <div class="guest-card__e">${m.e}</div>
+    <div class="card card--flat guest-card" style="margin-top: var(--sp-16)">
+      <span class="eyebrow">링크로 각자 고르기</span>
       <h2 class="t-title-02" style="margin: var(--sp-8) 0 var(--sp-4)">${esc(p.h)}이 보낸 ${m.title}</h2>
       <p class="t-body-03 t-secondary" style="margin: 0">${p.a ? `${esc(p.a)} 근처 · ` : ""}후보 ${items.length}개 중에서 내 1위를 골라 주세요</p>
-      <div class="mini-cands">${items.map((x) => `<span>${x.e} ${esc(x.n)}</span>`).join("")}</div>
+      <div class="mini-cands">${items.map((x) => `<span>${lb(x)}${esc(x.n)}</span>`).join("")}</div>
       <div class="field" style="text-align: left">
         <label class="field__label" for="guestName">내 이름</label>
         <input class="input" id="guestName" maxlength="8" placeholder="예: 민지" value="${esc(store.get("guestName", ""))}" />
@@ -1322,7 +1340,7 @@ function renderGuest(p) {
       </div>
       <button class="btn btn--primary btn--lg btn--block" data-act="guestStart" style="margin-top: var(--sp-16)">월드컵 시작하기</button>
     </div>
-    <div class="card block" style="margin-top: var(--sp-12)">
+    <div class="card card--flat block" style="margin-top: var(--sp-12)">
       <ol class="how">
         <li>둘 중 더 끌리는 쪽을 계속 골라요 (${roundLabel(items.length)}, 약 1분).</li>
         <li>끝나면 '결과 보내기'로 답장 링크를 ${esc(p.h)}에게 보내요.</li>
@@ -1368,27 +1386,21 @@ function renderShared(p) {
   const wins = p.w.map(unpackWinner);
   const m = MODES[p.m] || MODES.lunch;
   G = null;
-  const head = `<div class="eyebrow" style="margin-top: var(--sp-16)">친구가 보낸 결과</div>`;
   if (p.m === "date") {
-    $("#result").innerHTML = `${head}
-      <div class="hero"><div class="hero__crown" aria-hidden="true">👑</div><div class="hero__e">💑</div>
-      <h2 class="hero__n t-title-01">데이트 코스</h2><p class="hero__s t-body-03">${p.a ? `${esc(p.a)} 근처` : ""}</p></div>
-      <ol class="course card" style="margin-top: var(--sp-16)">${wins
-        .map((w, i) => {
-          const L = mapLinks(w, p.a);
-          return `<li><span class="course__dot">${w.e}</span><div class="course__body"><div class="course__k">${i + 1}코스 · ${["밥", "카페", "놀거리"][i]}</div><div class="course__n">${esc(w.n)}</div>
-          <div class="course__links"><a class="btn btn--outline btn--sm" href="${L.kakao}" target="_blank" rel="noopener">카카오맵</a><a class="btn btn--outline btn--sm" href="${L.naver}" target="_blank" rel="noopener">네이버</a></div></div></li>`;
-        })
-        .join("")}</ol>
-      <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="toIntroFresh">우리도 코스 짜보기</button></div>`;
+    $("#result").innerHTML = `
+      <div class="view-head">
+        <span class="eyebrow">친구가 보낸 데이트 코스${p.a ? ` · ${esc(p.a)} 근처` : ""}</span>
+        <h2 class="t-title-02">${wins.map((w) => esc(w.n)).join(" → ")}</h2>
+      </div>
+      ${courseHTML(wins, p.a, ["meal", "cafe", "play"])}
+      <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="toIntroFresh">우리도 코스 짜보기 →</button></div>`;
   } else {
     const w = wins[0];
-    $("#result").innerHTML = `${head}
-      <div class="hero"><div class="hero__crown" aria-hidden="true">👑</div><div class="hero__e">${w.e}</div>
-      <h2 class="hero__n t-display-02">${esc(w.n)}</h2><p class="hero__s t-body-02">${m.title} 1위${p.a ? ` · ${esc(p.a)} 근처` : ""}</p></div>
+    $("#result").innerHTML = `
+      ${signHTML(w, { kicker: `친구가 보낸 ${m.title} 1위`, prev: p.r?.[0] ? `2위 ${p.r[0][1]}` : "", next: p.r?.[1] ? `3위 ${p.r[1][1]}` : "" })}
+      <p class="sign-sub">${p.a ? `${esc(p.a)} 근처에서 고른 결과예요` : "메뉴 월드컵 결과예요"}</p>
       ${actionsHTML(w, p.a)}
-      ${p.r?.length ? `<h3 class="section-t">그다음 순위</h3><ol class="rank-list">${p.r.map(([e, n], i) => `<li><span class="r">${i + 2}위</span><span class="e">${e}</span><span class="n">${esc(n)}</span></li>`).join("")}</ol>` : ""}
-      <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="toIntroFresh">${p.m === "group" ? "우리 모임도 정해보기" : "나도 오늘 메뉴 정하기"}</button></div>`;
+      <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="toIntroFresh">${p.m === "group" ? "우리 모임도 정해보기 →" : "나도 오늘 메뉴 정하기 →"}</button></div>`;
   }
   go("result");
 }
@@ -1452,13 +1464,13 @@ function renderReport() {
   el.innerHTML = `${head}
     <div class="stats">
       <div class="stat"><div class="stat__k">이번 달 기록</div><div class="stat__v">${ml.length}<small>번</small></div></div>
-      <div class="stat"><div class="stat__k">최다 메뉴</div><div class="stat__v">${top ? `${top.e}<small> ${esc(top.n)} ${top.c}</small>` : "-"}</div></div>
+      <div class="stat"><div class="stat__k">최다 메뉴</div><div class="stat__v">${top ? `${top.c}<small>번 ${esc(top.n)}</small>` : "-"}</div></div>
       <div class="stat"><div class="stat__k">편식 지수</div><div class="stat__v">${pk == null ? "-" : pk}</div></div>
     </div>
     ${warn ? `<div class="notice notice--warn" style="margin-top: var(--sp-12)">${esc(warn)}</div>` : ""}
-    <div class="card block" style="margin-top: var(--sp-12)">
+    <div class="card card--flat block" style="margin-top: var(--sp-12)">
       <div class="block__title"><h3>편식 지수</h3><span class="badge">${pk == null ? "기록 3개부터" : `${pk} / 100`}</span></div>
-      ${pk == null ? `<p class="t-body-03 t-secondary" style="margin: 0">이번 달 기록이 3개 이상이면 계산해요.</p>` : `<div class="gauge"><i style="left: ${pk}%"></i></div><div class="gauge-legend"><span>골고루</span><span>편식</span></div><p class="t-body-03" style="margin: var(--sp-8) 0 0">${pkLabel}</p>`}
+      ${pk == null ? `<p class="t-body-03 t-secondary" style="margin: 0">이번 달 기록이 3개 이상이면 계산해요.</p>` : `<div class="gauge" style="--v: ${pk}%"><i style="left: ${pk}%"></i></div><div class="gauge-legend"><span>골고루</span><span>편식</span></div><p class="t-body-03" style="margin: var(--sp-8) 0 0">${pkLabel}</p>`}
       <p class="block__hint">먹은 분류(한식·일식·양식…)가 얼마나 고르게 섞였는지로 계산해요. 한 분류만 먹을수록 100에 가까워요.</p>
     </div>
     ${
@@ -1474,8 +1486,8 @@ function renderReport() {
       placeList.length
         ? `<div class="stamps">${placeList
             .map(
-              (p) => `<div class="card stamp-card"><div class="stamp-card__top"><b>${p.e} ${esc(p.n)}</b>${p.c >= 3 ? `<span class="badge">🏅 단골</span>` : `<span class="t-caption-01 t-tertiary">단골까지 ${3 - p.c}번</span>`}</div>
-              <div class="stamp-grid">${Array.from({ length: 10 }, (_, i) => `<span class="${i < p.c ? "is-on" : ""}">${i < p.c ? "참잘" : ""}</span>`).join("")}</div></div>`
+              (p) => `<div class="card card--flat stamp-card"><div class="stamp-card__top"><b>${esc(p.n)}</b>${p.c >= 3 ? `<span class="badge">단골 인증</span>` : `<span class="t-caption-01 t-tertiary">단골까지 ${3 - p.c}번</span>`}</div>
+              <div class="stamp-grid">${Array.from({ length: 10 }, (_, i) => `<span class="${i < p.c ? "is-on" : ""}">${i < p.c ? i + 1 : ""}</span>`).join("")}</div></div>`
             )
             .join("")}</div>`
         : `<div class="notice">기록할 때 간 가게 이름을 넣거나 실제 가게로 고르면 도장이 찍혀요.</div>`
@@ -1484,7 +1496,7 @@ function renderReport() {
     <div class="log-list">${logs
       .slice(0, 15)
       .map(
-        (l) => `<div class="log-row"><span class="log-row__d">${l.d.slice(5).replace("-", ".")}</span><span class="log-row__e">${l.e}</span>
+        (l) => `<div class="log-row"><span class="log-row__d">${l.d.slice(5).replace("-", ".")}</span>${lb({ g: l.g })}
           <span class="log-row__n">${esc(l.n)}${l.place && l.place !== l.n ? `<small>${esc(l.place)}</small>` : ""}</span>
           <button class="btn btn--ghost btn--icon btn--sm" data-act="delLog" data-t="${l.t}" aria-label="기록 지우기">✕</button></div>`
       )

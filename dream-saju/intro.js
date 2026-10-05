@@ -344,7 +344,7 @@ function startSky(canvas) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     let s = 7;
     const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-    stars = Array.from({ length: Math.round((w * h) / 2600) }, () => ({
+    stars = Array.from({ length: Math.round((w * h) / 4200) }, () => ({
       x: rnd() * w,
       y: rnd() * h * 0.92,
       r: 0.35 + rnd() * 1.1,

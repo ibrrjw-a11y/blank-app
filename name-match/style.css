@@ -476,3 +476,6 @@ h2.t-title-04,
 .seo ol,
 .seo ul { padding-left: var(--sp-20); }
 .matrix.is-dense .mx-col { white-space: normal; word-break: break-all; width: 1.05em; justify-self: center; line-height: 1; text-align: center; }
+
+/* 등장 애니메이션 중 커지는 요소가 가로 스크롤을 만들지 않게 */
+main.app { overflow-x: clip; }

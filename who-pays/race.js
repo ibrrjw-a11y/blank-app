@@ -361,7 +361,7 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
         ctx.setLineDash([12, 12]);
         ctx.lineWidth = sg.t;
       } else if (sg.kind === "wall") {
-        ctx.strokeStyle = tk.brand;
+        ctx.strokeStyle = sg.ax === 0 || sg.ax === W ? tk.brand : tk.chalk;
         ctx.setLineDash([]);
         ctx.lineWidth = sg.t;
       } else {
@@ -403,7 +403,7 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
         const rr = c.r * (1 + squashAmt(1 - c.flash, 0.2) * (c.flash > 0 ? 1 : 0));
         ctx.beginPath();
         ctx.arc(c.x, c.y, rr, 0, Math.PI * 2);
-        ctx.fillStyle = c.flash > 0.4 ? tk.brand : tk.bg;
+        ctx.fillStyle = c.flash > 0.4 ? tk.chalk : tk.bg;
         ctx.fill();
         ctx.lineWidth = 3;
         ctx.strokeStyle = tk.chalk;

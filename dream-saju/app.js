@@ -382,8 +382,12 @@ function saveEntry() {
   const n = streak();
   const seen = seenCounts();
   const dexN = Object.keys(seen).length;
-  toast(`기록했어요 · ${n}일째 연속 · 도감 ${dexN}/${dexTotal()}`);
-  renderResult();
+  toast(`기록했어요 · 연속 ${n}일 · 도감 ${dexN}/${dexTotal()}`);
+  const btn = $('#result [data-act="save"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "꿈 일기에 기록했어요";
+  }
   updateBadge();
 }
 

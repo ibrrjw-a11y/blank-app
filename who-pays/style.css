@@ -9,10 +9,10 @@
   --brand-soft: #3a160b;
   --brand-on: #ffffff;
 
-  --font-display: "Black Han Sans", "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --font-display: "Black Han Sans", var(--font-sans);
 
   /* 사이트 장식 색·값 (일러스트·방송 그래픽 전용) */
-  --art-font-num: "Anton", "Archivo Narrow", "Arial Narrow", Impact, "Pretendard Variable", sans-serif;
+  --art-font-num: "Anton", "Archivo Narrow", "Arial Narrow", Impact, var(--font-sans);
   --art-asphalt: #111317;
   --art-line: #3b4049;
   --art-chalk: #f3efe6;
@@ -382,9 +382,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--sp-8);
-  margin-top: var(--sp-24);
-  padding: var(--sp-16) 0 calc(var(--sp-16) + var(--safe-bottom));
-  background: linear-gradient(to top, var(--color-bg) 74%, transparent);
+  margin: var(--sp-24) calc(var(--gutter) * -1) 0;
+  padding: var(--sp-24) var(--gutter) calc(var(--sp-16) + var(--safe-bottom));
+  background: linear-gradient(to top, var(--color-bg) 70%, transparent);
 }
 
 .setup__cta p { margin: 0; padding-left: var(--sp-4); }

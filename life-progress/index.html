@@ -17,6 +17,8 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Archivo+Black&family=Gothic+A1:wght@400;700;900&display=swap" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="application/ld+json">
@@ -49,7 +51,10 @@
     <main class="app">
       <!-- 1) 첫 화면 -->
       <section class="intro" id="intro" data-view="intro">
-        <div class="intro__brand row gap-8"><span aria-hidden="true">⏳</span><span class="t-label-01">인생 진행률</span></div>
+        <div class="intro__brand">
+          <span class="intro__name">인생 진행률</span>
+          <span class="intro__fig t-num" id="introFig">FIG. 01</span>
+        </div>
         <div class="intro__stage" aria-hidden="true">
           <canvas class="ip-canvas"></canvas>
           <div class="ip-overlay"></div>
@@ -65,21 +70,22 @@
       <!-- 2) 본 기능 -->
       <section data-view="app" hidden>
         <header class="topbar">
-          <span class="topbar__brand"><span aria-hidden="true">⏳</span>인생 진행률</span>
-          <button class="btn btn--ghost btn--sm" id="replayIntro">소개 보기</button>
+          <span class="topbar__brand">인생 진행률</span>
+          <span class="topbar__meta t-num" id="todayMeta"></span>
+          <button class="btn btn--ghost btn--sm" id="replayIntro">소개</button>
         </header>
 
-        <div class="stack gap-16 main">
-          <!-- 만나이 계산기 -->
-          <section class="calc card card--raised" aria-labelledby="calcTitle">
-            <h1 class="t-title-03" id="calcTitle">만나이 계산기</h1>
-            <label class="field" id="birthField">
+        <div class="main">
+          <!-- 01 만나이 계산기 -->
+          <section class="sec" aria-labelledby="calcTitle">
+            <div class="sec__head"><span class="sec__no t-num">01</span><h1 class="sec__title" id="calcTitle">만나이 계산기</h1></div>
+            <label class="field birth" id="birthField">
               <span class="field__label">생년월일</span>
-              <input class="input birth-input t-num" id="birth" inputmode="numeric" autocomplete="bday" placeholder="예: 19940512" maxlength="10" />
+              <input class="birth__input t-num" id="birth" inputmode="numeric" autocomplete="bday" placeholder="1994.05.12" maxlength="10" />
               <span class="field__help" id="birthHelp">숫자 8자리만 넣으면 돼요</span>
             </label>
             <details class="asof">
-              <summary class="t-label-02">기준일 바꾸기 <span class="t-secondary" id="asofLabel">(오늘)</span></summary>
+              <summary>기준일 바꾸기 <span class="t-secondary" id="asofLabel">(오늘)</span></summary>
               <div class="row gap-8 asof__row">
                 <input class="input grow" id="asof" type="date" aria-label="기준일" />
                 <button class="btn btn--outline" id="asofToday">오늘</button>
@@ -87,34 +93,33 @@
             </details>
 
             <div class="calc__result" id="calcResult" hidden>
-              <div class="age-hero">
-                <p class="t-label-02 t-secondary" id="ageAsOf"></p>
-                <p class="age-hero__n t-num"><span class="age-hero__pre">만</span><span id="ageMan">0</span><span class="age-hero__unit">세</span></p>
+              <div class="giant" id="ageGiant">
+                <span class="giant__pre">만</span>
+                <span class="giant__num t-num" id="ageMan">0</span>
+                <span class="giant__unit">세</span>
               </div>
-              <div class="kv-grid">
-                <div class="kv"><span class="kv__k">연 나이</span><strong class="kv__v t-num" id="ageYear"></strong></div>
-                <div class="kv"><span class="kv__k">세는 나이 (참고)</span><strong class="kv__v t-num" id="ageKor"></strong></div>
-                <div class="kv"><span class="kv__k">다음 생일</span><strong class="kv__v t-num" id="nextBday"></strong><span class="kv__s" id="nextBdaySub"></span></div>
-                <div class="kv"><span class="kv__k">띠</span><strong class="kv__v" id="zodiac"></strong><span class="kv__s" id="zodiacSub"></span></div>
-                <div class="kv kv--wide"><span class="kv__k">살아온 날</span><strong class="kv__v t-num" id="livedDays"></strong><span class="kv__s">태어난 날을 1일째로 세요</span></div>
-              </div>
-              <p class="t-caption-01 t-tertiary calc__note" id="calcNote">2023년 6월 28일부터 법적 나이는 만 나이로 통일됐어요.</p>
+              <p class="giant__meta t-num" id="ageAsOf"></p>
+              <dl class="rows">
+                <div><dt>연 나이</dt><dd><b class="t-num" id="ageYear"></b></dd></div>
+                <div><dt>세는 나이 <sup>참고</sup></dt><dd><b class="t-num" id="ageKor"></b></dd></div>
+                <div><dt>다음 생일</dt><dd><b class="t-num" id="nextBday"></b><small id="nextBdaySub"></small></dd></div>
+                <div><dt>띠</dt><dd><b id="zodiac"></b><small id="zodiacSub"></small></dd></div>
+                <div><dt>살아온 날</dt><dd><b class="t-num" id="livedDays"></b><small>태어난 날을 1일째로 세요</small></dd></div>
+              </dl>
+              <p class="foot" id="calcNote"></p>
             </div>
           </section>
 
           <div class="bday-banner" id="bdayBanner" hidden></div>
 
-          <!-- 인생 진행률 -->
-          <section class="progress card" id="lifeSection" hidden aria-labelledby="lifeTitle">
-            <div class="row between">
-              <h2 class="t-title-04" id="lifeTitle">인생 진행률</h2>
-              <span class="badge" id="friendCmp" hidden></span>
-            </div>
-            <p class="pct t-num"><span id="pct">0</span><span class="pct__unit">%</span></p>
-            <div class="pbar"><span id="pbar"></span></div>
-            <p class="t-caption-01 t-tertiary" id="todayShare"></p>
+          <!-- 02 인생 진행률 -->
+          <section class="sec" id="lifeSection" hidden aria-labelledby="lifeTitle">
+            <div class="sec__head"><span class="sec__no t-num">02</span><h2 class="sec__title" id="lifeTitle">인생 진행률</h2><span class="sec__tag t-num" id="friendCmp" hidden></span></div>
+            <div class="giant giant--pct"><span class="giant__num t-num" id="pct">0</span><span class="giant__unit">%</span></div>
+            <div class="pbar" aria-hidden="true"><span id="pbar"></span></div>
+            <p class="foot" id="todayShare"></p>
 
-            <div class="life-ctl row between gap-8">
+            <div class="life-ctl">
               <div class="seg" role="tablist" aria-label="그리드 단위">
                 <button class="seg__btn" data-unit="week" aria-selected="true">주</button>
                 <button class="seg__btn" data-unit="month" aria-selected="false">월</button>
@@ -126,67 +131,64 @@
                 <button class="btn btn--outline btn--icon btn--sm" id="lifePlus" aria-label="기대수명 늘리기">+</button>
               </div>
             </div>
-            <p class="t-caption-01 t-tertiary" id="lifeNote">평균 기대수명 약 83.5세(통계청 2023년 생명표)로 그렸어요. 숫자를 바꿔도 돼요.</p>
+            <p class="foot" id="lifeNote">평균 기대수명 약 83.5세(통계청 2023년 생명표)로 그렸어요. 숫자를 바꿔도 돼요.</p>
 
-            <div class="grid-wrap">
-              <canvas id="lifeGrid" class="life-grid" role="img" aria-label="인생 그리드"></canvas>
-            </div>
-            <div class="legend row wrap gap-12">
-              <span><i class="lg lg--lived"></i>지나온 칸</span>
-              <span><i class="lg lg--now"></i>지금</span>
-              <span><i class="lg lg--left"></i>남은 칸</span>
-              <span><i class="lg lg--goal"></i>버킷리스트</span>
-            </div>
-            <p class="t-caption-01 t-tertiary" id="gridHint"></p>
+            <figure class="grid-wrap">
+              <canvas id="lifeGrid" class="life-grid" role="img" aria-label="주 단위 인생 그리드"></canvas>
+              <figcaption class="legend">
+                <span><i class="lg lg--lived"></i>지나온 칸</span>
+                <span><i class="lg lg--now"></i>지금</span>
+                <span><i class="lg lg--left"></i>남은 칸</span>
+                <span><i class="lg lg--goal"></i>버킷리스트</span>
+              </figcaption>
+            </figure>
+            <p class="foot" id="gridHint"></p>
           </section>
 
-          <!-- 감성 통계 -->
-          <section class="stats" id="statsSection" hidden aria-labelledby="statsTitle">
-            <h2 class="t-title-04" id="statsTitle">숫자로 보는 내 인생</h2>
-            <div class="stat-grid" id="statGrid"></div>
-            <details class="parents card card--flat">
-              <summary class="t-body-02-strong">부모님과 남은 만남 세어보기</summary>
+          <!-- 03 숫자 -->
+          <section class="sec" id="statsSection" hidden aria-labelledby="statsTitle">
+            <div class="sec__head"><span class="sec__no t-num">03</span><h2 class="sec__title" id="statsTitle">숫자로 보는 내 인생</h2></div>
+            <div class="figs" id="statGrid"></div>
+            <details class="parents">
+              <summary>부모님과 남은 만남 세어보기</summary>
               <div class="stack gap-12 parents__body">
                 <div class="row gap-8">
                   <label class="field grow"><span class="field__label">부모님 나이 (만)</span><input class="input t-num" id="parentAge" inputmode="numeric" placeholder="예: 62" maxlength="3" /></label>
                   <label class="field grow"><span class="field__label">1년에 만나는 횟수</span><input class="input t-num" id="meetPerYear" inputmode="numeric" placeholder="예: 6" maxlength="3" /></label>
                 </div>
-                <p class="parents__out t-body-02" id="parentOut">두 칸을 채우면 조용히 계산해 드려요.</p>
+                <p class="parents__out" id="parentOut">두 칸을 채우면 조용히 계산해 드려요.</p>
               </div>
             </details>
           </section>
 
-          <!-- 이정표 -->
-          <section class="miles card" id="milesSection" hidden aria-labelledby="milesTitle">
-            <h2 class="t-title-04" id="milesTitle">다가오는 이정표</h2>
-            <ol class="mile-list" id="mileList"></ol>
+          <!-- 04 이정표 -->
+          <section class="sec" id="milesSection" hidden aria-labelledby="milesTitle">
+            <div class="sec__head"><span class="sec__no t-num">04</span><h2 class="sec__title" id="milesTitle">다가오는 이정표</h2></div>
+            <ol class="miles" id="mileList"></ol>
             <button class="btn btn--ghost btn--block" id="togglePastMiles"></button>
           </section>
 
-          <!-- 버킷리스트 -->
-          <section class="bucket card" id="bucketSection" hidden aria-labelledby="bucketTitle">
-            <div class="row between">
-              <h2 class="t-title-04" id="bucketTitle">버킷리스트</h2>
-              <span class="t-caption-01 t-tertiary" id="bucketCount"></span>
-            </div>
-            <p class="t-caption-01 t-tertiary">목표 나이를 정하면 그리드 위에 깃발처럼 꽂혀요.</p>
+          <!-- 05 버킷리스트 -->
+          <section class="sec" id="bucketSection" hidden aria-labelledby="bucketTitle">
+            <div class="sec__head"><span class="sec__no t-num">05</span><h2 class="sec__title" id="bucketTitle">버킷리스트</h2><span class="sec__tag t-num" id="bucketCount"></span></div>
+            <p class="foot">목표 나이를 정하면 02번 그리드 위에 표시돼요.</p>
             <form class="bucket__form" id="bucketForm">
               <input class="input grow" id="bucketText" maxlength="40" placeholder="예: 오로라 보러 가기" aria-label="하고 싶은 일" />
-              <label class="bucket__age"><input class="input t-num" id="bucketAge" inputmode="numeric" maxlength="3" placeholder="나이" aria-label="목표 나이(만)" /></label>
+              <input class="input bucket__age t-num" id="bucketAge" inputmode="numeric" maxlength="3" placeholder="나이" aria-label="목표 나이(만)" />
               <button class="btn btn--primary" type="submit">추가</button>
             </form>
             <div class="row wrap gap-8" id="bucketIdeas"></div>
             <ul class="bucket-list" id="bucketList"></ul>
           </section>
 
-          <!-- 공유 -->
-          <section class="share card card--flat stack gap-12" id="shareSection" hidden>
-            <p class="t-title-04">내 인생 진행률 공유하기</p>
+          <!-- 06 공유 -->
+          <section class="sec" id="shareSection" hidden aria-labelledby="shareTitle">
+            <div class="sec__head"><span class="sec__no t-num">06</span><h2 class="sec__title" id="shareTitle">공유하기</h2></div>
             <div class="row gap-8">
-              <button class="btn btn--secondary grow" id="saveStory">스토리 카드 저장</button>
+              <button class="btn btn--outline grow" id="saveStory">스토리 카드 저장</button>
               <button class="btn btn--primary grow" id="shareLink">친구에게 보내기</button>
             </div>
-            <p class="t-caption-01 t-tertiary">생년월일은 보내지 않아요. 진행률 숫자만 함께 가요.</p>
+            <p class="foot">생년월일은 보내지 않아요. 진행률 숫자만 함께 가요.</p>
           </section>
         </div>
       </section>

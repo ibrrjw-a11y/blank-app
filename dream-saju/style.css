@@ -744,6 +744,7 @@ body::before {
 /* ---------- 결과 ---------- */
 .result {
   padding-bottom: var(--sp-16);
+  overflow-x: clip;
 }
 
 .res-banner {

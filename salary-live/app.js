@@ -921,7 +921,7 @@ function drawReceipt(d) {
   const pw = W - px * 2;
   const py = 36;
   const ph = H - 96;
-  const tooth = 10;
+  const tooth = pw / (2 * Math.round(pw / 20));
   ctx.save();
   ctx.shadowColor = "rgba(0,0,0,0.45)";
   ctx.shadowBlur = 30;
@@ -945,8 +945,9 @@ function drawReceipt(d) {
   const L = px + 28;
   const R = px + pw - 28;
   let y = py + 54;
-  const text = (t, x, yy, { size = 15, weight = 500, color = ink, align = "left" } = {}) => {
-    ctx.font = `${weight} ${size}px ${CANVAS_FONT}`;
+  const MONO = `"IBM Plex Mono", "Space Mono", ui-monospace, Menlo, monospace`;
+  const text = (t, x, yy, { size = 15, weight = 500, color = ink, align = "left", mono = false } = {}) => {
+    ctx.font = `${weight} ${size}px ${mono ? `${MONO}, ${CANVAS_FONT}` : CANVAS_FONT}`;
     ctx.fillStyle = color;
     ctx.textAlign = align;
     ctx.fillText(t, x, yy);
@@ -985,7 +986,7 @@ function drawReceipt(d) {
     y += 28;
     text(label, L, y, { size: 16, weight: 600, ...opt });
     text(minText(sec), L + 190, y, { size: 14, color: sub, align: "right" });
-    text(won(amount), R, y, { size: 16, weight: 600, align: "right", ...opt });
+    text(won(amount), R, y, { size: 16, weight: 700, align: "right", mono: true, ...opt });
   };
   line("💼 근무", d.worked, d.earned);
   d.items.forEach((it) => line(`${it.emoji} ${it.name}`, it.sec, it.sec * ps));
@@ -998,10 +999,10 @@ function drawReceipt(d) {
   const ratio = d.worked > 0 ? Math.min(1, lupangSecSum / d.worked) : 0;
   y += 34;
   text("오늘 번 돈", L, y, { size: 15, weight: 600 });
-  text(won(d.earned), R, y, { size: 20, weight: 800, align: "right" });
+  text(won(d.earned), R, y, { size: 20, weight: 700, align: "right", mono: true });
   y += 36;
   text("그중 월급루팡 수익", L, y, { size: 15, weight: 700, color: deep });
-  text(won(lupangWon), R, y, { size: 26, weight: 800, color: deep, align: "right" });
+  text(won(lupangWon), R, y, { size: 26, weight: 700, color: deep, align: "right", mono: true });
   y += 26;
   text(`루팡률 ${(ratio * 100).toFixed(1)}% · ${minText(lupangSecSum)}`, R, y, { size: 13, color: sub, align: "right" });
   y += 20;
@@ -1120,7 +1121,7 @@ function renderSeoTable() {
   $("#salaryTable").innerHTML = salaryTable()
     .map(
       (r) =>
-        `<tr><th scope="row">${label(r.annual)}</th><td>${comma(r.monthlyNet)}원</td><td>${comma(r.deductions)}원</td><td>${comma(r.annualNet)}원</td></tr>`
+        `<tr><th scope="row">${label(r.annual)}</th><td>${comma(r.monthlyNet)}</td><td>${comma(r.deductions)}</td><td>${comma(r.annualNet)}</td></tr>`
     )
     .join("");
 }

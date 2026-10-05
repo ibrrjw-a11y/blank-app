@@ -1,6 +1,7 @@
 // 배틀로얄 모드: 줄어드는 원형 링에서 서로 밀어내기
 import { haptic, CANVAS_FONT, roundRect, seededRandom, shuffle } from "../shared/kit.js";
 import {
+  squashAmt, slant, drawStartLights, drawVerdict, drawSlowmo,
   josa, readTokens, createCaster, drawCaption, createRecorder, renderTray,
   drawMarble, alpha, firstChar, fitCanvas, damp, randomSeed, penaltyEmoji, headline,
 } from "./common.js";
@@ -51,6 +52,7 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
   let timeScale = 1;
   let slowT = 0;
   let slowCool = 0;
+  let slowStartAt = -9;
   let decided = false;
   let decidedAt = 0;
   let loserIdx = -1;
@@ -288,6 +290,7 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
       if (d > R - 8 && vr > 50) {
         slowT = 0.9;
         slowCool = 3;
+        slowStartAt = realT;
         haptic([40, 60, 40]);
         say(pick([`아슬아슬! ${name(c.i)}, 끝에 매달렸어요!`, `${name(c.i)}, 떨어지나요?!`]), 4);
         return;
@@ -304,40 +307,48 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
     ctx.fillStyle = tk.bg;
     ctx.fillRect(0, 0, w, h);
 
+    // 배경: 아스팔트 + 스캔라인
+    ctx.fillStyle = tk.asphalt;
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = "rgba(255,255,255,0.025)";
+    for (let y = 0; y < h; y += 3) ctx.fillRect(0, y, w, 1);
     // 바깥 낭떠러지 (원래 링 자리)
     ctx.beginPath();
     ctx.arc(cx, cy, R0 * s, 0, Math.PI * 2);
-    ctx.fillStyle = tk.sunken;
-    ctx.fill();
-    ctx.setLineDash([6, 8]);
-    ctx.strokeStyle = alpha(tk.brand, 0.4);
-    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 10]);
+    ctx.strokeStyle = alpha(tk.chalk, 0.25);
+    ctx.lineWidth = 2;
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // 링
+    // 링: 단색 매트 + 위험 구역 띠
     const rr = R * s;
-    const grd = ctx.createRadialGradient(cx, cy, rr * 0.1, cx, cy, rr);
-    grd.addColorStop(0, tk.raised);
-    grd.addColorStop(1, tk.surface);
     ctx.beginPath();
     ctx.arc(cx, cy, rr, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
+    ctx.fillStyle = tk.raised;
     ctx.fill();
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = alpha(tk.brand, 0.2);
-    ctx.stroke();
-    ctx.lineWidth = 3;
+    ctx.save();
+    ctx.clip();
+    ctx.lineWidth = 12;
     ctx.strokeStyle = tk.brand;
+    ctx.setLineDash([10, 10]);
+    ctx.lineDashOffset = -realT * 30;
+    ctx.beginPath();
+    ctx.arc(cx, cy, rr - 6, 0, Math.PI * 2);
     ctx.stroke();
-    // 동심원 무늬
-    ctx.strokeStyle = alpha(tk.border, 1);
-    ctx.lineWidth = 1;
-    for (let k = 1; k < 4; k++) {
-      ctx.beginPath();
-      ctx.arc(cx, cy, (rr * k) / 4, 0, Math.PI * 2);
-      ctx.stroke();
-    }
+    ctx.setLineDash([]);
+    ctx.restore();
+    ctx.strokeStyle = tk.line;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - rr * 0.6, cy);
+    ctx.lineTo(cx + rr * 0.6, cy);
+    ctx.moveTo(cx, cy - rr * 0.6);
+    ctx.lineTo(cx, cy + rr * 0.6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(cx, cy, rr * 0.3, 0, Math.PI * 2);
+    ctx.stroke();
 
     const toS = (c) => [cx + c.x * s, cy + c.y * s];
     const dangerIdx = decided
@@ -468,38 +479,29 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
       }
     }
 
-    // 남은 인원
-    ctx.textAlign = "left";
-    ctx.font = `700 13px ${CANVAS_FONT}`;
+    // 남은 인원 스코어 버그
+    slant(ctx, 14, 12, 58, 40, 0);
+    ctx.fillStyle = tk.chalk;
+    ctx.fill();
+    ctx.fillStyle = tk.bg;
+    ctx.font = `400 30px ${tk.num}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(alive().length), 43, 34);
+    slant(ctx, 72, 12, 92, 40, 0);
+    ctx.fillStyle = "rgba(10,11,13,0.9)";
+    ctx.fill();
     ctx.fillStyle = tk.text2;
-    ctx.fillText(`남은 인원 ${alive().length}/${n}`, 14, h - 40);
     ctx.font = `700 11px ${CANVAS_FONT}`;
-    ctx.fillStyle = alpha(tk.text3, 0.9);
-    ctx.fillText("🎯 누가 쏠래?", 14, h - 16);
-    ctx.textAlign = "right";
-    ctx.font = `600 12px ${CANVAS_FONT}`;
-    ctx.fillStyle = tk.text3;
-    ctx.fillText(rule === "last" ? "먼저 떨어지면 당첨" : "끝까지 남으면 당첨", w - 14, h - 16);
+    ctx.textAlign = "left";
+    ctx.fillText(`/ ${n}명 생존`, 82, 25);
+    ctx.fillStyle = tk.brand;
+    ctx.fillText(rule === "last" ? "첫 탈락 = 당첨" : "최후 1인 = 당첨", 82, 41);
+    ctx.font = `800 13px ${tk.display}`;
+    ctx.fillStyle = alpha(tk.chalk, 0.75);
+    ctx.fillText("누가 쏠래?", 14, h - 16);
 
-    // 슬로모션 비네트
-    const slowA = Math.max(0, Math.min(1, (1 - timeScale) / 0.7));
-    if (slowA > 0.01) {
-      const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.25, w / 2, h / 2, Math.max(w, h) * 0.7);
-      vg.addColorStop(0, "rgba(0,0,0,0)");
-      vg.addColorStop(1, `rgba(0,0,0,${0.72 * slowA})`);
-      ctx.fillStyle = vg;
-      ctx.fillRect(0, 0, w, h);
-      ctx.globalAlpha = slowA;
-      ctx.textAlign = "left";
-      ctx.font = `800 12px ${CANVAS_FONT}`;
-      ctx.fillStyle = tk.brand;
-      ctx.beginPath();
-      ctx.arc(20, 70, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = tk.text;
-      ctx.fillText("슬로모션 0.3x", 30, 70.5);
-      ctx.globalAlpha = 1;
-    }
+    drawSlowmo(ctx, w, h, Math.max(0, Math.min(1, (1 - timeScale) / 0.7)), realT - slowStartAt, tk);
     if (flash) {
       const k = (realT - flash.t0) / 0.35;
       if (k >= 1) flash = null;
@@ -509,57 +511,10 @@ export function startBattle({ stage, tray: trayEl, recEl, players, rule, penalty
       }
     }
 
-    ctx.textAlign = "center";
-    if (phase === "countdown") {
-      const left = 3 - realT;
-      const num = Math.ceil(left);
-      const k = 1 - (left - Math.floor(left));
-      ctx.globalAlpha = 1 - k * 0.6;
-      ctx.font = `800 ${96 + k * 30}px ${CANVAS_FONT}`;
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "rgba(8,9,12,0.8)";
-      ctx.strokeText(String(num), w / 2, h * 0.5);
-      ctx.fillStyle = tk.brand;
-      ctx.fillText(String(num), w / 2, h * 0.5);
-      ctx.globalAlpha = 1;
-    } else if (realT < 3.7) {
-      const k = (realT - 3) / 0.7;
-      ctx.globalAlpha = 1 - k;
-      ctx.font = `800 ${60 + k * 40}px ${CANVAS_FONT}`;
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "rgba(8,9,12,0.8)";
-      ctx.strokeText("밀어내기!", w / 2, h * 0.5);
-      ctx.fillStyle = tk.brand;
-      ctx.fillText("밀어내기!", w / 2, h * 0.5);
-      ctx.globalAlpha = 1;
-    }
+    if (realT < 3.8) drawStartLights(ctx, w, h, realT, tk, rule === "last" ? "먼저 떨어지면 당첨" : "끝까지 남으면 당첨");
+    drawCaption(ctx, caster.get(realT), w, h - 74, tk);
 
-    drawCaption(ctx, caster.get(realT), w, 12, tk);
-
-    if (decided) {
-      const k = Math.min(1, (realT - decidedAt - 0.15) / 0.28);
-      if (k > 0) {
-        const sc = 1 + (1 - k) * 1.4;
-        const text = `${penaltyEmoji(penalty)} ${headline(name(loserIdx), penalty)}`;
-        ctx.save();
-        ctx.translate(w / 2, h * 0.18 + 40);
-        ctx.rotate(-0.12);
-        ctx.scale(sc, sc);
-        ctx.globalAlpha = Math.min(1, k * 1.5);
-        ctx.font = `900 26px ${CANVAS_FONT}`;
-        const tw = Math.min(w - 40, ctx.measureText(text).width + 40);
-        roundRect(ctx, -tw / 2, -34, tw, 68, 14);
-        ctx.fillStyle = "rgba(8,9,12,0.72)";
-        ctx.fill();
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = tk.brand;
-        ctx.stroke();
-        ctx.fillStyle = tk.brand;
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, 0, 2, tw - 24);
-        ctx.restore();
-      }
-    }
+    if (decided) drawVerdict(ctx, w, h * 0.2 + 30, `${headline(name(loserIdx), penalty)} ${penaltyEmoji(penalty)}`, realT - decidedAt - 0.1, tk);
   }
 
   function frame(now) {
