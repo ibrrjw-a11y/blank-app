@@ -2,6 +2,7 @@
 import { haptic, CANVAS_FONT, roundRect, seededRandom, shuffle } from "../shared/kit.js";
 import { createRaceEngine, STEP, W } from "./race-engine.js";
 import {
+  squashAmt, drawStartLights, drawVerdict, drawSlowmo, drawTower,
   ITEMS, josa, readTokens, createCaster, drawCaption, createRecorder, renderTray,
   drawMarble, alpha, firstChar, fitCanvas, damp, randomSeed, penaltyEmoji, headline,
 } from "./common.js";
@@ -42,6 +43,8 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
   if (recEl) recEl.hidden = !recorder;
 
   const trails = marbles.map(() => []);
+  const towerPos = {};
+  let lastDt = 1 / 60;
   const fx = []; // 떠오르는 라벨, 링, 투사체
   let flash = null;
   let shakeT = 0;
@@ -220,10 +223,12 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
   }
 
   let focusPair = null;
+  let slowStartAt = -9;
   function startSlowmo(pair) {
     focusPair = pair;
     if (slowmo) return;
     slowmo = true;
+    slowStartAt = realT;
     targetScale = 0.3;
     haptic([40, 60, 40, 60, 80]);
     say(pick(["운명의 순간! 슬로모션으로 봅니다", "숨 막히는 순간… 천천히 보시죠!"]), 4);
@@ -305,30 +310,27 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
     const top = cam.y - h / 2 / s - 20;
     const bot = cam.y + h / 2 / s + 20;
 
-    // 트랙 바닥
-    ctx.fillStyle = tk.surface;
+    // 트랙 바닥 (아스팔트 + 노면 표시)
+    ctx.fillStyle = tk.asphalt;
     ctx.fillRect(0, top, W, bot - top);
-    ctx.strokeStyle = alpha(tk.border, 0.9);
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    const g0 = Math.floor(top / 60) * 60;
-    for (let y = g0; y < bot; y += 60) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(W, y);
-    }
-    for (let x = 60; x < W; x += 60) {
-      ctx.moveTo(x, top);
-      ctx.lineTo(x, bot);
-    }
-    ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,0.035)";
+    const g0 = Math.floor(top / 40) * 40;
+    for (let y = g0; y < bot; y += 40) ctx.fillRect(0, y, W, 1.5);
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    for (let y = Math.floor(top / 48) * 48; y < bot; y += 48) ctx.fillRect(W / 2 - 1, y, 2, 24);
 
-    // 남은 거리 표시
-    ctx.font = `600 10px ${CANVAS_FONT}`;
-    ctx.textAlign = "right";
-    ctx.fillStyle = alpha(tk.text3, 0.8);
+    // 남은 거리 표시 (구간 시작마다)
+    ctx.textBaseline = "middle";
     for (const mk of course.marks) {
       if (mk.y < top || mk.y > bot) continue;
-      ctx.fillText(`결승까지 ${Math.max(0, Math.round((course.finishY - mk.y) / 10))}m`, W - 10, mk.y + 14);
+      const label = `${Math.max(0, Math.round((course.finishY - mk.y) / 10))}M`;
+      ctx.font = `400 11px ${tk.num}`;
+      const lw = ctx.measureText(label).width + 12;
+      ctx.fillStyle = tk.chalk;
+      ctx.fillRect(W - lw - 6, mk.y + 6, lw, 15);
+      ctx.fillStyle = tk.bg;
+      ctx.textAlign = "center";
+      ctx.fillText(label, W - lw / 2 - 6, mk.y + 14);
     }
 
     // 결승선
@@ -336,41 +338,51 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       const fy = course.finishY;
       const sq = 10;
       for (let x = 0, k = 0; x < W; x += sq, k++) {
-        ctx.fillStyle = k % 2 ? tk.text : tk.bg;
+        ctx.fillStyle = k % 2 ? tk.chalk : tk.bg;
         ctx.fillRect(x, fy - sq, sq, sq);
-        ctx.fillStyle = k % 2 ? tk.bg : tk.text;
+        ctx.fillStyle = k % 2 ? tk.bg : tk.chalk;
         ctx.fillRect(x, fy, sq, sq);
       }
-      ctx.fillStyle = alpha(tk.brand, 0.12);
+      ctx.fillStyle = "rgba(255,255,255,0.04)";
       ctx.fillRect(0, fy + sq, W, course.floorY - fy - sq);
-      ctx.font = `800 13px ${CANVAS_FONT}`;
+      ctx.font = `400 16px ${tk.num}`;
       ctx.textAlign = "center";
-      ctx.fillStyle = tk.brand;
-      ctx.fillText("FINISH", W / 2, fy - 18);
+      ctx.fillStyle = tk.chalk;
+      ctx.fillText("FINISH", W / 2, fy - 22);
     }
 
     // 세그먼트
     ctx.lineCap = "round";
     for (const sg of course.segs) {
       if (!sg.live || sg.maxY < top || sg.minY > bot) continue;
+      ctx.lineCap = "butt";
       if (sg.kind === "gate") {
-        ctx.strokeStyle = tk.warning;
-        ctx.setLineDash([10, 8]);
+        ctx.strokeStyle = tk.chalk;
+        ctx.setLineDash([12, 12]);
         ctx.lineWidth = sg.t;
       } else if (sg.kind === "wall") {
-        ctx.strokeStyle = alpha(tk.brand, 0.9);
+        ctx.strokeStyle = tk.brand;
         ctx.setLineDash([]);
         ctx.lineWidth = sg.t;
       } else {
         ctx.setLineDash([]);
-        ctx.strokeStyle = alpha(tk.brand, 0.22);
-        ctx.lineWidth = sg.t + 6;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = tk.line;
+        ctx.lineWidth = sg.t + 2;
         ctx.beginPath();
         ctx.moveTo(sg.ax, sg.ay);
         ctx.lineTo(sg.bx, sg.by);
         ctx.stroke();
-        ctx.strokeStyle = tk.text2;
-        ctx.lineWidth = sg.t;
+        ctx.strokeStyle = tk.chalk;
+        ctx.lineWidth = 2;
+        ctx.save();
+        ctx.translate(0, -sg.t / 2 + 1);
+        ctx.beginPath();
+        ctx.moveTo(sg.ax, sg.ay);
+        ctx.lineTo(sg.bx, sg.by);
+        ctx.stroke();
+        ctx.restore();
+        continue;
       }
       ctx.beginPath();
       ctx.moveTo(sg.ax, sg.ay);
@@ -385,16 +397,16 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       if (c.kind === "peg") {
         ctx.beginPath();
         ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-        ctx.fillStyle = tk.text3;
+        ctx.fillStyle = alpha(tk.chalk, 0.75);
         ctx.fill();
       } else {
-        const rr = c.r * (1 + c.flash * 0.18);
+        const rr = c.r * (1 + squashAmt(1 - c.flash, 0.2) * (c.flash > 0 ? 1 : 0));
         ctx.beginPath();
         ctx.arc(c.x, c.y, rr, 0, Math.PI * 2);
-        ctx.fillStyle = c.flash > 0 ? alpha(tk.brand, 0.35 + c.flash * 0.6) : tk.brandSoft;
+        ctx.fillStyle = c.flash > 0.4 ? tk.brand : tk.bg;
         ctx.fill();
         ctx.lineWidth = 3;
-        ctx.strokeStyle = tk.brand;
+        ctx.strokeStyle = tk.chalk;
         ctx.stroke();
         ctx.beginPath();
         ctx.arc(c.x, c.y, rr * 0.45, 0, Math.PI * 2);
@@ -408,15 +420,17 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       if (p.cy + p.len < top || p.cy - p.len > bot) continue;
       const hx = (Math.cos(p.ang) * p.len) / 2;
       const hy = (Math.sin(p.ang) * p.len) / 2;
-      ctx.strokeStyle = alpha(tk.warning, 0.25);
-      ctx.lineWidth = p.t + 6;
+      ctx.lineCap = "butt";
+      ctx.strokeStyle = tk.chalk;
+      ctx.lineWidth = p.t + 2;
       ctx.beginPath();
       ctx.moveTo(p.cx - hx, p.cy - hy);
       ctx.lineTo(p.cx + hx, p.cy + hy);
       ctx.stroke();
-      ctx.strokeStyle = tk.warning;
-      ctx.lineWidth = p.t;
+      ctx.strokeStyle = tk.brand;
+      ctx.setLineDash([8, 8]);
       ctx.stroke();
+      ctx.setLineDash([]);
       ctx.beginPath();
       ctx.arc(p.cx, p.cy, 5, 0, Math.PI * 2);
       ctx.fillStyle = tk.bg;
@@ -555,8 +569,10 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
     ctx.moveTo(mx, my0);
     ctx.lineTo(mx, my1);
     ctx.stroke();
-    ctx.font = `12px ${CANVAS_FONT}`;
-    ctx.fillText("🏁", mx - 2, my1 + 12);
+    for (let k = 0; k < 4; k++) {
+      ctx.fillStyle = k % 2 ? tk.bg : tk.chalk;
+      ctx.fillRect(mx - 4 + (k % 2) * 4, my1 + 4 + Math.floor(k / 2) * 4, 4, 4);
+    }
     marbles.forEach((m, i) => {
       const p = Math.max(0, Math.min(1, m.y / course.finishY));
       ctx.beginPath();
@@ -570,26 +586,21 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       }
     });
 
-    // 슬로모션 비네트
-    const slowA = Math.max(0, Math.min(1, (1 - timeScale) / 0.7));
-    if (slowA > 0.01) {
-      const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.25, w / 2, h / 2, Math.max(w, h) * 0.7);
-      vg.addColorStop(0, "rgba(0,0,0,0)");
-      vg.addColorStop(1, `rgba(0,0,0,${0.72 * slowA})`);
-      ctx.fillStyle = vg;
-      ctx.fillRect(0, 0, w, h);
-      ctx.globalAlpha = slowA;
-      ctx.font = `800 12px ${CANVAS_FONT}`;
-      ctx.textAlign = "left";
-      ctx.fillStyle = tk.brand;
-      ctx.beginPath();
-      ctx.arc(20, 70, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = tk.text;
-      ctx.fillText("슬로모션 0.3x", 30, 70.5);
-      ctx.textAlign = "center";
-      ctx.globalAlpha = 1;
+    // 라이브 타이밍 타워
+    if (phase !== "countdown") {
+      const leadY = marbles[rankNow[0]].y;
+      const mk = (i, k, slot) => ({
+        i, slot, rank: k + 1, name: players[i].name, color: players[i].color, hot: i === danger,
+        gap: marbles[i].finished ? "FIN" : k === 0 ? "LEAD" : `+${Math.max(0, Math.round((leadY - marbles[i].y) / 10))}M`,
+      });
+      let rows;
+      if (n <= 7) rows = rankNow.map((i, k) => mk(i, k, k));
+      else rows = [...rankNow.slice(0, 3).map((i, k) => mk(i, k, k)), ...rankNow.slice(-3).map((i, k) => mk(i, n - 3 + k, 3.35 + k))];
+      drawTower(ctx, rows, towerPos, lastDt, tk, { title: decided ? "FINAL" : "LIVE", total: n });
     }
+
+    // 슬로모션
+    drawSlowmo(ctx, w, h, Math.max(0, Math.min(1, (1 - timeScale) / 0.7)), realT - slowStartAt, tk);
 
     // 화면 플래시
     if (flash) {
@@ -601,67 +612,20 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       }
     }
 
-    // 카운트다운
-    if (phase === "countdown") {
-      const left = 3 - realT;
-      const num = Math.ceil(left);
-      const k = 1 - (left - Math.floor(left));
-      ctx.globalAlpha = 1 - k * 0.6;
-      ctx.font = `800 ${96 + k * 30}px ${CANVAS_FONT}`;
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "rgba(8,9,12,0.8)";
-      ctx.strokeText(String(num), w / 2, h * 0.5);
-      ctx.fillStyle = tk.brand;
-      ctx.fillText(String(num), w / 2, h * 0.5);
-      ctx.globalAlpha = 1;
-      ctx.font = `700 15px ${CANVAS_FONT}`;
-      ctx.fillStyle = tk.text;
-      ctx.fillText(rule === "last" ? `꼴찌가 ${penalty || "벌칙"}!` : `1등이 ${penalty || "벌칙"}!`, w / 2, h * 0.5 + 76);
-    } else if (realT < 3.7) {
-      const k = (realT - 3) / 0.7;
-      ctx.globalAlpha = 1 - k;
-      ctx.font = `800 ${64 + k * 40}px ${CANVAS_FONT}`;
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "rgba(8,9,12,0.8)";
-      ctx.strokeText("출발!", w / 2, h * 0.5);
-      ctx.fillStyle = tk.brand;
-      ctx.fillText("출발!", w / 2, h * 0.5);
-      ctx.globalAlpha = 1;
-    }
+    // 출발 신호
+    if (realT < 3.8) drawStartLights(ctx, w, h, realT, tk, rule === "last" ? `꼴찌가 ${penalty || "벌칙"}` : `1등이 ${penalty || "벌칙"}`);
 
-    // 해설 자막
-    drawCaption(ctx, caster.get(realT), w, 12, tk);
+    // 해설 자막 (로어서드)
+    drawCaption(ctx, caster.get(realT), w, h - 74, tk);
 
-    // 결정 도장
-    if (decided) {
-      const k = Math.min(1, (realT - decidedAt - 0.15) / 0.28);
-      if (k > 0) {
-        const sc = 1 + (1 - k) * 1.4;
-        const text = `${penaltyEmoji(penalty)} ${headline(players[loserIdx].name, penalty)}`;
-        ctx.save();
-        ctx.translate(w / 2, h * 0.42);
-        ctx.rotate(-0.12);
-        ctx.scale(sc, sc);
-        ctx.globalAlpha = Math.min(1, k * 1.5);
-        ctx.font = `900 26px ${CANVAS_FONT}`;
-        const tw = Math.min(w - 40, ctx.measureText(text).width + 40);
-        roundRect(ctx, -tw / 2, -34, tw, 68, 14);
-        ctx.fillStyle = "rgba(8,9,12,0.72)";
-        ctx.fill();
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = tk.brand;
-        ctx.stroke();
-        ctx.fillStyle = tk.brand;
-        ctx.fillText(text, 0, 2, tw - 24);
-        ctx.restore();
-      }
-    }
+    // 판정
+    if (decided) drawVerdict(ctx, w, h * 0.4, `${headline(players[loserIdx].name, penalty)} ${penaltyEmoji(penalty)}`, realT - decidedAt - 0.1, tk);
 
     // 워터마크 (영상용)
     ctx.textAlign = "left";
-    ctx.font = `700 11px ${CANVAS_FONT}`;
-    ctx.fillStyle = alpha(tk.text3, 0.9);
-    ctx.fillText("🎯 누가 쏠래?", 12, h - 14);
+    ctx.font = `800 13px ${tk.display}`;
+    ctx.fillStyle = alpha(tk.chalk, 0.75);
+    ctx.fillText("누가 쏠래?", 14, h - 16);
     ctx.textAlign = "center";
   }
 
@@ -672,6 +636,7 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
     if (paused) return;
+    lastDt = dt;
     realT += dt;
     if (shakeT > 0) shakeT = Math.max(0, shakeT - dt);
 

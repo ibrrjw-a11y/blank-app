@@ -85,7 +85,7 @@ export function lineSVG(rows, real = null) {
     lo = mid - 6;
     hi = mid + 6;
   }
-  const x = (i) => pad.l + (rows.length === 1 ? (W - pad.l - pad.r) / 2 : (i / (rows.length - 1)) * (W - pad.l - pad.r));
+  const x = (i) => pad.l + 18 + (rows.length === 1 ? (W - pad.l - pad.r - 18) / 2 : (i / (rows.length - 1)) * (W - pad.l - pad.r - 18));
   const y = (v) => pad.t + ((hi - v) / (hi - lo)) * (H - pad.t - pad.b);
   const d = rows.map((r, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(r.age).toFixed(1)}`).join("");
   const area = `${d}L${x(rows.length - 1).toFixed(1)} ${H - pad.b}L${x(0).toFixed(1)} ${H - pad.b}Z`;
@@ -97,7 +97,7 @@ export function lineSVG(rows, real = null) {
   const showLabel = (i) => rows.length <= 6 || i === 0 || i === rows.length - 1 || i % Math.ceil(rows.length / 5) === 0;
   return `<svg class="line" viewBox="0 0 ${W} ${H}" role="img" aria-label="뇌 나이 기록: ${rows.map((r) => `${date(r.t)} ${r.age}세`).join(", ")}">
     ${ticks.map((v) => `<line class="ln-grid" x1="${pad.l}" x2="${W - pad.r}" y1="${y(v)}" y2="${y(v)}" /><text class="ln-tick" x="${pad.l - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`).join("")}
-    ${real ? `<line class="ln-real" x1="${pad.l}" x2="${W - pad.r}" y1="${y(real)}" y2="${y(real)}" /><text class="ln-real-t" x="${W - pad.r}" y="${y(real) - 6}" text-anchor="end">실제 ${real}세</text>` : ""}
+    ${real ? `<line class="ln-real" x1="${pad.l}" x2="${W - pad.r}" y1="${y(real)}" y2="${y(real)}" /><text class="ln-real-t" x="${(W + pad.l) / 2}" y="${y(real) + 14}" text-anchor="middle">실제 ${real}세</text>` : ""}
     <path class="ln-area" d="${area}" />
     <path class="ln-path" d="${d}" pathLength="1" />
     ${rows

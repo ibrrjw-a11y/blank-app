@@ -455,7 +455,7 @@ function updateSetup() {
   else if (!settings.days.length) msg = "근무 요일을 하나 이상 골라 주세요";
   err.hidden = !msg;
   err.textContent = msg;
-  err.closest(".card").classList.toggle("is-error", !!msg);
+  err.closest(".slip")?.classList.toggle("is-error", !!msg);
   err.style.color = msg ? "var(--color-danger)" : "";
 
   $("#go").disabled = !(result && !tooBig && !msg && result.monthlyNet > 0);
@@ -615,7 +615,7 @@ function renderMeet() {
   meetOdo.set(cost);
   $("#meetSub").textContent = `${hms(sec)} · 1분에 ${won(meetPerSec() * 60)}`;
   $("#meetToggle").textContent = meet.running ? "회의 끝" : sec > 0 ? "이어서 시작" : "회의 시작";
-  $("#meetToggle").classList.toggle("btn--danger", meet.running);
+  $("#meetToggle").classList.toggle("btn--ink", meet.running);
   $("#meetToggle").classList.toggle("btn--primary", !meet.running);
   $(".meet__board").classList.toggle("is-on", meet.running);
 }

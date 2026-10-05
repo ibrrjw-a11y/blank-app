@@ -431,9 +431,9 @@ function renderNext(r, today) {
   const pct = Math.min(100, Math.max(0, (diffDays(from, today) / total) * 100));
   const [ny, nm, nd] = next.date.split("-");
   $("#nextCard").innerHTML = `
-    <div class="stamp"><small>${gap === 0 ? "오늘" : "다음 기념일"}</small><b>${next.label}</b><small>${next.kind === "year" ? `D+${fmt.num(next.n)}` : "사귄 날 = 1일"}</small></div>
+    <div class="stamp"><small>${gap === 0 ? "오늘" : "다음 기념일"}</small><b>${next.label}</b><small>${next.kind === "year" ? `D+${fmt.num(next.n)}` : "기념일"}</small></div>
     <div class="next__body">
-      <p class="t-label-03 t-tertiary">${gap === 0 ? "오늘이 기념일이에요" : "까지 남은 날"}</p>
+      <p class="t-label-03 t-tertiary">${gap === 0 ? "오늘이 기념일이에요" : `${next.label}까지`}</p>
       <p class="next__d t-num"><span class="odo" id="nextOdo"></span></p>
       <p class="t-caption-01 t-secondary">${longDate(next.date)}</p>
       <div class="next__bar" role="progressbar" aria-label="${prev ? prev.label : "사귄 날"}에서 진행" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
@@ -979,7 +979,7 @@ function drawCard(r) {
 
   // 소인
   ctx.save();
-  ctx.translate(352, 520);
+  ctx.translate(360, 500);
   ctx.rotate((-14 * Math.PI) / 180);
   ctx.strokeStyle = alpha(brand, 0.75);
   ctx.lineWidth = 2;

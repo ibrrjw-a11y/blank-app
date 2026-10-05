@@ -369,3 +369,183 @@ export function fitCanvas(canvas, maxDpr = 2) {
 
 // 부드러운 감쇠 보간 (프레임 독립)
 export const damp = (a, b, rate, dt) => a + (b - a) * (1 - Math.exp(-rate * dt));
+
+/* ---------- 중계 그래픽 오버레이 (레이스·배틀 공용) ---------- */
+// F1 출발 신호: 1초마다 불이 하나씩 켜지고, 모두 꺼지면 출발
+export function drawStartLights(ctx, w, h, t, tk, sub) {
+  const n = 3;
+  const size = 40;
+  const gap = 10;
+  const total = n * size + (n - 1) * gap + 24;
+  const x0 = (w - total) / 2;
+  const y0 = h * 0.34;
+  if (t < 3) {
+    const enter = spring(t / 0.5);
+    ctx.save();
+    ctx.translate(0, (1 - enter) * -60);
+    ctx.fillStyle = "#000";
+    ctx.fillRect(x0, y0, total, size + 24);
+    for (let k = 0; k < n; k++) {
+      const on = t >= k;
+      const cx = x0 + 12 + size / 2 + k * (size + gap);
+      ctx.beginPath();
+      ctx.arc(cx, y0 + 12 + size / 2, size / 2 - 2, 0, Math.PI * 2);
+      ctx.fillStyle = on ? tk.brand : "rgba(255,255,255,0.08)";
+      ctx.fill();
+      if (on) {
+        const pop = squashAmt(t - k, 0.25);
+        ctx.beginPath();
+        ctx.arc(cx, y0 + 12 + size / 2, (size / 2 - 2) * (1 + Math.abs(pop)) + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = alpha(tk.brand, 0.35);
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+    if (sub) {
+      ctx.font = `800 16px ${tk.display}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = tk.chalk;
+      ctx.fillText(sub, w / 2, y0 + size + 56);
+    }
+  } else if (t < 3.8) {
+    const k = (t - 3) / 0.8;
+    ctx.save();
+    ctx.translate(w / 2, h * 0.42);
+    const s = spring(k * 1.4);
+    ctx.scale(s * (1 + squashAmt(k - 0.2, 0.15)), s * (1 - squashAmt(k - 0.2, 0.15)));
+    ctx.globalAlpha = 1 - Math.max(0, (k - 0.6) / 0.4);
+    ctx.font = `800 84px ${tk.num}`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = "rgba(8,9,12,0.9)";
+    ctx.strokeText("GO!", 0, 0);
+    ctx.fillStyle = tk.brand;
+    ctx.fillText("GO!", 0, 0);
+    ctx.restore();
+  }
+}
+
+// 판정 판: 예비동작(커졌다) → 쾅 찍힘 → 여운
+export function drawVerdict(ctx, w, y, text, age, tk) {
+  if (age < 0) return;
+  let sc;
+  if (age < 0.18) sc = 1.7 + (age / 0.18) * 0.3;
+  else sc = 2 - spring((age - 0.18) / 0.6);
+  const land = age - 0.26;
+  const sq = land > 0 ? squashAmt(land, 0.14) : 0;
+  ctx.save();
+  const shake = land > 0 && land < 0.3 ? (Math.random() - 0.5) * 10 * (1 - land / 0.3) : 0;
+  ctx.translate(w / 2 + shake, y + shake);
+  ctx.rotate(-0.08);
+  ctx.scale(sc * (1 + sq), sc * (1 - sq));
+  ctx.globalAlpha = age < 0.18 ? 0.5 : 1;
+  let fs = 30;
+  ctx.font = `800 ${fs}px ${tk.display}`;
+  while (ctx.measureText(text).width > w - 90 && fs > 18) {
+    fs -= 2;
+    ctx.font = `800 ${fs}px ${tk.display}`;
+  }
+  const tw = ctx.measureText(text).width + 44;
+  slant(ctx, -tw / 2, -32, tw, 64, 10);
+  ctx.fillStyle = tk.brand;
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "#fff";
+  ctx.stroke();
+  slant(ctx, -tw / 2 - 6, 30, 70, 18, 4);
+  ctx.fillStyle = tk.chalk;
+  ctx.fill();
+  ctx.fillStyle = tk.bg;
+  ctx.font = `400 12px ${tk.num}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("FINAL", -tw / 2 + 29, 39.5);
+  ctx.fillStyle = "#fff";
+  ctx.font = `800 ${fs}px ${tk.display}`;
+  ctx.fillText(text, 0, 2);
+  ctx.restore();
+}
+
+// 슬로모션 버그 + 비네트 + 진입 순간 사선 와이프
+export function drawSlowmo(ctx, w, h, slowA, sinceStart, tk) {
+  if (slowA <= 0.01) return;
+  const vg = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.28, w / 2, h / 2, Math.max(w, h) * 0.7);
+  vg.addColorStop(0, "rgba(0,0,0,0)");
+  vg.addColorStop(1, `rgba(0,0,0,${0.7 * slowA})`);
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, w, h);
+  // 진입 스팅어
+  if (sinceStart >= 0 && sinceStart < 0.45) {
+    const p = sinceStart / 0.45;
+    const x = -w * 0.7 + p * p * w * 2.6;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x + w * 0.5, 0);
+    ctx.lineTo(x + w * 0.5 - h * 0.3, h);
+    ctx.lineTo(x - h * 0.3, h);
+    ctx.closePath();
+    ctx.fillStyle = alpha(tk.brand, 0.9);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.save();
+  ctx.globalAlpha = slowA;
+  const bw = 112;
+  const x = w - bw - 26;
+  slant(ctx, x, 12, bw, 24, 5);
+  ctx.fillStyle = tk.brand;
+  ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.font = `400 14px ${tk.num}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("SLOW-MO  0.3×", x + bw / 2, 24.5);
+  ctx.restore();
+}
+
+// 라이브 타이밍 타워. rows: [{i, name, color, gap, hot}] 순위순. pos: 행별 스프링 상태 저장소
+export function drawTower(ctx, rows, pos, dt, tk, { x = 10, y = 10, title = "LIVE", total = rows.length } = {}) {
+  const rowH = 19;
+  const wdt = 118;
+  slant(ctx, x, y, wdt, 16, 0);
+  ctx.fillStyle = tk.brand;
+  ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.font = `400 11px ${tk.num}`;
+  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  ctx.fillText(title, x + 6, y + 8.5);
+  ctx.textAlign = "right";
+  ctx.fillText(`${total} 명`, x + wdt - 6, y + 8.5);
+  rows.forEach((r, k) => {
+    const slot = r.slot ?? k;
+    const st = pos[r.i] || (pos[r.i] = { p: slot, v: 0 });
+    if (Math.abs(st.p - slot) > 4) st.p = slot;
+    const f = (slot - st.p) * 280 - st.v * 20;
+    st.v += f * dt;
+    st.p += st.v * dt;
+    const ry = y + 18 + st.p * (rowH + 1);
+    ctx.fillStyle = r.hot ? tk.brand : "rgba(10,11,13,0.84)";
+    ctx.fillRect(x, ry, wdt, rowH);
+    ctx.fillStyle = tk.chalk;
+    ctx.fillRect(x, ry, 18, rowH);
+    ctx.fillStyle = tk.bg;
+    ctx.font = `400 12px ${tk.num}`;
+    ctx.textAlign = "center";
+    ctx.fillText(String(r.rank), x + 9, ry + rowH / 2 + 1);
+    ctx.fillStyle = r.color;
+    ctx.fillRect(x + 20, ry + 3, 3, rowH - 6);
+    ctx.fillStyle = "#fff";
+    ctx.font = `700 11px ${CANVAS_FONT}`;
+    ctx.textAlign = "left";
+    ctx.fillText(r.name, x + 28, ry + rowH / 2 + 1, 54);
+    ctx.textAlign = "right";
+    ctx.font = `400 10px ${tk.num}`;
+    ctx.fillStyle = r.hot ? "#fff" : tk.text2;
+    ctx.fillText(r.gap, x + wdt - 5, ry + rowH / 2 + 1);
+  });
+}

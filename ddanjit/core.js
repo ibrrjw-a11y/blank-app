@@ -227,14 +227,12 @@ export function drawShareCard({ gameEmoji, gameName, grid, line, sub }) {
   ctx.fillText(gameName, W / 2, 186);
 
   // 이모지 줄 (길면 줄바꿈)
-  const cells = Array.from(grid.replace(/\s+/g, ""));
-  const per = Math.min(cells.length, 7);
-  const size = per > 6 ? 30 : 34;
-  ctx.font = `${size}px ${EMOJI_FONT}`;
   const rows = [];
   const segs = [...new Intl.Segmenter("ko", { granularity: "grapheme" }).segment(grid.replace(/\s+/g, ""))].map(
     (s) => s.segment
   );
+  const size = segs.length > 6 ? 30 : 34;
+  ctx.font = `${size}px ${EMOJI_FONT}`;
   for (let i = 0; i < segs.length; i += 7) rows.push(segs.slice(i, i + 7).join(""));
   rows.forEach((r, i) => ctx.fillText(r, W / 2, 248 + i * (size + 10)));
 

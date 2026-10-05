@@ -546,3 +546,6 @@ body {
 .seo-table--num td { text-align: right; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
 .seo-table--num { font: var(--caption-01); }
 .seo ol { padding-left: var(--sp-20); }
+
+/* 잉크색 버튼 (회의 중 정지 버튼) */
+.btn--ink { --_bg: var(--art-ink); --_fg: var(--art-slip); --_bg-pressed: var(--art-housing-2); }

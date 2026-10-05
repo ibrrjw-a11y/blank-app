@@ -477,7 +477,7 @@ body {
 
 .hub-hero {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   align-items: end;
   gap: var(--sp-4) var(--sp-12);
   padding: var(--sp-24) 0 var(--sp-16);
@@ -507,7 +507,8 @@ body {
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
 }
-.seg small { font-family: var(--font-sans); font-size: 11px; color: var(--color-text-tertiary); letter-spacing: 0; }
+.hub-hero__meta .seg { margin-left: auto; }
+.seg small { white-space: nowrap; font-family: var(--font-sans); font-size: 11px; color: var(--color-text-tertiary); letter-spacing: 0; }
 .hub-hero__meta {
   grid-column: 1 / -1;
   display: flex;

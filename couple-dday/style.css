@@ -564,7 +564,7 @@ body::before {
 .stub__row > div { display: flex; flex-direction: column; gap: var(--sp-2); padding: 0 var(--sp-8); border-left: 1px dashed var(--art-kraft-deep); }
 .stub__row > div:first-child { border-left: 0; padding-left: 0; }
 .stub__row strong { font: 700 20px/26px var(--font-display); overflow-wrap: anywhere; }
-.stub__row span { font: var(--caption-01); color: var(--color-text-secondary); }
+.stub__row > div > span { font: var(--caption-01); color: var(--color-text-secondary); }
 .tick-bump { display: inline-block; animation: bump 520ms var(--art-spring); }
 @keyframes bump {
   0% { transform: translateY(-40%); color: var(--brand); }
@@ -682,7 +682,7 @@ body::before {
 /* 봉인된 봉투 (작은 버전) */
 .mini-env {
   position: relative;
-  min-height: 112px;
+  min-height: 132px;
   background: var(--art-kraft);
   transform: rotate(1.8deg);
   margin-top: var(--sp-12);
@@ -699,7 +699,7 @@ body::before {
 .mini-env__seal {
   position: absolute;
   left: 50%;
-  top: 55%;
+  top: 42%;
   width: 34px;
   height: 34px;
   margin: -17px 0 0 -17px;
@@ -713,7 +713,7 @@ body::before {
   78% { transform: rotate(-14deg) scale(1.08); }
   86% { transform: rotate(10deg); }
 }
-.mini-env__who { position: absolute; left: var(--sp-10); bottom: var(--sp-8); font: 20px/1 var(--art-hand); color: var(--art-ink); }
+.mini-env__who { position: absolute; left: var(--sp-10); right: var(--sp-10); bottom: var(--sp-8); font: 19px/20px var(--art-hand); color: var(--art-ink); }
 
 /* 큰 봉투 (둘 다 답했을 때) */
 .big-env-wrap { display: flex; flex-direction: column; gap: var(--sp-12); padding: var(--sp-8) 0 var(--sp-4); }

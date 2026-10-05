@@ -14,16 +14,21 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const reduce = prefersReducedMotion();
 
 const MODES = {
-  lunch: { e: "🍱", n: "점심", title: "점심 월드컵", go: "점심 후보 뽑기" },
-  date: { e: "💑", n: "데이트 코스", title: "데이트 코스 월드컵", go: "1코스 밥 후보 뽑기" },
-  group: { e: "🍻", n: "모임·회식", title: "모임 장소 월드컵", go: "모임 후보 뽑기" },
+  lunch: { e: "🍱", n: "점심", g: "점", l: "l2", title: "점심 월드컵", go: "점심 후보 뽑기" },
+  date: { e: "💑", n: "데이트 코스", g: "데", l: "l3", title: "데이트 코스 월드컵", go: "1코스 밥 후보 뽑기" },
+  group: { e: "🍻", n: "모임·회식", g: "모", l: "l4", title: "모임 장소 월드컵", go: "모임 후보 뽑기" },
 };
 const STAGE = {
-  main: { n: "메뉴", e: "🍽️" },
-  meal: { n: "밥", e: "🍽️" },
-  cafe: { n: "카페", e: "☕" },
-  play: { n: "놀거리", e: "🎡" },
+  main: { n: "메뉴", l: "l2" },
+  meal: { n: "밥", l: "l2" },
+  cafe: { n: "카페", l: "l9" },
+  play: { n: "놀거리", l: "l1" },
 };
+// 분류 → 노선색·한 글자 배지
+const GROUP_LINE = { 한식: "l2", 고기: "l6", 일식: "l4", 중식: "sb", 양식: "l3", 아시안: "l7", 분식: "l8", 해산물: "l1", 카페: "l9", 놀거리: "l1", 술집: "l7" };
+const lineOf = (it) => `var(--art-${GROUP_LINE[it?.g] || GROUP_LINE[it?.c] || (it?.kind === "cafe" ? "l9" : it?.kind === "play" ? "l1" : "l2")})`;
+const glyphOf = (it) => String(it?.kind === "cafe" ? "카" : it?.kind === "play" ? "놀" : it?.g || it?.c || "식").slice(0, 1);
+const lb = (it, cls = "") => `<span class="lb ${cls}" style="--l: ${lineOf(it)}" aria-hidden="true">${esc(glyphOf(it))}</span>`;
 const RADII = [
   { v: 400, n: "도보 5분" },
   { v: 800, n: "10분" },
@@ -147,7 +152,7 @@ function openPlaceSheet({ title, withName = false, defaultName = "", onPick }) {
     <h3>${esc(title)}</h3>
     <div class="sheet__search">
       ${withName ? `<input class="input" id="pName" maxlength="8" placeholder="이름 (예: 민지)" value="${esc(defaultName)}" />` : ""}
-      <button class="btn btn--secondary btn--block" data-pick="gps">📍 내 위치 쓰기</button>
+      <button class="btn btn--secondary btn--block" data-pick="gps">◎ 내 위치 쓰기</button>
       <input class="input" id="stQ" type="search" placeholder="역·동네 검색 (예: 강남, 서면)" autocomplete="off" />
     </div>
     <div id="stList"></div>
@@ -209,10 +214,10 @@ function renderIntroExtra() {
   const logs = getLogs();
   $("#introExtra").innerHTML = [
     team
-      ? `<button class="btn btn--secondary btn--block" data-act="teamGo">💼 ${esc(team.names.join("·"))} 점심 바로 고르기</button>`
+      ? `<button class="btn btn--secondary btn--block" data-act="teamGo">우리 팀(${esc(team.names.join("·"))}) 점심 바로 고르기</button>`
       : "",
-    room ? `<button class="btn btn--outline btn--block" data-act="openRoom" data-id="${room.id}">🔗 진행 중인 링크 투표 (${room.replies.length}명 답장)</button>` : "",
-    logs.length && !team ? `<button class="btn btn--ghost btn--block" data-act="report">📒 이번 달 점심 리포트 보기</button>` : "",
+    room ? `<button class="btn btn--outline btn--block" data-act="openRoom" data-id="${room.id}">진행 중인 링크 투표 (${room.replies.length}명 답장)</button>` : "",
+    logs.length && !team ? `<button class="btn btn--ghost btn--block" data-act="report">이번 달 점심 리포트 보기</button>` : "",
   ].join("");
 }
 
@@ -223,10 +228,10 @@ function renderSetup() {
   el.innerHTML = `
     <div class="mode-tabs" role="group" aria-label="무엇을 고를까요">
       ${Object.entries(MODES)
-        .map(([k, v]) => `<button class="mode-tab" data-act="mode" data-v="${k}" aria-pressed="${k === m}"><span class="mode-tab__e" aria-hidden="true">${v.e}</span>${v.n}</button>`)
+        .map(([k, v]) => `<button class="mode-tab" style="--l: var(--art-${v.l})" data-act="mode" data-v="${k}" aria-pressed="${k === m}"><span class="lb" aria-hidden="true">${v.g}</span>${v.n}</button>`)
         .join("")}
     </div>
-    <div class="blocks">
+    <div class="blocks" style="--l: var(--art-${MODES[m].l})">
       ${m === "group" ? blockPeople() : blockLoc()}
       ${m !== "group" ? blockNames() : ""}
       ${blockSource()}
@@ -242,19 +247,19 @@ function blockLoc() {
   const loc = S.loc;
   const title = S.mode === "lunch" ? "어디 근처에서 먹어요?" : "어디서 만나요?";
   const wt = weatherText(S.weather);
-  return `<div class="card block">
+  return `<div class="card card--flat block">
     <div class="block__title"><h3>${title}</h3></div>
     ${
       loc
         ? `<div class="loc-pill">
-            <span class="loc-pill__ic" aria-hidden="true">${loc.kind === "gps" ? "📍" : "🚉"}</span>
+            <span class="lb lb--lg lb--ring" style="--l: var(--art-${MODES[S.mode].l})" aria-hidden="true">${loc.kind === "gps" ? "◎" : esc(loc.name.slice(0, 1))}</span>
             <div class="loc-pill__txt"><div class="loc-pill__name">${esc(locLabel(loc))}</div>
             <div class="loc-pill__sub">${loc.kind === "gps" ? "현재 위치 기준" : "역 중심 기준 (근사 좌표)"}</div></div>
             <button class="btn btn--ghost btn--sm" data-act="pickLoc">바꾸기</button>
           </div>`
         : `<div class="btn-row">
-            <button class="btn btn--secondary" data-act="gps">📍 내 위치</button>
-            <button class="btn btn--outline" data-act="pickLoc">🚉 역·동네 고르기</button>
+            <button class="btn btn--secondary" data-act="gps">◎ 내 위치</button>
+            <button class="btn btn--outline" data-act="pickLoc">역 고르기</button>
           </div>`
     }
     ${wt ? `<div class="weather-note">${wt}</div>` : ""}
@@ -265,7 +270,7 @@ function blockLoc() {
 function blockNames() {
   const names = S.namesBy[S.mode];
   const team = store.get("team");
-  return `<div class="card block">
+  return `<div class="card card--flat block">
     <div class="block__title"><h3>누구랑 골라요?</h3><span class="badge">${names.length}명</span></div>
     <div class="chips">
       ${names
@@ -279,8 +284,8 @@ function blockNames() {
     ${
       S.mode === "lunch"
         ? `<div class="btn-row" style="margin-top: var(--sp-8)">
-            ${team ? `<button class="btn btn--ghost btn--sm" data-act="loadTeam">💼 저장된 팀 불러오기</button>` : "<span></span>"}
-            <button class="btn btn--ghost btn--sm" data-act="saveTeam">${team ? "이 구성으로 팀 갱신" : "💾 이 구성으로 팀 저장"}</button>
+            ${team ? `<button class="btn btn--outline btn--sm" data-act="loadTeam">저장된 팀 불러오기</button>` : "<span></span>"}
+            <button class="btn btn--outline btn--sm" data-act="saveTeam">${team ? "이 구성으로 팀 갱신" : "이 구성으로 팀 저장"}</button>
           </div>`
         : ""
     }
@@ -292,7 +297,7 @@ function blockPeople() {
   const mid = computeMidpoint(S.people);
   const located = S.people.filter((p) => p.loc).length;
   const wt = weatherText(S.weather);
-  return `<div class="card block">
+  return `<div class="card card--flat block">
     <div class="block__title"><h3>다들 어디서 와요?</h3><span class="badge">${S.people.length}명</span></div>
     <div class="people">
       ${S.people
@@ -301,7 +306,7 @@ function blockPeople() {
             <span class="person__dot" aria-hidden="true">${esc(p.name.slice(0, 1))}</span>
             <button class="person__main" data-act="personLoc" data-i="${i}">
               <span class="person__name">${esc(p.name)}</span>
-              <span class="person__loc ${p.loc ? "" : "person__loc--empty"}">${p.loc ? `${p.loc.kind === "gps" ? "📍" : "🚉"} ${esc(locLabel(p.loc))}` : "출발 위치 고르기 ›"}</span>
+              <span class="person__loc ${p.loc ? "" : "person__loc--empty"}">${p.loc ? `${esc(locLabel(p.loc))}에서 출발` : "출발 위치 고르기 ›"}</span>
             </button>
             <button class="btn btn--ghost btn--icon" data-act="delPerson" data-i="${i}" aria-label="${esc(p.name)} 빼기">✕</button>
           </div>`
@@ -316,18 +321,17 @@ function blockPeople() {
       mid
         ? `<div class="minimap-wrap">${miniMapSVG(mid)}</div>
           <div class="mid-card">
-            <span class="mid-card__ic" aria-hidden="true">★</span>
-            <div class="grow"><div class="t-label-03 t-primary">중간지점</div><div class="t-title-04">${esc(mid.station.name)}</div></div>
+            <div class="grow"><div class="mid-card__k">중간역 · 무게중심에서 가장 가까운 역</div><div class="mid-card__n">${esc(mid.station.name)}</div></div>
             <a class="btn btn--outline btn--sm" href="${mapLinks({ n: mid.station.name, q: mid.station.name, kind: "place" }).kakao}" target="_blank" rel="noopener">지도</a>
           </div>
           <ul class="legs">
             ${mid.legs
-              .map((l, i) => `<li style="--c: var(--pc-${S.people.indexOf(l.person) % 6})"><i></i>${esc(l.person.name)} → ${esc(mid.station.name)}<b>${fmtDist(l.km)}</b></li>`)
+              .map((l) => `<li style="--c: var(--pc-${l.idx % 6})"><i></i>${esc(l.person.name)} → ${esc(mid.station.name)}<b>${fmtDist(l.km)}</b></li>`)
               .join("")}
           </ul>
           ${wt ? `<div class="weather-note">${wt}</div>` : ""}
-          <p class="block__hint">거리는 모두 <b>직선거리</b>예요. 노선·환승에 따라 실제 이동 시간은 달라요. 점선 원은 모두의 무게중심이고, 별은 거기서 가장 가까운 역이에요.</p>`
-        : `<div class="notice" style="margin-top: var(--sp-12)">📍 ${located ? "한 명 더" : "2명 이상"} 출발 위치를 넣으면 중간지점을 찾아줘요.</div>`
+          <p class="block__hint">거리는 모두 <b>직선거리</b>예요. 노선·환승에 따라 실제 이동 시간은 달라요. 점선 원은 모두의 무게중심, 굵은 원은 거기서 가장 가까운 역이에요.</p>`
+        : `<div class="notice" style="margin-top: var(--sp-12)">${located ? "한 명 더" : "2명 이상"} 출발 위치를 넣으면 중간역을 찾아줘요.</div>`
     }
   </div>`;
 }
@@ -340,11 +344,11 @@ function blockSource() {
   else if (placeOn)
     hint = `${S.kakao ? "카카오 장소 검색" : "OpenStreetMap"}에서 ${esc(locLabel(loc))} 반경 안의 실제 ${S.mode === "date" ? "식당·카페" : "가게"}를 불러와요. 못 불러오면 메뉴 종류로 바뀌어요.${S.mode === "date" ? " 놀거리는 내장 목록에서 뽑아요." : ""}`;
   else hint = "김치찌개, 라멘처럼 메뉴 종류로 겨뤄요. 우승하면 지도에서 근처 가게를 찾아줘요.";
-  return `<div class="card block">
+  return `<div class="card card--flat block">
     <div class="block__title"><h3>후보는 어디서 뽑아요?</h3></div>
     <div class="seg">
-      <button data-act="source" data-v="menu" aria-pressed="${!placeOn}">🍽️ 메뉴 종류로</button>
-      <button data-act="source" data-v="place" aria-pressed="${!!placeOn}" ${loc ? "" : "disabled"}>📍 근처 실제 가게</button>
+      <button data-act="source" data-v="menu" aria-pressed="${!placeOn}">메뉴 종류로</button>
+      <button data-act="source" data-v="place" aria-pressed="${!!placeOn}" ${loc ? "" : "disabled"}>근처 실제 가게</button>
     </div>
     ${
       placeOn
@@ -363,9 +367,9 @@ function blockFilters() {
   const recent = [...new Set([...rn.yesterday, ...rn.today])];
   const warn = m === "lunch" ? streakWarning() : null;
   const placeOn = S.source === "place" && searchLoc();
-  return `<div class="card block">
+  return `<div class="card card--flat block">
     <div class="block__title"><h3>조건</h3>${S.prices.size || S.tags.size ? `<button class="btn btn--ghost btn--sm" data-act="clearFilters">초기화</button>` : ""}</div>
-    ${warn ? `<div class="notice notice--warn" style="margin-bottom: var(--sp-12)">⚠️ ${esc(warn)}</div>` : ""}
+    ${warn ? `<div class="notice notice--warn" style="margin-bottom: var(--sp-12)">${esc(warn)}</div>` : ""}
     <div class="block__sub" style="margin-top: 0">${m === "date" ? "밥 가격대" : "가격대"}</div>
     <div class="chips">
       ${[1, 2, 3].map((p) => `<button class="chip" data-act="price" data-v="${p}" aria-pressed="${S.prices.has(p)}">${PRICE_LABEL[p]} ${["만 원 안팎", "1~2만 원", "2만 원 이상"][p - 1]}</button>`).join("")}
@@ -377,7 +381,7 @@ function blockFilters() {
     ${
       m === "lunch"
         ? `<div class="block__sub">최근 메뉴</div>
-          <button class="chip" data-act="recent" aria-pressed="${S.excludeRecent}">🔁 최근 2일 먹은 메뉴 빼기</button>
+          <button class="chip" data-act="recent" aria-pressed="${S.excludeRecent}">${S.excludeRecent ? "✓ " : ""}최근 2일 먹은 메뉴 빼기</button>
           <p class="block__hint">${recent.length ? `빠지는 메뉴: ${esc(recent.join(", "))}` : "점심을 기록하면 어제 먹은 메뉴를 자동으로 빼줘요."}</p>`
         : ""
     }
@@ -393,17 +397,17 @@ function blockFilters() {
 
 function blockVote() {
   const opts = [
-    { v: "solo", e: "⚡", t: "혼자 빠르게", d: "내가 탭해서 바로 정해요" },
-    { v: "phone", e: "📱", t: "다같이 한 폰", d: "대결마다 각자 +1, 과반이 올라가요. 동점이면 동전 던지기" },
-    { v: "link", e: "🔗", t: "링크로 각자", d: S.mode === "date" ? "데이트 코스는 한 폰으로 같이 골라요" : "후보 링크를 보내면 각자 폰에서 하고, 답장 링크로 점수를 합쳐요" },
+    { v: "solo", e: "1", t: "혼자 빠르게", d: "내가 탭해서 바로 정해요" },
+    { v: "phone", e: "2", t: "다같이 한 폰", d: "대결마다 각자 +1, 과반이 올라가요. 동점이면 동전 던지기" },
+    { v: "link", e: "3", t: "링크로 각자", d: S.mode === "date" ? "데이트 코스는 한 폰으로 같이 골라요" : "후보 링크를 보내면 각자 폰에서 하고, 답장 링크로 점수를 합쳐요" },
   ];
-  return `<div class="card block">
+  return `<div class="card card--flat block">
     <div class="block__title"><h3>어떻게 골라요?</h3></div>
     <div class="opts">
       ${opts
         .map(
           (o) => `<button class="opt" data-act="vote" data-v="${o.v}" aria-pressed="${S.vote === o.v}" ${o.v === "link" && S.mode === "date" ? "disabled" : ""}>
-            <span class="opt__e" aria-hidden="true">${o.e}</span><span><span class="opt__t">${o.t}</span><span class="opt__d">${o.d}</span></span>
+            <span class="lb lb--lg" aria-hidden="true">${o.e}</span><span><span class="opt__t">${o.t}</span><span class="opt__d">${o.d}</span></span>
           </button>`
         )
         .join("")}
@@ -452,11 +456,11 @@ async function prepareStage() {
     if (r.items.length >= 8) {
       base = r.items;
       st.source = r.source;
-      notes.push(`📍 ${r.source === "kakao" ? "카카오 장소 검색" : "OpenStreetMap"}에서 ${locLabel(loc)} 반경 ${fmtDist(S.radius / 1000)} 안의 가게 ${r.items.length}곳 중에서 뽑았어요`);
+      notes.push(`${r.source === "kakao" ? "카카오 장소 검색" : "OpenStreetMap"}에서 ${locLabel(loc)} 반경 ${fmtDist(S.radius / 1000)} 안의 가게 ${r.items.length}곳 중에서 뽑았어요`);
     } else if (r.source === "failed") {
-      notes.push("📡 근처 가게 정보를 불러오지 못해서 메뉴 종류로 골라요");
+      notes.push("근처 가게 정보를 불러오지 못해서 메뉴 종류로 골라요");
     } else {
-      notes.push(`📍 반경 안에서 찾은 가게가 ${r.items.length}곳뿐이라 메뉴 종류로 골라요`);
+      notes.push(`반경 안에서 찾은 가게가 ${r.items.length}곳뿐이라 메뉴 종류로 골라요`);
     }
   }
   if (!base) {
@@ -489,12 +493,13 @@ async function prepareStage() {
   });
   if (pool.excludedCount && G.mode === "lunch" && S.excludeRecent) {
     const recentEx = pool.excludedCount - [...st.banned].length;
-    if (recentEx > 0) notes.push(`🔁 최근에 먹은 메뉴 ${recentEx}개는 뺐어요`);
+    if (recentEx > 0) notes.push(`최근에 먹은 메뉴 ${recentEx}개는 뺐어요`);
   }
   st.items = pool.items;
   st.reserves = pool.reserves;
   st.notes = [...notes, ...pool.notes];
   st.vetoes = [];
+  st.firstShow = true;
   st.vi = 0;
 }
 
@@ -508,61 +513,74 @@ function subLine(it) {
 function stageSteps() {
   if (G.mode !== "date") return "";
   return `<div class="stage-steps">${G.stages
-    .map((s, i) => `<span class="${i < G.si ? "is-done" : i === G.si ? "is-on" : ""}">${i < G.si && s.winner ? s.winner.e : STAGE[s.k].e} ${STAGE[s.k].n}</span>`)
+    .map((s, i) => `<span class="${i < G.si ? "is-done" : i === G.si ? "is-on" : ""}">${i + 1}코스 ${STAGE[s.k].n}${i < G.si && s.winner ? ` · ${esc(s.winner.n)}` : ""}</span>`)
     .join("")}</div>`;
 }
 
 const notesHTML = (notes) => (notes?.length ? `<div class="notices">${notes.map((n) => `<div class="notice">${esc(n)}</div>`).join("")}</div>` : "");
 
-/* ---------- 거부권 ---------- */
-function renderVeto() {
+/* ---------- 거부권 (발차 안내판) ---------- */
+function renderVeto(flipTurn = false) {
   const st = cur();
   const vs = G.voters;
   const done = st.vi >= vs.length;
   const multi = vs.length > 1;
   const linkHost = G.vote === "link" && !G.guest;
   const n = st.items.length;
+  const where = G.loc ? `${locLabel(G.loc)} 근처` : "메뉴 종류";
   $("#veto").innerHTML = `
     ${stageSteps()}
     <div class="view-head">
-      <span class="eyebrow">🙅 거부권 카드${G.mode === "date" ? ` · ${G.si + 1}코스 ${STAGE[st.k].n}` : ""}</span>
-      <h2 class="t-title-02">${done ? `${n}강 대진 완성!` : "절대 싫은 거 하나씩 빼요"}</h2>
-      <p class="t-body-03 t-secondary">한 사람당 한 번, 빠진 자리는 다른 후보가 채워요.</p>
+      <span class="eyebrow">거부권${G.mode === "date" ? ` · ${G.si + 1}코스 ${STAGE[st.k].n}` : ""}</span>
+      <h2 class="t-title-02">${done ? `${roundLabel(n)} 대진 완성` : "절대 싫은 거, 하나씩 빼요"}</h2>
+      <p class="t-body-03 t-secondary">한 사람당 한 번. 빠진 자리는 다른 후보가 채워요.</p>
     </div>
     ${notesHTML(st.notes)}
     ${
       done
-        ? `<div class="veto-turn veto-turn--done"><span class="veto-turn__e">✅</span><div class="veto-turn__t"><b>거부권을 다 썼어요</b><span>${linkHost ? "이 후보로 링크를 만들어요" : "이제 월드컵을 시작해요"}</span></div></div>`
-        : `<div class="veto-turn"><span class="veto-turn__e">🙅</span>
-            <div class="veto-turn__t"><b>${multi ? `${esc(vs[st.vi])} 차례예요` : "빼고 싶은 게 있나요?"}</b>
+        ? `<div class="veto-turn veto-turn--done"><span class="veto-turn__x" aria-hidden="true">✓</span><div class="veto-turn__t"><b>거부권을 다 썼어요</b><span>${linkHost ? "이 후보로 링크를 만들어요" : "이제 월드컵을 시작해요"}</span></div></div>`
+        : `<div class="veto-turn"><span class="veto-turn__x" aria-hidden="true">✕</span>
+            <div class="veto-turn__t"><b class="${flipTurn ? "is-swap" : ""}">${multi ? `${esc(vs[st.vi])} 차례예요` : "빼고 싶은 게 있나요?"}</b>
             <span>${multi ? "폰을 넘겨서 싫은 후보 하나만 탭해요" : "하나 탭하면 다른 후보로 바뀌어요"}</span></div>
-            <button class="btn btn--sm" data-act="vetoPass">${multi ? "패스" : "괜찮아요"}</button></div>`
+            <button class="btn btn--outline btn--sm" data-act="vetoPass">${multi ? "패스" : "괜찮아요"}</button></div>`
     }
     ${
       multi
         ? `<div class="veto-people">${vs
-            .map((v, i) => `<span class="veto-person ${i < st.vi ? "is-done" : i === st.vi ? "is-now" : ""}">${i < st.vi ? "✓" : i === st.vi ? "👉" : ""} ${esc(v)}</span>`)
+            .map((v, i) => `<span class="veto-person ${i < st.vi ? "is-done" : i === st.vi ? "is-now" : ""}">${esc(v)}</span>`)
             .join("")}</div>`
         : ""
     }
-    <div class="cand-grid">
+    <div class="board">
+      <div class="board__head"><span>${esc(where)} · 후보 ${n}</span><span>${done ? "출발 대기" : "거부권 사용 중"}</span></div>
+      <div class="cand-list">
       ${st.items
         .map(
-          (it, i) => `<button class="cand ${it._new ? "is-new" : ""}" data-act="veto" data-i="${i}" ${done ? "disabled" : ""} aria-label="${esc(it.n)} 빼기">
-            <span class="cand__e" aria-hidden="true">${it.e}</span>
-            <span class="cand__txt"><span class="cand__n">${esc(it.n)}</span><span class="cand__s">${esc(subLine(it))}</span></span>
+          (it, i) => `<button class="cand ${it._new ? "is-new" : ""}" data-act="veto" data-i="${i}" ${done ? "disabled" : ""} aria-label="${esc(it.n)} 빼기" style="animation-delay: ${it._new ? 0 : i * 35}ms">
+            <span class="cand__no">${String(i + 1).padStart(2, "0")}</span>
+            ${lb(it)}
+            <span class="cand__txt"><span class="cand__n">${esc(it.n)}</span></span>
+            <span class="cand__s">${esc(subLine(it))}</span>
           </button>`
         )
         .join("")}
+      </div>
     </div>
-    ${st.vetoes.length ? `<div class="veto-log">${st.vetoes.map((v) => `<span>🙅 ${esc(v.by)}: ${esc(v.item.n)}</span>`).join("")}</div>` : ""}
+    ${st.vetoes.length ? `<div class="veto-log">${st.vetoes.map((v) => `<span>${esc(v.by)} 거부 · ${esc(v.item.n)}</span>`).join("")}</div>` : ""}
     <div class="sticky-cta">
       <div class="sticky-cta__row">
-        <button class="btn btn--outline btn--lg btn--icon" data-act="reshuffle" aria-label="후보 다시 섞기">🔀</button>
-        <button class="btn btn--primary btn--lg grow" data-act="startBracket">${linkHost ? "🔗 이 후보로 링크 만들기" : `${roundLabel(n)} 시작하기 →`}</button>
+        <button class="btn btn--outline btn--lg btn--icon" data-act="reshuffle" aria-label="후보 다시 섞기">⟳</button>
+        <button class="btn btn--primary btn--lg grow" data-act="startBracket">${linkHost ? "이 후보로 링크 만들기 →" : `${roundLabel(n)} 출발 →`}</button>
       </div>
       <button class="btn btn--ghost btn--block btn--sm" data-act="toSetup">← 조건 바꾸기</button>
     </div>`;
+  if (st.firstShow !== false && !reduce) {
+    $$("#veto .cand").forEach((c, i) => c.animate(
+      [{ transform: "perspective(400px) rotateX(-90deg)", opacity: 0 }, { transform: "perspective(400px) rotateX(12deg)", opacity: 1, offset: 0.6 }, { transform: "none", opacity: 1 }],
+      { duration: 480, delay: i * 40, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)", fill: "backwards" }
+    ));
+    st.firstShow = false;
+  }
   st.items.forEach((it) => delete it._new);
 }
 
@@ -584,7 +602,7 @@ async function doVeto(i) {
   st.vetoes.push({ by: G.voters[st.vi], item: removed });
   st.vi++;
   G.busy = false;
-  renderVeto();
+  renderVeto(true);
 }
 
 /* ---------- 대결 ---------- */
@@ -858,7 +876,7 @@ function actionsHTML(w, near) {
   return `<div class="actions">
     <a class="btn btn--primary" href="${L.kakao}" target="_blank" rel="noopener">카카오맵에서 찾기</a>
     <a class="btn btn--outline" href="${L.naver}" target="_blank" rel="noopener">네이버지도</a>
-    ${L.route ? `<a class="btn btn--secondary btn--wide" href="${L.route}" target="_blank" rel="noopener">🧭 길찾기 (카카오맵)</a>` : ""}
+    ${L.route ? `<a class="btn btn--secondary btn--wide" href="${L.route}" target="_blank" rel="noopener">길찾기 (카카오맵) →</a>` : ""}
   </div>`;
 }
 
@@ -919,7 +937,7 @@ function renderResult() {
     </div>
     ${
       guest
-        ? `<div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="sendReply">📨 ${esc(guest.host)}에게 결과 보내기</button></div>
+        ? `<div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="sendReply">${esc(guest.host)}에게 결과 보내기 →</button></div>
           <p class="block__hint">버튼을 누르면 답장 링크가 만들어져요. 단톡방에 붙여넣으면 ${esc(guest.host)}이 열어서 다같이 점수를 합쳐요.</p>`
         : ""
     }
@@ -941,8 +959,8 @@ function renderResult() {
 function shareActions() {
   return `<h3 class="section-t">친구에게 보내기</h3>
     <div class="actions">
-      <button class="btn btn--secondary" data-act="shareLink">🔗 결과 링크</button>
-      <button class="btn btn--outline" data-act="shareImg">🖼️ 이미지 저장</button>
+      <button class="btn btn--secondary" data-act="shareLink">결과 링크 보내기</button>
+      <button class="btn btn--outline" data-act="shareImg">이미지로 저장</button>
       <button class="btn btn--ghost btn--wide" data-act="again">다시 고르기</button>
     </div>`;
 }
@@ -957,7 +975,7 @@ async function loadNearbyFor(w) {
   }
   if (!$("#nearby")) return;
   if (!r.items.length) {
-    box.innerHTML = `<div class="notice" style="margin-top: var(--sp-16)">📡 지금은 근처 가게 정보를 불러오지 못했어요. 위 지도 버튼으로 '${esc(locLabel(G.loc))} ${esc(w.n)}'을 바로 찾아볼 수 있어요.</div>`;
+    box.innerHTML = `<div class="notice" style="margin-top: var(--sp-16)">지금은 근처 가게 정보를 불러오지 못했어요. 위 지도 버튼으로 '${esc(locLabel(G.loc))} ${esc(w.n)}'을 바로 찾아볼 수 있어요.</div>`;
     return;
   }
   const label = r.source === "kakao" ? "카카오 장소 검색" : `OpenStreetMap · 같은 분류(${w.g})`;
@@ -979,7 +997,7 @@ function logBoxHTML(w) {
   return `<div class="card log-box" id="logBox">
     <div class="block__title"><h3>오늘 점심으로 기록할까요?</h3></div>
     ${w.kind === "menu" ? `<input class="input" id="logPlace" maxlength="30" placeholder="간 가게 이름 (선택 · 단골 도장용)" />` : ""}
-    <button class="btn btn--primary btn--block" data-act="logLunch" style="margin-top: var(--sp-8)">📒 점심 기록하기</button>
+    <button class="btn btn--primary btn--block" data-act="logLunch" style="margin-top: var(--sp-8)">점심 기록하기</button>
     <p class="block__hint">기록하면 내일은 이 메뉴를 빼고 추천하고, 이번 달 리포트에 쌓여요. 이 기기에만 저장돼요.</p>
   </div>`;
 }
@@ -989,7 +1007,7 @@ function logDoneHTML(place) {
   const n = getLogs().filter((l) => l.d.startsWith(month)).length;
   const visits = place ? getLogs().filter((l) => l.place === place).length : 0;
   return `<div class="card log-box is-done" id="logBox">
-    <div class="block__title"><h3>✅ 기록했어요! 이번 달 ${n}번째 점심</h3></div>
+    <div class="block__title"><h3>기록했어요! 이번 달 ${n}번째 점심</h3></div>
     ${place ? `<p class="t-body-03" style="margin: 0">${esc(place)} 도장 ${visits}개 ${visits >= 3 ? "· 🏅 단골 인증!" : `· 단골까지 ${3 - visits}번`}</p>` : ""}
     <button class="btn btn--secondary btn--block btn--sm" data-act="report" style="margin-top: var(--sp-12)">이번 달 점심 리포트 보기</button>
   </div>`;
@@ -1059,7 +1077,7 @@ function drawCard() {
   ctx.fillStyle = T.brand;
   ctx.font = `800 28px ${CANVAS_FONT}`;
   ctx.textAlign = "left";
-  ctx.fillText("📍 어디가?", 40, 60);
+  ctx.fillText("어디가?", 40, 60);
   ctx.textAlign = "right";
   ctx.font = `600 20px ${CANVAS_FONT}`;
   ctx.fillStyle = T.sub;
@@ -1195,19 +1213,19 @@ function openRoom(id) {
   const hostPlayed = room.replies.some((r) => r.name === room.host);
   $("#room").innerHTML = `
     <div class="view-head">
-      <span class="eyebrow">🔗 링크로 각자 고르기 · ${MODES[room.mode]?.n || ""}</span>
+      <span class="eyebrow">링크로 각자 고르기 · ${MODES[room.mode]?.n || ""}</span>
       <h2 class="t-title-02">${room.replies.length ? `답장 ${room.replies.length}개가 모였어요` : "친구들 답장을 기다려요"}</h2>
       <p class="t-body-03 t-secondary">${room.at ? `${esc(room.at)} 근처 · ` : ""}후보 ${items.length}개</p>
     </div>
-    <div class="card block">
+    <div class="card card--flat block">
       <ol class="how">
         <li>아래 버튼으로 후보 링크를 단톡방에 보내요.</li>
         <li>친구들이 각자 폰에서 월드컵을 하고 '결과 보내기'로 답장 링크를 보내요.</li>
         <li>답장 링크를 이 폰에서 누르면 여기에 모여서 점수를 합쳐요.</li>
       </ol>
       <div class="stack gap-8" style="margin-top: var(--sp-16)">
-        <button class="btn btn--primary btn--block" data-act="roomShare" data-id="${room.id}">📨 친구들에게 링크 보내기</button>
-        <button class="btn btn--secondary btn--block" data-act="roomPlay" data-id="${room.id}">${hostPlayed ? "내 결과 다시 하기" : `🎮 나(${esc(room.host)})도 월드컵 하기`}</button>
+        <button class="btn btn--primary btn--block" data-act="roomShare" data-id="${room.id}">친구들에게 링크 보내기 →</button>
+        <button class="btn btn--secondary btn--block" data-act="roomPlay" data-id="${room.id}">${hostPlayed ? "내 결과 다시 하기" : `나(${esc(room.host)})도 월드컵 하기`}</button>
       </div>
     </div>
     <div class="card block" style="margin-top: var(--sp-12)">
@@ -1237,7 +1255,7 @@ function openRoom(id) {
             .join("")}</div>
           <p class="block__hint">우승 ${items.length - 1}점, 준우승 ${items.length - 2}점을 받고, 같은 라운드에서 떨어진 후보끼리는 점수를 나눠 가져요.</p>
           <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="roomFinal" data-id="${room.id}">👑 ${esc(rows[0].name)}(으)로 확정하기</button></div>`
-        : `<div class="empty"><div class="empty__e">📭</div><p class="t-body-03">아직 답장이 없어요. 링크를 보내고 기다려 주세요.</p></div>`
+        : `<div class="empty"><div class="empty__k"></div><p class="t-body-03">아직 답장이 없어요. 링크를 보내고 기다려 주세요.</p></div>`
     }
     <h3 class="section-t">후보</h3>
     <div class="mini-cands" style="justify-content: flex-start">${items.map((x) => `<span>${x.e} ${esc(x.n)}</span>`).join("")}</div>`;
@@ -1394,20 +1412,20 @@ function renderReport() {
   const team = store.get("team");
   const el = $("#report");
   const head = `<div class="view-head">
-      <span class="eyebrow">📒 내 점심 기록</span>
+      <span class="eyebrow">내 점심 기록</span>
       <h2 class="t-title-02">${mm}월 점심 리포트</h2>
       <p class="t-body-03 t-secondary">기록은 이 기기 브라우저에만 저장돼요.</p>
     </div>`;
   const teamHTML = `<h3 class="section-t">우리 팀</h3>${
     team
-      ? `<div class="card block team-card"><div class="team-card__t"><div class="t-label-01">💼 ${esc(team.names.join(", "))}</div>
+      ? `<div class="card card--flat block team-card"><div class="team-card__t"><div class="t-label-01">${esc(team.names.join(", "))}</div>
           <div class="t-caption-01 t-secondary">${team.loc ? `${esc(locLabel(team.loc))} 근처` : "회사 위치 없음"}</div></div>
           <button class="btn btn--primary btn--sm" data-act="teamGo">바로 고르기</button>
           <button class="btn btn--ghost btn--sm btn--icon" data-act="delTeam" aria-label="팀 삭제">🗑️</button></div>`
       : `<div class="notice">점심 설정 화면에서 '이 구성으로 팀 저장'을 누르면 다음부터 한 번에 시작할 수 있어요.</div>`
   }`;
   if (!logs.length) {
-    el.innerHTML = `${head}<div class="card empty"><div class="empty__e">🍽️</div><p class="t-body-03">아직 기록이 없어요.<br />점심을 고르고 '점심 기록하기'를 누르면 여기에 모여요.</p>
+    el.innerHTML = `${head}<div class="card card--flat empty"><div class="empty__k"></div><p class="t-body-03">아직 기록이 없어요.<br />점심을 고르고 '점심 기록하기'를 누르면 여기에 모여요.</p>
       <button class="btn btn--primary btn--block" data-act="start">오늘 점심 고르기</button></div>${teamHTML}`;
     go("report");
     return;
@@ -1437,7 +1455,7 @@ function renderReport() {
       <div class="stat"><div class="stat__k">최다 메뉴</div><div class="stat__v">${top ? `${top.e}<small> ${esc(top.n)} ${top.c}</small>` : "-"}</div></div>
       <div class="stat"><div class="stat__k">편식 지수</div><div class="stat__v">${pk == null ? "-" : pk}</div></div>
     </div>
-    ${warn ? `<div class="notice notice--warn" style="margin-top: var(--sp-12)">⚠️ ${esc(warn)}</div>` : ""}
+    ${warn ? `<div class="notice notice--warn" style="margin-top: var(--sp-12)">${esc(warn)}</div>` : ""}
     <div class="card block" style="margin-top: var(--sp-12)">
       <div class="block__title"><h3>편식 지수</h3><span class="badge">${pk == null ? "기록 3개부터" : `${pk} / 100`}</span></div>
       ${pk == null ? `<p class="t-body-03 t-secondary" style="margin: 0">이번 달 기록이 3개 이상이면 계산해요.</p>` : `<div class="gauge"><i style="left: ${pk}%"></i></div><div class="gauge-legend"><span>골고루</span><span>편식</span></div><p class="t-body-03" style="margin: var(--sp-8) 0 0">${pkLabel}</p>`}
@@ -1446,7 +1464,7 @@ function renderReport() {
     ${
       groups.length
         ? `<h3 class="section-t">분류별 횟수 <small>이번 달</small></h3>
-          <div class="card block"><div class="bars">${groups
+          <div class="card card--flat block"><div class="bars">${groups
             .map(([g, c]) => `<div class="bar"><div class="bar__top"><span>${esc(g)}</span><small>${c}번</small></div><div class="bar__track"><div class="bar__fill" style="width: ${(c / groups[0][1]) * 100}%"></div></div></div>`)
             .join("")}</div></div>`
         : ""
@@ -1659,7 +1677,7 @@ const actions = {
   vetoPass() {
     const st = cur();
     st.vi++;
-    renderVeto();
+    renderVeto(true);
   },
   async reshuffle(b) {
     const st = cur();

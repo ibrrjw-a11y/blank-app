@@ -47,7 +47,15 @@ function readChallenge() {
   };
 }
 
-const who = (c) => (c.name ? `${c.name}님` : "보낸 사람");
+// 가족 호칭은 '님'을 붙이지 않는다
+const FAMILY = ["엄마", "아빠", "어머니", "아버지", "할머니", "할아버지", "언니", "오빠", "누나", "형", "동생"];
+const who = (c) => (!c.name ? "보낸 사람" : FAMILY.includes(c.name) ? c.name : `${c.name}님`);
+// 받침 유무에 따라 조사 선택 (예: josa("엄마", "이랑", "랑") → "엄마랑")
+const josa = (w, withB, noB) => {
+  const code = w.charCodeAt(w.length - 1) - 0xac00;
+  const has = code >= 0 && code <= 11171 && code % 28 !== 0;
+  return w + (has ? withB : noB);
+};
 
 function renderChallengeBanner(el) {
   const c = state.challenge;
@@ -56,7 +64,7 @@ function renderChallengeBanner(el) {
   el.innerHTML = `
     <span class="challenge__icon mono" aria-hidden="true">IN</span>
     <div class="grow">
-      <p class="t-body-02-strong">${c.name ? `${esc(c.name)}님의 뇌 나이는 ${c.age}세!` : `도전장 도착! 상대의 뇌 나이는 ${c.age}세`}</p>
+      <p class="t-body-02-strong">${c.name ? `${esc(who(c))}의 뇌 나이는 ${c.age}세!` : `도전장 도착! 상대의 뇌 나이는 ${c.age}세`}</p>
       <p class="t-caption-01 t-secondary">나도 재보고 나란히 비교해봐요</p>
     </div>
     <button class="btn btn--secondary btn--sm" type="button" data-go="setup">나도 재보기</button>`;
@@ -251,8 +259,8 @@ function vsHTML(me, comp) {
     gap <= 2
       ? "거의 똑같아요! 역시 통하는 사이네요"
       : me.age < c.age
-        ? `이번엔 제가 조금 더 젊게 나왔어요. 다음엔 ${esc(who(c))}이랑 같이 재봐요!`
-        : `이번엔 ${esc(who(c))}이 한 수 위! 일주일 뒤에 다시 도전해봐요`;
+        ? `이번엔 제가 더 젊게 나왔어요. 다음엔 ${esc(josa(who(c), "이랑", "랑"))} 같이 재봐요!`
+        : `이번엔 ${esc(josa(who(c), "이", "가"))} 한 수 위! 일주일 뒤에 다시 도전해봐요`;
   const myWins = KEYS.filter((k) => me.raw[k] != null && c.raw[k] != null && isBetter(k, me.raw[k], c.raw[k])).map((k) => META[k].short);
   return `<div class="paper vs">
     <p class="paper__title mono"><span>나란히 보기</span><span>나 & ${esc(c.name || "상대")}</span></p>
@@ -265,7 +273,7 @@ function vsHTML(me, comp) {
       <li class="vs__row vs__row--head"><span></span><span>나</span><span>${esc(c.name || "상대")}</span></li>
       ${rows}
     </ul>
-    <p class="paper__text">${msg}${myWins.length ? ` 저는 ${myWins.join("·")} 쪽이 강했어요.` : ""}</p>
+    <p class="paper__text">${msg}${myWins.length === KEYS.length ? " 이번엔 다섯 채널 모두 제가 앞섰네요." : myWins.length ? ` 저는 ${myWins.join("·")} 쪽이 강했어요.` : ""}</p>
     <p class="report__small">능력치 그래프의 점선이 ${esc(who(c))} 결과예요. 순위가 아니라 같이 노는 비교예요.</p>
   </div>`;
 }
@@ -541,4 +549,9 @@ export const __test = {
   },
   renderResult,
   runGames,
+  reloadChallenge() {
+    state.challenge = readChallenge();
+    renderChallengeBanner($("#challengeIntro"));
+    renderChallengeBanner($("#challengeSetup"));
+  },
 };

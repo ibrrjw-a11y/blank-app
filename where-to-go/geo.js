@@ -56,7 +56,7 @@ export function computeMidpoint(people) {
   if (located.length < 2) return null;
   const c = centroid(located.map((p) => p.loc));
   const station = nearestStation(c);
-  const legs = located.map((p) => ({ person: p, km: distanceKm(p.loc, station) }));
+  const legs = people.map((p, idx) => ({ person: p, idx, km: p.loc ? distanceKm(p.loc, station) : 0 })).filter((l) => l.person.loc);
   return { center: c, station, legs, maxKm: Math.max(...legs.map((l) => l.km)) };
 }
 
@@ -94,13 +94,20 @@ export function miniMapSVG(mid, { w = 340, h = 230 } = {}) {
   const legs = mid.legs
     .map((l, i) => {
       const A = toXY(l.person.loc);
-      const mx = (A.x + S.x) / 2, my = (A.y + S.y) / 2;
+      const c = `--c: var(--pc-${(l.idx ?? i) % 6}); --d: ${i * 120}ms`;
+      return `<line class="mm-case" x1="${A.x.toFixed(1)}" y1="${A.y.toFixed(1)}" x2="${S.x.toFixed(1)}" y2="${S.y.toFixed(1)}"/>
+      <line class="mm-leg" pathLength="1" x1="${A.x.toFixed(1)}" y1="${A.y.toFixed(1)}" x2="${S.x.toFixed(1)}" y2="${S.y.toFixed(1)}" style="${c}"/>`;
+    })
+    .join("");
+
+  const dists = mid.legs
+    .map((l) => {
+      const A = toXY(l.person.loc);
+      const mx = A.x + (S.x - A.x) * 0.55, my = A.y + (S.y - A.y) * 0.55;
       const label = fmtDist(l.km);
-      const lw = label.length * 6.4 + 12;
-      return `
-      <line class="mm-leg" x1="${A.x.toFixed(1)}" y1="${A.y.toFixed(1)}" x2="${S.x.toFixed(1)}" y2="${S.y.toFixed(1)}" style="--c: var(--pc-${i % 6})"/>
-      <g class="mm-dist" transform="translate(${mx.toFixed(1)} ${my.toFixed(1)})">
-        <rect x="${-lw / 2}" y="-9" width="${lw}" height="18" rx="9"/>
+      const lw = label.length * 7 + 12;
+      return `<g class="mm-dist" transform="translate(${mx.toFixed(1)} ${my.toFixed(1)})">
+        <rect x="${-lw / 2}" y="-10" width="${lw}" height="20" rx="4"/>
         <text y="4" text-anchor="middle">${label}</text>
       </g>`;
     })
@@ -111,27 +118,38 @@ export function miniMapSVG(mid, { w = 340, h = 230 } = {}) {
       const A = toXY(l.person.loc);
       const initial = esc((l.person.name || "?").slice(0, 1));
       return `
-      <g transform="translate(${A.x.toFixed(1)} ${A.y.toFixed(1)})"><g class="mm-pin" style="--c: var(--pc-${i % 6}); --d: ${i * 90}ms">
+      <g transform="translate(${A.x.toFixed(1)} ${A.y.toFixed(1)})"><g class="mm-pin" style="--c: var(--pc-${(l.idx ?? i) % 6}); --d: ${i * 120}ms">
         <circle r="13"/>
         <text y="4.5" text-anchor="middle">${initial}</text>
       </g></g>`;
     })
     .join("");
 
-  return `<svg class="minimap" viewBox="0 0 ${w} ${h}" role="img" aria-label="참가자 위치와 중간지점 ${esc(mid.station.name)}을 그린 약도">
-    <rect class="mm-bg" x="0" y="0" width="${w}" height="${h}" rx="16"/>
+  const name = esc(mid.station.name);
+  const lw = mid.station.name.length * 14 + 18;
+  const below = S.y < h - 60;
+  const lx = Math.min(Math.max(S.x, lw / 2 + 6), w - lw / 2 - 6);
+  const ly = below ? S.y + 22 : S.y - 46;
+
+  return `<svg class="minimap" viewBox="0 0 ${w} ${h}" role="img" aria-label="참가자 위치와 중간지점 ${name}을 그린 약도">
+    <rect class="mm-bg" x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="12"/>
     <g class="mm-grid">${grid.join("")}</g>
     ${legs}
-    <circle class="mm-center" cx="${C.x.toFixed(1)}" cy="${C.y.toFixed(1)}" r="4"/>
+    <circle class="mm-center" cx="${C.x.toFixed(1)}" cy="${C.y.toFixed(1)}" r="5"/>
+    ${dists}
     <g transform="translate(${S.x.toFixed(1)} ${S.y.toFixed(1)})">
-      <circle class="mm-glow" r="22"/>
-      <circle class="mm-mid" r="10"/>
-      <text class="mm-mid-ic" y="4" text-anchor="middle">★</text>
+      <circle class="mm-glow" r="12"/>
+      <circle class="mm-mid" r="11"/>
+      <circle class="mm-mid-in" r="4"/>
+    </g>
+    <g class="mm-label" transform="translate(${lx.toFixed(1)} ${ly.toFixed(1)})">
+      <rect x="${-lw / 2}" y="0" width="${lw}" height="26" rx="5"/>
+      <text y="18" text-anchor="middle">${name}</text>
     </g>
     ${pins}
     <g class="mm-scale" transform="translate(14 ${h - 16})">
       <line x1="0" y1="0" x2="${barPx.toFixed(1)}" y2="0"/>
-      <text x="${(barPx + 6).toFixed(1)}" y="4">${niceKm < 1 ? niceKm * 1000 + "m" : niceKm + "km"}</text>
+      <text x="${(barPx + 6).toFixed(1)}" y="4">${niceKm < 1 ? niceKm * 1000 + "m" : niceKm + "km"} · 직선거리</text>
     </g>
     <text class="mm-n" x="${w - 18}" y="24" text-anchor="middle">N↑</text>
   </svg>`;

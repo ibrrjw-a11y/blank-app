@@ -13,6 +13,7 @@ const recommendLine = RECOMMEND[DAY % RECOMMEND.length];
 
 let intro;
 let cleanup = null;
+let pendingResult = 0;
 
 /* ---------- 라우팅 ---------- */
 function closeSheets() {
@@ -20,6 +21,7 @@ function closeSheets() {
 }
 
 function route() {
+  clearTimeout(pendingResult);
   closeSheets();
   const id = location.hash.replace("#", "");
   cleanup?.();
@@ -213,12 +215,12 @@ function showHub() {
     <section class="hub-hero">
       <p class="hub-hero__no">STAGE ${DAY} · 오늘의 딴짓</p>
       <h2 class="hub-hero__title">${splitChars(dateLabel)}<span class="hub-hero__wd">${weekday}</span></h2>
-      <span class="seg" title="다음 문제까지"><small>다음 문제</small><span data-countdown>${fmtCountdown(msToNextPuzzle())}</span></span>
       <div class="hub-hero__meta">
         <span class="lamps" role="img" aria-label="오늘 ${doneCount}/4 완료">
           ${statuses.map((x) => `<i class="${x.s.kind === "done" ? (x.s.sum.won ? "is-win" : "is-done") : x.s.kind === "doing" ? "is-doing" : ""}"></i>`).join("")}
         </span>
-        <span class="t-body-03 t-secondary">오늘 <b class="t-num">${doneCount}/4</b> 클리어</span>
+        <span class="t-body-03 t-secondary">오늘 <b class="t-num">${doneCount}/4</b></span>
+        <span class="seg" title="다음 문제까지"><small>다음 문제</small><span data-countdown>${fmtCountdown(msToNextPuzzle())}</span></span>
       </div>
     </section>
     <section class="tiles">
@@ -297,7 +299,8 @@ function openGame(g) {
         confetti();
         haptic([18, 40, 18]);
       } else haptic(30);
-      setTimeout(() => {
+      clearTimeout(pendingResult);
+      pendingResult = setTimeout(() => {
         if (location.hash.replace("#", "") === g.id) openResult(g, s);
       }, sum.won ? 1100 : 1300);
     },

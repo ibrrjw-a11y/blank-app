@@ -29,6 +29,7 @@ const P2 = pillar(data, "p2").options;
 const P3 = pillar(data, "p3").options;
 const P4 = pillar(data, "p4").options;
 const PAGES = [...P1.map((o) => ({ key: "p1", o })), ...P3.filter((o) => !o.noPage).map((o) => ({ key: "p3", o }))];
+const FEEL = { joy: "기뻤다면", calm: "평온했다면", flutter: "설렜다면", anxious: "불안했다면", fear: "무서웠다면", sad: "슬펐다면" };
 const domainLabel = Object.fromEntries(data.domains.map((d) => [d.id, d.label]));
 
 function gradeOf(sel) {
@@ -153,8 +154,8 @@ function buildPage({ key, o }) {
     tableTitle = `어디서 꾼 ${kw}인가요?`;
     tableNote = "특별한 일 없이 보기만 했고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.";
     rows = P2.filter((p) => p.id !== "unknown").map((p) => {
-      const g = gradeOf(selFor("p1", o.id, { p2: p.id }));
-      return `<tr><td>${p.emoji} ${esc(p.label)}</td><td>${esc(p.ctx)}</td><td>${esc(g.name)}</td></tr>`;
+      const r = interpret(data, selFor("p1", o.id, { p2: p.id }));
+      return `<tr><td>${p.emoji} ${esc(p.label)}</td><td>${esc(r.headline)}</td><td>${esc(r.grade.name)}</td></tr>`;
     });
   } else {
     tableTitle = `무엇이 나온 ${kw}인가요?`;
@@ -164,17 +165,17 @@ function buildPage({ key, o }) {
     const pickIds = [...inRules, ...others.filter((_, i) => i % 3 === 0)].slice(0, 12);
     rows = pickIds.map((id) => {
       const s = opt(data, "p1", id);
-      const g = gradeOf({ p1: id, p2: "unknown", p3: o.id, p4: "calm" });
-      return `<tr><td>${s.emoji} ${esc(s.label)}</td><td><a href="../${id}/">${esc(s.kw)} 해몽</a></td><td>${esc(g.name)}</td></tr>`;
+      const r = interpret(data, { p1: id, p2: "unknown", p3: o.id, p4: "calm" });
+      return `<tr><td><a href="../${id}/">${s.emoji} ${esc(s.label)}</a></td><td>${esc(r.headline)}</td><td>${esc(r.grade.name)}</td></tr>`;
     });
   }
 
   // 기분별 해석
   const feel = P4.map((e) => {
     const g = gradeOf(selFor(key, o.id, { p4: e.id }));
-    const r = rules.find((x) => x.p4 && x.p4.includes(e.id));
+    const r = rules.find((x) => x.p4 && x.p4.includes(e.id) && ["p1", "p2", "p3"].every((k) => k === key || !x[k]));
     const text = r ? r.text : e.read;
-    return `<div class="variant"><h3>${e.emoji} ${esc(josa(e.label, "이었/였"))}다면 ${seal(g)}</h3><p>${esc(text)}</p></div>`;
+    return `<div class="variant"><h3>${e.emoji} 꿈속에서 ${FEEL[e.id] || e.label} ${seal(g)}</h3><p>${esc(text)}</p></div>`;
   });
 
   // 태몽
@@ -203,7 +204,7 @@ function buildPage({ key, o }) {
         }
       : null,
     {
-      q: `${kw}을 꾸면 로또를 사야 하나요?`.replace(`${kw}을`, josa(kw, "을/를")),
+      q: `${josa(kw, "을/를")} 꾸면 로또를 사야 하나요?`,
       a: `${kw}의 재물 기운은 ${money >= 1.5 ? "강한 편" : money >= 0.5 ? "있는 편" : "크지 않은 편"}이라고 풀어요. 꿈 사주에서는 4칸 조합과 날짜로 ‘꿈 기운 번호’ 6개를 재미로 뽑아 드리지만, 어떤 번호든 당첨 확률은 똑같아요.`,
     },
     {
@@ -226,7 +227,7 @@ function buildPage({ key, o }) {
     .join("");
 
   const cta = (text) => `<div class="cta-paper"><p>${text}</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?${key}=${o.id}">${o.emoji} ${esc(o.label)}${isP1 ? "" : ""} 넣고 4칸으로 풀기</a></div>`;
+          <a class="btn btn--primary btn--lg btn--block" href="../../?${key}=${o.id}">${o.emoji} ${esc(o.label)} 넣고 4칸으로 풀기</a></div>`;
 
   const body = `
       <p class="crumbs"><a href="../../">꿈 사주</a> › <a href="../">꿈해몽 사전</a> › ${esc(kw)}</p>
@@ -258,13 +259,13 @@ function buildPage({ key, o }) {
 
         <section class="sym-sec">
           <h2>${esc(tableTitle)}</h2>
-          <table class="ptable"><thead><tr><th>${isP1 ? "장소" : "등장"}</th><th>${isP1 ? "풀이" : "자세히"}</th><th>등급</th></tr></thead>
+          <table class="ptable"><thead><tr><th>${isP1 ? "장소" : "등장"}</th><th>두드러진 운</th><th>등급</th></tr></thead>
           <tbody>${rows.join("")}</tbody></table>
           <p class="blk__note">${tableNote}</p>
         </section>
 
         <section class="sym-sec">
-          <h2>기분별 ${esc(kw)} 해석</h2>
+          <h2>${esc(kw)}, 기분에 따라 달라져요</h2>
           <p>같은 꿈이라도 꿈속 기분에 따라 풀이가 크게 달라져요.</p>
           ${feel.join("")}
         </section>

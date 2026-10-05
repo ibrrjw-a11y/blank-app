@@ -942,7 +942,7 @@ body.is-playing .site-footer {
 }
 .res-real { display: flex; gap: var(--sp-8); }
 .res-real .input { flex: 1; min-width: 0; background: var(--art-paper); color: var(--art-ink); border-color: var(--art-ink); }
-.report__stamp { right: var(--sp-16); top: var(--sp-48); }
+.report__stamp { right: var(--sp-12); bottom: var(--sp-40); mix-blend-mode: multiply; }
 .report.is-done .report__stamp { animation: stamp-in 460ms var(--art-spring) both; }
 
 /* 숫자 오도미터 */
@@ -1045,7 +1045,9 @@ body.is-playing .site-footer {
   border: 1px solid var(--color-border-strong);
 }
 .remind p { margin: 0; }
-.remind .btn { flex: none; }
+.remind { flex-wrap: wrap; }
+.remind .grow { flex: 1 1 0; }
+.remind .btn { flex: 1 1 100%; }
 .remind__date {
   display: flex;
   flex-direction: column;
