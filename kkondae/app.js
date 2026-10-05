@@ -65,9 +65,13 @@ function odo(id, digits = 3) {
   const strip = "0123456789".split("").map((d) => `<i>${d}</i>`).join("");
   return `<span class="kd-odo" id="${id}">${Array.from({ length: digits }, () => `<span class="kd-odo__col"><span class="kd-odo__strip">${strip}</span></span>`).join("")}</span>`;
 }
-function setOdo(el, n) {
-  const s = String(Math.max(0, Math.min(100, Math.round(n)))).padStart(3, "0");
-  $$(".kd-odo__strip", el).forEach((st, i) => st.style.setProperty("--d", s[i]));
+function setOdo(el, n, { trim = false } = {}) {
+  const v = Math.max(0, Math.min(100, Math.round(n)));
+  const s = String(v).padStart(3, "0");
+  $$(".kd-odo__strip", el).forEach((st, i) => {
+    st.style.setProperty("--d", s[i]);
+    if (trim) st.parentElement.hidden = (i === 0 && v < 100) || (i === 1 && v < 10);
+  });
 }
 
 function tierBar(score, id = "") {
@@ -86,6 +90,10 @@ function buildStage() {
     <div class="kd-row" id="iRow">
       <p class="kd-row__q"><b id="iNo">01</b><span class="kd-row__area" id="iArea">[회사]</span><span id="iQ"></span></p>
       <ol class="kd-row__opts" id="iOpts"></ol>
+    </div>
+    <div class="kd-log">
+      <p class="kd-log__title">처리 내역</p>
+      <table><thead><tr><th>번호</th><th>구분</th><th>선택</th><th>점수</th></tr></thead><tbody id="iLog"></tbody></table>
     </div>
     <div class="kd-meter">
       <span class="kd-meter__label">꼰대 지수</span>
@@ -124,6 +132,11 @@ function startIntro() {
     await wait(900, signal);
     if (signal.aborted) return;
     $(`#iOpts [data-k="${d.pick}"]`).classList.add("is-checked");
+    const opt = q.options[d.pick];
+    $("#iLog").insertAdjacentHTML(
+      "beforeend",
+      `<tr class="is-new"><td>${String(d.qi + 1).padStart(2, "0")}</td><td>${AREAS[q.a]}</td><td>${CIRCLED[d.pick]} ${esc(opt.t)}</td><td>${opt.s.k}점</td></tr>`
+    );
     setOdo($("#iOdo"), d.score);
     bar.style.setProperty("--p", d.score);
     await wait(450, signal);
@@ -136,6 +149,7 @@ function startIntro() {
       stage.dataset.scene = String(i + 1);
       if (i === 0) {
         clearSign(sign);
+        $("#iLog").innerHTML = "";
         setOdo($("#iOdo"), 0);
         bar.style.setProperty("--p", 0);
       }
@@ -353,8 +367,13 @@ function inviteBlock() {
 function runOdo(view, score, fresh) {
   const el = $("#rOdo", view);
   if (!el) return;
+  setOdo(el, 0, { trim: true });
   setOdo(el, 0);
-  setTimeout(() => setOdo(el, score), fresh ? 500 : 50);
+  $$(".kd-odo__strip", el).forEach((st, i) => {
+    const v = score;
+    st.parentElement.hidden = (i === 0 && v < 100) || (i === 1 && v < 10);
+  });
+  setTimeout(() => setOdo(el, score, { trim: true }), fresh ? 500 : 50);
 }
 
 function showResult(entry, { fresh = false } = {}) {

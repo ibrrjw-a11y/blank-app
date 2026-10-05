@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://example.com/</loc><lastmod>2026-10-05</lastmod><priority>1.0</priority></url>
+  <url><loc>https://example.com/attachment/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/brain-age/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
-  <url><loc>https://example.com/couple-dday/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/calc/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/ddanjit/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/dream-saju/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/fortune/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/gacha/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/game/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/kkondae/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/ladder/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/life-progress/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/life-stock/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/love-type/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/merge-2048/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/name-match/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/one-to-fifty/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/others-mbti/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/pick/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/roulette/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/salary-live/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/stack-tower/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/team-split/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/test/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/teto-egen/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/together/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/where-to-go/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/who-pays/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
+  <url><loc>https://example.com/ddanjit/price/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
+  <url><loc>https://example.com/ddanjit/timeline/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
+  <url><loc>https://example.com/ddanjit/town/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
+  <url><loc>https://example.com/ddanjit/zoom/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
   <url><loc>https://example.com/dream-saju/s/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
+  <url><loc>https://example.com/life-progress/age/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
+  <url><loc>https://example.com/salary-live/net-pay/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
+  <url><loc>https://example.com/who-pays/barrel/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
+  <url><loc>https://example.com/who-pays/battle/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
   <url><loc>https://example.com/dream-saju/s/ancestor/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
   <url><loc>https://example.com/dream-saju/s/baby/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>
   <url><loc>https://example.com/dream-saju/s/bird/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>

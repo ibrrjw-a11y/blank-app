@@ -489,9 +489,9 @@ function drawCard(ctx, W, H, r, img, who) {
   ctx.font = `italic 400 22px ${latin}`;
   ctx.fillText(t.latin, W / 2, 168);
 
-  if (img) ctx.drawImage(img, 70, 182, 400, 320);
+  if (img) ctx.drawImage(img, 90, 180, 360, 288);
   // 꼬리표
-  rotated(ctx, 380, 430, -6, () => {
+  rotated(ctx, 372, 420, -6, () => {
     ctx.fillStyle = c.tag;
     ctx.strokeStyle = c.ink;
     ctx.lineWidth = 1;
@@ -518,10 +518,10 @@ function drawCard(ctx, W, H, r, img, who) {
   ctx.textAlign = "center";
   ctx.fillStyle = c.ink;
   ctx.font = `400 21px ${serif}`;
-  wrapText(ctx, `“${t.head}”`, W / 2, 536, W - 120, 30);
+  wrapText(ctx, `“${t.head}”`, W / 2, 504, W - 120, 28);
 
   r.axes.forEach((a, i) => {
-    const y = 586 + i * 20;
+    const y = 552 + i * 22;
     ctx.font = `600 13px ${CANVAS_FONT}`;
     ctx.textAlign = "right";
     ctx.fillStyle = a.letter === a.a ? c.ink : c.soft;
@@ -544,7 +544,7 @@ function drawCard(ctx, W, H, r, img, who) {
   ctx.textAlign = "center";
   ctx.fillStyle = c.soft;
   ctx.font = `400 12px ${CANVAS_FONT}`;
-  ctx.fillText(`연애 세포 테스트 · ${location.host}${location.pathname}`, W / 2, H - 52);
+  ctx.fillText(`연애 세포 테스트 · ${location.host}${location.pathname}`, W / 2, H - 50);
 }
 
 /* ---------- 표지 버튼 ---------- */

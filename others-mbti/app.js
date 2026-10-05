@@ -15,6 +15,7 @@ import {
   runIntro,
   showView,
   renderMoreSites,
+  renderCrumb,
   createCanvas,
 
   wrapText,
@@ -438,11 +439,11 @@ function goIntro({ push = false } = {}) {
     mine.textContent = n ? `내 결과 보기 · 응답 ${n}개` : "내 결과 보기";
     badge.hidden = fresh <= 0;
     badge.textContent = `새 응답 ${fresh}개 도착`;
-    $("#start").textContent = "내 링크 다시 보내기";
+    $("#startLabel").textContent = "내 링크 다시 보내기";
   } else {
     mine.hidden = true;
     badge.hidden = true;
-    $("#start").textContent = "내 링크 만들기";
+    $("#startLabel").textContent = "내 링크 만들기";
   }
   showView("intro");
   startIntro();
@@ -1236,7 +1237,14 @@ function drawCard(o, an) {
 
 /* ---------- 연결 ---------- */
 function bind() {
-  $("#start").onclick = () => {
+  $("#start").onclick = async (e) => {
+    const t = e.currentTarget;
+    t.classList.remove("is-punch");
+    void t.offsetWidth;
+    t.classList.add("is-punch");
+    haptic(10);
+    await sleep(prefersReducedMotion() ? 0 : 260);
+    t.classList.remove("is-punch");
     const me = getMe();
     if (me) {
       openDashboard(me);
@@ -1296,6 +1304,7 @@ function route() {
   goIntro();
 }
 
+renderCrumb($("#crumb"));
 bind();
-renderMoreSites($("#more"), SLUG);
 route();
+renderMoreSites($("#more"));

@@ -477,6 +477,7 @@ function showFriend(f) {
   view.innerHTML = `
     <div class="at-topbar"><p class="at-topbar__from">${esc(who)}${josa(who, "이/가")} 보낸 결과지</p></div>
     <div class="at-card at-dare">
+      <h3 class="at-card__title">함께 점검하기</h3>
       <p>${esc(who)}${josa(who, "은/는")} <b>${r.type.name}</b> 쪽이에요. 나도 점검하면 같은 지도에 두 핀을 꽂아 볼 수 있어요.</p>
       <button type="button" class="at-check" id="friendGo">
         <span class="at-check__box"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 21 L17 30 L34 8" pathLength="1" /></svg></span>
@@ -619,8 +620,8 @@ function drawCard(ctx, W, H, r, who) {
   ctx.fillText(`불안 ${r.anx} / 100`, 80, 600);
   ctx.fillText(`회피 ${r.avo} / 100`, 300, 600);
   ctx.font = `400 12px ${typed}`;
-  wrapText(ctx, "간단한 자기점검이에요. 임상 검사나 진단이 아니에요.", 80, 630, W - 160, 18);
-  ctx.fillText(`${location.host}${location.pathname}`, 80, H - 36);
+  wrapText(ctx, "간단한 자기점검이에요. 임상 검사나 진단이 아니에요.", 80, 622, W - 160, 18);
+  ctx.fillText(`${location.host}${location.pathname}`, 80, H - 22);
 }
 
 /* ---------- 체크박스 버튼 ---------- */

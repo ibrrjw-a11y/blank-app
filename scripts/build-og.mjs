@@ -14,7 +14,7 @@ try {
 }
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
-const { SITES } = await import(path.join(root, "shared/sites.js"));
+const { SITES, CATEGORIES } = await import(path.join(root, "shared/sites.js"));
 
 function brandOf(slug) {
   for (const file of ["style.css", "index.html"]) {
@@ -53,6 +53,7 @@ await page.route(/^https?:/, (r) => r.abort());
 
 const targets = [
   { slug: "", name: "심심상가", desc: "룰렛·심리테스트·미니게임·계산기", keyword: "심심할 때 들르는 곳", brand: "#ff4b1f", index: "11" },
+  ...CATEGORIES.map((c, i) => ({ slug: c.path, name: c.name, desc: c.desc, keyword: c.keyword, brand: "#17181a", index: `${i + 1}F` })),
   ...SITES.map((s, i) => ({ ...s, brand: brandOf(s.slug), index: String(i + 1).padStart(2, "0") })),
 ];
 
