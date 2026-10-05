@@ -487,3 +487,7 @@ h1.intro__name { margin: 0; }
 .more-sites__item { padding: var(--sp-12) 0 var(--sp-16); border-radius: 0; background: transparent; box-shadow: none; border-top: 1px solid var(--art-hair); }
 .more-sites__name { font: 800 15px/20px var(--font-display); color: var(--art-white); }
 .more-sites__cat { border-radius: 0; border-color: var(--art-hair); font-family: var(--font-display); }
+
+/* 인트로 캡션: 제목 + 회색 부제 대신, 도표 아래 그림 설명(figure caption) */
+.intro__caption p { padding-top: var(--sp-6); border-top: 1px solid var(--art-hair); font: 600 12px/18px var(--art-num); letter-spacing: 0.02em; }
+.intro__caption p::before { content: "FIG. — "; color: var(--brand); letter-spacing: 0.1em; }

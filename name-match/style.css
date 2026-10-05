@@ -759,3 +759,7 @@ main.app { overflow-x: clip; }
 .intro .intro__cta { gap: var(--sp-4); margin-top: var(--sp-12); }
 .intro .hl-tab { margin-top: var(--sp-4); }
 .intro .sticker-btn { min-height: 74px; }
+
+/* 인트로 캡션: 제목 + 회색 부제 대신, 공책 여백에 펜으로 적은 메모 */
+.intro__caption p { position: relative; margin-top: var(--sp-2); padding-left: var(--sp-20); font: 700 18px/24px var(--font-hand); color: var(--art-pen); rotate: -0.6deg; }
+.intro__caption p::before { content: "✎"; position: absolute; left: 0; top: 0; color: var(--color-primary); }

@@ -800,3 +800,7 @@ main.app { overflow-x: clip; }
 .more-sites__item { border-radius: 0; background: var(--art-slip); box-shadow: none; padding-bottom: var(--sp-24); -webkit-mask: var(--tear); mask: var(--tear); }
 .more-sites__name { font-family: var(--font-kr); color: var(--art-ink); }
 .more-sites__cat { border-radius: var(--r-4); border-style: dashed; border-color: var(--art-rule); font-family: var(--font-kr); background: var(--art-slip); }
+
+/* 인트로 캡션: 제목 + 회색 부제 대신, 영수증 하단 각주 줄 */
+.intro__caption p { margin-top: var(--sp-6); padding-top: var(--sp-6); border-top: 1px dashed var(--art-rule); font: 500 13px/20px var(--font-num); color: var(--art-ink-2); }
+.intro__caption p::before { content: "* "; color: var(--color-primary); }
