@@ -152,7 +152,9 @@ export class BoardView {
     if (!n) {
       n = document.createElement("div");
       n.className = "tile";
-      n.innerHTML = "<b></b>";
+      n.innerHTML = `<span class="tile__face"><b></b></span>`;
+      n.face = n.firstChild;
+      n.num = n.querySelector("b");
       // 나뭇결 위치를 타일마다 다르게
       n.style.setProperty("--gx", `${Math.floor(Math.random() * 300)}px`);
       n.style.setProperty("--gy", `${Math.floor(Math.random() * 300)}px`);
@@ -170,7 +172,7 @@ export class BoardView {
   label(n, v) {
     n.dataset.v = v > 2048 ? "big" : v;
     n.dataset.d = String(v).length;
-    n.firstChild.textContent = v;
+    n.num.textContent = v;
   }
 
   clearGhosts() {
@@ -187,7 +189,7 @@ export class BoardView {
       live.add(t.id);
       this.label(n, t.v);
       this.place(n, t);
-      n.classList.remove("is-merged");
+      n.classList.remove("is-merged", "is-late");
       if (pop) {
         n.classList.remove("is-new");
         void n.offsetWidth;
@@ -230,7 +232,7 @@ export class BoardView {
     for (const t of res.merges) {
       const n = this.nodes.get(t.id);
       if (!n) continue;
-      n.classList.remove("is-merged", "is-new");
+      n.classList.remove("is-merged", "is-new", "is-late");
       setTimeout(() => {
         this.label(n, t.v);
         void n.offsetWidth;

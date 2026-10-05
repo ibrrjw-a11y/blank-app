@@ -159,7 +159,7 @@ function renderBirthSummary() {
   $("#birthSum").hidden = false;
   $("#sumAge").textContent = `만 ${manAge(b, today)}세`;
   $("#sumDays").textContent = `${fmt.num(diffDays(b, today) + 1)}일째`;
-  $("#sumNext").textContent = gap === 0 ? "오늘 생일" : `생일 D-${fmt.num(gap)}`;
+  $("#sumNext").textContent = gap === 0 ? "오늘" : `D-${fmt.num(gap)}`;
   $("#sumZodiac").textContent = `${ZODIAC[(((by - 4) % 12) + 12) % 12]}띠`;
 }
 
