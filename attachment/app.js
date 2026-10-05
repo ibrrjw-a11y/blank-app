@@ -384,10 +384,18 @@ function compareBlock(me, fr) {
   </section>`;
 }
 
-function inviteBlock() {
+function inviteBlock(me) {
   return `<section class="at-card at-invite">
-    <h3 class="at-card__title">함께 보기</h3>
-    <p>결과 링크를 받은 사람이 점검을 마치면, 같은 지도에 두 핀을 꽂고 실로 이어 드려요. 상대가 보낸 결과 링크를 열어도 돼요.</p>
+    <h3 class="at-card__title">함께 보기 <small>상대 칸은 비워 둘게요</small></h3>
+    <table class="at-blank">
+      <thead><tr><th></th><th>나</th><th>상대</th></tr></thead>
+      <tbody>
+        <tr><th>불안</th><td>${me.anx}</td><td><span class="at-blank__line" aria-label="빈칸"></span></td></tr>
+        <tr><th>회피</th><td>${me.avo}</td><td><span class="at-blank__line" aria-label="빈칸"></span></td></tr>
+        <tr><th>유형</th><td>${me.type.name}</td><td><span class="at-blank__line" aria-label="빈칸"></span></td></tr>
+      </tbody>
+    </table>
+    <p class="at-blank__how">결과 링크를 받은 사람이 점검을 마치면 빈칸이 채워지고, 지도에 핀 두 개가 실로 이어져요.</p>
     <div class="tk-paste"><input class="at-input" id="pasteFriend" inputmode="url" placeholder="상대 결과 링크 붙여넣기" /><button type="button" class="at-tab at-tab--sm" id="pasteGo">핀 꽂기</button></div>
   </section>`;
 }
@@ -418,7 +426,7 @@ function showResult(entry, { fresh = false } = {}) {
       <button type="button" class="at-tab" id="shareLink"><span class="at-tab__clip" aria-hidden="true"></span>결과 링크 보내기</button>
       <button type="button" class="at-tab at-tab--alt" id="shareImg"><span class="at-tab__clip" aria-hidden="true"></span>결과지 이미지 저장</button>
     </div>
-    ${friend ? compareBlock(r, friend) : inviteBlock()}
+    ${friend ? compareBlock(r, friend) : inviteBlock(r)}
     ${historyBlock()}
     <button type="button" class="at-check at-check--again" id="again">
       <span class="at-check__box"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 21 L17 30 L34 8" pathLength="1" /></svg></span>

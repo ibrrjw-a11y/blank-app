@@ -1,0 +1,129 @@
+/* 딴짓 오락실 허브 전용: 카운터 경품 티켓 문답, "옆 기계" 안내판 */
+
+/* ---------- 문답: 경품 티켓 ---------- */
+.tickets { margin-top: var(--sp-32); padding-top: var(--sp-16); border-top: 3px solid var(--art-cabinet); }
+.seo.manual .tickets__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-12);
+  font: var(--title-03);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--art-cabinet);
+}
+.tickets__title .pix { padding: var(--sp-4) var(--sp-6); border-radius: var(--r-4); background: var(--art-red); color: var(--art-cream); font-size: 8px; }
+.manual .ticket { border: 0; padding: 0; margin: 0 0 var(--sp-8); }
+.manual .ticket summary::before,
+.manual .ticket summary::after,
+.manual .ticket p::before { content: none; display: none; }
+.ticket summary::-webkit-details-marker { display: none; }
+.seo.manual .ticket summary {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: stretch;
+  min-height: 56px;
+  border-radius: var(--r-4);
+  background:
+    radial-gradient(circle at 0 50%, var(--art-cream) 0 7px, transparent 7.5px),
+    radial-gradient(circle at 100% 50%, var(--art-cream) 0 7px, transparent 7.5px),
+    var(--brand);
+  color: var(--brand-on);
+  font: var(--label-01);
+  list-style: none;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--spring);
+}
+.seo.manual .ticket summary:active { transform: rotate(-1deg) scale(0.98); }
+.ticket:nth-child(odd) summary { background-color: var(--art-red); color: var(--art-cream); }
+.seo.manual .ticket:nth-child(odd) summary {
+  background:
+    radial-gradient(circle at 0 50%, var(--art-cream) 0 7px, transparent 7.5px),
+    radial-gradient(circle at 100% 50%, var(--art-cream) 0 7px, transparent 7.5px),
+    var(--art-red);
+  color: var(--art-cream);
+}
+.ticket__stub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 2px dashed currentColor;
+  font-family: var(--art-pixel);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.ticket__stub small { font-size: 6px; letter-spacing: 0.1em; opacity: 0.8; }
+.ticket__q { display: flex; align-items: center; padding: var(--sp-8) var(--sp-16) var(--sp-8) var(--sp-12); word-break: keep-all; }
+.seo.manual .ticket p {
+  display: block;
+  margin: 0 var(--sp-12);
+  padding: var(--sp-10) var(--sp-12) var(--sp-12) 52px;
+  border: 2px solid var(--art-cabinet);
+  border-top: 0;
+  border-radius: 0 0 var(--r-4) var(--r-4);
+  font: var(--body-03);
+  color: var(--art-cabinet);
+  transform-origin: 50% 0;
+  animation: hub-ticket 420ms var(--spring) both;
+}
+@keyframes hub-ticket {
+  0% { transform: translateY(-24px) scaleY(0.4); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+
+/* ---------- 옆 기계: 나사 박힌 놋쇠 안내판 ---------- */
+.more-sites {
+  position: relative;
+  margin-top: var(--sp-40);
+  padding: var(--sp-16) var(--sp-16) var(--sp-16);
+  border-radius: var(--r-8);
+  background:
+    radial-gradient(circle at 12px 12px, var(--brand-pressed) 0 3px, transparent 3.5px),
+    radial-gradient(circle at calc(100% - 12px) 12px, var(--brand-pressed) 0 3px, transparent 3.5px),
+    radial-gradient(circle at 12px calc(100% - 12px), var(--brand-pressed) 0 3px, transparent 3.5px),
+    radial-gradient(circle at calc(100% - 12px) calc(100% - 12px), var(--brand-pressed) 0 3px, transparent 3.5px),
+    repeating-linear-gradient(90deg, transparent 0 3px, rgba(255, 255, 255, 0.08) 3px 4px),
+    var(--brand);
+  color: var(--brand-on);
+  box-shadow: 0 var(--sp-6) 0 var(--brand-pressed);
+}
+.more-sites + .site-footer { margin-top: var(--sp-16); }
+.more-sites__title {
+  margin: 0 0 var(--sp-8) var(--sp-12);
+  font: var(--title-03);
+  font-family: var(--font-display);
+  font-weight: 400;
+  opacity: 1;
+}
+.more-sites__grid { gap: var(--sp-6); }
+.more-sites__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-10);
+  align-items: center;
+  min-height: 60px;
+  padding: var(--sp-8) var(--sp-12);
+  border: 0;
+  border-radius: var(--r-4);
+  background: var(--art-cabinet);
+  color: var(--art-cream);
+  transition: transform var(--dur-fast) var(--spring);
+}
+.more-sites__item:active { transform: translateX(6px); }
+.more-sites__item::before {
+  content: "▶";
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  background: var(--art-red);
+  color: var(--art-cream);
+  font-size: 11px;
+}
+.more-sites__name { font: var(--title-04); font-family: var(--font-display); font-weight: 400; }
+.more-sites__desc { color: var(--brand); opacity: 1; }

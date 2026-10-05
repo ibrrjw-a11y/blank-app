@@ -1569,3 +1569,103 @@ body::before {
 }
 
 .te .more-sites__item:active .te-next__go { transform: skewX(-12deg) translateX(6px) scale(0.92); transition-duration: 60ms; }
+
+/* ---------- 친선 경기 대진표 (친구 초대) ----------
+ * 운동장 본부석 대진표: A칸은 나, B칸은 비어 있는 출전 대기. 두 칸이 가운데 VS로 묶인다. */
+.te-bracket {
+  margin-top: var(--sp-24);
+  padding: var(--sp-16) var(--sp-16) var(--sp-16);
+  background: var(--art-stripes), var(--art-split);
+  border: 3px solid var(--art-ink);
+  color: var(--art-ink);
+}
+
+.te-bracket__title {
+  display: inline-block;
+  margin: 0 0 var(--sp-12);
+  padding: var(--sp-4) var(--sp-10);
+  background: var(--art-ink);
+  font: 400 18px/1.2 var(--font-display);
+  color: var(--art-gold);
+  transform: skewX(-8deg);
+}
+
+.te-bracket__draw {
+  position: relative;
+  display: grid;
+  gap: var(--sp-10);
+  padding-right: 68px;
+}
+
+/* 두 칸을 잇는 대진선 */
+.te-bracket__draw::after {
+  content: "";
+  position: absolute;
+  right: 22px;
+  top: 26px;
+  bottom: 26px;
+  width: 30px;
+  border: 3px solid var(--art-ink);
+  border-left: 0;
+}
+
+.te-bracket__lane {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: var(--sp-8);
+  min-height: 52px;
+  padding: 0 var(--sp-12) 0 0;
+  background: var(--art-chalk);
+  border: 2px solid var(--art-ink);
+}
+
+.te-bracket__lane i {
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  background: var(--art-ink);
+  color: var(--art-chalk);
+  font: 400 16px/1 var(--art-block);
+  font-style: normal;
+}
+
+.te-bracket__lane b { font: 400 18px/1.2 var(--font-display); }
+.te-bracket__lane span { font: 400 16px/1 var(--art-block); color: var(--brand); }
+
+.te-bracket__lane.is-open {
+  background: repeating-linear-gradient(-45deg, var(--art-chalk) 0 8px, var(--art-cream) 8px 16px);
+  border-style: dashed;
+}
+
+.te-bracket__lane.is-open b { color: var(--art-sepia); font-family: var(--art-serif); font-style: italic; }
+.te-bracket__lane.is-open span { font-size: 28px; color: var(--art-sepia); animation: te-blink 1.2s steps(2, end) infinite; }
+
+.te-bracket__vs {
+  position: absolute;
+  z-index: 1;
+  right: 0;
+  top: 50%;
+  margin-top: -16px;
+  width: 42px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: var(--art-gold);
+  border: 2px solid var(--art-ink);
+  font: 400 15px/1 var(--art-block);
+  transform: rotate(-6deg);
+}
+
+.te-bracket .te-bracket__rule {
+  margin: var(--sp-12) 0;
+  padding: var(--sp-8) var(--sp-10);
+  background: var(--art-chalk);
+  border-left: 6px solid var(--art-ink);
+  font: var(--body-03);
+  color: var(--art-ink);
+}
+
+@keyframes te-blink {
+  50% { opacity: 0.25; }
+}

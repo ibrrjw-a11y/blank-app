@@ -117,8 +117,8 @@ body { background-color: var(--art-cabinet); }
   font-family: var(--pr-mono);
   box-shadow: 0 var(--sp-6) 0 color-mix(in srgb, black 35%, transparent);
   /* 아래쪽 톱니 절취선 */
-  -webkit-mask: conic-gradient(from -45deg at bottom, transparent 90deg, black 0) 0 0 / calc(var(--tear) * 2) 100%;
-  mask: conic-gradient(from -45deg at bottom, transparent 90deg, black 0) 0 0 / calc(var(--tear) * 2) 100%;
+  -webkit-mask: conic-gradient(from -45deg at bottom, black 90deg, transparent 0) 0 0 / calc(var(--tear) * 2) 100%;
+  mask: conic-gradient(from -45deg at bottom, black 90deg, transparent 0) 0 0 / calc(var(--tear) * 2) 100%;
   transform: rotate(1.2deg);
   transform-origin: 50% 0;
   animation: pr-print 1500ms steps(12, end) both, pr-flutter 3200ms ease-in-out 1600ms infinite;
@@ -199,7 +199,7 @@ body { background-color: var(--art-cabinet); }
   border-top: 2px dashed var(--pr-ink-soft);
   font-family: var(--pr-mono);
 }
-.seo .pfaq__title {
+.seo.manual .pfaq__title {
   display: flex;
   flex-direction: column;
   align-items: center;

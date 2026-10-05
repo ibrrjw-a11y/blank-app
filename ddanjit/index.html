@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../shared/components.css" />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="hub.css" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -136,27 +137,29 @@
 이거 해봐 ㅋㅋ</pre>
         <p class="manual__ex">정답은 안 들어가요. 친구는 같은 날 같은 문제를 받아요.</p>
 
-        <h2 class="manual__qa">Q&amp;A</h2>
-        <details>
-          <summary>문제는 언제 바뀌나요?</summary>
-          <p>매일 0시(한국 시간)에 4개 모두 바뀌어요. 허브 화면 오른쪽 위 빨간 숫자가 남은 시간이에요.</p>
-        </details>
-        <details>
-          <summary>기록은 어디에 저장되나요?</summary>
-          <p>지금 쓰는 브라우저(localStorage)에만 있어요. 서버로 안 보내요. 브라우저 데이터를 지우거나 다른 기기에서 열면 0부터 시작해요.</p>
-        </details>
-        <details>
-          <summary>정답은 언제 볼 수 있나요?</summary>
-          <p>게임이 끝나면 맞혔든 못 맞혔든 결과 화면에 바로 나와요.</p>
-        </details>
-        <details>
-          <summary>순위표는 없나요?</summary>
-          <p>없어요. 비교 대상은 어제의 내 기록뿐이에요.</p>
-        </details>
-        <details>
-          <summary>가격·연도가 실제와 조금 달라요.</summary>
-          <p>그때 그 가격은 지역·가게마다 차이가 있어 대략적인 평균가를 써요. 최저시급처럼 공식 값이 있는 문제는 정확한 값이에요. 추억 연대기는 연도가 확실한 카드만 넣었어요.</p>
-        </details>
+        <section class="tickets" aria-labelledby="tk-h">
+          <h2 class="tickets__title" id="tk-h"><span class="pix">COUNTER</span>카운터 문의함</h2>
+          <details class="ticket">
+            <summary><span class="ticket__stub"><small>ADMIT</small>001</span><span class="ticket__q">문제는 언제 바뀌나요?</span></summary>
+            <p>매일 0시(한국 시간)에 4개 모두 바뀌어요. 허브 화면 오른쪽 위 빨간 숫자가 남은 시간이에요.</p>
+          </details>
+          <details class="ticket">
+            <summary><span class="ticket__stub"><small>ADMIT</small>002</span><span class="ticket__q">기록은 어디에 저장되나요?</span></summary>
+            <p>지금 쓰는 브라우저(localStorage)에만 있어요. 서버로 안 보내요. 브라우저 데이터를 지우거나 다른 기기에서 열면 0부터 시작해요.</p>
+          </details>
+          <details class="ticket">
+            <summary><span class="ticket__stub"><small>ADMIT</small>003</span><span class="ticket__q">정답은 언제 볼 수 있나요?</span></summary>
+            <p>게임이 끝나면 맞혔든 못 맞혔든 결과 화면에 바로 나와요.</p>
+          </details>
+          <details class="ticket">
+            <summary><span class="ticket__stub"><small>ADMIT</small>004</span><span class="ticket__q">순위표는 없나요?</span></summary>
+            <p>없어요. 비교 대상은 어제의 내 기록뿐이에요.</p>
+          </details>
+          <details class="ticket">
+            <summary><span class="ticket__stub"><small>ADMIT</small>005</span><span class="ticket__q">가격·연도가 실제와 조금 달라요.</span></summary>
+            <p>그때 그 가격은 지역·가게마다 차이가 있어 대략적인 평균가를 써요. 최저시급처럼 공식 값이 있는 문제는 정확한 값이에요. 추억 연대기는 연도가 확실한 카드만 넣었어요.</p>
+          </details>
+        </section>
       </article>
 
       <nav id="more"></nav>

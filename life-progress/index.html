@@ -48,8 +48,6 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
-
       <!-- 1) 첫 화면 -->
       <section class="intro" id="intro" data-view="intro">
         <div class="intro__brand">
@@ -235,28 +233,28 @@
           </table>
         </figure>
 
-        <section class="notes" aria-label="주석">
-          <h3 class="notes__title t-num">NOTES</h3>
-          <details>
-            <summary><sup>1</sup> 기대수명 83.5세는 어디서 왔어요?</summary>
+        <section class="gloss" aria-labelledby="glossTitle">
+          <h3 class="gloss__title" id="glossTitle"><span class="t-num">INDEX</span>용어 색인 · 자주 묻는 것</h3>
+          <details class="gloss__item">
+            <summary><span class="gloss__term"><b>기대수명 83.5세</b><small>어디서 온 숫자예요?</small></span><i aria-hidden="true"></i><span class="gloss__ref">FIG. 1</span></summary>
             <p>통계청 2023년 생명표 기대수명이에요. 평균일 뿐 예측이 아니에요. 02번 그래프 옆 −/+로 0.5세씩 바꿀 수 있어요.</p>
           </details>
-          <details>
-            <summary><sup>2</sup> 버킷리스트는 그리드 어디에 찍혀요?</summary>
+          <details class="gloss__item">
+            <summary><span class="gloss__term"><b>버킷리스트 표시 칸</b><small>그리드 어디에 찍혀요?</small></span><i aria-hidden="true"></i><span class="gloss__ref">TABLE 1</span></summary>
             <p>목표 나이 줄의 첫 칸이에요. 주 단위로 만 40세면 41번째 줄 첫 칸(2,081번째 칸)에 테두리가 생겨요.</p>
           </details>
-          <details>
-            <summary><sup>3</sup> 친구에게 보내면 생일도 같이 가요?</summary>
+          <details class="gloss__item">
+            <summary><span class="gloss__term"><b>공유 링크</b><small>생일도 같이 가요?</small></span><i aria-hidden="true"></i><span class="gloss__ref">§ 06</span></summary>
             <p>아니요. 링크에는 진행률 숫자(예: 38.8)만 담겨요. 생년월일은 이 기기 브라우저에만 저장돼요.</p>
           </details>
-          <details>
-            <summary><sup>4</sup> 심장 박동 수는 정확해요?</summary>
+          <details class="gloss__item">
+            <summary><span class="gloss__term"><b>심장 박동 수</b><small>정확한 숫자예요?</small></span><i aria-hidden="true"></i><span class="gloss__ref">§ 03</span></summary>
             <p>분당 70회로 가정한 대략치예요. 32년이면 약 11.9억 번. 재미로 보는 숫자예요.</p>
           </details>
         </section>
       </article>
 
-      <nav id="more" aria-label="다른 도구"></nav>
+      <nav id="more" aria-label="함께 보면 좋은 도표"></nav>
       <footer class="site-footer">기대수명·통계는 평균에 기반한 근사치예요 · 인생 진행률</footer>
     </main>
     <script type="module" src="app.js"></script>

@@ -14,7 +14,6 @@ import {
   runIntro,
   showView,
   renderMoreSites,
-  renderCrumb,
   createCanvas,
   roundRect,
   CANVAS_FONT,
@@ -733,7 +732,7 @@ EX.christmas = Math.floor(EX.life - EX.age);
 EX.weekends = Math.round(((EX.life - EX.age) * YEAR_DAYS) / 7 / 100) * 100;
 EX.springs = Math.floor(EX.life - EX.age);
 const ip = { scene: 0, t0: 0, raf: 0, running: false, geo: null };
-const OVERLAY_H = 146;
+// 첫 화면 도표: 세로 한 줄 = 1년(52주), 가로 84줄 = 83.5년. 무대 폭을 꽉 채우고, 아래에 거대한 숫자.
 function ipLayout() {
   const stage = $("#intro .intro__stage");
   const cv = $(".ip-canvas");
@@ -744,41 +743,52 @@ function ipLayout() {
   cv.height = Math.round(h * dpr);
   cv.style.width = `${w}px`;
   cv.style.height = `${h}px`;
-  const cols = 52;
+  const rows = 52;
+  const cols = Math.ceil(EX.life);
   const total = Math.round(EX.life * 52);
-  const rows = Math.ceil(total / cols);
-  const pitch = Math.min(w / cols, (h - OVERLAY_H - 12) / rows);
-  ip.geo = { w, h, dpr, cols, total, rows, pitch, gx: 0, gy: 10, ctx: cv.getContext("2d"), current: Math.round((EX.pct / 100) * total) };
+  const pitch = w / cols;
+  const gy = 26;
+  // 가로 간격은 폭에 맞추고, 세로 간격은 남는 높이만큼 늘려 무대를 꽉 채운다 (아래 숫자 자리 210px 확보)
+  const pitchY = Math.max(pitch, Math.min(pitch * 1.6, (h - gy - 30 - 210) / rows));
+  const gridH = rows * pitchY;
+  const top = Math.round(gy + gridH + 30);
+  stage.style.setProperty("--ip-top", `${top}px`);
+  stage.style.setProperty("--ip-room", `${Math.max(120, h - top)}px`);
+  ip.geo = { w, h, dpr, cols, rows, total, pitch, pitchY, gx: 0, gy, gridH, ctx: cv.getContext("2d"), current: Math.round((EX.pct / 100) * total) };
 }
 const ipXY = (i) => {
   const g = ip.geo;
-  return [g.gx + (i % g.cols) * g.pitch + g.pitch / 2, g.gy + Math.floor(i / g.cols) * g.pitch + g.pitch / 2];
+  return [g.gx + Math.floor(i / g.rows) * g.pitch + g.pitch / 2, g.gy + (i % g.rows) * g.pitchY + g.pitchY / 2];
 };
 const clamp01 = (t) => (t < 0 ? 0 : t > 1 ? 1 : t);
 const easeOut = (t) => 1 - Math.pow(1 - clamp01(t), 3);
-const easeIO = (t) => ((t = clamp01(t)), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 // 감쇠 진동 스프링 (0 → 1, 오버슈트 후 정착)
 const spring = (t) => (t <= 0 ? 0 : 1 - Math.exp(-6 * t) * Math.cos(13 * t));
 function ipFrame(now) {
   const g = ip.geo;
   if (!g) return;
-  const { ctx, w, h, dpr, total, pitch, current } = g;
+  const { ctx, w, h, dpr, total, rows, cols, pitch, gy, gridH, current } = g;
   const t = prefersReducedMotion() ? 99999 : now - ip.t0;
   const brand = token("--brand");
   const white = token("--art-white");
-  const left = token("--art-dot-left");
+  const idle = token("--art-dot-idle");
+  const mid = token("--art-dot-mid");
+  const NUM = token("--art-num") || CANVAS_FONT;
+  const DISP = token("--font-display") || CANVAS_FONT;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
   const r = pitch * 0.36;
-  const batch = (from, to, color, a = 1) => {
+  // 칸 묶음 그리기 (filter 로 고른 칸만)
+  const batch = (from, to, color, a = 1, rad = r, filter = null) => {
     if (to <= from) return;
     ctx.globalAlpha = a;
     ctx.fillStyle = color;
     ctx.beginPath();
     for (let i = from; i < to; i++) {
+      if (filter && !filter(i)) continue;
       const [x, y] = ipXY(i);
-      ctx.moveTo(x + r, y);
-      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.moveTo(x + rad, y);
+      ctx.arc(x, y, rad, 0, Math.PI * 2);
     }
     ctx.fill();
     ctx.globalAlpha = 1;
@@ -787,138 +797,159 @@ function ipFrame(now) {
     ctx.globalAlpha = a;
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(x, y, rad, 0, Math.PI * 2);
+    ctx.arc(x, y, Math.max(0, rad), 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
   };
-  // 오른쪽 여백: 나이 눈금 + "지금" 주석 (연차보고서 도표처럼)
-  const gridRight = g.gx + g.cols * pitch;
+  // 아래 나이 눈금 (0 · 10 · 20 … 80세)
   const ticks = (a = 1) => {
     ctx.globalAlpha = a;
-    ctx.fillStyle = token("--color-text-tertiary");
-    ctx.font = `600 9px ${token("--art-num") || CANVAS_FONT}`;
+    ctx.fillStyle = token("--color-text-secondary");
+    ctx.font = `700 10px ${NUM}`;
     ctx.textAlign = "left";
-    for (let yr = 0; yr * 52 < total; yr += 10) ctx.fillText(`${yr}`, gridRight + 10, ipXY(yr * 52)[1] + 3);
+    for (let yr = 0; yr < cols; yr += 10) {
+      const x = g.gx + yr * pitch;
+      ctx.fillRect(x, gy + gridH + 4, 1, 5);
+      ctx.fillText(yr === 0 ? "0세" : `${yr}`, x + 3, gy + gridH + 14);
+    }
     ctx.globalAlpha = 1;
   };
+  // 지금 칸에서 위로 올라가는 주석 선 + 라벨
   const annotate = (a = 1) => {
+    if (a <= 0) return;
     const [x, y] = ipXY(current);
     ctx.globalAlpha = a;
     ctx.strokeStyle = brand;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(x + r * 2.5, y);
-    ctx.lineTo(gridRight + 34, y);
+    ctx.moveTo(x, y - r * 2.6);
+    ctx.lineTo(x, 6 + (1 - a) * 10);
     ctx.stroke();
     ctx.fillStyle = brand;
+    ctx.font = `800 12px ${DISP}`;
     ctx.textAlign = "left";
-    ctx.font = `800 12px ${token("--font-display") || CANVAS_FONT}`;
-    ctx.fillText("지금", gridRight + 38, y + 4);
+    ctx.fillText("지금", x + 5, 15);
+    const lw = ctx.measureText("지금 ").width;
     ctx.fillStyle = white;
-    ctx.font = `600 10px ${token("--art-num") || CANVAS_FONT}`;
-    ctx.fillText("만 31세", gridRight + 38, y + 18);
+    ctx.font = `700 11px ${NUM}`;
+    ctx.fillText("만 31세 · 1,624번째 주", x + 5 + lw, 15);
     ctx.globalAlpha = 1;
   };
-  const pulseNow = (k = 1) => {
+  const pulseNow = (k = 1, big = 1) => {
     const [x, y] = ipXY(current);
-    const p = (Math.sin(now / 280) + 1) / 2;
-    dot(x, y, r * (2.4 + 2.2 * p), brand, (0.18 + 0.22 * p) * k);
-    dot(x, y, r * 1.5, brand, k);
+    const p = (Math.sin(now / 260) + 1) / 2;
+    dot(x, y, r * (2.6 + 2.4 * p) * big, brand, (0.22 + 0.25 * p) * k);
+    dot(x, y, r * 1.7 * big, brand, k);
   };
 
   if (ip.scene === 0) {
-    // 점 하나가 스프링으로 튀어나와 첫 칸에 앉고, 줄줄이 4,000칸이 깔린다
-    const cx = w / 2;
-    const cy = (h - OVERLAY_H) / 2;
-    const pop = spring((t - 80) / 700);
-    const move = easeIO((t - 800) / 420);
-    const fill = easeIO((t - 1200) / 2100);
-    const [x0, y0] = ipXY(0);
-    if (move < 1) {
-      const x = cx + (x0 - cx) * move;
-      const y = cy + (y0 - cy) * move;
-      const rad = Math.max(0, 16 * pop * (1 - move) + r * move);
-      // 출발 직전 살짝 눌렸다(스쿼시) 튀어나가기
-      const squash = move > 0 && move < 0.3 ? 1 - 0.35 * Math.sin((move / 0.3) * Math.PI) : 1;
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(1 / squash, squash);
-      dot(0, 0, rad, brand);
-      ctx.restore();
-    } else {
-      const k = Math.floor(total * fill);
-      ticks(fill);
-      batch(0, k, left);
-      const row = Math.max(0, k - 52);
-      batch(row, k, white);
-      if (k < total) {
-        const [hx, hy] = ipXY(Math.max(0, k - 1));
-        dot(hx, hy, r * 1.8, brand);
-      }
+    // 처음부터 4,342칸이 다 보인다. 왼쪽부터 한 해씩 튀어 오르며 또렷해지고, 파도 앞머리는 흰색
+    const stag = 9;
+    for (let c = 0; c < cols; c++) {
+      const lt = t - 40 - c * stag;
+      const k = spring(lt / 420);
+      const rad = r * (0.45 + 0.55 * Math.max(0, k));
+      const from = c * rows;
+      const to = Math.min(total, from + rows);
+      const front = lt > 0 && lt < 200;
+      batch(from, to, front ? white : idle, 1, rad);
     }
+    ticks(easeOut((t - 300) / 500));
+    // 첫 칸(태어난 주)은 처음부터 포인트 색
+    const [x0, y0] = ipXY(0);
+    dot(x0, y0, r * (1 + 0.8 * spring(t / 500)), brand);
   } else if (ip.scene === 1) {
-    const fill = easeIO((t - 150) / 1800);
+    // 지나온 칸이 한 해씩 하얗게 차오르고, 지금 칸에 주석이 붙는다
+    const fill = easeOut((t - 80) / 900);
     const k = Math.floor(current * fill);
-    batch(k, total, left);
+    batch(k, total, idle);
     batch(0, k, white);
     ticks();
     if (fill < 1) {
       const [hx, hy] = ipXY(k);
-      dot(hx, hy, r * 2, brand);
+      dot(hx, hy, r * 2.2, brand);
     } else {
       pulseNow();
-      annotate(easeOut((t - 1950) / 300));
     }
+    annotate(easeOut((t - 900) / 300));
   } else if (ip.scene === 2) {
-    const dim = 1 - 0.55 * easeOut(t / 500);
-    batch(current, total, left, dim);
-    batch(0, current, white, dim);
-    ticks(dim);
-    pulseNow(dim);
-    annotate(dim);
+    // 남은 칸에서 세어 본다: 주말(남은 칸 전부) → 봄(3~5월 띠) → 크리스마스(마지막 주 한 줄)
+    const isSpring = (i) => i % rows >= 9 && i % rows <= 21;
+    const isXmas = (i) => i % rows === 51;
+    batch(0, current, white, 0.4);
+    batch(current, total, idle);
+    const wk = clamp01((t - 380) / 380);
+    if (wk > 0) {
+      const edge = current + Math.floor((total - current) * easeOut(wk));
+      batch(current, edge, mid);
+    }
+    const sp = clamp01((t - 540) / 420);
+    if (sp > 0) batch(current, total, brand, 0.55 * easeOut(sp), r, isSpring);
+    const xm = t - 220;
+    if (xm > 0) {
+      for (let c = Math.floor(current / rows); c < cols; c++) {
+        const i = c * rows + 51;
+        if (i >= total || i < current) continue;
+        const k = spring((xm - (c - Math.floor(current / rows)) * 14) / 380);
+        if (k <= 0) continue;
+        const [x, y] = ipXY(i);
+        dot(x, y, r * (1 + 0.7 * k), brand);
+      }
+    }
+    ticks();
+    pulseNow(0.9);
+    annotate(1);
   } else {
-    const focus = easeOut(t / 900);
-    batch(current, total, left, 1 - 0.4 * focus);
-    batch(0, current, white, 1 - 0.6 * focus);
+    // 다 흐려지고 이번 주 한 칸만 커진다. 버킷리스트가 남은 칸 위에 꽂힌다
+    const focus = easeOut(t / 500);
+    batch(current, total, idle, 1 - 0.15 * focus);
+    batch(0, current, white, 1 - 0.45 * focus);
+    ticks();
     const [x, y] = ipXY(current);
     ctx.strokeStyle = brand;
     ctx.lineWidth = 1.5;
-    ctx.globalAlpha = 1 - 0.6 * focus;
+    ctx.globalAlpha = 1 - 0.7 * clamp01(t / 900);
     ctx.beginPath();
-    ctx.arc(x, y, r * (2 + 14 * spring(t / 900)), 0, Math.PI * 2);
+    ctx.arc(x, y, r * (2 + 16 * spring(t / 900)), 0, Math.PI * 2);
     ctx.stroke();
     ctx.globalAlpha = 1;
-    pulseNow();
+    pulseNow(1, 1 + 0.5 * spring(t / 600));
     const goals = [
-      [0.52, "오로라 보기"],
-      [0.66, "마라톤 완주"],
-      [0.8, "부모님과 여행"],
+      [0.5, 20, "오로라 보기"],
+      [0.64, 36, "마라톤 완주"],
+      [0.8, 8, "부모님과 여행"],
     ];
-    goals.forEach(([f, label], i) => {
-      const a = spring((t - 900 - i * 220) / 600);
+    goals.forEach(([f, row, label], gi) => {
+      const a = spring((t - 450 - gi * 180) / 520);
       if (a <= 0) return;
-      const idx = Math.round(total * f) + 9 * i;
+      const idx = Math.floor(total * f / rows) * rows + row;
       const [fx, fy] = ipXY(idx);
       ctx.save();
       ctx.translate(fx, fy);
       ctx.scale(a, a);
+      dot(0, 0, r * 1.2, brand);
       ctx.strokeStyle = brand;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(0, 0, r + 3.5, 0, Math.PI * 2);
+      ctx.arc(0, 0, r + 4, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
       ctx.globalAlpha = clamp01(a);
+      ctx.font = `800 11px ${DISP}`;
+      const tw = ctx.measureText(label).width;
+      const right = fx + 22 + tw < w;
+      const lx = right ? fx + 8 : fx - 8;
+      ctx.fillStyle = token("--art-black");
+      ctx.fillRect(right ? lx + 6 : lx - tw - 14, fy - 9, tw + 8, 17);
       ctx.strokeStyle = brand;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(fx + r + 4, fy);
-      ctx.lineTo(fx + 18, fy);
+      ctx.moveTo(fx + (right ? r + 3 : -r - 3), fy);
+      ctx.lineTo(right ? lx + 6 : lx - 6, fy);
       ctx.stroke();
       ctx.fillStyle = white;
-      ctx.font = `800 11px ${token("--font-display") || CANVAS_FONT}`;
-      ctx.textAlign = "left";
-      ctx.fillText(label, fx + 22, fy + 4);
+      ctx.textAlign = right ? "left" : "right";
+      ctx.fillText(label, right ? lx + 10 : lx - 10, fy + 4);
       ctx.globalAlpha = 1;
     });
   }
@@ -952,50 +983,70 @@ function ipScene(n, html = "", after) {
     after?.(ov, later);
   };
 }
+const EX_NOW = Math.round((EX.pct / 100) * Math.round(EX.life * 52));
+const EX_LEFT = Math.round(EX.life * 52) - EX_NOW;
 const SCENES = [
   {
     title: "인생을 4,000칸으로",
-    desc: "한 칸은 일주일, 한 줄은 1년이에요",
-    duration: 4000,
-    play: ipScene(0, `<div class="ip-count"><span class="odo" data-v="4,342"></span><span class="ip-label">칸 — 기대수명 83.5년 × 52주</span></div>`, (ov, later) => {
-      const el = $(".odo", ov);
-      later(1200, () => odometer(el, el.dataset.v));
-    }),
+    desc: "한 칸은 일주일, 세로 한 줄은 1년이에요",
+    duration: 3000,
+    play: ipScene(
+      0,
+      `<div class="ip-count"><span class="odo" data-v="4,342"></span><span class="ip-label"><b>칸</b> = 기대수명 83.5년 × 52주</span></div>`,
+      (ov, later) => {
+        const el = $(".odo", ov);
+        later(120, () => odometer(el, el.dataset.v));
+      },
+    ),
   },
   {
     title: "지금 여기까지 왔어요",
     desc: "예시 · 만 31세, 기대수명 83.5세 기준",
-    duration: 3600,
-    play: ipScene(1, `<div class="ip-pct"><span class="odo"></span><sup>%</sup></div>`, (ov, later) => later(150, () => odometer($(".odo", ov), EX.pct.toFixed(1)))),
+    duration: 3000,
+    play: ipScene(
+      1,
+      `<div class="ip-pct"><span class="odo"></span><sup>%</sup></div><p class="ip-split"><span><b>${fmt.num(EX_NOW)}</b>칸 지나옴</span><span><b>${fmt.num(EX_LEFT)}</b>칸 남음</span></p>`,
+      (ov, later) => later(80, () => odometer($(".odo", ov), EX.pct.toFixed(1))),
+    ),
   },
   {
     title: "숫자로 보면 달라져요",
-    desc: "남은 크리스마스, 주말, 봄을 세어봐요",
-    duration: 3800,
+    desc: "남은 칸에서 주말, 봄, 크리스마스를 세어봐요",
+    duration: 3200,
     play: ipScene(
       2,
       `<ol class="ip-rows">
-        <li style="--i:0"><span>남은 크리스마스</span><span><b class="odo" data-v="${EX.christmas}"></b><small>번</small></span></li>
-        <li style="--i:1"><span>남은 주말</span><span><small>약</small><b class="odo" data-v="${fmt.num(EX.weekends)}"></b><small>번</small></span></li>
-        <li style="--i:2"><span>남은 봄</span><span><b class="odo" data-v="${EX.springs}"></b><small>번</small></span></li>
+        <li style="--i:0"><span><i class="ip-key ip-key--mid"></i>남은 주말</span><span><small>약</small><b class="odo" data-v="${fmt.num(EX.weekends)}"></b><small>번</small></span></li>
+        <li style="--i:1"><span><i class="ip-key ip-key--band"></i>남은 봄</span><span><b class="odo" data-v="${EX.springs}"></b><small>번</small></span></li>
+        <li style="--i:2"><span><i class="ip-key"></i>남은 크리스마스</span><span><b class="odo" data-v="${EX.christmas}"></b><small>번</small></span></li>
       </ol>`,
-      (ov, later) => $$(".odo", ov).forEach((el, i) => later(260 + i * 160, () => odometer(el, el.dataset.v))),
+      (ov, later) => $$(".odo", ov).forEach((el, i) => later(200 + i * 140, () => odometer(el, el.dataset.v))),
     ),
   },
   {
     title: "이번 주도 딱 한 칸",
     desc: "버킷리스트를 칸 위에 꽂고 하나씩 채워요",
-    duration: 3800,
-    play: ipScene(3, `<span class="ip-tag">이번 주</span><div class="ip-count"><span class="odo" data-v="1"></span><span class="ip-label">/ 4,342칸 — 이번 주는 한 번뿐이에요</span></div>`, (ov, later) => {
+    duration: 3200,
+    play: ipScene(3, `<span class="ip-tag">이번 주</span><div class="ip-count ip-count--one"><span class="odo" data-v="1"></span><span class="ip-label"><b>/ 4,342칸</b>이번 주는<br />한 번뿐이에요</span></div>`, (ov, later) => {
       const el = $(".ip-count .odo", ov);
-      later(300, () => odometer(el, el.dataset.v));
+      later(120, () => odometer(el, el.dataset.v));
       const [x, y] = ipXY(ip.geo.current);
       const tag = $(".ip-tag", ov);
-      tag.style.left = `${Math.min(x + 12, ip.geo.w - 64)}px`;
-      tag.style.top = `${y - 30}px`;
+      tag.style.left = `${Math.min(x + 14, ip.geo.w - 64)}px`;
+      tag.style.top = `${y + 10}px`;
     }),
   },
 ];
+// 하단: 연차보고서 끝의 SEE ALSO 색인 (그림 번호를 이어서 매긴다)
+function renderSeeAlso(el) {
+  renderMoreSites(el);
+  if (!el) return;
+  const title = el.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `<span class="sa__k">SEE ALSO</span>함께 보면 좋은 도표`;
+  el.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    a.insertAdjacentHTML("afterbegin", `<span class="sa__fig" aria-hidden="true"><small>FIG.</small>${String(i + 5).padStart(2, "0")}</span>`);
+  });
+}
 let intro;
 function startIntro() {
   showView("intro");
@@ -1026,8 +1077,7 @@ $("#replayIntro").onclick = startIntro;
 window.addEventListener("resize", () => ip.running && ipLayout());
 
 /* ---------- 시작 ---------- */
-renderCrumb($("#crumb"));
-renderMoreSites($("#more"));
+renderSeeAlso($("#more"));
 $("#todayMeta").textContent = dotDate(todayKey());
 const fromParam = getParam("from");
 if (fromParam) {

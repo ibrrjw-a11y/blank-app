@@ -20,15 +20,132 @@ const HOME = [
 export function startIntro(root) {
   return runBroadcast(root, {
     scenes: SCENES,
+    ltTag: "캐스터",
     staticT: [3.0, 3.4, 3.8],
     draw(env) {
       const { ctx, tk } = env;
 
+      // 링을 무대 한가운데 크게, 네 귀퉁이에 HUD (생존자 수 · 자기장 타이머 · 킬 피드)
       const geo = () => {
         const { w, h } = env.view;
-        const R = Math.min(w * 0.4, (h - 168) / 2);
-        return { w, h, cx: w / 2, cy: h - R - 14, R, r: Math.max(15, R * 0.15) };
+        const R = Math.max(60, Math.min(w * 0.43, (h - 64) / 2));
+        return { w, h, cx: w / 2, cy: h / 2 + 10, R, r: Math.max(15, R * 0.14) };
       };
+
+      // 깎인 모서리 패널
+      function chamfer(x, y, w, h, c = 7) {
+        ctx.beginPath();
+        ctx.moveTo(x + c, y);
+        ctx.lineTo(x + w, y);
+        ctx.lineTo(x + w, y + h - c);
+        ctx.lineTo(x + w - c, y + h);
+        ctx.lineTo(x, y + h);
+        ctx.lineTo(x, y + c);
+        ctx.closePath();
+      }
+
+      // 조준 괄호 네 귀퉁이
+      function brackets(t) {
+        const { w, h } = env.view;
+        const L = 18;
+        const m = 7 + (1 - spring(t / 0.5)) * 14;
+        ctx.strokeStyle = alpha(tk.brand, 0.9);
+        ctx.lineWidth = 2;
+        [[m, m, 1, 1], [w - m, m, -1, 1], [m, h - m, 1, -1], [w - m, h - m, -1, -1]].forEach(([x, y, sx, sy]) => {
+          ctx.beginPath();
+          ctx.moveTo(x, y + sy * L);
+          ctx.lineTo(x, y);
+          ctx.lineTo(x + sx * L, y);
+          ctx.stroke();
+        });
+      }
+
+      // 왼쪽 위: 생존자 수 + 칸 게이지
+      function aliveBox(n, t, hit = -1) {
+        const k = spring(t / 0.5);
+        const x = 16 - (1 - k) * 130;
+        const y = 16;
+        chamfer(x, y, 84, 60);
+        ctx.fillStyle = "rgba(5,8,18,0.88)";
+        ctx.fill();
+        ctx.strokeStyle = tk.brand;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillStyle = tk.brand;
+        ctx.font = `400 12px ${tk.num}`;
+        ctx.fillText("ALIVE", x + 10, y + 8);
+        const pop = hit >= 0 && hit < 0.4 ? 1 + (1 - hit / 0.4) * 0.5 : 1;
+        ctx.save();
+        ctx.translate(x + 10, y + 24);
+        ctx.scale(pop, pop);
+        ctx.fillStyle = hit >= 0 && hit < 0.6 ? tk.warning : "#fff";
+        ctx.font = `400 30px ${tk.num}`;
+        ctx.fillText(String(n), 0, 0);
+        ctx.restore();
+        for (let i = 0; i < 4; i++) {
+          ctx.fillStyle = i < n ? tk.brand : "rgba(255,255,255,0.14)";
+          ctx.fillRect(x + 46, y + 25 + i * 7, 26, 4);
+        }
+      }
+
+      // 오른쪽 위: 자기장(링) 타이머
+      function zoneBox(label, value, frac, t, warn = false) {
+        const { w } = env.view;
+        const k = spring(t / 0.5);
+        const bw = 104;
+        const x = w - 16 - bw + (1 - k) * 160;
+        const y = 16;
+        chamfer(x, y, bw, 60);
+        ctx.fillStyle = "rgba(5,8,18,0.88)";
+        ctx.fill();
+        ctx.strokeStyle = warn ? tk.warning : tk.brand;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillStyle = warn ? tk.warning : tk.brand;
+        ctx.font = `400 12px ${tk.num}`;
+        ctx.fillText(label, x + 10, y + 8);
+        ctx.fillStyle = "#fff";
+        ctx.font = `400 24px ${tk.num}`;
+        ctx.fillText(value, x + 10, y + 23);
+        ctx.fillStyle = "rgba(255,255,255,0.14)";
+        ctx.fillRect(x + 10, y + 50, bw - 20, 3);
+        ctx.fillStyle = warn ? tk.warning : tk.brand;
+        ctx.fillRect(x + 10, y + 50, (bw - 20) * clamp01(frac), 3);
+      }
+
+      // 왼쪽 아래: 킬 피드 (새 줄이 아래에서 밀고 올라옴)
+      function feed(rows, t) {
+        const { h } = env.view;
+        const shown = rows.filter((row) => t >= row.at);
+        let y = h - 16;
+        shown
+          .slice()
+          .reverse()
+          .forEach((row) => {
+            const k = spring((t - row.at) / 0.4);
+            ctx.font = `700 13px ${CANVAS_FONT}`;
+            const lw = ctx.measureText(row.text).width + 22;
+            const x = 16 - (1 - k) * (lw + 20);
+            y -= 26;
+            chamfer(x, y, lw, 22, 5);
+            ctx.fillStyle = row.hot ? tk.brand : "rgba(5,8,18,0.88)";
+            ctx.fill();
+            if (!row.hot) {
+              ctx.strokeStyle = alpha(tk.chalk, 0.25);
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+            ctx.fillStyle = "#fff";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillText(row.text, x + 11, y + 11.5);
+            y -= 4;
+          });
+      }
 
       // 링: 연석(빨강·흰색 교차) 테두리 + 바닥 + 줄어든 만큼 위험 구역
       function ring(cx, cy, R, rNow, sweep = 1, pulse = 0) {
@@ -88,27 +205,6 @@ export function startIntro(root) {
         ctx.fillText(nm, x, y + 10.5);
       }
 
-      function bigPlate(t, label, value) {
-        const { w, h } = env.view;
-        const k = spring(t / 0.55);
-        const bw = 118;
-        const bx = w - 10 - bw + (1 - k) * 180;
-        slant(ctx, bx, 12, bw, 22, 0);
-        ctx.fillStyle = tk.chalk;
-        ctx.fill();
-        slant(ctx, bx, 36, bw, h * 0.15, 0);
-        ctx.fillStyle = tk.brand;
-        ctx.fill();
-        ctx.fillStyle = tk.bg;
-        ctx.font = `400 13px ${tk.num}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(label, bx + bw / 2, 24);
-        ctx.fillStyle = "#fff";
-        ctx.font = `400 ${Math.round(h * 0.1)}px ${tk.num}`;
-        ctx.fillText(value, bx + bw / 2, 36 + h * 0.078);
-      }
-
       /* 01 입장: 링이 그려지고, 구슬이 위에서(크게 보였다가) 떨어져 착지 */
       function scene1(t, dt) {
         env.floor();
@@ -146,10 +242,11 @@ export function startIntro(root) {
             nameTag(x, y + r + 8, nm, false);
           }
         });
-        if (t > 1.6) {
-          env.tower([0, 1, 2, 3], ["IN", "IN", "IN", "IN"], dt, { title: "RING", x: 10, y: 10 });
-          bigPlate(t - 1.7, "RADIUS", "170");
-        }
+        const landed = NAMES.filter((_, i) => t > 0.75 + i * 0.22).length;
+        brackets(t);
+        aliveBox(landed, t - 0.2);
+        zoneBox("ZONE", "READY", 1, t - 0.5);
+        feed([{ at: 1.9, text: "링 입장 완료 · 4명" }], t);
       }
 
       /* 02 축소: 링이 줄고, 영희가 🚀 돌진해서 민수를 가장자리로 */
@@ -218,10 +315,18 @@ export function startIntro(root) {
           ctx.fillText(lab, x, y - r - 21 - (1 - spring(k)) * 10);
           ctx.globalAlpha = 1;
         }
-        const dist = pos.map(([x, y]) => Math.hypot(x - cx, y - cy) / rNow);
-        const order = [0, 1, 2, 3].sort((a, b) => dist[a] - dist[b]);
-        env.tower(order, order.map((i) => `${Math.round(dist[i] * 100)}%`), dt, { title: "EDGE", x: 10, y: 10, hot: t > hitT ? 0 : -1 });
-        bigPlate(t, "RADIUS", String(Math.round(170 - 78 * shrink)));
+        brackets(1);
+        aliveBox(4, 1);
+        const left = Math.max(0, 22 - Math.round(t * 2.4));
+        zoneBox("ZONE", `0:${String(left).padStart(2, "0")}`, 1 - shrink * 0.55, 1, shrink > 0.5);
+        feed(
+          [
+            { at: 0.25, text: "⚠ 링이 줄어들어요" },
+            { at: 1.1, text: "🚀 영희 돌진" },
+            { at: hitT, text: "💥 영희 → 민수 밀어냄", hot: true },
+          ],
+          t
+        );
       }
 
       /* 03 탈락: 민수가 가장자리에서 밀려 떨어지고 판정 */
@@ -283,20 +388,18 @@ export function startIntro(root) {
           ctx.fillText("OUT", 0, 0);
           ctx.restore();
         }
-        const order = [1, 2, 3, 0];
-        env.tower(order, ["IN", "IN", "IN", t > hit + 0.5 ? "OUT" : "IN"], dt, { title: "SURVIVORS", x: 10, y: 10, hot: t > hit + 0.5 ? 0 : -1 });
-        // 규칙 판
-        const k2 = spring((t - 0.1) / 0.5);
-        const px = w - 10 - 150 + (1 - k2) * 220;
-        slant(ctx, px, 12, 150, 28, 0);
-        ctx.fillStyle = tk.chalk;
-        ctx.fill();
-        ctx.fillStyle = tk.bg;
-        ctx.font = `800 14px ${tk.display}`;
-        ctx.textAlign = "left";
-        ctx.textBaseline = "middle";
-        ctx.fillText("먼저 떨어지면 당첨", px + 10, 27);
-        drawVerdict(ctx, w, cy - R * 0.72, "민수가 쏩니다 ☕", t - 1.75, tk);
+        const outAt = hit + 0.5;
+        brackets(1);
+        aliveBox(t > outAt ? 3 : 4, 1, t > outAt ? t - outAt : -1);
+        zoneBox("ZONE", "0:08", 0.34, 1, true);
+        feed(
+          [
+            { at: 0.1, text: "규칙 · 먼저 떨어지면 당첨" },
+            { at: outAt, text: "영희 ▸ 민수  OUT", hot: true },
+          ],
+          t
+        );
+        drawVerdict(ctx, w, cy - R * 0.3, "민수가 쏩니다 ☕", t - 1.75, tk);
       }
 
       return [scene1, scene2, scene3];

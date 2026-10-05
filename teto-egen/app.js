@@ -447,11 +447,17 @@ function compareBlock(me, fr) {
   </section>`;
 }
 
-function inviteBlock() {
-  return `<section class="te-box te-invite">
-    <h3 class="te-box__title">친선 경기 신청</h3>
-    <p>결과 링크를 받은 친구가 출전을 마치면, 두 사람 줄이 나란히 걸려요. 친구가 보낸 결과 링크를 열어도 돼요.</p>
-    <div class="tk-paste"><input class="te-input" id="pasteFriend" inputmode="url" placeholder="친구 결과 링크 붙여넣기" /><button type="button" class="te-flagbtn te-flagbtn--sm" id="pasteGo">비교</button></div>
+function inviteBlock(me) {
+  const meName = kit.getNick() || "나";
+  return `<section class="te-bracket">
+    <h3 class="te-bracket__title">친선 경기 대진표</h3>
+    <div class="te-bracket__draw">
+      <div class="te-bracket__lane is-me"><i>A</i><b>${esc(meName)}</b><span class="t-num">테토 ${me.teto}</span></div>
+      <div class="te-bracket__lane is-open"><i>B</i><b>출전 대기</b><span>?</span></div>
+      <span class="te-bracket__vs" aria-hidden="true">VS</span>
+    </div>
+    <p class="te-bracket__rule">B 자리는 친구 몫. 내 결과 링크로 친구가 출전하면 줄 두 개가 나란히 걸려요.</p>
+    <div class="tk-paste"><input class="te-input" id="pasteFriend" inputmode="url" placeholder="친구 결과 링크로 B 채우기" /><button type="button" class="te-flagbtn te-flagbtn--sm" id="pasteGo">대진</button></div>
   </section>`;
 }
 
@@ -486,7 +492,7 @@ function showResult(entry, { fresh = false } = {}) {
         <button type="button" class="te-flagbtn te-flagbtn--egen" id="shareImg">포스터 저장</button>
       </div>
     </section>
-    ${friend ? compareBlock(r, friend) : inviteBlock()}
+    ${friend ? compareBlock(r, friend) : inviteBlock(r)}
     ${historyBlock()}
     <button type="button" class="te-pistol te-pistol--again" id="again"><span class="te-pistol__label"><b>재경기</b> 다시 출전하기</span></button>`;
   swapView("result");

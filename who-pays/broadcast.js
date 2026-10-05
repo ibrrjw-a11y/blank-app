@@ -16,7 +16,7 @@ export const easeIn = (t) => Math.pow(clamp01(t), 3);
 export const DEMO_NAMES = ["민수", "영희", "철수", "지은"];
 export const DEMO_COLORS = [PALETTE[0], PALETTE[1], PALETTE[2], PALETTE[3]];
 
-export function runBroadcast(root, { scenes, draw, staticT }) {
+export function runBroadcast(root, { scenes, draw, staticT, ltTag = "해설" }) {
   const stage = root.querySelector(".intro__stage");
   stage.innerHTML = '<canvas class="intro__canvas"></canvas>';
   const canvas = stage.querySelector("canvas");
@@ -175,7 +175,7 @@ export function runBroadcast(root, { scenes, draw, staticT }) {
       );
     }
     if (descEl) {
-      descEl.innerHTML = `<span class="lt__tag">해설</span><span class="lt__text">${escapeHtml(s.desc)}</span>`;
+      descEl.innerHTML = `<span class="lt__tag">${escapeHtml(ltTag)}</span><span class="lt__text">${escapeHtml(s.desc)}</span>`;
       descEl.classList.remove("is-in");
       void descEl.offsetWidth;
       descEl.classList.add("is-in");

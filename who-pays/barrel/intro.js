@@ -9,11 +9,13 @@ const SCENES = [
 ];
 
 const ORDER = [2, 0, 3, 1]; // 철수 → 민수 → 지은 → 영희
+const NAMES = ["민수", "영희", "철수", "지은"];
 const COLS = 4;
 
 export function startIntro(root) {
   return runBroadcast(root, {
     scenes: SCENES,
+    ltTag: "MC",
     staticT: [2.8, 3.2, 3.8],
     draw(env) {
       const { ctx, tk } = env;
@@ -27,12 +29,48 @@ export function startIntro(root) {
       const skin = art("--art-skin", "#ffd2a8");
       const ink = art("--art-ink", "#0a0b0d");
 
+      // 예능 세트: 통은 왼쪽 무대 위, 오른쪽엔 칼 꽂이(차례표), 왼쪽 위엔 동전 배지
+      const RAIL = 0.34; // 오른쪽 칼 꽂이 폭 비율
       const geo = () => {
         const { w, h } = env.view;
-        const bh = Math.min(h - 170, w * 0.82);
-        const bw = bh * 0.92;
-        return { w, h, bw, bh, x: (w - bw) / 2, y: h - bh - 10 };
+        let bw = w * (1 - RAIL) - 22;
+        let bh = bw / 0.92;
+        if (bh > h - 96) {
+          bh = h - 96;
+          bw = bh * 0.92;
+        }
+        return { w, h, bw, bh, x: 12 + (w * (1 - RAIL) - 22 - bw) / 2, y: h - bh - 22 };
       };
+
+      // 무대 바닥 + 조명
+      function set(g) {
+        const { w, h } = env.view;
+        ctx.fillStyle = tk.asphalt;
+        ctx.fillRect(0, 0, w, h);
+        const spot = ctx.createRadialGradient(g.x + g.bw / 2, g.y + g.bh * 0.3, 10, g.x + g.bw / 2, g.y + g.bh * 0.5, g.bh * 0.95);
+        spot.addColorStop(0, "rgba(255,214,150,0.22)");
+        spot.addColorStop(1, "rgba(255,214,150,0)");
+        ctx.fillStyle = spot;
+        ctx.fillRect(0, 0, w, h);
+        // 원형 무대
+        ctx.beginPath();
+        ctx.ellipse(g.x + g.bw / 2, g.y + g.bh + 2, g.bw * 0.62, 16, 0, 0, Math.PI * 2);
+        ctx.fillStyle = tk.brand;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(g.x + g.bw / 2, g.y + g.bh - 2, g.bw * 0.62, 14, 0, 0, Math.PI * 2);
+        ctx.fillStyle = alpha(tk.chalk, 0.92);
+        ctx.fill();
+        // 바닥 점선 (무대 동선)
+        ctx.strokeStyle = "rgba(255,255,255,0.06)";
+        ctx.lineWidth = 1;
+        for (let y = 6; y < h; y += 4) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+          ctx.stroke();
+        }
+      }
       const holeAt = (k, g) => {
         const c = k % COLS;
         const r = Math.floor(k / COLS);
@@ -52,7 +90,7 @@ export function startIntro(root) {
         ctx.moveTo(-42, -2);
         ctx.quadraticCurveTo(0, -54, 42, -2);
         ctx.quadraticCurveTo(0, -16, -42, -2);
-        ctx.fillStyle = tk.brand;
+        ctx.fillStyle = "#d8322f"; // 해적 두건 (일러스트 장식색)
         ctx.fill();
         ctx.beginPath();
         ctx.arc(-16, 6, 11, 0, Math.PI * 2);
@@ -170,39 +208,93 @@ export function startIntro(root) {
         ctx.restore();
       }
 
-      function plate(label, value, t, sub) {
-        const { w, h } = env.view;
-        const k = spring(t / 0.55);
-        const bw = 112;
-        const bx = w - 10 - bw + (1 - k) * 180;
-        slant(ctx, bx, 12, bw, 22, 0);
-        ctx.fillStyle = tk.chalk;
-        ctx.fill();
-        slant(ctx, bx, 36, bw, Math.min(84, h * 0.2), 0);
+      // 왼쪽 위 동전 배지 (구멍 수 · 남은 구멍 · 확률)
+      function coin(label, value, t, sub) {
+        const k = spring(t / 0.5);
+        const R = 36;
+        const cx = 14 + R;
+        const cy = 14 + R;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate((1 - k) * -1.6);
+        ctx.scale(k, k);
+        ctx.beginPath();
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
         ctx.fillStyle = tk.brand;
         ctx.fill();
-        ctx.fillStyle = tk.bg;
-        ctx.font = `400 13px ${tk.num}`;
+        ctx.beginPath();
+        ctx.arc(0, 0, R - 5, 0, Math.PI * 2);
+        ctx.strokeStyle = alpha(tk.chalk, 0.6);
+        ctx.setLineDash([3, 3]);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#fff";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(label, bx + bw / 2, 24);
-        ctx.fillStyle = "#fff";
-        ctx.font = `400 ${Math.round(Math.min(56, h * 0.13))}px ${tk.num}`;
-        ctx.fillText(value, bx + bw / 2, 36 + Math.min(84, h * 0.2) * 0.42);
+        ctx.font = `400 11px ${tk.num}`;
+        ctx.fillText(label, 0, -19);
+        ctx.font = `400 ${value.length > 2 ? 22 : 30}px ${tk.num}`;
+        ctx.fillText(value, 0, 2);
         if (sub) {
-          ctx.font = `800 13px ${tk.display}`;
-          ctx.fillText(sub, bx + bw / 2, 36 + Math.min(84, h * 0.2) * 0.82);
+          ctx.font = `800 9px ${tk.display}`;
+          ctx.fillText(sub, 0, 22);
         }
+        ctx.restore();
       }
 
-      // 차례판 (타이밍 타워 자리)
-      function turns(active, dt, status) {
-        env.tower(
-          ORDER,
-          ORDER.map((i, k) => status[k] || (k === active ? "NOW" : "")),
-          dt,
-          { title: "TURN", x: 10, y: 10, hot: active >= 0 ? ORDER[active] : -1 }
-        );
+      // 오른쪽 칼 꽂이: 차례대로 칼 손잡이에 이름. 지금 차례는 왼쪽(통 쪽)으로 뽑혀 나옴
+      function rail(active, status, t) {
+        const { w, h } = env.view;
+        const x0 = w * (1 - RAIL) + 2;
+        const rw = w - x0 - 12;
+        const top = 18;
+        const gap = (h - top - 20) / ORDER.length;
+        // 꽂이 판
+        ctx.fillStyle = wood[0];
+        ctx.fillRect(x0 + rw - 14, top - 6, 10, h - top - 8);
+        ctx.font = `400 11px ${tk.num}`;
+        ctx.fillStyle = alpha(tk.chalk, 0.55);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText("TURN", x0 + rw - 20, top + 2);
+        ORDER.forEach((pi, k) => {
+          const enter = spring((t - k * 0.08) / 0.45);
+          const y = top + k * gap + gap * 0.5;
+          const isNow = k === active;
+          const st = status[k] || "";
+          const pull = isNow ? 14 + Math.sin(t * 6) * 3 : 0;
+          const x = x0 + (1 - enter) * 120 - pull;
+          const hw = rw - 10;
+          // 칼날 (왼쪽을 향함)
+          ctx.beginPath();
+          ctx.moveTo(x - 14, y);
+          ctx.lineTo(x + 8, y - 7);
+          ctx.lineTo(x + 8, y + 7);
+          ctx.closePath();
+          ctx.fillStyle = st === "SAFE" ? alpha(tk.chalk, 0.35) : tk.chalk;
+          ctx.fill();
+          ctx.fillStyle = hoop[1];
+          ctx.fillRect(x + 8, y - 11, 5, 22);
+          // 손잡이 = 이름표
+          const hx = x + 13;
+          const hh = Math.min(30, gap - 10);
+          ctx.beginPath();
+          ctx.roundRect(hx, y - hh / 2, hw - 13, hh, hh / 2);
+          ctx.fillStyle = st === "POP!" ? tk.warning : isNow ? tk.brand : st === "SAFE" ? "rgba(255,255,255,0.1)" : wood[1];
+          ctx.fill();
+          ctx.fillStyle = st === "POP!" ? tk.bg : "#fff";
+          ctx.font = `800 13px ${tk.display}`;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "middle";
+          ctx.fillText(NAMES[pi], hx + 9, y + 1);
+          if (st) {
+            ctx.font = `400 10px ${tk.num}`;
+            ctx.textAlign = "right";
+            ctx.fillStyle = st === "POP!" ? tk.bg : st === "SAFE" ? alpha(tk.chalk, 0.6) : "#fff";
+            ctx.fillText(st, hx + hw - 13 - 7, y + 1);
+          }
+        });
       }
 
       function floatText(x, y, text, age) {
@@ -226,8 +318,8 @@ export function startIntro(root) {
 
       /* 01 구멍: 통이 튀어 올라 착지, 구멍이 하나씩 뚫리고 숫자판 */
       function scene1(t, dt) {
-        env.floor();
         const g = geo();
+        set(g);
         const land = 0.45;
         const drop = clamp01(t / land);
         const sq = t > land ? squashAmt(t - land, 0.18) : 0;
@@ -246,10 +338,8 @@ export function startIntro(root) {
           ctx.textBaseline = "middle";
           ctx.fillText(String(k + 1), hx, hy + g.bw * 0.1);
         }
-        if (t > 1.0) {
-          turns(-1, dt, ["", "", "", ""]);
-          plate("HOLES", String(Math.min(8, Math.max(1, Math.floor(holes)))), t - 1.0, "4명 × 2");
-        }
+        rail(-1, ["", "", "", ""], t - 0.3);
+        if (t > 1.0) coin("HOLES", String(Math.min(8, Math.max(1, Math.floor(holes)))), t - 1.0, "4명 × 2");
       }
 
       /* 02 차례: 철수·민수·지은이 차례로 꽂고 모두 세이프 */
@@ -259,8 +349,8 @@ export function startIntro(root) {
         { at: 2.5, hole: 7, k: 2 },
       ];
       function scene2(t, dt) {
-        env.floor();
         const g = geo();
+        set(g);
         let wob = 0;
         const used = [];
         STABS.forEach((s) => {
@@ -288,15 +378,15 @@ export function startIntro(root) {
           floatText(hx, hy - 30, ["세이프!", "휴~ 통과", "세이프!"][s.k], t - s.at - 0.3);
         });
         const active = Math.min(3, STABS.filter((s) => t > s.at + 0.35).length);
-        const status = ORDER.map((_, k) => (k < active ? "SAFE" : ""));
-        turns(active, dt, status);
-        plate("LEFT", String(8 - used.length), 0.6, "남은 구멍");
+        const status = ORDER.map((_, k) => (k < active ? "SAFE" : k === active ? "NOW" : ""));
+        rail(active, status, t + 1);
+        coin("LEFT", String(8 - used.length), 1, "남은 구멍");
       }
 
       /* 03 판정: 지은 차례에 해적이 튐 */
       function scene3(t, dt) {
-        env.floor();
         const g = geo();
+        set(g);
         const used = [5, 2, 7];
         const stabAt = 0.55;
         const popAt = stabAt + 0.45;
@@ -339,8 +429,8 @@ export function startIntro(root) {
           pirate(px, py, (g.bw / 260) * (1.1 + squashAmt(a, 0.2)), -Math.min(1, a / 0.55) * Math.PI * 4);
         }
         const status = ["SAFE", "SAFE", t > popAt ? "POP!" : "NOW", ""];
-        turns(2, dt, status);
-        if (t < popAt) plate("ODDS", "25%", 0.6, "1인당 확률");
+        rail(t > popAt ? -1 : 2, status, t + 1);
+        coin("ODDS", "25%", 1, "1인당 확률");
         drawVerdict(ctx, env.view.w, g.y + g.bh * 0.55, "지은이 쏩니다 ☕", t - popAt - 0.6, tk);
       }
 

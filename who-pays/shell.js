@@ -3,7 +3,7 @@
 // 장부와 저장된 그룹은 같은 저장소("who-pays")를 쓰므로 세 페이지에서 이어진다.
 import {
   $, $$, createStore, toast, haptic, share, shareImage, encodeState, decodeState, urlWith, getParam, urlOf,
-  showView, renderMoreSites, renderCrumb, createCanvas, CANVAS_FONT, downloadBlob, todayKey, openSheet,
+  showView, renderMoreSites, createCanvas, CANVAS_FONT, downloadBlob, todayKey, openSheet,
   prefersReducedMotion, sleep,
 } from "../shared/kit.js";
 import { PALETTE, ITEM_KEYS, randomSeed, headline, penaltyEmoji, debtLabel, escapeHtml, readTokens } from "./common.js";
@@ -191,6 +191,23 @@ function viewsHtml(mode) {
     </div>
     <div id="ledgerBody" class="stack gap-16"></div>
   </section>`;
+}
+
+// 하단 다른 놀이 3개: 방송 끝에 뜨는 "다음 편성" 로어서드 자막. 페이지마다 문구가 다르다
+const MORE_DRESS = {
+  race: { kicker: "NEXT ON AIR", title: "이어서 방송", slot: (k) => `NEXT ${k + 1}` },
+  battle: { kicker: "NEXT MATCH", title: "다음 경기 대진", slot: (k) => `MATCH ${k + 2}` },
+  barrel: { kicker: "다음 코너", title: "채널 고정!", slot: (k) => `코너 ${k + 2}` },
+};
+function dressMore(mode) {
+  const more = $("#more");
+  const d = MORE_DRESS[mode];
+  const title = more?.querySelector(".more-sites__title");
+  if (!d || !title) return;
+  title.innerHTML = `<span class="nx__kicker">${d.kicker}</span><span class="nx__title">${d.title}</span>`;
+  more.querySelectorAll(".more-sites__item").forEach((a, k) => {
+    a.insertAdjacentHTML("afterbegin", `<span class="nx__slot" aria-hidden="true">${d.slot(k)}</span>`);
+  });
 }
 
 /* ================================================================ */
@@ -887,8 +904,8 @@ export function startShell({ mode, start, intro }) {
       if (ok) document.documentElement.classList.add("has-display-font");
     })
     .catch(() => {});
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
+  dressMore(mode);
   renderSetup();
   enterIntro();
 }

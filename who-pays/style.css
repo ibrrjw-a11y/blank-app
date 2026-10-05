@@ -152,7 +152,7 @@ body {
 }
 
 /* ---------- 인트로 ---------- */
-.intro { min-height: calc(100dvh - var(--sp-32)); padding-top: var(--sp-4); }
+.intro { min-height: 100dvh; padding-top: var(--sp-4); }
 
 .bc-top {
   display: flex;
@@ -1173,34 +1173,12 @@ body.is-playing .site-footer { display: none; }
   transform: skewX(var(--art-skew));
 }
 
-.more-sites__item { border-radius: var(--r-4); }
 
 /* Black Han Sans 가 실제로 로드된 경우에만 가짜 굵기 합성을 끈다 (대체 서체는 굵게 보이도록) */
 :root.has-display-font { font-synthesis-weight: none; }
 :root.has-display-font body { font-synthesis-weight: auto; }
 :root.has-display-font :is(.wordmark, .bc-h, .gantry__label, .kinetic, .setup__title, .seg__btn, .lt__tag, .barrel__turn .t-title-03, .barrel__win, .barrel__float, .stamp__text, .lg__title, .seo h2) { font-synthesis-weight: none; }
 
-
-/* ---------- 상단 경로: 방송 그래픽 태그 ---------- */
-.crumb {
-  height: var(--sp-32);
-  gap: var(--sp-4);
-}
-
-.crumb a {
-  padding: var(--sp-2) var(--sp-8);
-  background: var(--color-surface-raised);
-  color: var(--color-text-secondary);
-  font: var(--label-03);
-  transform: skewX(var(--art-skew));
-}
-
-.crumb a:first-child {
-  background: var(--art-chalk);
-  color: var(--art-ink);
-}
-
-.crumb span { color: var(--color-text-tertiary); }
 
 /* ---------- 시작 버튼: F1 출발 신호 갠트리 + 사선 플레이트 ---------- */
 .gantry {
@@ -1459,3 +1437,409 @@ body.is-playing .site-footer { display: none; }
 }
 
 .rulebook__note b { color: var(--color-primary); }
+
+
+/* ================================================================
+ * 하단 "다른 놀이" 3개: 방송 끝 다음 편성 로어서드 자막
+ * ================================================================ */
+#more.more-sites {
+  margin-top: var(--sp-48);
+  padding: var(--sp-20) 0 calc(var(--sp-40) + var(--safe-bottom));
+  border-top: 1px solid var(--color-border);
+}
+#more .more-sites__title {
+  display: flex;
+  align-items: stretch;
+  margin: 0 0 var(--sp-16) var(--sp-4);
+  opacity: 1;
+}
+#more .nx__kicker {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-4) var(--sp-10);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: 400 15px/1 var(--art-font-num);
+  letter-spacing: 0.08em;
+  transform: skewX(var(--art-skew));
+}
+#more .nx__title {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-4) var(--sp-12);
+  background: var(--art-chalk);
+  color: var(--art-ink);
+  font: 800 16px/1 var(--font-display);
+  transform: skewX(var(--art-skew));
+}
+#more .more-sites__grid { gap: var(--sp-10); }
+#more .more-sites__item {
+  display: grid;
+  grid-template-columns: 4.6em minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: stretch;
+  gap: 0;
+  min-height: 60px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text);
+  transform: skewX(var(--art-skew));
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+#more .more-sites__item:nth-child(2) { margin-left: var(--sp-12); }
+#more .more-sites__item:nth-child(3) { margin-left: var(--sp-24); }
+#more .more-sites__item:active { transform: skewX(var(--art-skew)) translateX(var(--sp-6)); transition-duration: var(--dur-fast); }
+#more .nx__slot {
+  grid-row: 1 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--art-ink);
+  border-left: var(--sp-4) solid var(--color-primary);
+  color: var(--color-primary);
+  font: 400 14px/1.1 var(--art-font-num);
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+#more .more-sites__name {
+  display: flex;
+  align-items: center;
+  padding: var(--sp-6) var(--sp-12) var(--sp-2);
+  background: var(--art-chalk);
+  color: var(--art-ink);
+  font: 800 18px/1.2 var(--font-display);
+}
+#more .more-sites__desc {
+  padding: var(--sp-4) var(--sp-12) var(--sp-6);
+  background: var(--color-surface-raised);
+  color: var(--color-text-secondary);
+  font: var(--caption-01);
+  opacity: 1;
+}
+
+/* ================================================================
+ * FAQ: 페이지마다 다른 방송 문서 형식
+ * ================================================================ */
+.rulebook { counter-reset: faq; }
+.rulebook details {
+  counter-increment: faq;
+  position: relative;
+  padding: 0;
+  border: 0;
+}
+.rulebook summary {
+  position: relative;
+  display: block;
+  min-height: 52px;
+  list-style: none;
+  cursor: pointer;
+}
+.rulebook summary::-webkit-details-marker { display: none; }
+
+/* 구슬 레이스: 경기 규정 질의 · 회신 공문 */
+:root[data-mode="race"] .rulebook details {
+  margin-top: var(--sp-8);
+  border-left: var(--sp-4) solid var(--art-line);
+  background: var(--color-surface);
+}
+:root[data-mode="race"] .rulebook details[open] { border-left-color: var(--color-primary); }
+:root[data-mode="race"] .rulebook summary {
+  padding: var(--sp-32) var(--sp-16) var(--sp-12) var(--sp-12);
+  color: var(--color-text);
+  font: 800 16px/1.4 var(--font-display);
+}
+:root[data-mode="race"] .rulebook summary::before {
+  content: "질의 제" counter(faq, decimal-leading-zero) "호";
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-10);
+  color: var(--color-text-tertiary);
+  font: 700 11px/14px var(--font-sans);
+  letter-spacing: 0.06em;
+}
+:root[data-mode="race"] .rulebook summary::after {
+  content: "회신 보기 ›";
+  position: absolute;
+  right: var(--sp-12);
+  top: var(--sp-10);
+  color: var(--color-primary);
+  font: 700 11px/14px var(--font-sans);
+}
+:root[data-mode="race"] .rulebook details[open] summary::after { content: "회신"; color: var(--color-text-tertiary); }
+:root[data-mode="race"] .rulebook details p {
+  position: relative;
+  margin: 0 var(--sp-12) var(--sp-12);
+  padding: var(--sp-10) var(--sp-12) var(--sp-10) 4.4em;
+  background: var(--art-chalk);
+  color: var(--art-ink);
+  font: var(--body-03);
+}
+:root[data-mode="race"] .rulebook details p::before {
+  content: "회신";
+  position: absolute;
+  left: var(--sp-10);
+  top: var(--sp-10);
+  padding: 0 var(--sp-6);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  font: 800 12px/18px var(--font-display);
+  transform: rotate(-6deg);
+}
+
+/* 배틀로얄: 경기 후 기자회견 녹취 */
+:root[data-mode="battle"] .rulebook details { margin-top: var(--sp-16); }
+:root[data-mode="battle"] .rulebook summary {
+  margin-right: var(--sp-32);
+  padding: var(--sp-12) var(--sp-16) var(--sp-12) 4.2em;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--r-12) var(--r-12) var(--r-12) var(--r-0);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: 700 16px/1.45 var(--font-sans);
+}
+:root[data-mode="battle"] .rulebook summary::before {
+  content: "기자";
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-12);
+  padding: 0 var(--sp-6);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font: 800 12px/22px var(--font-display);
+}
+:root[data-mode="battle"] .rulebook summary::after {
+  content: "답변 ▾";
+  position: absolute;
+  right: var(--sp-10);
+  bottom: calc(var(--sp-20) * -1);
+  color: var(--color-primary);
+  font: 700 11px/16px var(--font-sans);
+}
+:root[data-mode="battle"] .rulebook details[open] summary::after { content: ""; }
+:root[data-mode="battle"] .rulebook details p {
+  position: relative;
+  margin: var(--sp-8) 0 0 var(--sp-32);
+  padding: var(--sp-12) var(--sp-16) var(--sp-12) 5.6em;
+  border-radius: var(--r-12) var(--r-12) var(--r-0) var(--r-12);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: var(--body-03);
+}
+:root[data-mode="battle"] .rulebook details p::before {
+  content: "해설위원";
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-12);
+  padding: 0 var(--sp-6);
+  background: var(--art-ink);
+  color: var(--color-on-primary);
+  font: 800 12px/22px var(--font-display);
+}
+
+/* 통아저씨: 화면에 뜨는 시청자 문자 + MC 답 자막 */
+:root[data-mode="barrel"] .rulebook details {
+  margin-top: var(--sp-12);
+  border-radius: var(--r-16);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+:root[data-mode="barrel"] .rulebook summary {
+  padding: var(--sp-32) var(--sp-16) var(--sp-14, 14px);
+  color: var(--color-text);
+  font: 700 16px/1.45 var(--font-sans);
+}
+:root[data-mode="barrel"] .rulebook summary::before {
+  content: "#" counter(faq) "0" counter(faq) " 시청자 문자";
+  position: absolute;
+  left: var(--sp-16);
+  top: var(--sp-10);
+  color: var(--color-primary);
+  font: 700 11px/14px var(--font-sans);
+  letter-spacing: 0.04em;
+}
+:root[data-mode="barrel"] .rulebook summary::after {
+  content: "MC 답 듣기";
+  position: absolute;
+  right: var(--sp-12);
+  top: var(--sp-8);
+  padding: 0 var(--sp-8);
+  border-radius: var(--r-full);
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+  font: 700 11px/18px var(--font-sans);
+}
+:root[data-mode="barrel"] .rulebook details[open] summary::after { content: "ON AIR"; background: var(--color-primary); color: var(--color-on-primary); }
+:root[data-mode="barrel"] .rulebook details p {
+  position: relative;
+  margin: 0 var(--sp-10) var(--sp-12);
+  padding: var(--sp-10) var(--sp-14, 14px) var(--sp-10) 3.6em;
+  border-radius: var(--r-full);
+  background: var(--art-chalk);
+  color: var(--art-ink);
+  font: 700 14px/1.45 var(--font-sans);
+  transform: rotate(-1deg);
+}
+:root[data-mode="barrel"] .rulebook details p::before {
+  content: "MC";
+  position: absolute;
+  left: var(--sp-6);
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-top: -15px;
+  border-radius: var(--r-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: 800 12px/1 var(--font-display);
+}
+.rulebook details[open] p { animation: faq-in 380ms var(--art-spring) both; }
+@keyframes faq-in {
+  0% { transform: translateY(calc(var(--sp-8) * -1)) scale(0.96); opacity: 0; }
+}
+:root[data-mode="barrel"] .rulebook details[open] p { animation-name: faq-in-tilt; }
+@keyframes faq-in-tilt {
+  0% { transform: rotate(-6deg) scale(0.8); opacity: 0; }
+  100% { transform: rotate(-1deg); opacity: 1; }
+}
+
+/* ================================================================
+ * 배틀로얄: e스포츠 HUD (전기 파랑, 기울임 없음, 깎인 모서리, 조준 괄호)
+ * ================================================================ */
+:root[data-mode="battle"] {
+  --brand: #2d6bff;
+  --brand-pressed: #1d52d6;
+  --brand-soft: #0e1a3d;
+  --brand-on: #ffffff;
+  --art-asphalt: #0a0f1d;
+  --art-line: #26324d;
+  --art-skew: 0deg;
+  --art-hud: polygon(var(--sp-8) 0, 100% 0, 100% calc(100% - var(--sp-8)), calc(100% - var(--sp-8)) 100%, 0 100%, 0 var(--sp-8));
+}
+:root[data-mode="battle"] body {
+  background-image:
+    linear-gradient(rgba(45, 107, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 107, 255, 0.05) 1px, transparent 1px);
+  background-size: var(--sp-24) var(--sp-24);
+}
+:root[data-mode="battle"] .live-bug {
+  padding: var(--sp-2) var(--sp-8);
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+  color: var(--color-primary);
+  clip-path: var(--art-hud);
+}
+:root[data-mode="battle"] .live-bug i { border-radius: 0; background: var(--color-primary); transform: rotate(45deg); }
+:root[data-mode="battle"] .wordmark { letter-spacing: 0.06em; }
+:root[data-mode="battle"] .odo {
+  border: 0;
+  background:
+    linear-gradient(var(--color-primary), var(--color-primary)) 0 0 / 10px 2px no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) 0 0 / 2px 10px no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) 100% 100% / 10px 2px no-repeat,
+    linear-gradient(var(--color-primary), var(--color-primary)) 100% 100% / 2px 10px no-repeat,
+    var(--art-ink);
+}
+:root[data-mode="battle"] .intro__stage {
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px var(--art-line);
+  clip-path: var(--art-hud);
+}
+:root[data-mode="battle"] .bc-steps__seg i { height: var(--sp-6); clip-path: polygon(var(--sp-4) 0, 100% 0, calc(100% - var(--sp-4)) 100%, 0 100%); }
+:root[data-mode="battle"] .kinetic { letter-spacing: 0; }
+:root[data-mode="battle"] .kinetic__line.is-hot {
+  display: inline-block;
+  margin-top: var(--sp-4);
+  padding: 0 var(--sp-8) var(--sp-2);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  clip-path: var(--art-hud);
+}
+:root[data-mode="battle"] .lt__tag,
+:root[data-mode="battle"] .bc-tag,
+:root[data-mode="battle"] .nx__kicker { clip-path: var(--art-hud); }
+:root[data-mode="battle"] .gantry__lights { clip-path: var(--art-hud); padding-right: var(--sp-12); }
+:root[data-mode="battle"] .gantry__lights i { border-radius: 0; transform: rotate(45deg) scale(0.8); }
+:root[data-mode="battle"] .gantry__plate {
+  margin-left: var(--sp-4);
+  clip-path: var(--art-hud);
+}
+:root[data-mode="battle"] .gantry__plate::after {
+  background: repeating-linear-gradient(-45deg, var(--art-ink) 0 4px, transparent 4px 9px);
+  clip-path: none;
+}
+:root[data-mode="battle"] .seo h3,
+:root[data-mode="battle"] .bc-h,
+:root[data-mode="battle"] .nx__title { clip-path: var(--art-hud); }
+:root[data-mode="battle"] .stamp,
+:root[data-mode="battle"] .plate { border-radius: 0; }
+
+/* ================================================================
+ * 통아저씨: 예능 게임쇼 세트 (청록 포인트, 둥근 자막, 나무통 소품)
+ * ================================================================ */
+:root[data-mode="barrel"] {
+  --brand: #00977a;
+  --brand-pressed: #007a63;
+  --brand-soft: #0b2c26;
+  --brand-on: #ffffff;
+  --art-asphalt: #121110;
+  --art-line: #3a3129;
+  --art-skew: 0deg;
+}
+:root[data-mode="barrel"] body {
+  background-image:
+    radial-gradient(ellipse at 50% -10%, rgba(255, 196, 120, 0.1), transparent 60%),
+    repeating-linear-gradient(0deg, var(--art-scan) 0 1px, transparent 1px 3px);
+}
+:root[data-mode="barrel"] .live-bug { border-radius: var(--r-full); padding: var(--sp-2) var(--sp-10); transform: rotate(-4deg); }
+:root[data-mode="barrel"] .wordmark {
+  padding: var(--sp-2) var(--sp-12);
+  border-radius: var(--r-full);
+  background: var(--art-chalk);
+  color: var(--art-ink);
+  transform: rotate(-2deg);
+  box-shadow: 3px 3px 0 var(--color-primary);
+}
+:root[data-mode="barrel"] .odo { border-radius: var(--r-full); padding-inline: var(--sp-12); }
+:root[data-mode="barrel"] .intro__stage {
+  border-radius: var(--r-24);
+  clip-path: none;
+  box-shadow: inset 0 0 0 var(--sp-6) var(--art-wood-1), inset 0 0 0 calc(var(--sp-6) + 2px) var(--art-wood-3);
+}
+:root[data-mode="barrel"] .bc-steps__seg i { height: var(--sp-8); border-radius: var(--r-full); }
+:root[data-mode="barrel"] .kinetic { letter-spacing: -0.01em; }
+:root[data-mode="barrel"] .kinetic__line { overflow: visible; }
+:root[data-mode="barrel"] .kinetic__line.is-hot {
+  color: var(--art-chalk);
+  text-shadow: 3px 3px 0 var(--color-primary), -1px -1px 0 var(--art-ink), 1px -1px 0 var(--art-ink), -1px 1px 0 var(--art-ink);
+}
+:root[data-mode="barrel"] .lt__tag { border-radius: var(--r-full) 0 0 var(--r-full); padding-left: var(--sp-12); }
+:root[data-mode="barrel"] .lt__text { border-radius: 0 var(--r-full) var(--r-full) 0; padding-right: var(--sp-16); }
+:root[data-mode="barrel"] .gantry__lights {
+  clip-path: none;
+  border-radius: var(--r-full) 0 0 var(--r-full);
+  padding: 0 var(--sp-16);
+  background: var(--art-wood-2);
+  border-color: var(--art-wood-1);
+}
+:root[data-mode="barrel"] .gantry__lights i { width: var(--sp-12); height: var(--sp-12); background: var(--art-hole); box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15); }
+:root[data-mode="barrel"] .gantry__plate {
+  margin-left: 0;
+  border-radius: 0 var(--r-full) var(--r-full) 0;
+  clip-path: none;
+}
+:root[data-mode="barrel"] .gantry__plate::after {
+  width: var(--sp-32);
+  border-radius: 0 var(--r-full) var(--r-full) 0;
+  background: repeating-linear-gradient(90deg, var(--art-wood-2) 0 5px, var(--art-wood-3) 5px 7px);
+  clip-path: none;
+}
+:root[data-mode="barrel"] .seo h3,
+:root[data-mode="barrel"] .bc-h,
+:root[data-mode="barrel"] .nx__title { border-radius: 0 var(--r-full) var(--r-full) 0; }
+:root[data-mode="barrel"] .bc-tag,
+:root[data-mode="barrel"] .nx__kicker { border-radius: var(--r-full) 0 0 var(--r-full); }
+:root[data-mode="barrel"] #more .more-sites__item { border-radius: var(--r-12); overflow: hidden; }
+:root[data-mode="barrel"] #more .nx__slot { border-left: 0; }

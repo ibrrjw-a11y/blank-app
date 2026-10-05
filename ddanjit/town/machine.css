@@ -186,7 +186,7 @@ body { background-color: var(--art-cabinet); }
 
 /* ---------- 문답: 길 안내소 — 노선 번호판 + 점선 경로 ---------- */
 .tfaq { margin-top: var(--sp-32); padding-top: var(--sp-16); border-top: 3px solid var(--art-cabinet); }
-.seo .tfaq__title {
+.seo.manual .tfaq__title {
   display: flex;
   align-items: center;
   gap: var(--sp-10);
@@ -354,23 +354,3 @@ body { background-color: var(--art-cabinet); }
   .seo.manual .tfaq__item p { animation: none; }
   .tsign__arrow { transform: rotate(45deg); }
 }
-
-/* 화면 안 장면: 세로로 긴 이 캐비닛에 맞게 지도를 크게, 판독기는 아래 한 줄로 */
-.trig .sc-town {
-  grid-template-columns: 1fr;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: var(--sp-8);
-  padding: var(--sp-24) var(--sp-16) var(--sp-16);
-}
-.trig .sc-town__map { width: 100%; height: 100%; max-height: none; }
-.trig .sc-town__dots { fill: color-mix(in srgb, var(--brand) 45%, var(--art-crt)); }
-.trig .sc-town__panel {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  grid-template-rows: auto auto auto;
-  column-gap: var(--sp-12);
-  row-gap: var(--sp-4);
-  align-items: center;
-}
-.trig .sc-town__arrow { grid-row: 1 / span 3; }
-.trig .sc-town__km { font-size: 30px; line-height: 1.1; }

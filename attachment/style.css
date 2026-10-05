@@ -1312,3 +1312,41 @@ body {
 
 .at-loop path { opacity: 0; }
 .is-circled .at-loop path { opacity: 1; }
+
+/* ---------- 함께 보기 (친구 초대) ----------
+ * 점검지 아래 대조표: 내 칸은 타자, 상대 칸은 연필 밑줄만 그어진 빈칸 */
+.at-blank {
+  width: 100%;
+  margin: 0 0 var(--sp-8);
+  border-collapse: collapse;
+  font: 400 14px/1.4 var(--art-typed);
+  background: var(--color-surface);
+}
+
+.at-blank th,
+.at-blank td {
+  height: 40px;
+  padding: 0 var(--sp-8);
+  border: 1px solid var(--art-lead);
+  text-align: center;
+}
+
+.at-blank thead th { height: 30px; font-weight: 700; background: color-mix(in srgb, var(--art-rule) 35%, transparent); }
+.at-blank tbody th { width: 3.6em; font-weight: 700; }
+.at-blank td:nth-child(2) { font-weight: 700; }
+
+.at-blank__line {
+  display: inline-block;
+  width: 70%;
+  height: 2px;
+  background: var(--art-lead-soft);
+  border-radius: var(--r-full);
+  transform: rotate(-1.5deg);
+  opacity: 0.6;
+}
+
+.at-card .at-blank__how {
+  margin: 0 0 var(--sp-12);
+  font: 700 17px/1.4 var(--font-display);
+  color: var(--brand);
+}

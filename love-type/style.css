@@ -1208,3 +1208,59 @@ body::before {
   from { clip-path: inset(0 0 100% 0); }
   to { clip-path: inset(0 0 0 0); }
 }
+
+/* ---------- 표본 상자 (친구 초대) ----------
+ * 칸막이 두 칸짜리 표본 상자: 왼쪽은 내 동물, 오른쪽은 실루엣만 비친 빈칸 */
+.lt-case {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 0 0 var(--sp-12);
+  border: 3px solid var(--art-ink);
+  background: var(--art-paper-2);
+  box-shadow: inset 0 0 0 4px var(--art-paper);
+}
+
+.lt-case__slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--sp-12) var(--sp-8) var(--sp-8);
+}
+
+.lt-case__slot + .lt-case__slot { border-left: 3px solid var(--art-ink); }
+
+.lt-case__art { width: 100%; max-width: 130px; height: auto; }
+
+.lt-case__slot.is-empty .lt-case__art { opacity: 0.5; }
+
+.lt-case__q {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  font: italic 400 44px/1 var(--art-latin);
+  color: var(--art-rust);
+  animation: lt-q-bob 1.6s var(--art-spring) infinite alternate;
+}
+
+.lt-case__tag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--sp-4);
+  padding: var(--sp-4) var(--sp-10);
+  background: var(--art-tag);
+  border: 1px solid var(--art-ink);
+  transform: rotate(-3deg);
+}
+
+.lt-case__slot.is-empty .lt-case__tag { border-style: dashed; transform: rotate(2deg); }
+.lt-case__tag b { font: 400 15px/1.3 var(--font-display); }
+.lt-case__tag i { font: italic 400 11px/1.3 var(--art-latin); color: var(--art-ink-soft); }
+
+@keyframes lt-q-bob {
+  from { transform: translate(-50%, -50%) rotate(-8deg); }
+  to { transform: translate(-50%, -62%) rotate(6deg); }
+}

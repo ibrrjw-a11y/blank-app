@@ -1171,3 +1171,37 @@ body {
 }
 
 .kd-panel + .kd-official { margin-top: var(--sp-16); }
+
+/* ---------- 합동 결재 요청서 (친구 초대) ----------
+ * 문단 대신 결재 양식 표: 기안 / 협조(빈칸) / 요지 / 첨부(링크 입력) */
+.kd-req__form {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 13px/1.5 var(--art-gothic);
+  color: var(--art-ink);
+}
+
+.kd-req__form th,
+.kd-req__form td {
+  padding: var(--sp-8);
+  border: 1px solid var(--art-ink);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.kd-req__form th {
+  width: 3.4em;
+  background: var(--art-cell);
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.2em;
+}
+
+.kd-req__form b { font: 700 16px/1 var(--art-mono); color: var(--brand); }
+
+.kd-req__empty {
+  color: var(--art-ink-soft);
+  background: repeating-linear-gradient(-45deg, transparent 0 6px, color-mix(in srgb, var(--art-rule) 25%, transparent) 6px 7px);
+}
+
+.kd-req__form td:has(.tk-paste) { padding: var(--sp-6); }

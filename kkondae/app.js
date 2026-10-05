@@ -360,11 +360,15 @@ function compareBlock(me, fr) {
   </section>`;
 }
 
-function inviteBlock() {
-  return `<section class="kd-sheet kd-panel">
-    <h3 class="kd-box__title">합동 결재 요청</h3>
-    <p class="kd-box__p">판정서를 받은 친구가 결재를 올리면 두 판정서를 나란히 놓은 합동 결재표가 나와요. 친구가 보낸 판정서 링크를 붙여 넣어도 돼요.</p>
-    <div class="tk-paste"><input class="kd-input" id="pasteFriend" inputmode="url" placeholder="친구 판정서 링크 붙여넣기" /><button type="button" class="kd-btn-stamp kd-btn-stamp--sm" id="pasteGo">대조</button></div>
+function inviteBlock(me) {
+  return `<section class="kd-sheet kd-panel kd-req">
+    <h3 class="kd-box__title">합동 결재 요청서 <small>양식 제7호</small></h3>
+    <table class="kd-req__form">
+      <tr><th>기안</th><td>본인 · 꼰대 지수 <b>${me.score}</b>점</td></tr>
+      <tr><th>협조</th><td class="kd-req__empty">친구 (미상신)</td></tr>
+      <tr><th>요지</th><td>판정서를 받은 친구가 결재를 올리면 두 판정서를 한 표로 대조함</td></tr>
+      <tr><th>첨부</th><td><div class="tk-paste"><input class="kd-input" id="pasteFriend" inputmode="url" placeholder="친구 판정서 링크" /><button type="button" class="kd-btn-stamp kd-btn-stamp--sm" id="pasteGo">대조</button></div></td></tr>
+    </table>
   </section>`;
 }
 
@@ -393,7 +397,7 @@ function showResult(entry, { fresh = false } = {}) {
       <button type="button" class="kd-btn-stamp" id="shareLink"><span class="kd-btn-stamp__seal">발송</span>판정서 친구에게 발송</button>
       <button type="button" class="kd-btn-stamp kd-btn-stamp--paper" id="shareImg"><span class="kd-btn-stamp__seal">출력</span>판정서 이미지 저장</button>
     </div>
-    ${friend ? compareBlock(r, friend) : inviteBlock()}
+    ${friend ? compareBlock(r, friend) : inviteBlock(r)}
     ${ledger()}
     <button type="button" class="kd-stamp kd-stamp--again" id="again">
       <span class="kd-stamp__tool" aria-hidden="true"><i class="kd-stamp__knob"></i><i class="kd-stamp__neck"></i><i class="kd-stamp__base"></i></span>

@@ -336,11 +336,15 @@ function compareBlock(me, fr) {
   </section>`;
 }
 
-function inviteBlock() {
+function inviteBlock(me) {
   return `<section class="lt-page lt-invite">
-    <p class="lt-pair__k">두 표본 비교</p>
-    <p>내 표본 라벨을 받은 친구가 관찰을 마치면, 두 동물을 나란히 놓고 공생인지 천적인지 알려 드려요. 친구 결과 링크를 열어도 돼요.</p>
-    <div class="tk-paste"><input class="lt-input" id="pasteFriend" inputmode="url" placeholder="친구 결과 링크 붙여넣기" /><button type="button" class="lt-tagbtn lt-tagbtn--sm" id="pasteGo">비교</button></div>
+    <p class="lt-pair__k">표본 상자 <b>1 / 2칸</b></p>
+    <div class="lt-case">
+      <div class="lt-case__slot">${animalSVG(me.type.key, { cls: "lt-case__art" })}<span class="lt-case__tag"><b>${me.type.name}</b><i>${me.type.latin}</i></span></div>
+      <div class="lt-case__slot is-empty">${animalSVG(me.type.key, { silhouette: true, cls: "lt-case__art" })}<span class="lt-case__q" aria-hidden="true">?</span><span class="lt-case__tag"><b>미확인</b><i>친구 표본 자리</i></span></div>
+    </div>
+    <p>내 표본 라벨을 받은 친구가 관찰을 마치면 빈칸이 채워지고, 공생인지 천적인지 적어 드려요.</p>
+    <div class="tk-paste"><input class="lt-input" id="pasteFriend" inputmode="url" placeholder="친구 결과 링크 붙여넣기" /><button type="button" class="lt-tagbtn lt-tagbtn--sm" id="pasteGo">넣기</button></div>
   </section>`;
 }
 
@@ -365,7 +369,7 @@ function showResult(entry, { fresh = false, isNew = false } = {}) {
         <button type="button" class="lt-tagbtn lt-tagbtn--alt" id="shareImg"><span class="lt-tagbtn__hole"></span>도감 페이지 저장</button>
       </div>
     </section>
-    ${friend ? compareBlock(r, friend) : inviteBlock()}
+    ${friend ? compareBlock(r, friend) : inviteBlock(r)}
     <section class="lt-page lt-mini-shelf">
       <p class="lt-pair__k">나의 도감 <b>${Object.keys(got).length} / 8종</b></p>
       ${shelfGrid({ mini: true })}

@@ -131,6 +131,8 @@ setInterval(() => {
 /* ---------- 시작 ---------- */
 if (!redirectOldHash()) {
   renderMoreSites($("#more"));
+  const moreTitle = $("#more .more-sites__title");
+  if (moreTitle) moreTitle.textContent = "옆 기계";
   window.addEventListener("hashchange", route);
 
   let seen = false;

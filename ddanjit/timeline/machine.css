@@ -1,0 +1,363 @@
+/* 4번 기계 · 추억 연대기
+ * 보라색 비디오 캐비닛. 마키: 비디오 데크 앞판(카운터가 돌아감).
+ * 헤드라인: 데크에 들어가는 비디오테이프 라벨(손글씨 + 무지개 띠), 릴이 돈다.
+ * 데칼: 화면 위 ▶ PLAY 표시와 트래킹 노이즈 띠. */
+:root {
+  --brand: #ff8a3d;
+  --brand-pressed: #b8551a;
+  --brand-soft: #2e1a10;
+  --brand-on: #2a1203;
+
+  --font-display: "Black Han Sans", "Do Hyeon", var(--font-sans);
+  --tl-hand: "Nanum Pen Script", "Gaegu", cursive;
+  --tl-vfd: "VT323", var(--font-mono);
+
+  --art-cabinet: #120c1a;
+  --art-bezel: #21162e;
+  --art-bezel-edge: #3d2a57;
+  --art-crt: #0a0710;
+  --art-cream: #f6efe3;
+  --tl-vfd-ink: #6ff3e0;
+  --tl-shell: #17141b;
+  --tl-label: #f6f1e6;
+  --tl-s1: #e8392b;
+  --tl-s2: #ff8a3d;
+  --tl-s3: #f6c445;
+  --tl-s4: #3fae6a;
+  --tl-s5: #3a7bf0;
+}
+
+body { background-color: var(--art-cabinet); }
+
+/* ---------- 마키: 비디오 데크 앞판 ---------- */
+.vcr {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 12px;
+  align-items: center;
+  column-gap: var(--sp-12);
+  row-gap: var(--sp-8);
+  margin-top: var(--sp-12);
+  padding: var(--sp-10) var(--sp-12) var(--sp-8);
+  border-radius: var(--r-6);
+  background: repeating-linear-gradient(180deg, #2a2530 0 2px, #25212b 2px 4px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 0 #000;
+}
+.vcr__brand {
+  display: flex;
+  flex-direction: column;
+  font: var(--label-03);
+  font-weight: 700;
+  color: color-mix(in srgb, var(--art-cream) 75%, transparent);
+  line-height: 1.2;
+}
+.vcr__brand b { font-family: var(--art-pixel); font-size: 8px; font-weight: 400; color: var(--brand); }
+.vcr__vfd {
+  justify-self: end;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-8);
+  padding: var(--sp-2) var(--sp-10);
+  border-radius: var(--r-4);
+  background: #05080a;
+  color: var(--tl-vfd-ink);
+  font: 400 26px/1.2 var(--tl-vfd);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--tl-vfd-ink) 60%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.vcr__vfd small { font: 400 14px/1 var(--tl-vfd); color: var(--brand); }
+.vcr__play { font-style: normal; font-size: 16px; animation: dj-blink 1s steps(2, jump-none) infinite; }
+.vcr__slot {
+  grid-column: 1 / -1;
+  height: 12px;
+  border-radius: var(--r-2, 2px);
+  background: #000;
+  box-shadow: inset 0 3px 0 #3a3442;
+}
+
+/* ---------- 헤드라인: 비디오테이프 ---------- */
+.tape {
+  position: relative;
+  z-index: 3;
+  margin: -14px var(--sp-12) 0 var(--sp-4);
+}
+.tape__body {
+  position: relative;
+  display: block;
+  padding: var(--sp-10) var(--sp-12) var(--sp-12);
+  border-radius: var(--r-8) var(--r-8) var(--r-12) var(--r-12);
+  background:
+    radial-gradient(circle at 14px calc(100% - 14px), #000 0 3px, transparent 3.5px),
+    radial-gradient(circle at calc(100% - 14px) calc(100% - 14px), #000 0 3px, transparent 3.5px),
+    var(--tl-shell);
+  box-shadow: inset 0 0 0 2px #2b2732, 0 var(--sp-6) 0 #000;
+  transform: rotate(-2deg);
+  animation: tl-insert 1200ms var(--spring) both;
+}
+.tape__label {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6) var(--sp-12) 0;
+  border-radius: var(--r-4);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 21px, color-mix(in srgb, var(--tl-s5) 25%, transparent) 21px 22px),
+    var(--tl-label);
+  color: #1b1830;
+  overflow: hidden;
+}
+.tape__meta {
+  display: flex;
+  justify-content: space-between;
+  font: 700 10px/14px var(--font-sans);
+  letter-spacing: 0.08em;
+  color: #6a6478;
+}
+.tape__meta i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin: 0 2px 0 var(--sp-6);
+  border: 1.5px solid currentColor;
+  vertical-align: -1px;
+}
+.tape__meta i.is-on { background: var(--tl-s1); border-color: var(--tl-s1); }
+.tape__title {
+  font-family: var(--tl-hand);
+  font-weight: 400;
+  font-size: 54px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: #1b1830;
+  transform: rotate(-1deg);
+  transform-origin: 0 50%;
+}
+.tape__title .ch {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  animation: tl-write 260ms steps(4, end) both;
+  animation-delay: calc(var(--i) * 140ms + 500ms);
+}
+.tape .sp { display: inline-block; width: 0.28em; }
+/* 무지개 띠: 옛 비디오테이프 라벨 */
+.tape__stripe {
+  display: block;
+  margin: var(--sp-6) calc(var(--sp-12) * -1) 0;
+  padding: var(--sp-4) var(--sp-12) var(--sp-4);
+  background: linear-gradient(180deg, var(--tl-s1) 0 20%, var(--tl-s2) 20% 40%, var(--tl-s3) 40% 60%, var(--tl-s4) 60% 80%, var(--tl-s5) 80%);
+  font: var(--title-03);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--tl-label);
+}
+.tape__stripe > span {
+  display: inline-block;
+  padding: 0 var(--sp-8);
+  border-radius: var(--r-2, 2px);
+  background: #1b1830;
+  text-shadow: 2px 0 0 rgba(255, 0, 90, 0.6), -2px 0 0 rgba(0, 200, 255, 0.6);
+}
+.tape__stripe .ch {
+  display: inline-block;
+  animation: tl-glitch 3600ms steps(1, end) infinite;
+  animation-delay: calc(var(--i) * 20ms);
+}
+.tape__window {
+  position: absolute;
+  right: var(--sp-24);
+  bottom: calc(var(--sp-6) * -1);
+  display: flex;
+  gap: var(--sp-16);
+  padding: var(--sp-4) var(--sp-10);
+  border-radius: var(--r-full);
+  background: #2b2732;
+  box-shadow: inset 0 0 0 2px #000;
+  transform: translateY(50%);
+}
+.tape__reel {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-full);
+  background:
+    conic-gradient(from 0deg, var(--tl-label) 0 8%, transparent 8% 33%, var(--tl-label) 33% 41%, transparent 41% 66%, var(--tl-label) 66% 74%, transparent 74%),
+    radial-gradient(circle, #000 0 5px, #4a3f31 5.5px 100%);
+  animation: tl-spin 1400ms linear infinite;
+}
+.tape__reel--r { background: conic-gradient(from 0deg, var(--tl-label) 0 8%, transparent 8% 33%, var(--tl-label) 33% 41%, transparent 41% 66%, var(--tl-label) 66% 74%, transparent 74%), radial-gradient(circle, #000 0 5px, #4a3f31 5.5px 9px, #0d0b10 9.5px 100%); }
+
+/* ---------- 캐비닛 ---------- */
+.tlrig {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-32);
+}
+.tlrig .intro__stage { min-height: 300px; }
+.tlrig .cab { border-width: 3px; border-radius: var(--r-12); }
+.tlrig .cab__screen { border-radius: var(--r-12) / var(--r-8); }
+/* 조작판: 데크 버튼 줄(◀◀ ▶ ▶▶) */
+.tlrig .cab__panel {
+  border-top: 2px solid color-mix(in srgb, var(--cab-edge, #5b3b8a) 70%, transparent);
+  margin-top: var(--sp-8);
+  background: repeating-linear-gradient(90deg, transparent 0 26px, color-mix(in srgb, var(--brand) 14%, transparent) 26px 28px);
+}
+.tlrig .cab__stick,
+.tlrig .cab__btn { width: 34px; height: 20px; border-radius: var(--r-2, 2px); }
+.tlrig .cab__stick { background: var(--tl-s1); box-shadow: 0 4px 0 #6b1810; animation: none; }
+.tlrig .cab__btn--2 { background: var(--tl-label); box-shadow: 0 4px 0 #8a8197; }
+.tlrig .cab__sticker { background: var(--tl-label); color: #1b1830; font-family: var(--tl-hand); font-size: 17px; transform: rotate(-2deg); }
+.tlrig .cab__sticker .pix { color: var(--tl-s1); }
+.tlrig .sc-card--d { background: var(--brand); box-shadow: 0 4px 0 var(--brand-pressed); }
+
+/* ---------- 시작 버튼: 데크의 ▶ 재생 키 ---------- */
+.tl .intro__cta { margin-top: var(--sp-16); }
+.tl .coin-op { border-color: var(--art-bezel-edge); }
+.tl .coin-op__slot { background: var(--tl-s5); box-shadow: inset 0 -4px 0 #1f4fae, 0 0 0 3px var(--art-cabinet); }
+.tl .coin-op__door .pix { color: var(--tl-s3); }
+.tl .coin-op__btn { width: 76px; height: 60px; border-radius: var(--r-6); }
+.tl .coin-op__btn i {
+  inset: 6px 6px 12px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-4);
+  background: var(--brand);
+  font: 400 22px/1 var(--font-sans);
+  font-style: normal;
+  color: var(--brand-on);
+}
+.tl .coin-op__btn i::after { display: none; }
+
+/* ---------- 설명서: 비디오 케이스 속지 ---------- */
+.manual { background: #f3eefb; box-shadow: 0 var(--sp-6) 0 var(--tl-s5); border-top: 10px solid; border-image: linear-gradient(90deg, var(--tl-s1) 0 20%, var(--tl-s2) 0 40%, var(--tl-s3) 0 60%, var(--tl-s4) 0 80%, var(--tl-s5) 0) 1; }
+.manual a { color: #6b2bbf; }
+.manual__tag { background: #3a2358; }
+.manual__steps li::before { background: var(--brand); box-shadow: 0 3px 0 var(--brand-pressed); }
+
+/* ---------- 문답: 테이프 뒷면 장면 목록(타임코드) ---------- */
+.tfaq {
+  margin: var(--sp-32) calc(var(--sp-16) * -1) var(--sp-16);
+  padding: var(--sp-20) var(--sp-16) var(--sp-16);
+  background: var(--tl-shell);
+  color: var(--art-cream);
+}
+.seo.manual .tfaq__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  margin: 0 0 var(--sp-12);
+  font: 400 28px/1.1 var(--tl-hand);
+  color: var(--tl-label);
+}
+.tfaq__rec { font: 400 18px/1 var(--tl-vfd); color: var(--tl-s1); animation: dj-blink 1.2s steps(2, jump-none) infinite; }
+.manual .tfaq__item { border: 0; padding: 0; border-bottom: 1px solid #2f2a36; }
+.seo.manual .tfaq__item summary {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: var(--sp-12);
+  min-height: 52px;
+  font: var(--label-01);
+  color: var(--tl-label);
+  list-style: none;
+  cursor: pointer;
+}
+.tfaq__item summary::-webkit-details-marker { display: none; }
+.manual .tfaq__item summary::before,
+.manual .tfaq__item summary::after,
+.manual .tfaq__item p::before { content: none; display: none; }
+.tfaq__tc {
+  padding: var(--sp-2) var(--sp-6);
+  border-radius: var(--r-2, 2px);
+  background: #05080a;
+  color: var(--tl-vfd-ink);
+  font: 400 18px/1.2 var(--tl-vfd);
+  text-align: center;
+}
+.tfaq__item[open] .tfaq__tc { background: var(--brand); color: var(--brand-on); }
+.tfaq__q { word-break: keep-all; }
+.seo.manual .tfaq__item p {
+  display: block;
+  margin: 0 0 var(--sp-12) 112px;
+  font: var(--body-03);
+  color: color-mix(in srgb, var(--tl-label) 85%, transparent);
+  animation: tl-roll 420ms var(--snap) both;
+}
+
+/* ---------- 옆 칸: 책장에 꽂힌 비디오테이프 등 ---------- */
+.more-sites { padding-top: var(--sp-48); color: var(--art-cream); }
+.more-sites__title { font: 400 26px/1.2 var(--tl-hand); color: var(--brand); opacity: 1; margin-bottom: var(--sp-8); }
+.more-sites__grid {
+  gap: var(--sp-6);
+  padding: var(--sp-8) var(--sp-8) var(--sp-12);
+  border-radius: var(--r-4);
+  background: #2a1d17;
+  box-shadow: inset 0 -8px 0 #1a120e;
+}
+.more-sites__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--sp-8);
+  min-height: 60px;
+  padding: var(--sp-6) var(--sp-12) var(--sp-6) var(--sp-24);
+  border: 0;
+  border-radius: var(--r-2, 2px);
+  background: var(--tl-shell);
+  box-shadow: inset 0 0 0 2px #2b2732;
+  transition: transform var(--dur-fast) var(--spring);
+}
+.more-sites__item:nth-child(2) { margin-left: var(--sp-12); }
+.more-sites__item:nth-child(3) { margin-right: var(--sp-16); }
+.more-sites__item:active { transform: translateX(10px); }
+/* 등 라벨 */
+.more-sites__item::before {
+  content: "";
+  position: absolute;
+  left: var(--sp-8);
+  top: var(--sp-8);
+  bottom: var(--sp-8);
+  width: 6px;
+  background: linear-gradient(180deg, var(--tl-s1) 0 20%, var(--tl-s2) 0 40%, var(--tl-s3) 0 60%, var(--tl-s4) 0 80%, var(--tl-s5) 0);
+}
+.more-sites__item::after { content: "T-120"; grid-column: 2; grid-row: 1 / span 2; font: 400 14px/1 var(--tl-vfd); color: #8a8197; }
+.more-sites__name {
+  padding: 0 var(--sp-6);
+  background: var(--tl-label);
+  color: #1b1830;
+  font: 400 24px/1.15 var(--tl-hand);
+  justify-self: start;
+}
+.more-sites__desc { margin-top: var(--sp-2); color: #b9b0c8; opacity: 1; }
+
+/* ---------- 키프레임 ---------- */
+@keyframes tl-insert {
+  0% { transform: translate(40px, 70px) rotate(8deg); opacity: 0; }
+  55% { transform: translate(-4px, -8px) rotate(-4deg); opacity: 1; }
+  75% { transform: translate(0, 3px) rotate(-1.4deg) scale(1.01, 0.98); }
+  100% { transform: rotate(-2deg); }
+}
+@keyframes tl-write {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes tl-glitch {
+  0%, 86%, 92%, 100% { transform: none; }
+  88% { transform: translateX(4px) skewX(-12deg); }
+  90% { transform: translateX(-3px); }
+}
+@keyframes tl-spin { to { transform: rotate(360deg); } }
+@keyframes tl-roll {
+  0% { transform: translateY(-6px); opacity: 0; filter: blur(2px); }
+  40% { transform: translateX(3px); opacity: 1; }
+  100% { transform: none; opacity: 1; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tape__body,
+  .tape .ch,
+  .tape__reel,
+  .vcr__play,
+  .seo.manual .tfaq__item p { animation: none; }
+  .tape__title .ch { clip-path: none; }
+}

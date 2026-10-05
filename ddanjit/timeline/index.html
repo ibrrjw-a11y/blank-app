@@ -10,7 +10,7 @@
     <meta property="og:url" content="https://example.com/ddanjit/timeline/" />
     <meta property="og:title" content="추억 연대기 - 출시 연도 순서 맞히기" />
     <meta property="og:description" content="과자, 드라마, 노래, 게임, 사건 카드를 시간 순서대로 끼워 넣는 연도 맞추기 퀴즈. 카드 6장, 4장 이상 맞히면 성공. 매일 0시 새 카드." />
-    <meta name="theme-color" content="#0e0d0b" />
+    <meta name="theme-color" content="#120c1a" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:site_name" content="딴짓 오락실" />
@@ -18,10 +18,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Pen+Script&family=VT323&family=Press+Start+2P&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../../shared/components.css" />
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="machine.css" />
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -100,23 +101,31 @@
   <body>
     <main class="app">
 
-      <!-- 1) 첫 화면: 이 게임 장면만 캐비닛에서 짧게 반복 -->
-      <section class="intro intro--game" id="intro" data-view="intro">
-        <header class="marquee">
-          <span class="marquee__lamp" aria-hidden="true"></span>
-          <span class="marquee__name">딴짓 오락실</span>
-          <span class="marquee__coin" aria-hidden="true">GAME 4/4</span>
+      <!-- 1) 첫 화면: 4번 기계. 보라색 비디오 캐비닛, 헤드라인은 비디오테이프 라벨 -->
+      <section class="intro intro--game tl" id="intro" data-view="intro">
+        <header class="vcr" aria-hidden="true">
+          <span class="vcr__brand">딴짓 오락실<b>VHS · 04</b></span>
+          <span class="vcr__vfd"><i class="vcr__play">▶</i><span class="vcr__tc" id="vcrTc">0:00:00</span><small>SP</small></span>
+          <span class="vcr__slot"></span>
         </header>
-        <h1 class="kinetic" aria-label="추억 연대기, 연도 순서 맞히기">
-          <span class="kinetic__line" data-split>추억 연대기</span>
-          <span class="kinetic__line kinetic__line--accent" data-split>연도 순서 맞히기</span>
+        <h1 class="tape" aria-label="추억 연대기, 연도 순서 맞히기">
+          <span class="tape__body">
+            <span class="tape__label">
+              <span class="tape__meta" aria-hidden="true"><span>T-120</span><span><i class="is-on"></i>SP <i></i>LP <i></i>EP</span></span>
+              <span class="tape__title" data-split>추억 연대기</span>
+              <span class="tape__stripe"><span data-split>연도 순서 맞히기</span></span>
+            </span>
+            <span class="tape__window" aria-hidden="true"><i class="tape__reel"></i><i class="tape__reel tape__reel--r"></i></span>
+          </span>
         </h1>
-        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="tlrig">
+          <div class="intro__stage" aria-hidden="true"></div>
+        </div>
         <div class="intro__cta">
           <button class="coin-op" id="start" type="button">
             <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
             <span class="coin-op__label"><b id="startLabel">오늘의 카드 받기</b><span class="pix" aria-hidden="true">6 CARDS · 4+ CLEAR</span></span>
-            <span class="coin-op__btn" aria-hidden="true"><i></i></span>
+            <span class="coin-op__btn" aria-hidden="true"><i>▶</i></span>
           </button>
         </div>
       </section>
@@ -127,7 +136,7 @@
       <!-- 3) SEO 본문: 게임 설명서 -->
       <article class="seo manual" aria-labelledby="man-h">
         <header class="manual__head">
-          <span class="manual__tag pix">HOW TO PLAY</span>
+          <span class="manual__tag pix">MACHINE 04 · VHS</span>
           <h2 id="man-h">추억 연대기 설명서</h2>
           <dl class="manual__spec">
             <div><dt>카드</dt><dd>기준 1 + 6장</dd></div>
@@ -168,23 +177,25 @@
         <h3 class="manual__sec"><span class="pix">04</span>카드 분류</h3>
         <p class="manual__ex">먹거리 · 게임·기기 · 인터넷 · 방송·영화 · 음악 · 스포츠. 하루 카드 7장은 같은 분류가 2장을 넘지 않고, 같은 연도는 겹치지 않아요.</p>
 
-        <h2 class="manual__qa">Q&amp;A</h2>
-        <details>
-          <summary>연도는 정확한가요?</summary>
-          <p>연도가 확실한 카드만 넣었어요. 출시·첫 방송·데뷔처럼 시작한 해 기준이에요.</p>
-        </details>
-        <details>
-          <summary>같은 해 카드가 두 장 나오면요?</summary>
-          <p>하루 카드는 연도가 겹치지 않게 뽑아요. 그래서 자리는 항상 하나만 맞아요.</p>
-        </details>
-        <details>
-          <summary>추억 나이는 뭔가요?</summary>
-          <p>하루 카드 연도 평균으로 재미로 계산한 숫자예요. 실제 나이와는 상관없어요.</p>
-        </details>
-        <details>
-          <summary>기록은 어디에 남나요?</summary>
-          <p>이 브라우저에만 남아요.</p>
-        </details>
+        <section class="tfaq" aria-labelledby="tlfaq-h">
+          <h2 class="tfaq__title" id="tlfaq-h"><span class="tfaq__rec">●REC</span>테이프 뒷면 · 장면 목록</h2>
+          <details class="tfaq__item">
+            <summary><span class="tfaq__tc">00:03:12</span><span class="tfaq__q">연도는 정확한가요?</span></summary>
+            <p>연도가 확실한 카드만 넣었어요. 출시·첫 방송·데뷔처럼 시작한 해 기준이에요.</p>
+          </details>
+          <details class="tfaq__item">
+            <summary><span class="tfaq__tc">00:11:40</span><span class="tfaq__q">같은 해 카드가 두 장 나오면요?</span></summary>
+            <p>하루 카드는 연도가 겹치지 않게 뽑아요. 그래서 자리는 항상 하나만 맞아요.</p>
+          </details>
+          <details class="tfaq__item">
+            <summary><span class="tfaq__tc">00:24:05</span><span class="tfaq__q">추억 나이는 뭔가요?</span></summary>
+            <p>하루 카드 연도 평균으로 재미로 계산한 숫자예요. 실제 나이와는 상관없어요.</p>
+          </details>
+          <details class="tfaq__item">
+            <summary><span class="tfaq__tc">00:37:58</span><span class="tfaq__q">기록은 어디에 남나요?</span></summary>
+            <p>이 브라우저에만 남아요.</p>
+          </details>
+        </section>
         <p class="manual__ex">다른 게임: <a href="../zoom/">줌아웃 퀴즈</a> · <a href="../town/">오늘의 동네</a> · <a href="../price/">그때 그 가격</a> · <a href="../">4개 한 번에 보기</a></p>
       </article>
 
@@ -195,7 +206,9 @@
     <script type="module">
       import { bootGame } from "../play.js";
       import game from "../games/timeline.js";
+      import { machine } from "./machine.js";
       bootGame(game);
+      machine();
     </script>
   </body>
 </html>
