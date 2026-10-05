@@ -1,29 +1,29 @@
-# 심심상가
+# 모바일 웹 도구 모음
 
-심심할 때 들르는 무료 도구 상가. 검색량이 큰 익숙한 테스트·추첨·계산기·게임을 **변주**해서, 재방문과 공유가 일어나도록 만든 모바일 웹 모음이다.
-하나의 디자인 시스템을 공유하고, 빌드 없이 정적 파일로 어디든 배포할 수 있다. 기능 하나 = 페이지 하나.
+검색량이 큰 익숙한 테스트·추첨·계산기·게임을 **변주**해서, 재방문과 공유가 일어나도록 만든 모바일 웹 페이지들.
+도메인은 같이 쓰지만 공통 홈이나 브랜드는 없다. 각 페이지가 독립된 사이트처럼 따로 방문된다. 기능 하나 = 페이지 하나.
 
-## 층별 안내 (카테고리)
+## 페이지 목록 (내부 분류용)
 
-| 층 | 카테고리 | 페이지 |
-|---|---|---|
-| 1F | 추첨·내기 `/pick/` | 룰렛 돌리기 `/roulette/` · 사다리타기 `/ladder/` · 제비뽑기 `/gacha/` · 팀 나누기 `/team-split/` · 구슬 레이스 `/who-pays/` · 배틀로얄 `/who-pays/battle/` · 통아저씨 `/who-pays/barrel/` |
-| 2F | 심리테스트 `/test/` | 남이 정해주는 MBTI `/others-mbti/` · 테토·에겐 `/teto-egen/` · 애착 유형 `/attachment/` · 연애 세포 `/love-type/` · 꼰대력 `/kkondae/` |
-| 3F | 운세·꿈해몽 `/fortune/` | 나 상장하기 `/life-stock/` · 꿈 사주 `/dream-saju/` (+ 꿈해몽 사전 48쪽) |
-| 4F | 미니게임 `/game/` | 딴짓 오락실 `/ddanjit/` (줌아웃·오늘의 동네·그때 그 가격·추억 연대기 각 페이지) · 1 to 50 `/one-to-fifty/` · 탑 쌓기 `/stack-tower/` · 2048 `/merge-2048/` · 뇌 나이 측정소 `/brain-age/` |
-| 5F | 생활 계산기 `/calc/` | 연봉 실수령액 `/salary-live/net-pay/` · 실시간 월급 카운터 `/salary-live/` · 만나이 계산기 `/life-progress/age/` · 인생 진행률 `/life-progress/` |
-| 6F | 커플·친구 `/together/` | 단톡방 궁합표 `/name-match/` · 어디가? `/where-to-go/` |
+| 분류 | 페이지 |
+|---|---|
+| 추첨·내기 | 룰렛 돌리기 `/roulette/` · 사다리타기 `/ladder/` · 제비뽑기 `/gacha/` · 팀 나누기 `/team-split/` · 구슬 레이스 `/who-pays/` · 배틀로얄 `/who-pays/battle/` · 통아저씨 `/who-pays/barrel/` |
+| 심리테스트 | 남이 정해주는 MBTI `/others-mbti/` · 테토·에겐 `/teto-egen/` · 애착 유형 `/attachment/` · 연애 세포 `/love-type/` · 꼰대력 `/kkondae/` |
+| 운세·꿈해몽 | 나 상장하기 `/life-stock/` · 꿈 사주 `/dream-saju/` (+ 꿈해몽 사전 48쪽) |
+| 미니게임 | 딴짓 오락실 `/ddanjit/` (줌아웃·오늘의 동네·그때 그 가격·추억 연대기 각 페이지) · 1 to 50 `/one-to-fifty/` · 탑 쌓기 `/stack-tower/` · 2048 `/merge-2048/` · 뇌 나이 측정소 `/brain-age/` |
+| 생활 계산기 | 연봉 실수령액 `/salary-live/net-pay/` · 실시간 월급 카운터 `/salary-live/` · 만나이 계산기 `/life-progress/age/` · 인생 진행률 `/life-progress/` |
+| 커플·친구 | 단톡방 궁합표 `/name-match/` · 어디가? `/where-to-go/` |
 
-목록의 원본은 `shared/sites.js` 하나다. 홈과 층 페이지는 `scripts/build-hubs.mjs`가 이 목록에서 생성한다.
+목록의 원본은 `shared/sites.js` 하나다. 페이지 하단 "이것도 해보기" 링크 3개가 이 목록에서 나온다. 루트(`/`)는 noindex 링크 목록일 뿐이다.
 
 ## 구조
 
 ```
-index.html, pick/ … together/   홈(층별 안내도)과 층 페이지 — build-hubs.mjs 가 생성
-shared/                         디자인 시스템 (tokens.css, components.css, kit.js, sites.js, hub.css, vendor/)
+index.html                      noindex 링크 목록 (브랜드·디자인 없음)
+shared/                         디자인 시스템 (tokens.css, components.css, kit.js, sites.js, vendor/)
 test-kit/                       심리테스트 공용 엔진
 <도구>/                         각 페이지 (index.html, style.css, app.js, 데이터, og.png)
-scripts/                        스크린샷, 홈·층 생성, OG 이미지, 사이트맵, 도메인 교체, 꿈해몽 페이지 생성
+scripts/                        스크린샷, OG 이미지, 사이트맵, 도메인 교체, 꿈해몽 페이지 생성
 docs/BUILD_GUIDE.md             제작 규칙 (디자인 시스템 · 첫 화면 모션 · AI티 금지 · SEO)
 ```
 
@@ -48,7 +48,6 @@ npx serve .            # 또는 python3 -m http.server
 
 ```bash
 node scripts/set-domain.mjs https://내도메인.com   # canonical·sitemap 도메인 교체
-node scripts/build-hubs.mjs                         # 홈·층 페이지 (sites.js 바꾼 뒤)
 node scripts/build-sitemap.mjs                      # sitemap.xml, robots.txt
 node scripts/build-og.mjs                           # 없는 og.png 생성 (--force 로 전부 다시)
 node scripts/build-dream-pages.mjs                  # 꿈해몽 사전 페이지 재생성
