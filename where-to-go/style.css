@@ -1033,7 +1033,7 @@ body { background: var(--color-bg); }
 .guest-card { padding: var(--sp-20); }
 .guest-card h2 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.04em; }
 .mini-cands { display: flex; flex-wrap: wrap; gap: var(--sp-6); margin: var(--sp-16) 0; }
-.mini-cands span { display: inline-flex; align-items: center; gap: var(--sp-6); padding: var(--sp-4) var(--sp-10) var(--sp-4) var(--sp-4); border-radius: var(--r-full); background: var(--color-surface-sunken); font: var(--label-03); color: var(--color-text); }
+.mini-cands > span { display: inline-flex; align-items: center; gap: var(--sp-6); padding: var(--sp-4) var(--sp-10) var(--sp-4) var(--sp-4); border-radius: var(--r-full); background: var(--color-surface-sunken); font: var(--label-03); color: var(--color-text); }
 .mini-cands .lb { width: 20px; height: 20px; }
 
 .fly { position: fixed; z-index: 80; pointer-events: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--r-full); background: var(--l); color: var(--brand-on); font: var(--label-03); font-family: var(--font-display); font-weight: 800; }

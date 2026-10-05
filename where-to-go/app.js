@@ -10,6 +10,13 @@ import { buildPool, Bracket, aggregate, roundLabel } from "./game.js";
 import { startIntro } from "./intro.js";
 
 const store = createStore("where-to-go");
+// 받침에 따라 조사 고르기
+const batchim = (w) => {
+  const c = String(w).charCodeAt(String(w).length - 1);
+  return c >= 0xac00 && c <= 0xd7a3 ? (c - 0xac00) % 28 : 0;
+};
+const iga = (w) => `${w}${batchim(w) ? "이" : "가"}`;
+const euro = (w) => `${w}${batchim(w) && batchim(w) !== 8 ? "으로" : "로"}`;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const reduce = prefersReducedMotion();
 
@@ -940,7 +947,7 @@ function renderResult() {
   const rk = st.ranking || [];
   const kicker = guest ? `${guest.name}의 1위` : G.mode === "group" ? "오늘 모임 1위" : "오늘 점심 1위";
   const sub = guest
-    ? `${esc(guest.host)}이 보낸 월드컵 결과예요`
+    ? `${esc(iga(guest.host))} 보낸 월드컵 결과예요`
     : G.mode === "group"
       ? `${near ? `${esc(near)} 근처에서 만나요` : "오늘 모임은 여기로!"}`
       : `${near ? `${esc(near)} 근처 · ` : ""}오늘 점심은 이걸로!`;
@@ -956,7 +963,7 @@ function renderResult() {
     ${
       guest
         ? `<div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="sendReply">${esc(guest.host)}에게 결과 보내기 →</button></div>
-          <p class="block__hint">버튼을 누르면 답장 링크가 만들어져요. 단톡방에 붙여넣으면 ${esc(guest.host)}이 열어서 다같이 점수를 합쳐요.</p>`
+          <p class="block__hint">버튼을 누르면 답장 링크가 만들어져요. 단톡방에 붙여넣으면 ${esc(iga(guest.host))} 열어서 다같이 점수를 합쳐요.</p>`
         : ""
     }
     ${actionsHTML(w, near)}
@@ -1187,7 +1194,7 @@ function createRoom() {
   const room = {
     id,
     mode: G.mode,
-    host: G.voters[0] || "나",
+    host: G.voters[0] && G.voters[0] !== "나" ? G.voters[0] : store.get("hostName", "나"),
     at: G.loc ? locLabel(G.loc) : null,
     lat: G.loc?.lat ?? null,
     lon: G.loc?.lon ?? null,
@@ -1240,9 +1247,13 @@ function openRoom(id) {
         <li>친구들이 각자 폰에서 월드컵을 하고 '결과 보내기'로 답장 링크를 보내요.</li>
         <li>답장 링크를 이 폰에서 누르면 여기에 모여서 점수를 합쳐요.</li>
       </ol>
-      <div class="stack gap-8" style="margin-top: var(--sp-16)">
+      <div class="field" style="margin-top: var(--sp-16)">
+        <label class="field__label" for="hostName">친구들에게 보일 내 이름</label>
+        <input class="input" id="hostName" maxlength="8" placeholder="예: 김대리" value="${room.host === "나" ? "" : esc(room.host)}" />
+      </div>
+      <div class="stack gap-8" style="margin-top: var(--sp-12)">
         <button class="btn btn--primary btn--block" data-act="roomShare" data-id="${room.id}">친구들에게 링크 보내기 →</button>
-        <button class="btn btn--secondary btn--block" data-act="roomPlay" data-id="${room.id}">${hostPlayed ? "내 결과 다시 하기" : `나(${esc(room.host)})도 월드컵 하기`}</button>
+        <button class="btn btn--secondary btn--block" data-act="roomPlay" data-id="${room.id}">${hostPlayed ? "내 결과 다시 하기" : "나도 월드컵 하기"}</button>
       </div>
     </div>
     <div class="card card--flat block" style="margin-top: var(--sp-12)">
@@ -1271,7 +1282,7 @@ function openRoom(id) {
             )
             .join("")}</div>
           <p class="block__hint">우승 ${items.length - 1}점, 준우승 ${items.length - 2}점을 받고, 같은 라운드에서 떨어진 후보끼리는 점수를 나눠 가져요.</p>
-          <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="roomFinal" data-id="${room.id}">${esc(rows[0].name)}(으)로 확정하기 →</button></div>`
+          <div class="actions"><button class="btn btn--primary btn--lg btn--wide" data-act="roomFinal" data-id="${room.id}">${esc(euro(rows[0].name))} 확정하기 →</button></div>`
         : `<div class="empty"><div class="empty__k"></div><p class="t-body-03">아직 답장이 없어요. 링크를 보내고 기다려 주세요.</p></div>`
     }
     <h3 class="section-t">후보</h3>
@@ -1329,7 +1340,7 @@ function renderGuest(p) {
   $("#guest").innerHTML = `
     <div class="card card--flat guest-card" style="margin-top: var(--sp-16)">
       <span class="eyebrow">링크로 각자 고르기</span>
-      <h2 class="t-title-02" style="margin: var(--sp-8) 0 var(--sp-4)">${esc(p.h)}이 보낸 ${m.title}</h2>
+      <h2 class="t-title-02" style="margin: var(--sp-8) 0 var(--sp-4)">${esc(iga(p.h))} 보낸 ${m.title}</h2>
       <p class="t-body-03 t-secondary" style="margin: 0">${p.a ? `${esc(p.a)} 근처 · ` : ""}후보 ${items.length}개 중에서 내 1위를 골라 주세요</p>
       <div class="mini-cands">${items.map((x) => `<span>${lb(x)}${esc(x.n)}</span>`).join("")}</div>
       <div class="field" style="text-align: left">
@@ -1343,7 +1354,7 @@ function renderGuest(p) {
       <ol class="how">
         <li>둘 중 더 끌리는 쪽을 계속 골라요 (${roundLabel(items.length)}, 약 1분).</li>
         <li>끝나면 '결과 보내기'로 답장 링크를 ${esc(p.h)}에게 보내요.</li>
-        <li>${esc(p.h)}이 모두의 답장을 합쳐서 최종 장소를 정해요.</li>
+        <li>${esc(iga(p.h))} 모두의 답장을 합쳐서 최종 장소를 정해요.</li>
       </ol>
     </div>`;
   go("guest");
@@ -1747,9 +1758,23 @@ const actions = {
   },
   roomShare(b) {
     const room = getRooms()[b.dataset.id];
+    const inp = $("#hostName");
+    const name = inp?.value.trim();
+    if (!name) {
+      inp?.classList.add("is-error");
+      inp?.focus();
+      toast("친구들이 알아볼 수 있게 이름을 넣어 주세요");
+      return;
+    }
+    if (name !== room.host) {
+      room.replies.forEach((r) => r.name === room.host && (r.name = name));
+      room.host = name;
+      saveRoom(room);
+      store.set("hostName", name);
+    }
     share({
       title: `${MODES[room.mode]?.title || "메뉴 월드컵"}`,
-      text: `${room.host}이 ${MODES[room.mode]?.title || "메뉴 월드컵"}을 만들었어요! 각자 해보고 '결과 보내기'로 답장 주세요 🙏`,
+      text: `${iga(room.host)} ${MODES[room.mode]?.title || "메뉴 월드컵"}을 만들었어요! 각자 해보고 '결과 보내기'로 답장 주세요`,
       url: playUrl(room),
     });
   },

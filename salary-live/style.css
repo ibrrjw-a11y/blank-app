@@ -618,7 +618,10 @@ main.app { overflow-x: clip; }
 /* 장면 3: 빈 감열지가 먼저 나오고, 헤드가 한 줄씩 찍는다 */
 .scene--center .paper { transform: translateY(-16px); min-height: 100%; padding-top: var(--sp-24); }
 .scene--center .paper.is-print { animation: paper-feed 1500ms steps(15) forwards; }
-.scene--center .paper > * { opacity: 0; }
-.scene--center .paper.is-print > * { animation: line-in 80ms steps(1) forwards; animation-delay: calc(var(--i, 0) * 95ms + 60ms); }
+.scene--center .paper > * { visibility: hidden; }
+.scene--center .paper > .is-on { visibility: visible; animation: line-in 140ms var(--ease-out) both; }
 @keyframes paper-feed { to { transform: translateY(0); } }
-@keyframes line-in { to { opacity: 1; } }
+@keyframes line-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}

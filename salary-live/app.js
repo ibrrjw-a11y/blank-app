@@ -303,7 +303,7 @@ function introScenes() {
       title: "딴짓한 시간은 영수증으로",
       desc: "월급루팡 타이머를 켜두면 그동안 번 돈이 한 줄씩 찍혀요",
       duration: 3600,
-      play(stage) {
+      play(stage, signal) {
         const row = (a, b) => `<div class="paper__row"><span>${a}</span><span>${b}</span></div>`;
         const lupang = exPs * 2820;
         stage.innerHTML = `<div class="scene scene--center">
@@ -326,8 +326,11 @@ function introScenes() {
           </div></div>
         </div>`;
         const paper = $("#iPaper", stage);
-        Array.from(paper.children).forEach((c, i) => c.style.setProperty("--i", i));
         requestAnimationFrame(() => paper.classList.add("is-print"));
+        // 프린터 헤드가 한 줄씩 찍는다
+        Array.from(paper.children).forEach((c, i) =>
+          setTimeout(() => !signal.aborted && c.classList.add("is-on"), 60 + i * 95)
+        );
       },
     },
     {
