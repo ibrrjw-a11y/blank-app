@@ -287,29 +287,35 @@ export function grainURL({ size = 300, lines = 70, seed = 3, knots = 2 } = {}) {
     const ctx = cv.getContext("2d");
     let s = seed;
     const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+    // 가로·세로로 이어 붙여도 이음매가 안 보이게 주기를 size 에 맞춘다
+    const TAU = Math.PI * 2;
     for (let i = 0; i < lines; i++) {
       const y0 = rnd() * size;
-      const amp = 2 + rnd() * 6;
-      const f = 0.006 + rnd() * 0.02;
-      const ph = rnd() * 6.28;
+      const amp = 1 + rnd() * 3.5;
+      const k = 1 + Math.floor(rnd() * 2);
+      const ph = rnd() * TAU;
       ctx.strokeStyle = `rgba(50,24,6,${0.05 + rnd() * 0.18})`;
       ctx.lineWidth = 0.4 + rnd() * 2.2;
-      ctx.beginPath();
-      for (let x = -4; x <= size + 4; x += 4) {
-        const y = y0 + Math.sin(x * f + ph) * amp + Math.sin(x * 0.05 + i) * 0.8;
-        x < 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      for (const oy of [-size, 0, size]) {
+        ctx.beginPath();
+        for (let x = 0; x <= size; x += 4) {
+          const y = oy + y0 + Math.sin((x / size) * TAU * k + ph) * amp + Math.sin((x / size) * TAU * 9 + i) * 0.8;
+          x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.stroke();
       }
-      ctx.stroke();
     }
-    for (let k = 0; k < knots; k++) {
+    for (let kk = 0; kk < knots; kk++) {
       const kx = rnd() * size;
       const ky = rnd() * size;
-      for (let r = 2; r < 18; r += 2.5) {
-        ctx.strokeStyle = `rgba(50,24,6,${0.22 - r * 0.01})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.ellipse(kx, ky, r * 2.2, r * 0.7, 0, 0, Math.PI * 2);
-        ctx.stroke();
+      for (const [ox, oy] of [[0, 0], [-size, 0], [size, 0], [0, -size], [0, size]]) {
+        for (let r = 2; r < 18; r += 2.5) {
+          ctx.strokeStyle = `rgba(50,24,6,${0.22 - r * 0.01})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.ellipse(kx + ox, ky + oy, r * 2.2, r * 0.7, 0, 0, TAU);
+          ctx.stroke();
+        }
       }
     }
     // 미세한 섬유 노이즈
