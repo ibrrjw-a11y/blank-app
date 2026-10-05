@@ -480,6 +480,8 @@ function pressTile(btn, fn) {
 
 function init() {
   renderMoreSites($("#more"));
+  const moreTitle = $("#more .more-sites__title");
+  if (moreTitle) moreTitle.textContent = "옆에 쌓인 상자";
   renderChallenge();
   kineticHero();
   setupPlay();

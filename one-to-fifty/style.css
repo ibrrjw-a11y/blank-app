@@ -753,15 +753,167 @@ body.is-playing {
 .notice__table td { padding: var(--sp-10) 0; border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: top; }
 .notice__table th { width: 88px; padding-right: var(--sp-8); font: var(--label-02); color: var(--art-engrave); white-space: nowrap; }
 .notice__table td { color: var(--art-engrave); }
-.seo.notice details { border-bottom-color: var(--color-border); }
-.seo.notice summary { color: var(--art-engrave); }
-.seo.notice details p { margin: var(--sp-8) 0 0; color: var(--art-engrave-2); }
+/* ---------- 문답: 비상 인터폰 (스피커 그릴 + 호출 버튼, 답은 관리실 표시창) ---------- */
+.intercom {
+  margin-top: var(--sp-24);
+  padding: var(--sp-12);
+  border-radius: var(--r-12);
+  background-color: var(--art-steel-2);
+  background-image: var(--art-brush), linear-gradient(180deg, var(--art-steel-1), var(--art-steel-3));
+  box-shadow: inset 0 0 0 1px var(--art-steel-hi), 0 0 0 2px var(--art-steel-3);
+}
+.seo .intercom__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-10);
+  font: 800 15px/1.4 var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--art-engrave);
+  text-shadow: 0 1px 0 var(--art-steel-hi);
+}
+.intercom__led {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-full);
+  background: var(--art-led);
+  box-shadow: 0 0 6px var(--art-led);
+  animation: tf-led 1.4s steps(2, jump-none) infinite;
+}
+.seo.notice .call { margin: 0 0 var(--sp-8); padding: 0; border: 0; }
+.seo.notice .call summary {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: var(--sp-12);
+  min-height: 60px;
+  padding: var(--sp-8) var(--sp-10);
+  border-radius: var(--r-8);
+  background: var(--art-acrylic);
+  box-shadow: inset 0 -3px 0 var(--art-steel-1), 0 1px 0 var(--art-steel-3);
+  list-style: none;
+  cursor: pointer;
+  color: var(--art-engrave);
+  transition: transform var(--dur-fast) var(--art-spring);
+}
+.seo.notice .call summary::-webkit-details-marker { display: none; }
+.seo.notice .call summary::marker { content: ""; }
+.seo.notice .call summary:active { transform: translateY(2px); }
+/* 스피커 그릴: 점 구멍 */
+.call__grille {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  background:
+    radial-gradient(circle, var(--art-engrave) 0 1.6px, transparent 2px) 0 0 / 7px 7px,
+    var(--art-steel-1);
+  box-shadow: inset 0 0 0 3px var(--art-steel-2);
+  -webkit-mask: radial-gradient(circle, black 0 21px, transparent 22px);
+  mask: radial-gradient(circle, black 0 21px, transparent 22px);
+}
+.call__q { display: flex; flex-direction: column; gap: var(--sp-2); font: var(--label-01); word-break: keep-all; }
+.call__q small { font: var(--label-03); color: var(--art-engrave-2); letter-spacing: 0.04em; }
+/* 호출 버튼: 열면 불이 들어온다 */
+.call__bell {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  background: radial-gradient(circle at 40% 32%, var(--art-steel-hi), var(--art-steel-1) 60%, var(--art-steel-2));
+  box-shadow: 0 0 0 3px var(--art-steel-2), inset 0 -2px 3px rgba(0, 0, 0, 0.15);
+  transition: transform var(--dur-fast) var(--art-spring);
+}
+.call[open] .call__bell {
+  background: radial-gradient(circle at 40% 32%, var(--art-lit-hot), var(--art-lit));
+  box-shadow: 0 0 0 3px var(--art-lit), 0 0 14px var(--art-lit);
+  transform: scale(0.92);
+}
+.call[open] .call__grille { animation: tf-talk 600ms var(--art-spring) 3; }
+.seo.notice .call p {
+  margin: var(--sp-6) var(--sp-4) 0 56px;
+  padding: var(--sp-10) var(--sp-12);
+  border-radius: var(--r-6);
+  background: var(--art-lcd);
+  color: var(--art-lit);
+  font: var(--body-03);
+  box-shadow: inset 0 0 0 2px var(--art-steel-dark);
+  clip-path: inset(0 0 0 0);
+  animation: tf-lcd 380ms steps(6, end) both;
+}
+.seo.notice .call p b { display: block; margin-bottom: var(--sp-2); color: var(--art-led); font: var(--label-03); letter-spacing: 0.1em; }
+@keyframes tf-led { 50% { opacity: 0.25; } }
+@keyframes tf-talk { 50% { transform: scale(1.08); } }
+@keyframes tf-lcd { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 
-/* 하단 추천 */
-.more-sites__item { background: var(--art-acrylic); }
-.more-sites__cat { border-color: var(--art-steel-3); }
+/* ---------- 하단: 승강기 옆 층별 안내판 ---------- */
+.more-sites {
+  margin-top: var(--sp-24);
+  padding: var(--sp-16);
+  border-radius: var(--r-8);
+  background-color: var(--art-engrave);
+  box-shadow: 0 0 0 4px var(--art-steel-3), 0 0 0 6px var(--art-steel-hi);
+  color: var(--art-steel-hi);
+}
+.more-sites + .site-footer { margin-top: var(--sp-24); }
+.more-sites__title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 var(--sp-8);
+  padding-bottom: var(--sp-8);
+  border-bottom: 2px solid var(--art-steel-dark);
+  font: 800 18px/1.3 var(--font-display);
+  letter-spacing: 0.2em;
+  opacity: 1;
+}
+.more-sites__title::after { content: "FLOOR GUIDE"; font: 700 10px/1 var(--art-num); letter-spacing: 0.16em; color: var(--art-lit); }
+.more-sites__grid { counter-reset: floor; }
+.more-sites__item {
+  counter-increment: floor;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 36px;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-12);
+  align-items: center;
+  min-height: 64px;
+  padding: var(--sp-10) 0;
+  border-top: 1px dashed var(--art-steel-dark);
+  color: var(--art-steel-hi);
+}
+.more-sites__item:first-child { border-top: 0; }
+.more-sites__item::before {
+  content: counter(floor) "F";
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  height: 44px;
+  border-radius: var(--r-4);
+  background: var(--art-lcd);
+  color: var(--art-led);
+  font: 800 20px/1 var(--art-num);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--art-led) 60%, transparent);
+}
+.more-sites__item::after {
+  content: "▲";
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  background: radial-gradient(circle at 40% 32%, var(--art-steel-hi), var(--art-steel-1) 60%, var(--art-steel-2));
+  color: var(--art-engrave);
+  font-size: 11px;
+  transition: background var(--dur-fast);
+}
+.more-sites__item:active::after { background: radial-gradient(circle at 40% 32%, var(--art-lit-hot), var(--art-lit)); color: var(--art-lit-ink); }
+.more-sites__name { grid-column: 2; font: 800 16px/1.3 var(--font-display); }
+.more-sites__desc { grid-column: 2; color: var(--art-steel-2); opacity: 1; }
 .site-footer { color: var(--art-engrave-2); }
 
 @media (prefers-reduced-motion: reduce) {
   .spark__line { stroke-dashoffset: 0; animation: none; }
+  .intercom__led,
+  .call[open] .call__grille,
+  .seo.notice .call p { animation: none; }
 }

@@ -668,6 +668,8 @@ function resume() {
 /* ---------- 시작 ---------- */
 function init() {
   renderMoreSites($("#more"));
+  const moreTitle = $("#more .more-sites__title");
+  if (moreTitle) moreTitle.textContent = "층별 안내";
   renderChallenge();
   kineticHero();
   setupPlay();

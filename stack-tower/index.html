@@ -149,26 +149,30 @@
 
         <section class="board__sec">
           <h3>현장 Q&amp;A</h3>
-          <details>
-            <summary>블록이 왜 점점 좁아지나요?</summary>
-            <p>아래 블록 밖으로 삐져나온 부분은 잘려서 떨어져요. 남은 폭이 다음 블록의 폭이 돼요.</p>
-          </details>
-          <details>
-            <summary>좁아진 블록을 다시 넓힐 수 있나요?</summary>
-            <p>딱 맞추기를 두 번 이상 연달아 하면 한 번에 8씩 다시 넓어져요. 처음 폭 200까지만 넓어져요.</p>
-          </details>
-          <details>
-            <summary>다른 앱을 보다 오면 어떻게 돼요?</summary>
-            <p>화면을 벗어나면 크레인이 멈춰요. 돌아와서 탭하면 멈춘 자리에서 이어서 해요.</p>
-          </details>
-          <details>
-            <summary>기록은 어디에 저장되나요?</summary>
-            <p>지금 쓰는 브라우저에만 저장돼요. 서버로 보내지 않아요. 순위표 없이 내 최고 층수와 친구 도전장만 있어요.</p>
-          </details>
-          <details>
-            <summary>도전장은 어떻게 보내요?</summary>
-            <p>결과 화면에서 "도전장 보내기"를 누르면 링크에 내 이름과 층수가 담겨요. 친구가 열면 "민지의 기록 24층, 깨볼래요?"가 먼저 떠요.</p>
-          </details>
+          <div class="checklist" role="group" aria-label="자주 묻는 질문 점검표">
+            <p class="checklist__head" aria-hidden="true"><span>점검 항목</span><span>확인</span></p>
+            <details class="check">
+              <summary><span class="check__no">01</span><span class="check__q">블록이 왜 점점 좁아지나요?</span><span class="check__box" aria-hidden="true"></span></summary>
+              <p>아래 블록 밖으로 삐져나온 부분은 잘려서 떨어져요. 남은 폭이 다음 블록의 폭이 돼요.</p>
+            </details>
+            <details class="check">
+              <summary><span class="check__no">02</span><span class="check__q">좁아진 블록을 다시 넓힐 수 있나요?</span><span class="check__box" aria-hidden="true"></span></summary>
+              <p>딱 맞추기를 두 번 이상 연달아 하면 한 번에 8씩 다시 넓어져요. 처음 폭 200까지만 넓어져요.</p>
+            </details>
+            <details class="check">
+              <summary><span class="check__no">03</span><span class="check__q">다른 앱을 보다 오면 어떻게 돼요?</span><span class="check__box" aria-hidden="true"></span></summary>
+              <p>화면을 벗어나면 크레인이 멈춰요. 돌아와서 탭하면 멈춘 자리에서 이어서 해요.</p>
+            </details>
+            <details class="check">
+              <summary><span class="check__no">04</span><span class="check__q">기록은 어디에 저장되나요?</span><span class="check__box" aria-hidden="true"></span></summary>
+              <p>지금 쓰는 브라우저에만 저장돼요. 서버로 보내지 않아요. 순위표 없이 내 최고 층수와 친구 도전장만 있어요.</p>
+            </details>
+            <details class="check">
+              <summary><span class="check__no">05</span><span class="check__q">도전장은 어떻게 보내요?</span><span class="check__box" aria-hidden="true"></span></summary>
+              <p>결과 화면에서 "도전장 보내기"를 누르면 링크에 내 이름과 층수가 담겨요. 친구가 열면 "민지의 기록 24층, 깨볼래요?"가 먼저 떠요.</p>
+            </details>
+            <p class="checklist__sign" aria-hidden="true">현장 소장 <span>확인</span></p>
+          </div>
         </section>
       </article>
 

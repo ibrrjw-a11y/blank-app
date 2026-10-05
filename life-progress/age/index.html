@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -7,7 +7,7 @@
     <meta name="description" content="생년월일 8자리만 넣으면 2023년 만 나이 통일법 기준 만 나이, 연 나이, 세는 나이를 바로 계산해요. 2000.10.06생은 2026.10.05 기준 만 25세. 기준일 바꾸기, 2월 29일생 처리, 다음 생일까지." />
     <meta name="keywords" content="만나이 계산기, 만 나이 계산, 나이 계산기, 연 나이, 세는 나이, 만 나이 통일법, 한국 나이, 생일 계산" />
     <link rel="canonical" href="https://example.com/life-progress/age/" />
-    <meta name="theme-color" content="#0a0c10" />
+    <meta name="theme-color" content="#f1efe8" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:url" content="https://example.com/life-progress/age/" />
@@ -15,7 +15,7 @@
     <meta property="og:description" content="2023년부터 법적 나이는 만 나이. 생년월일 넣고 바로 확인해요." />
     <meta property="og:image" content="og.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23070707'/><text x='50' y='72' font-size='64' font-family='Arial Black,Arial' font-weight='900' text-anchor='middle' fill='%23ff4b1f'>만</text></svg>" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23f1efe8'/><text x='50' y='72' font-size='64' font-family='Arial Black,Arial' font-weight='900' text-anchor='middle' fill='%231d43e0'>만</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Archivo+Black&family=Gothic+A1:wght@400;700;900&display=swap" />
@@ -49,20 +49,33 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
+      <header class="age-top">
+        <h1 class="age-top__name">만나이 계산기</h1>
+        <span class="age-top__law t-num">2023.6.28 만 나이 통일법</span>
+      </header>
 
-      <div class="intro__brand age-brand">
-        <h1 class="intro__name">만나이 계산기</h1>
-        <span class="intro__fig t-num" id="figDate">FIG. 00</span>
-      </div>
-
-      <!-- 짧은 인트로: 계산식이 숫자로 맞춰진다. 생년월일을 넣으면 내 계산식으로 바뀐다 -->
-      <figure class="eq" id="eq" aria-live="polite">
-        <div class="eq__row"><span class="eq__op"></span><span class="eq__n t-num" id="eqY">2026</span><span class="eq__k">기준 연도</span></div>
-        <div class="eq__row"><span class="eq__op">−</span><span class="eq__n t-num" id="eqB">2000</span><span class="eq__k">태어난 연도</span></div>
-        <div class="eq__row"><span class="eq__op">−</span><span class="eq__n t-num" id="eqM">1</span><span class="eq__k" id="eqMk">생일 전이면 1</span></div>
-        <div class="eq__row eq__row--sum"><span class="eq__op">=</span><span class="eq__n t-num" id="eqA">25</span><span class="eq__k">만 나이</span></div>
-        <figcaption class="eq__cap" id="eqCap"><b>FIG. 0</b> 2000.10.06생 · 2026.10.05 기준 · 생일 하루 전이라 1을 빼요</figcaption>
+      <!-- 첫 화면: 생일 눈금자. 지나간 생일 수가 곧 만 나이. 예시는 생일 하루 전 → 생일 당일을 오간다 -->
+      <figure class="ruler" id="eq" aria-live="polite">
+        <div class="ruler__head">
+          <span class="ruler__pre">만</span>
+          <span class="ruler__age t-num" id="eqA">25</span>
+          <span class="ruler__unit">세</span>
+          <span class="ruler__badge t-num" id="eqBadge">생일 D-1</span>
+        </div>
+        <div class="ruler__track" aria-hidden="true">
+          <div class="ruler__ticks" id="rulerTicks"></div>
+          <span class="ruler__now" id="rulerNow"><b id="rulerNowLabel">2026.10.05</b></span>
+        </div>
+        <div class="ruler__eq t-num">
+          <span><b id="eqY">2026</b><small>기준 연도</small></span>
+          <span class="ruler__op">−</span>
+          <span><b id="eqB">2000</b><small>태어난 해</small></span>
+          <span class="ruler__op">−</span>
+          <span class="ruler__m"><b id="eqM">1</b><small id="eqMk">생일 전</small></span>
+          <span class="ruler__op">=</span>
+          <span class="ruler__sum"><b id="eqS">25</b><small>만 나이</small></span>
+        </div>
+        <figcaption class="ruler__cap" id="eqCap">2000.10.06생 · 2026.10.05 기준 · 생일 하루 전이라 1을 빼요</figcaption>
       </figure>
 
       <section class="age-form" aria-label="만 나이 계산">
@@ -76,10 +89,9 @@
           <input class="input asof-row__in t-num" id="asof" type="date" />
           <button class="btn btn--outline" id="asofToday" type="button">오늘</button>
         </div>
-        <button class="idx-btn" id="calcBtn" type="button">
-          <span class="idx-btn__tab">만</span>
-          <span class="idx-btn__body"><b>만 나이 계산</b><small id="calcSub">2023.6.28 만 나이 통일법 기준</small></span>
-          <span class="idx-btn__arrow" aria-hidden="true">↓</span>
+        <button class="eq-btn" id="calcBtn" type="button">
+          <span class="eq-btn__body"><b>만 나이 계산</b><small id="calcSub">2023.6.28 만 나이 통일법 기준</small></span>
+          <span class="eq-btn__eq" aria-hidden="true">=</span>
         </button>
       </section>
 
@@ -156,28 +168,28 @@
           <figcaption class="report__note">2007.12.31생은 2026.01.01에 만 18세지만 연 나이로 19세라 술·담배를 살 수 있어요. 2000.10.06생은 2026.10.05까지 9,496일째예요.</figcaption>
         </figure>
 
-        <section class="notes" aria-label="주석">
-          <h3 class="notes__title t-num">NOTES</h3>
-          <details>
-            <summary><sup>1</sup> 기준일은 왜 바꿔요?</summary>
+        <section class="cases" aria-labelledby="casesTitle">
+          <h3 class="cases__title" id="casesTitle">헷갈리는 날짜 4가지</h3>
+          <details class="case">
+            <summary><span class="case__no t-num">CASE 01</span><span class="case__q">기준일은 왜 바꿔요?</span><span class="case__date t-num">2027.03.01</span></summary>
             <p>계약일·시험일·입사일 기준 나이를 볼 때 써요. 예) 2027.03.01 입학 기준으로 2020.05.20생은 만 6세.</p>
           </details>
-          <details>
-            <summary><sup>2</sup> 2월 29일생은요?</summary>
+          <details class="case">
+            <summary><span class="case__no t-num">CASE 02</span><span class="case__q">2월 29일생은요?</span><span class="case__date t-num">02.29</span></summary>
             <p>평년엔 3월 1일에 한 살 늘어요(민법 기간 계산). 2004.02.29생은 2025.02.28 만 20세, 2025.03.01 만 21세.</p>
           </details>
-          <details>
-            <summary><sup>3</sup> 띠가 다르게 나와요</summary>
+          <details class="case">
+            <summary><span class="case__no t-num">CASE 03</span><span class="case__q">띠가 다르게 나와요</span><span class="case__date t-num">01.20</span></summary>
             <p>양력 연도로 보여줘요. 띠는 설날·입춘에 바뀌어서 1월~2월 초생은 앞 해 띠일 수 있어요. 예) 2000.01.20생 → 용띠가 아니라 토끼띠일 수 있어요.</p>
           </details>
-          <details>
-            <summary><sup>4</sup> 생년월일은 저장돼요?</summary>
+          <details class="case">
+            <summary><span class="case__no t-num">CASE 04</span><span class="case__q">생년월일은 저장돼요?</span><span class="case__date t-num">이 기기</span></summary>
             <p>이 기기 브라우저에만 저장돼서 인생 진행률 페이지도 같은 값을 써요. 서버나 공유 링크로는 보내지 않아요.</p>
           </details>
         </section>
       </article>
 
-      <nav id="more" aria-label="다른 도구"></nav>
+      <nav id="more" aria-label="부록: 같이 쓰는 계산기"></nav>
       <footer class="site-footer">법령 해석이 필요한 경우 해당 기관에 확인해 주세요 · 만나이 계산기</footer>
     </main>
     <script type="module" src="app.js"></script>

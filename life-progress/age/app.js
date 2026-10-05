@@ -10,7 +10,6 @@ import {
   shareImage,
   urlWith,
   todayKey,
-  renderCrumb,
   renderMoreSites,
   createCanvas,
   CANVAS_FONT,
@@ -38,28 +37,113 @@ const state = { birth: store.get("birth", null), asOf: null };
 const today = todayKey();
 const birthInput = $("#birth");
 
-/* ---------- 계산식 도표 ---------- */
+/* ---------- 생일 눈금자: 지나간 생일 칸 수 = 만 나이 ---------- */
 const EXAMPLE = { birth: "2000-10-06", asOf: "2026-10-05" };
-function setEquation(birth, asOf, { mine = false } = {}) {
+let sweepRaf = 0;
+const easeOutBack = (t) => {
+  const c = 1.4;
+  return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2);
+};
+function pop(el) {
+  el.classList.remove("is-pop");
+  void el.offsetWidth;
+  el.classList.add("is-pop");
+}
+function buildRuler(span) {
+  const ticks = [];
+  for (let k = 0; k <= span; k++) {
+    const left = (k / span) * 100;
+    const cls = k === 0 ? "tk is-birth" : k === span ? "tk is-next" : k % 10 === 0 ? "tk is-ten" : "tk";
+    ticks.push(`<i class="${cls}" style="left:${left}%"></i>`);
+    if (k % 10 === 0 && k < span && (span - k) / span > 0.06) ticks.push(`<em style="left:${left}%">${k}</em>`);
+  }
+  ticks.push(`<em class="is-next" style="left:100%">${span}</em>`);
+  $("#rulerTicks").innerHTML = ticks.join("");
+  return [...$("#rulerTicks").querySelectorAll(".tk")];
+}
+// 눈금자 + 식을 그린다. sweep 이면 0세부터 오늘까지 쓸고 지나가며 생일 칸이 하나씩 찬다
+function setEquation(birth, asOf, { mine = false, sweep = true, keepSpan = 0 } = {}) {
+  cancelAnimationFrame(sweepRaf);
   const [by] = parts(birth);
   const [ay] = parts(asOf);
-  const before = asOf < birthdayIn(birth, ay) ? 1 : 0;
-  const els = ["#eqY", "#eqB", "#eqM", "#eqA"].map((s) => $(s));
-  const vals = [ay, by, before, ay - by - before].map(String);
-  els.forEach((el, i) => {
-    const run = () => odometer(el, vals[i]);
-    prefersReducedMotion() ? run() : setTimeout(run, i * 140);
-  });
   const bd = birthdayIn(birth, ay);
+  const before = asOf < bd ? 1 : 0;
+  const age = Math.max(0, ay - by - before);
+  const span = keepSpan || age + 1; // 다음 생일 칸까지 (예시의 '하루 넘기기'는 눈금을 그대로 두고 마지막 칸을 채운다)
+  const lived = Math.max(0, diffDays(birth, asOf)) / YEAR_DAYS;
+  const nowFrac = Math.min(1, lived / span);
+  const nextBd = nextBirthday(birth, asOf);
+  const dday = diffDays(asOf, nextBd);
+  const ticks = buildRuler(span);
+  const now = $("#rulerNow");
+  const ageEl = $("#eqA");
+  now.classList.toggle("is-right", nowFrac > 0.55);
+  $("#rulerNowLabel").textContent = `${dotDate(asOf)} 기준`;
+  $("#eqY").textContent = ay;
+  $("#eqB").textContent = by;
+  $("#eqM").textContent = before;
+  $("#eqS").textContent = age;
+  $("#eqMk").textContent = before ? "생일 전" : asOf === bd ? "오늘 생일" : "생일 지남";
+  $("#eq").classList.toggle("is-before", !!before);
+  $("#eq").classList.toggle("is-mine", mine);
+  const badge = $("#eqBadge");
+  badge.textContent = asOf === bd ? "오늘 생일" : dday === 0 ? "오늘 생일" : `다음 생일 D-${fmt.num(dday)}`;
+  badge.classList.toggle("is-today", asOf === bd);
   const why =
     before === 1
       ? `${ay}년 생일(${dotDate(bd).slice(5)}) 전이라 1을 빼요`
       : asOf === bd
         ? "오늘이 생일이라 빼지 않아요"
         : `${ay}년 생일(${dotDate(bd).slice(5)})이 지나서 0`;
-  $("#eqMk").textContent = before ? "생일 전 → 1" : "생일 지남 → 0";
-  $("#eqCap").innerHTML = `<b>FIG. 0</b> ${dotDate(birth)}생 · ${dotDate(asOf)} 기준 · ${why}`;
-  $("#eq").classList.toggle("is-mine", mine);
+  $("#eqCap").textContent = `${dotDate(birth)}생 · ${dotDate(asOf)} 기준 · ${why}`;
+  const paint = (frac) => {
+    now.style.left = `${frac * 100}%`;
+    const passed = Math.min(age, Math.floor(frac * span + 1e-6));
+    ticks.forEach((t, k) => t.classList.toggle("is-past", k > 0 && k <= passed));
+    if (ageEl.textContent !== String(passed)) ageEl.textContent = passed;
+    return passed;
+  };
+  if (!sweep || prefersReducedMotion()) {
+    paint(nowFrac);
+    ticks.forEach((t, k) => t.classList.toggle("is-past", k > 0 && k <= age));
+    ageEl.textContent = age;
+    return;
+  }
+  const t0 = performance.now();
+  const dur = 900;
+  const tick = (t) => {
+    const p = Math.min(1, (t - t0) / dur);
+    paint(Math.max(0, Math.min(1, nowFrac * easeOutBack(p))));
+    if (p < 1) sweepRaf = requestAnimationFrame(tick);
+    else {
+      paint(nowFrac);
+      ageEl.textContent = age;
+      pop(ageEl);
+    }
+  };
+  paint(0);
+  sweepRaf = requestAnimationFrame(tick);
+}
+
+// 예시 반복: 생일 하루 전(만 25세) → 하루 지나 생일 당일(만 26세)
+let demoTimer = 0;
+function stopDemo() {
+  clearTimeout(demoTimer);
+  demoTimer = 0;
+}
+function playDemo() {
+  stopDemo();
+  setEquation(EXAMPLE.birth, EXAMPLE.asOf);
+  if (prefersReducedMotion()) return;
+  demoTimer = setTimeout(() => {
+    // 하루 넘기기: 눈금이 다음 생일 칸에 닿고 숫자가 한 칸 올라간다
+    setEquation(EXAMPLE.birth, "2026-10-06", { sweep: false, keepSpan: 26 });
+    const next = $("#rulerTicks .tk.is-next");
+    next?.classList.add("is-past", "is-hit");
+    pop($("#eqA"));
+    pop($("#eqBadge"));
+    demoTimer = setTimeout(playDemo, 2400);
+  }, 2600);
 }
 
 /* ---------- 결과 ---------- */
@@ -70,6 +154,7 @@ function render({ animate = false } = {}) {
     return;
   }
   const asOf = state.asOf || today;
+  stopDemo();
   setEquation(b, asOf, { mine: true });
   const res = $("#result");
   res.hidden = false;
@@ -144,7 +229,10 @@ function bind() {
     const v = $("#asof").value;
     state.asOf = /^\d{4}-\d{2}-\d{2}$/.test(v) && v !== today ? v : null;
     if (state.birth) render();
-    else setEquation(EXAMPLE.birth, state.asOf || today);
+    else {
+      stopDemo();
+      setEquation(EXAMPLE.birth, state.asOf || today);
+    }
   });
   $("#asofToday").addEventListener("click", () => {
     state.asOf = null;
@@ -249,19 +337,28 @@ function drawCard() {
   return canvas;
 }
 
+/* ---------- 하단: 법령집 뒤 부록 (색인 탭) ---------- */
+function renderAppendix(el) {
+  renderMoreSites(el);
+  if (!el) return;
+  const title = el.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `<span class="ap__k t-num">APPENDIX</span>부록 · 같이 쓰는 계산기`;
+  el.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    a.insertAdjacentHTML("beforeend", `<span class="ap__tab t-num" aria-hidden="true">${"ABC"[i] || i + 1}</span>`);
+  });
+}
+
 /* ---------- 시작 ---------- */
 function init() {
-  renderCrumb($("#crumb"));
-  renderMoreSites($("#more"));
-  $("#figDate").textContent = `FIG. 00 — ${dotDate(today)}`;
+  renderAppendix($("#more"));
   $("#asof").value = today;
   bind();
   if (state.birth) {
     birthInput.value = dotDate(state.birth);
     render();
   } else {
-    // 짧은 인트로: 예시 계산식이 숫자로 맞춰진다 (2000.10.06생, 2026.10.05 기준)
-    setEquation(EXAMPLE.birth, EXAMPLE.asOf);
+    // 첫 화면: 예시(2000.10.06생)로 생일 하루 전 → 생일 당일을 반복해서 보여준다
+    playDemo();
   }
 }
 

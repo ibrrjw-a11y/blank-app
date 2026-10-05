@@ -330,6 +330,8 @@ function onVisibility() {
 
 function init() {
   renderMoreSites($("#more"));
+  const moreTitle = $("#more .more-sites__title");
+  if (moreTitle) moreTitle.textContent = "인근 현장 안내";
   renderChallenge();
   kineticHero();
   $("#start").onclick = () => pullLever($("#start"), startGame);

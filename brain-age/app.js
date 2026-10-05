@@ -512,6 +512,8 @@ function openShare(rec) {
 /* ---------- 이벤트 ---------- */
 function init() {
   renderMoreSites($("#more"));
+  const moreTitle = $("#more .more-sites__title");
+  if (moreTitle) moreTitle.textContent = "다른 측정 장비";
   renderChallengeBanner($("#challengeIntro"));
   renderChallengeBanner($("#challengeSetup"));
   enterIntro();

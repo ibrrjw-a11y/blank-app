@@ -1,52 +1,331 @@
-/* 만나이 계산기 — 인생 진행률과 같은 스위스 타이포·정보 디자인.
- * 공통 장르 스타일은 ../style.css, 여기는 이 페이지에만 있는 것. */
+/* 만나이 계산기 — 같은 스위스 정보 디자인 계열이지만 다른 물건: 흰 종이 위 법령집·눈금자.
+ * 인생 진행률은 검정 바탕 + 주황 점 그리드, 여기는 종이 바탕 + 코발트 파랑 + 생일 눈금자.
+ * ../style.css 의 검정/흰색 장식 토큰을 뒤집어 종이와 잉크로 쓴다. */
+:root {
+  --brand: #1d43e0;
+  --brand-pressed: #1535b8;
+  --brand-soft: #e2e8fd;
+  --brand-on: #ffffff;
 
-.age-brand { margin-bottom: var(--sp-8); }
-
-/* 계산식 도표: 회계 장부처럼 오른쪽 정렬한 큰 숫자 */
-.eq { margin: 0 0 var(--sp-16); }
-.eq__row {
-  display: grid;
-  grid-template-columns: 28px 128px minmax(0, 1fr);
-  align-items: end;
-  gap: var(--sp-8);
-  padding: var(--sp-4) 0;
-  border-bottom: 1px solid var(--art-hair);
+  --art-black: #f1efe8; /* 종이 */
+  --art-white: #121212; /* 잉크 */
+  --art-hair: rgba(18, 18, 18, 0.16);
+  --art-dot-left: #c9c5b9;
+  --art-spring-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.eq__op { font: 900 26px/1 var(--art-num); color: var(--color-text-secondary); text-align: center; padding-bottom: var(--sp-4); }
-.eq__n { justify-self: end; font: 900 46px/1 var(--art-num); letter-spacing: -0.05em; --odo-h: 0.9em; }
-.eq__k { padding-bottom: var(--sp-6); font: 700 13px/16px var(--font-display); color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.eq__row--sum { border-top: 2px solid var(--art-white); border-bottom: 0; margin-top: var(--sp-2); }
-.eq__row--sum .eq__n { font-size: 64px; color: var(--brand); }
-.eq__row--sum .eq__op,
-.eq__row--sum .eq__k { color: var(--art-white); }
-.eq__row { clip-path: inset(0 100% 0 0); animation: wipe 560ms var(--ease-out) both; }
-.eq__row:nth-child(2) { animation-delay: 120ms; }
-.eq__row:nth-child(3) { animation-delay: 240ms; }
-.eq__row:nth-child(4) { animation-delay: 420ms; }
-.eq__cap { padding-top: var(--sp-8); font: var(--caption-01); color: var(--color-text-secondary); }
-.eq__cap b { margin-right: var(--sp-6); font: 800 11px/1 var(--art-num); letter-spacing: 0.1em; color: var(--art-white); }
-.eq.is-mine .eq__cap b { color: var(--brand); }
 
-/* 입력 */
+body {
+  background-color: var(--art-black);
+  /* 법령집 종이: 아주 옅은 가로 줄 */
+  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, rgba(18, 18, 18, 0.035) 31px 32px);
+}
+.btn--outline { --_bd: var(--art-white); }
+
+/* ---------- 머리 ---------- */
+.age-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-12);
+  padding: var(--sp-16) 0 var(--sp-10);
+  border-bottom: 4px solid var(--art-white);
+}
+.age-top__name { margin: 0; font: 900 20px/1 var(--font-display); letter-spacing: -0.04em; }
+.age-top__law {
+  padding: var(--sp-4) var(--sp-8);
+  background: var(--brand);
+  color: var(--brand-on);
+  font: 700 11px/14px var(--art-num);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- 첫 화면: 생일 눈금자 ---------- */
+.ruler { margin: 0; padding: var(--sp-8) 0 var(--sp-20); }
+.ruler__head { position: relative; display: flex; align-items: flex-end; gap: var(--sp-6); margin-left: -4px; }
+.ruler__pre {
+  align-self: flex-start;
+  margin-top: var(--sp-20);
+  padding: var(--sp-6) var(--sp-8);
+  background: var(--art-white);
+  color: var(--art-black);
+  font: 900 22px/1 var(--font-display);
+}
+.ruler__age {
+  font: 900 176px/0.8 var(--art-num);
+  letter-spacing: -0.07em;
+  color: var(--art-white);
+  padding-top: var(--sp-16);
+  min-width: 1ch;
+}
+.ruler__age.is-pop { animation: age-pop 560ms var(--art-spring-pop); }
+@keyframes age-pop {
+  0% { transform: translateY(6px) scale(1.06, 0.88); }
+  100% { transform: none; }
+}
+.ruler__unit { padding-bottom: var(--sp-4); font: 900 30px/1 var(--font-display); letter-spacing: -0.03em; }
+.ruler__badge {
+  position: absolute;
+  right: 0;
+  top: var(--sp-20);
+  padding: var(--sp-6) var(--sp-10);
+  border: 2px solid var(--brand);
+  color: var(--brand);
+  font: 800 13px/16px var(--art-num);
+  letter-spacing: 0.02em;
+  background: var(--art-black);
+}
+.ruler__badge.is-today { background: var(--brand); color: var(--brand-on); }
+.ruler__badge.is-pop { animation: badge-pop 620ms var(--art-spring-pop); }
+@keyframes badge-pop {
+  0% { transform: scale(0.6) rotate(-8deg); }
+  100% { transform: none; }
+}
+
+/* 눈금자: 한 칸 = 생일 한 번. 채워진 칸 수가 만 나이 */
+.ruler__track { position: relative; height: 64px; margin: var(--sp-16) var(--sp-8) 0 var(--sp-4); }
+.ruler__ticks { position: absolute; left: 0; right: 0; top: 16px; height: 26px; border-bottom: 2px solid var(--art-white); }
+.tk {
+  position: absolute;
+  bottom: 0;
+  width: 2px;
+  height: 10px;
+  margin-left: -1px;
+  background: var(--art-hair);
+  transform-origin: bottom;
+  transition: background 120ms, height 320ms var(--art-spring-pop);
+}
+.tk.is-ten { height: 16px; }
+.tk.is-past { background: var(--art-white); height: 18px; }
+.tk.is-past.is-ten { height: 24px; }
+.tk.is-birth { height: 26px; width: 4px; margin-left: -2px; background: var(--art-white); }
+.tk.is-next { height: 26px; width: 4px; margin-left: -2px; background: transparent; outline: 2px dashed var(--brand); outline-offset: -1px; }
+.tk.is-next.is-past { background: var(--brand); outline: 0; }
+.tk.is-hit { animation: tick-hit 620ms var(--art-spring-pop); }
+@keyframes tick-hit {
+  0% { transform: scaleY(0.2); }
+  100% { transform: none; }
+}
+.ruler__ticks em {
+  position: absolute;
+  top: -16px;
+  transform: translateX(-50%);
+  font: 700 10px/12px var(--art-num);
+  font-style: normal;
+  color: var(--color-text-secondary);
+}
+.ruler__ticks em.is-next { color: var(--brand); }
+.ruler__now {
+  position: absolute;
+  top: 12px;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--brand);
+}
+.ruler__now::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: var(--r-full);
+  background: var(--brand);
+}
+.ruler__now b {
+  position: absolute;
+  bottom: -4px;
+  left: 6px;
+  padding: var(--sp-2) var(--sp-6);
+  background: var(--brand);
+  color: var(--brand-on);
+  font: 700 11px/14px var(--art-num);
+  white-space: nowrap;
+}
+.ruler__now.is-right b { left: auto; right: 6px; }
+
+/* 식: 2026 − 2000 − 1 = 25 (항마다 이름표) */
+.ruler__eq {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-10);
+  border-top: 1px solid var(--art-white);
+}
+.ruler__eq > span { display: flex; flex-direction: column; align-items: center; gap: var(--sp-4); min-width: 0; }
+.ruler__eq b { font: 900 28px/1 var(--art-num); letter-spacing: -0.04em; }
+.ruler__eq small { font: 700 10px/12px var(--font-display); color: var(--color-text-secondary); white-space: nowrap; }
+.ruler__op { font: 900 22px/28px var(--art-num); color: var(--color-text-tertiary); }
+.ruler__m b { color: var(--brand); }
+.is-before .ruler__m b { text-decoration: underline 3px var(--brand); text-underline-offset: 4px; }
+.ruler__sum b { padding: 0 var(--sp-6); background: var(--art-white); color: var(--art-black); }
+.ruler__cap { padding-top: var(--sp-10); font: 600 12px/18px var(--font-display); color: var(--color-text-secondary); }
+.is-mine .ruler__cap::before { content: "내 계산 · "; color: var(--brand); font-weight: 800; }
+
+/* ---------- 입력 ---------- */
 .age-form { display: flex; flex-direction: column; gap: var(--sp-12); padding-bottom: var(--sp-24); }
+.birth__input { border-bottom-width: 3px; }
+.birth__input::placeholder { color: var(--art-dot-left); }
 .asof-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-8); }
 .asof-row__k { font: 600 11px/14px var(--art-num); letter-spacing: 0.14em; color: var(--color-text-secondary); }
-.asof-row__in { min-height: var(--tap-min); color-scheme: dark; font: 700 16px/1 var(--art-num); }
-.age-form .idx-btn { margin-top: var(--sp-8); }
-.age-form .idx-btn__tab { font-family: var(--font-display); font-size: 40px; line-height: 0.9; }
+.asof-row__in { min-height: var(--tap-min); color-scheme: light; font: 700 16px/1 var(--art-num); color: var(--art-white); border-color: var(--art-white); }
 
-/* 결과 */
-.age-result { padding-bottom: var(--sp-24); border-top: 1px solid var(--art-white); scroll-margin-top: var(--sp-8); }
+/* 계산 버튼: 식의 마지막 '=' 칸을 누르는 파란 막대 */
+.eq-btn {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-12);
+  width: 100%;
+  min-height: 72px;
+  margin-top: var(--sp-8);
+  padding: var(--sp-8) 0 var(--sp-8) var(--sp-16);
+  border: 0;
+  border-radius: var(--r-0);
+  background: var(--brand);
+  color: var(--brand-on);
+  text-align: left;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  box-shadow: 6px 6px 0 var(--art-white);
+  transition: transform 420ms var(--art-spring-pop), box-shadow 420ms var(--art-spring-pop);
+}
+.eq-btn:active { transform: translate(5px, 5px); box-shadow: 1px 1px 0 var(--art-white); transition-duration: 70ms; }
+.eq-btn__body { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; }
+.eq-btn__body b { font: 900 21px/26px var(--font-display); letter-spacing: -0.04em; }
+.eq-btn__body small { font: 600 11px/14px var(--art-num); letter-spacing: 0.04em; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eq-btn__eq {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  align-self: stretch;
+  margin: calc(var(--sp-8) * -1) 0;
+  border-left: 2px solid var(--brand-on);
+  font: 900 48px/1 var(--art-num);
+  transition: transform 420ms var(--art-spring-pop);
+}
+.eq-btn:active .eq-btn__eq { transform: scale(1.25, 0.8); transition-duration: 70ms; }
+.age-form .eq-btn { animation: eq-in 700ms var(--art-spring-pop) 300ms both; }
+@keyframes eq-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 -8px -8px 0); }
+}
+
+/* ---------- 결과 ---------- */
+.age-result { padding-bottom: var(--sp-24); border-top: 4px solid var(--art-white); scroll-margin-top: var(--sp-8); }
 .age-result .giant { margin-top: var(--sp-16); }
+.age-result .giant__pre { color: var(--brand); }
 .age-share { margin-top: var(--sp-20); }
 .idx-link__sub { display: block; margin-top: var(--sp-2); font: 600 11px/14px var(--art-num); letter-spacing: 0.02em; color: var(--color-text-secondary); }
 .idx-link > span:last-child { padding: var(--sp-8) 0; }
+.idx-link__no { background: var(--brand); color: var(--brand-on); }
 
-/* 표 열 폭 */
+/* ---------- SEO: 법령집 표 ---------- */
+.report__head { border-top-width: 4px; }
 .data--age td.data__how { text-align: left; }
 .data--use td { color: var(--brand); font-family: var(--font-display); font-weight: 800; font-size: 14px; }
 .data--use th { font-weight: 400; color: var(--color-text-secondary); white-space: normal; }
 .data--ex th { font-family: var(--art-num); font-weight: 800; letter-spacing: -0.02em; }
 .data--ex td:last-child { color: var(--brand); }
 .report__note { border-top: 0; padding-top: var(--sp-10); }
+
+/* 자주 묻는 것: 날짜 사례 카드 (번호 · 질문 · 날짜 꼬리표) */
+.cases { display: flex; flex-direction: column; gap: var(--sp-8); }
+.seo .cases__title { margin: 0 0 var(--sp-4); padding-top: var(--sp-12); border-top: 4px solid var(--art-white); font: 900 20px/26px var(--font-display); letter-spacing: -0.04em; color: var(--art-white); }
+.seo details.case { padding: 0; border: 2px solid var(--art-white); background: var(--art-black); }
+.case summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-12);
+  align-items: center;
+  min-height: 64px;
+  padding: var(--sp-10) 0 var(--sp-10) var(--sp-12);
+  list-style: none;
+  cursor: pointer;
+  transition: background var(--dur-fast);
+}
+.case summary::-webkit-details-marker { display: none; }
+.case__no { font: 700 10px/14px var(--art-num); letter-spacing: 0.12em; color: var(--brand); }
+.case__q { grid-column: 1; font: 800 16px/22px var(--font-display); letter-spacing: -0.03em; color: var(--art-white); }
+.case__date {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  width: 100px;
+  padding: 0 var(--sp-6);
+  margin: calc(var(--sp-10) * -1) 0;
+  border-left: 2px solid var(--art-white);
+  font: 900 14px/1 var(--art-num);
+  letter-spacing: -0.02em;
+  color: var(--art-white);
+}
+.case[open] summary { background: var(--art-white); }
+.case[open] .case__q,
+.case[open] .case__date { color: var(--art-black); border-color: var(--art-black); }
+.case[open] .case__no { color: var(--brand-soft); }
+.case summary:active { background: var(--brand-soft); }
+.seo .case p { margin: 0; padding: var(--sp-12); font: 600 14px/22px var(--font-display); color: var(--art-white); }
+.case[open] p { animation: case-open 420ms var(--art-spring-pop) both; }
+@keyframes case-open {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(-6px); }
+  to { clip-path: inset(0); transform: none; }
+}
+
+/* ---------- 하단 추천: 법령집 부록, 오른쪽 가장자리 색인 탭 ---------- */
+.more-sites { padding-top: var(--sp-24); }
+.more-sites__title { display: flex; align-items: baseline; gap: var(--sp-12); margin: 0; padding: var(--sp-10) 0; border-top: 4px solid var(--art-white); opacity: 1; font: 900 18px/24px var(--font-display); letter-spacing: -0.03em; color: var(--art-white); }
+.ap__k { font: 700 11px/14px var(--art-num); letter-spacing: 0.14em; color: var(--brand); }
+.more-sites__grid { gap: var(--sp-6); margin-right: calc(var(--gutter) * -1); }
+.more-sites__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-12);
+  row-gap: var(--sp-2);
+  align-items: center;
+  min-height: 68px;
+  padding: var(--sp-10) 0 var(--sp-10) var(--sp-12);
+  border: 0;
+  border-left: 4px solid var(--art-white);
+  background: var(--color-surface);
+  color: var(--art-white);
+  text-decoration: none;
+  transition: transform 420ms var(--art-spring-pop);
+}
+.more-sites__item:nth-child(2) { margin-right: var(--sp-12); }
+.more-sites__item:nth-child(3) { margin-right: var(--sp-24); }
+.more-sites__item:active { transform: translateX(-8px); transition-duration: 80ms; }
+.more-sites__item::after { content: none; }
+.more-sites__name { grid-column: 1; align-self: end; font: 900 17px/22px var(--font-display); letter-spacing: -0.03em; color: var(--art-white); }
+.more-sites__desc { grid-column: 1; align-self: start; opacity: 1; font: 600 12px/16px var(--font-display); color: var(--color-text-secondary); }
+.ap__tab {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  margin: calc(var(--sp-10) * -1) 0;
+  background: var(--brand);
+  color: var(--brand-on);
+  font: 900 28px/1 var(--art-num);
+}
+.more-sites__item:nth-child(2) .ap__tab { background: var(--art-white); color: var(--art-black); }
+.more-sites__item:nth-child(3) .ap__tab { background: var(--color-text-secondary); color: var(--art-black); }
+
+.site-footer { color: var(--color-text-secondary); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ruler__age.is-pop,
+  .ruler__badge.is-pop,
+  .tk.is-hit,
+  .age-form .eq-btn,
+  .case[open] p { animation: none !important; }
+}

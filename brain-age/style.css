@@ -1255,10 +1255,71 @@ body.is-playing .site-footer {
 .cond { margin: 0; padding: 0; list-style: none; }
 .cond li { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: var(--sp-8); padding: var(--sp-8) 0; border-bottom: 1px dashed var(--art-rule); font: var(--body-03); color: var(--art-ink); }
 .cond b { font: var(--label-03); font-family: var(--art-mono); color: var(--art-red); padding-top: var(--sp-2); }
-.seo.labdoc details { border-bottom-color: var(--art-rule); }
-.seo.labdoc summary { color: var(--art-ink); }
-.seo.labdoc summary .mono { margin-right: var(--sp-4); color: var(--art-red); font-size: 12px; }
-.seo.labdoc details p { margin-top: var(--sp-8); font: var(--body-03); color: var(--art-ink-2); }
+/* ---------- 문답: 연속 용지(양옆 구멍 + 초록 띠)에 찍힌 서비스 로그 ---------- */
+.printout {
+  --hole: 10px;
+  position: relative;
+  margin: var(--sp-8) calc(var(--sp-4) * -1) 0;
+  padding: var(--sp-8) 28px var(--sp-12);
+  background:
+    radial-gradient(circle, var(--art-panel) 0 3.5px, transparent 4px) 6px 6px / 16px 16px repeat-y,
+    radial-gradient(circle, var(--art-panel) 0 3.5px, transparent 4px) calc(100% - 6px) 6px / 16px 16px repeat-y,
+    linear-gradient(90deg, transparent 0 22px, var(--art-rule) 22px 23px, transparent 23px calc(100% - 23px), var(--art-rule) calc(100% - 23px) calc(100% - 22px), transparent 0),
+    color-mix(in srgb, var(--art-paper) 55%, #fff);
+}
+.seo .printout__head,
+.seo .printout__end {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  font: var(--label-03);
+  font-family: var(--art-mono);
+  color: var(--art-ink-2);
+}
+.seo .printout__head { padding-bottom: var(--sp-6); border-bottom: 1px dashed var(--art-ink); }
+.seo .printout__end { justify-content: center; margin-top: var(--sp-10); letter-spacing: 0.12em; }
+.seo.labdoc .logline { padding: 0; border: 0; }
+/* 그린바 용지: 줄마다 연한 초록 */
+.seo.labdoc .logline:nth-of-type(odd) { background: color-mix(in srgb, var(--art-phosphor) 16%, transparent); }
+.seo.labdoc .logline summary {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: var(--sp-8);
+  min-height: 52px;
+  padding: var(--sp-6) var(--sp-4);
+  color: var(--art-ink);
+  font: var(--label-02);
+  list-style: none;
+  cursor: pointer;
+}
+.seo.labdoc .logline summary::-webkit-details-marker { display: none; }
+.seo.labdoc .logline summary::marker { content: ""; }
+.logline__no { font: var(--label-03); font-family: var(--art-mono); color: var(--art-red); }
+.logline__q { word-break: keep-all; }
+.logline__st {
+  justify-self: end;
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--art-ink-2);
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--art-ink-2);
+}
+.logline__st::before { content: "접수"; }
+.logline[open] .logline__st { border-color: var(--art-red); color: var(--art-red); transform: rotate(-6deg); }
+.logline[open] .logline__st::before { content: "조치됨"; }
+.seo.labdoc .logline p {
+  margin: 0;
+  padding: 0 var(--sp-4) var(--sp-10) 56px;
+  font: var(--body-03);
+  font-family: var(--art-mono);
+  font-size: 12.5px;
+  color: var(--art-ink);
+  clip-path: inset(0 0 0 0);
+  animation: ba-print 520ms steps(8, end) both;
+}
+.seo.labdoc .logline p .mono { color: var(--art-red); }
+@keyframes ba-print { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
 .labdoc__foot { display: flex; justify-content: space-between; gap: var(--sp-8); margin-top: var(--sp-24) !important; padding-top: var(--sp-6); border-top: 2px solid var(--art-ink); font: var(--label-03); font-family: var(--art-mono); color: var(--art-ink-2); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1266,3 +1327,58 @@ body.is-playing .site-footer {
 }
 .intro { min-height: 100dvh; padding-top: var(--sp-4); }
 .intro__desc { font-size: 11px; letter-spacing: -0.01em; }
+
+/* ---------- 하단: 측정 장비에 붙은 자산 관리 태그 ---------- */
+.more-sites { padding-top: var(--sp-40); color: var(--art-phosphor); }
+.more-sites__title {
+  margin: 0 0 var(--sp-12);
+  font: var(--label-02);
+  font-family: var(--art-mono);
+  letter-spacing: 0.08em;
+  opacity: 1;
+}
+.more-sites__title::before { content: "▸ "; }
+.more-sites__grid { counter-reset: eq; gap: var(--sp-10); }
+.more-sites__item {
+  counter-increment: eq;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px;
+  grid-template-rows: auto auto auto;
+  column-gap: var(--sp-12);
+  min-height: 84px;
+  padding: var(--sp-10) var(--sp-16) var(--sp-10) var(--sp-24);
+  border: 0;
+  border-radius: var(--r-4);
+  background:
+    radial-gradient(circle at 10px 10px, var(--art-panel-edge) 0 3px, transparent 3.5px),
+    radial-gradient(circle at 10px calc(100% - 10px), var(--art-panel-edge) 0 3px, transparent 3.5px),
+    linear-gradient(180deg, #d9dcd6, #b9bdb5);
+  color: var(--art-ink);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6), 0 2px 0 var(--art-panel-edge);
+  transition: transform var(--dur-fast) var(--art-spring);
+}
+.more-sites__item:active { transform: scale(0.98); }
+.more-sites__item::before {
+  content: "EQ-0" counter(eq) "  · 자산 관리";
+  white-space: pre;
+  grid-column: 1;
+  font: var(--label-03);
+  font-family: var(--art-mono);
+  color: var(--art-red);
+  letter-spacing: 0.06em;
+}
+/* 바코드 */
+.more-sites__item::after {
+  content: "";
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: center;
+  height: 44px;
+  background: repeating-linear-gradient(90deg, var(--art-ink) 0 2px, transparent 2px 3px, var(--art-ink) 3px 4px, transparent 4px 7px, var(--art-ink) 7px 10px, transparent 10px 11px);
+}
+.more-sites__name { grid-column: 1; font: var(--body-02-strong); color: var(--art-ink); }
+.more-sites__desc { grid-column: 1; color: var(--art-ink-2); opacity: 1; font-family: var(--art-mono); }
+@media (prefers-reduced-motion: reduce) {
+  .seo.labdoc .logline p { animation: none; }
+}
