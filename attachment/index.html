@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>애착 유형 테스트 | 불안형 회피형 테스트 - 16문항 애착유형 자기점검</title>
+    <meta
+      name="description"
+      content="애착 유형 테스트 16문항으로 불안과 회피 두 축을 재고, 안정형·불안형·회피형·혼란형 중 어디에 가까운지 관계 지도 위의 점으로 보여줘요. 친구·연인 결과와 같은 지도에 나란히 놓고 비교할 수 있어요."
+    />
+    <meta name="keywords" content="애착 유형 테스트, 애착유형, 불안형 회피형 테스트, 애착유형 검사, 안정형 불안형 회피형 혼란형, 연애 애착 유형, 공포회피형" />
+    <link rel="canonical" href="https://example.com/attachment/" />
+    <meta name="theme-color" content="#f6f2e8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/attachment/" />
+    <meta property="og:title" content="애착 유형 테스트 - 관계 자기점검지" />
+    <meta property="og:description" content="16문항, 두 축(불안·회피)으로 그리는 나의 관계 지도. 안정형·불안형·회피형·혼란형." />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='14' y='10' width='72' height='84' rx='4' fill='%23b0835a'/><rect x='22' y='20' width='56' height='68' fill='%23fbf9f3'/><circle cx='60' cy='44' r='7' fill='%23c4473a'/><path d='M30 70 L60 44' stroke='%23c4473a' stroke-width='3'/></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic+Coding:wght@400;700&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="../test-kit/base.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "애착 유형 테스트 - 관계 자기점검지",
+            "url": "https://example.com/attachment/",
+            "description": "불안과 회피 두 축 16문항으로 안정형·불안형·회피형·혼란형을 보여주는 간단한 자기점검. 진단 도구가 아니에요.",
+            "applicationCategory": "EntertainmentApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "애착 유형은 바뀌나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "바뀔 수 있어요. 지금 만나는 사람, 최근 겪은 일, 그날 기분에 따라 점수가 달라져요. 몇 달 뒤 다시 해 보면 지난 점과 비교해 볼 수 있어요." }
+              },
+              {
+                "@type": "Question",
+                "name": "이 테스트로 진단을 받을 수 있나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "아니요. 연구에서 쓰는 두 축(불안·회피)의 아이디어만 빌려 와 간단하게 만든 자기점검이에요. 임상 검사나 진단이 아니에요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app at">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 클립보드 위 점검지 -->
+      <section class="tk-intro at-intro" data-view="intro">
+        <div class="at-board">
+          <span class="at-clip" aria-hidden="true"><i></i></span>
+          <div class="at-paper at-paper--intro">
+            <header class="at-head">
+              <h1 class="at-head__title">애착 유형 테스트<small>관계 자기점검지 · 불안형/회피형</small></h1>
+              <p class="at-head__meta"><span>No. <b id="sheetNo">0412</b></span><span id="sheetDate">작성일 ____</span></p>
+            </header>
+            <div class="tk-stage at-stage" id="stage" aria-hidden="true"></div>
+            <button type="button" class="at-check" id="start">
+              <span class="at-check__box"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 21 L17 30 L34 8" pathLength="1" /></svg></span>
+              <span class="at-check__text">준비됐어요. 점검 시작할게요</span>
+              <span class="at-check__meta">16문항 · 약 3분 · 정답 없음</span>
+            </button>
+            <button type="button" class="at-last" id="lastResult" hidden></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) 문항 -->
+      <section class="tk-view at-quiz" data-view="quiz" hidden>
+        <div class="at-board">
+          <span class="at-clip" aria-hidden="true"><i></i></span>
+          <div class="at-paper at-paper--quiz">
+            <div class="at-quizbar">
+              <button type="button" class="at-back" id="quizBack">← 앞 문항</button>
+              <span class="at-count" id="quizCount">01 / 16</span>
+            </div>
+            <ol class="at-ticks" id="quizTicks" aria-hidden="true"></ol>
+            <div class="at-qwrap" id="quizCard"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3) 결과 -->
+      <section class="tk-view at-res" data-view="result" hidden></section>
+
+      <!-- 4) 친구 결과 -->
+      <section class="tk-view at-res" data-view="friend" hidden></section>
+
+      <!-- SEO 본문: 상담실 안내문 -->
+      <article class="seo at-doc">
+        <header class="at-doc__head">
+          <p>상담실 비치용 안내문</p>
+          <h2>애착 유형 자기점검, 이렇게 읽어요</h2>
+        </header>
+
+        <section class="at-doc__sec">
+          <h3><span>1.</span> 무엇을 재나요</h3>
+          <table class="at-table">
+            <tbody>
+              <tr><th>불안</th><td>관계가 흔들릴까 봐 걱정하는 정도. 답장, 말투, 다툼 뒤에 마음이 얼마나 출렁이는지 물어요.</td></tr>
+              <tr><th>회피</th><td>가까워지는 것을 불편해하는 정도. 기대기, 속마음 말하기, 혼자 시간에 대해 물어요.</td></tr>
+            </tbody>
+          </table>
+          <p class="at-doc__pen">두 축은 성인 애착 연구에서 쓰는 틀이에요. 여기선 그 아이디어만 빌려 16문항으로 간단히 만들었어요.</p>
+        </section>
+
+        <section class="at-doc__sec">
+          <h3><span>2.</span> 채점 예시</h3>
+          <ol class="at-calc">
+            <li>각 문항은 0~4점이에요. "보통이에요"가 2점.</li>
+            <li>불안 문항은 홀수 번호 8개, 회피 문항은 짝수 번호 8개예요.</li>
+            <li>8, 11, 15, 16번은 거꾸로 세요. "매우 그래요"가 0점이에요.</li>
+            <li>축마다 합계(0~32점)를 100점 만점으로 바꿔요.</li>
+          </ol>
+          <div class="at-example">
+            <p class="at-example__row"><span>불안 합계</span><b>20 / 32</b><span>→</span><b class="at-hand">63점</b></p>
+            <p class="at-example__row"><span>회피 합계</span><b>9 / 32</b><span>→</span><b class="at-hand">28점</b></p>
+            <p class="at-example__out">불안 50 초과 · 회피 50 이하 → <b>불안형에 가까워요</b></p>
+          </div>
+        </section>
+
+        <section class="at-doc__sec">
+          <h3><span>3.</span> 네 가지 유형</h3>
+          <div class="at-grid4" role="table" aria-label="애착 유형 4가지">
+            <div class="at-grid4__cell" role="row"><b role="cell">불안형</b><span role="cell">불안 높음 · 회피 낮음</span><em role="cell">답장이 늦으면 마음이 먼저 달려가요</em></div>
+            <div class="at-grid4__cell" role="row"><b role="cell">혼란형</b><span role="cell">불안 높음 · 회피 높음</span><em role="cell">다가가고 싶은데 동시에 조심스러워요</em></div>
+            <div class="at-grid4__cell" role="row"><b role="cell">안정형</b><span role="cell">불안 낮음 · 회피 낮음</span><em role="cell">기대도, 혼자여도 비교적 편해요</em></div>
+            <div class="at-grid4__cell" role="row"><b role="cell">회피형</b><span role="cell">불안 낮음 · 회피 높음</span><em role="cell">가까워질수록 숨 고를 공간이 필요해요</em></div>
+          </div>
+          <p class="at-doc__pen">혼란형은 공포-회피형이라고도 불러요. 50점 근처라면 두 유형의 특징이 섞여 있을 수 있어요.</p>
+        </section>
+
+        <section class="at-doc__sec">
+          <h3><span>4.</span> 상담실 Q&amp;A</h3>
+          <details>
+            <summary>애착 유형은 바뀌나요?</summary>
+            <p>바뀔 수 있어요. 지금 만나는 사람, 최근 겪은 일, 그날 기분에 따라 점수가 달라져요. 다시 해 보면 지난 점이 지도에 연하게 남아서 얼마나 움직였는지 볼 수 있어요.</p>
+          </details>
+          <details>
+            <summary>불안형이나 회피형이면 나쁜 건가요?</summary>
+            <p>아니요. 어떤 유형이든 관계를 지키려고 생긴 나름의 방식이에요. 결과지는 "이럴 때 마음이 흔들리는구나"를 알아차리는 용도로 써 주세요.</p>
+          </details>
+          <details>
+            <summary>연인이랑 같이 볼 수 있나요?</summary>
+            <p>결과 링크를 보내면 상대가 내 지도를 보고 바로 점검을 시작할 수 있어요. 둘 다 끝나면 같은 지도에 두 핀이 꽂히고, 두 유형 조합에서 생기기 쉬운 흐름을 짧게 알려 드려요.</p>
+          </details>
+          <details>
+            <summary>제 답은 어디에 저장되나요?</summary>
+            <p>서버로 보내지 않아요. 지난 점검 기록은 지금 쓰는 브라우저에만 남아요.</p>
+          </details>
+          <details>
+            <summary>이 결과로 진단을 받을 수 있나요?</summary>
+            <p>아니요. 간단한 자기점검이고 임상 검사나 진단이 아니에요. 관계 때문에 많이 힘들다면 가까운 상담센터나 전문가와 이야기해 보세요.</p>
+          </details>
+        </section>
+        <p class="at-doc__stamp">재미와 자기 이해를 위한 간이 점검지 · 진단 아님</p>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">재미로 보는 간단한 자기점검이에요. 임상 검사나 진단이 아니에요.</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

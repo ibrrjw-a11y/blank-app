@@ -573,3 +573,178 @@ main.app { overflow-x: clip; }
 .i-result .i-score-cap { margin: 0; max-width: 8em; font: 700 20px/24px var(--font-hand); color: var(--color-text-secondary); }
 
 .net-node text { font-size: 22px; }
+
+/* =========================================================
+ * 2차 개편: 상단 경로, 스티커 버튼, 형광펜 탭, 다이어리 본문
+ * ========================================================= */
+
+/* 상단 경로: 다이어리 귀퉁이 손글씨 메모 */
+.crumb {
+  gap: var(--sp-6);
+  min-height: 40px;
+  padding-left: var(--sp-8);
+  font: 700 16px/20px var(--font-hand);
+  color: var(--color-text-tertiary);
+}
+.crumb a { display: inline-flex; align-items: center; min-height: 40px; padding: 0; color: var(--art-pen); text-decoration: underline wavy var(--art-margin); text-underline-offset: 4px; }
+.intro { min-height: calc(100dvh - 40px); padding-top: 0; }
+
+/* 시작 버튼: 테이프로 붙인 스티커 */
+.sticker-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: 72px;
+  padding: var(--sp-12) var(--sp-56, 56px) var(--sp-12) var(--sp-20);
+  border: 2px solid var(--art-ink);
+  border-radius: var(--r-4);
+  background: var(--color-surface);
+  color: var(--art-ink);
+  text-align: left;
+  cursor: pointer;
+  rotate: -1.2deg;
+  transition: rotate 420ms var(--spring), transform 420ms var(--spring);
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* 뒤에 겹친 분홍 종이 (스티커 그림자 대신) */
+.sticker-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--r-4);
+  background: var(--brand-soft);
+  border: 2px solid var(--color-primary);
+  transform: translate(5px, 5px);
+  transition: transform 420ms var(--spring);
+}
+/* 마스킹 테이프 */
+.sticker-btn::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: var(--sp-24);
+  width: 64px;
+  height: 20px;
+  background: var(--art-tape);
+  opacity: 0.9;
+  rotate: -5deg;
+}
+.sticker-btn__t { font: 700 26px/32px var(--font-hand); letter-spacing: -0.02em; }
+.sticker-btn__sub { font: 700 15px/18px var(--font-hand); color: var(--art-pen); }
+.sticker-btn__heart { position: absolute; right: var(--sp-16); top: 50%; margin-top: -12px; animation: beat 1100ms var(--spring) infinite; }
+.sticker-btn:active:not(:disabled) { rotate: 0deg; transform: translate(4px, 4px); transition-duration: 90ms; }
+.sticker-btn:active:not(:disabled)::after { transform: translate(1px, 1px); transition-duration: 90ms; }
+.sticker-btn:disabled { cursor: not-allowed; border-color: var(--color-border-strong); color: var(--color-text-tertiary); rotate: 0deg; }
+.sticker-btn:disabled::after { border-color: var(--color-border); background: var(--color-surface-sunken); }
+.sticker-btn:disabled .mark { background-size: 0 0; }
+.sticker-btn--sm { min-height: 60px; padding-right: var(--sp-20); align-items: center; text-align: center; rotate: 0.8deg; }
+.sticker-btn--sm .sticker-btn__t { font-size: 24px; }
+.sticker-btn--sm::before { left: 50%; margin-left: -32px; }
+.sticker-btn.is-loading { pointer-events: none; opacity: 0.6; }
+.intro .sticker-btn { animation: slap 600ms var(--spring) 300ms both; }
+
+/* 보조 버튼: 형광펜으로 칠한 인덱스 탭 */
+.hl-tab {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-end;
+  gap: var(--sp-8);
+  min-height: var(--tap-min);
+  margin-top: var(--sp-8);
+  padding: 0 var(--sp-16) 0 var(--sp-12);
+  border: 0;
+  border-left: 4px solid var(--art-pen);
+  background: linear-gradient(transparent 30%, color-mix(in srgb, var(--art-pen) 18%, transparent) 30%, color-mix(in srgb, var(--art-pen) 18%, transparent) 88%, transparent 88%);
+  color: var(--art-pen);
+  font: 700 19px/24px var(--font-hand);
+  cursor: pointer;
+  rotate: 1deg;
+  transition: transform 380ms var(--spring);
+}
+.hl-tab i { font-style: normal; transition: transform 380ms var(--spring); }
+.hl-tab:active { transform: scale(0.95); transition-duration: 80ms; }
+.hl-tab:active i { transform: translateX(6px); }
+
+/* 일반 버튼도 둥근 알약 대신 종이 탭처럼 */
+.btn { border-radius: var(--r-4); }
+.btn--outline { border-width: 2px; border-color: var(--art-ink); font-family: var(--font-hand); font-size: 18px; }
+.sheet-actions .btn--primary { font-family: var(--font-hand); font-size: 19px; }
+
+/* ---------- SEO: 다이어리 한 페이지 ---------- */
+.diary { color: var(--art-ink); }
+.diary__top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); margin-bottom: var(--sp-8); }
+.diary__weather { font: 700 16px/20px var(--font-hand); color: var(--art-pen); }
+.seo .diary__title { margin: var(--sp-8) 0 var(--sp-16); font: 700 30px/38px var(--font-hand); color: var(--art-ink); letter-spacing: -0.02em; }
+.seo .diary__h { margin: var(--sp-32) 0 var(--sp-8); font: 700 22px/28px var(--font-hand); color: var(--art-ink); }
+.diary__steps { margin: 0; padding: 0; list-style: none; }
+.seo .diary__steps li { display: flex; gap: var(--sp-10); padding: var(--sp-6) 0; font: 700 18px/26px var(--font-hand); color: var(--art-ink); border-bottom: 1px dashed var(--art-grid); }
+.diary__steps b {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--r-full);
+  color: var(--color-primary);
+  font: 400 13px/1 var(--font-pixel);
+}
+.diary__steps em { font-style: normal; color: var(--color-primary); }
+.seo .diary__memo { margin: var(--sp-8) 0 0; padding-left: var(--sp-12); border-left: 3px solid var(--art-margin); font: 700 17px/24px var(--font-hand); color: var(--art-pen); }
+
+/* 손으로 푼 피라미드 (정적, 검색에도 보이게) */
+.pyr-static {
+  --cell: 52px;
+  margin: var(--sp-20) 0 0;
+  padding: var(--sp-16) 0 var(--sp-12);
+  background-color: var(--color-surface);
+  background-image: linear-gradient(var(--art-grid) 1px, transparent 1px), linear-gradient(90deg, var(--art-grid) 1px, transparent 1px);
+  background-size: calc(var(--cell) / 2) calc(var(--cell) / 2);
+  background-position: center top;
+  border: 1px solid var(--art-grid);
+  rotate: -0.6deg;
+  box-shadow: var(--shadow-s);
+}
+.pyr-static__row { display: flex; justify-content: center; }
+.pyr-static__row span { width: var(--cell); height: 44px; display: grid; place-items: center; font: 700 32px/1 var(--font-hand); color: var(--art-ink); font-variant-numeric: tabular-nums; }
+.pyr-static__row.is-letters span.is-a { color: var(--color-primary); }
+.pyr-static__row.is-letters span.is-b { color: var(--art-pen); }
+.pyr-static__row.is-strokes span { height: 20px; font: 400 11px/1 var(--font-pixel); color: var(--color-text-tertiary); }
+.pyr-static__row.is-final { position: relative; width: max-content; margin: var(--sp-2) auto 0; padding: 0 var(--sp-8); border: 3px solid var(--color-primary); border-radius: 50%; rotate: -3deg; }
+.pyr-static__row.is-final span { color: var(--color-primary); font-size: 38px; }
+.pyr-static figcaption { margin-top: var(--sp-12); padding: 0 var(--sp-16); font: 700 18px/26px var(--font-hand); color: var(--art-ink); text-align: center; }
+.pyr-static figcaption b { color: var(--art-pen); }
+
+.stroke-table td:nth-child(odd),
+.ex-table th { font: 700 18px/22px var(--font-hand); color: var(--art-ink); }
+.ex-table td { font: 400 14px/20px var(--font-pixel); color: var(--color-text-secondary); white-space: nowrap; }
+.ex-table td:last-child { font: 700 22px/22px var(--font-hand); color: var(--color-primary); }
+.ex-table thead th { font: var(--label-03); }
+.table-wrap { border-radius: var(--r-4); border-color: var(--art-grid); }
+
+.diary__todo { margin: 0; padding: 0; list-style: none; }
+.seo .diary__todo li { position: relative; padding: var(--sp-6) 0 var(--sp-6) var(--sp-32); font: 700 18px/24px var(--font-hand); color: var(--art-ink); }
+.diary__todo li::before { content: ""; position: absolute; left: var(--sp-4); top: 9px; width: 16px; height: 16px; border: 2px solid var(--art-ink); border-radius: var(--r-4); }
+.diary__todo li::after { content: ""; position: absolute; left: 9px; top: 6px; width: 7px; height: 13px; border: solid var(--color-primary); border-width: 0 3px 3px 0; rotate: 40deg; }
+
+.diary__qa details { padding: 0; border-bottom: 1px dashed var(--art-grid); }
+.diary__qa summary { display: flex; align-items: center; min-height: var(--tap-min); font: 700 19px/24px var(--font-hand); color: var(--art-pen); list-style: none; cursor: pointer; }
+.diary__qa summary::-webkit-details-marker { display: none; }
+.diary__qa summary::after { content: "♥"; margin-left: auto; padding-left: var(--sp-8); color: var(--art-margin); font-size: 14px; }
+.diary__qa details[open] summary::after { color: var(--color-primary); }
+.seo .diary__qa p { margin: 0 0 var(--sp-12); padding-left: var(--sp-12); font: 700 17px/24px var(--font-hand); color: var(--art-ink); }
+
+/* 하단 추천: 테이프 붙인 메모지 */
+.more-sites__title { font: 700 22px/28px var(--font-hand); }
+.more-sites__item { position: relative; border-radius: var(--r-4); }
+.more-sites__item:nth-child(odd) { rotate: -0.8deg; }
+.more-sites__item:nth-child(even) { rotate: 0.7deg; }
+.more-sites__name { font: 700 19px/22px var(--font-hand); }
+.more-sites__cat { border-radius: var(--r-4); border-width: 2px; border-color: var(--art-ink); font: 700 17px/20px var(--font-hand); background: var(--color-surface); }

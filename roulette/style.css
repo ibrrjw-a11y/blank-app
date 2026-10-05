@@ -185,7 +185,7 @@ body {
   white-space: nowrap;
 }
 .corner--sm span { font-size: 12px; line-height: 18px; }
-.corner--sm b { font-size: 20px; line-height: 28px; max-width: 62vw; overflow: hidden; text-overflow: ellipsis; }
+.corner--sm b { font-size: 20px; line-height: 28px; max-width: min(calc(50vw - 64px), 176px); overflow: hidden; text-overflow: ellipsis; }
 .intro .corner {
   animation: rl-corner-in 700ms var(--ease-spring) both 120ms;
 }

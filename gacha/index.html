@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>제비뽑기 | 랜덤 뽑기 추첨기 - 캡슐 뽑기 기계로 당첨자 뽑기</title>
+    <meta name="description" content="이름을 넣으면 캡슐 뽑기 기계에 들어가요. 손잡이를 돌려 한 명씩 뽑거나, 당첨 N명·꽝을 정해 폰을 돌려 가며 뽑아요. 뽑은 캡슐은 다시 안 들어가는 공정한 랜덤 추첨기예요." />
+    <meta name="keywords" content="제비뽑기, 랜덤 뽑기, 당첨자 뽑기, 추첨기, 이름 뽑기, 당첨 꽝, 순서 정하기, 온라인 제비뽑기" />
+    <link rel="canonical" href="https://example.com/gacha/" />
+    <meta name="theme-color" content="#e8392f" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/gacha/" />
+    <meta property="og:title" content="제비뽑기 - 캡슐 뽑기 기계로 당첨자 뽑기" />
+    <meta property="og:description" content="손잡이를 딸깍딸깍 돌리면 이름 적힌 캡슐이 데구르르. 금색 캡슐이 당첨이에요." />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎰</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "제비뽑기 - 캡슐 뽑기 추첨기",
+        "url": "https://example.com/gacha/",
+        "description": "이름을 캡슐에 넣고 손잡이를 돌려 한 명씩 뽑거나, 당첨 N명과 꽝을 정해 차례로 뽑는 온라인 제비뽑기예요.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "먼저 뽑는 사람이 유리한가요?", "acceptedAnswer": { "@type": "Answer", "text": "아니에요. 뽑은 캡슐은 다시 넣지 않고, 남은 캡슐 중에서 똑같은 확률로 나와요. 5명 중 2명 당첨이면 몇 번째로 뽑든 처음 기준 확률은 40%예요." } },
+          { "@type": "Question", "name": "몇 명까지 넣을 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "2명부터 60명까지 넣을 수 있어요." } },
+          { "@type": "Question", "name": "명단을 저장할 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "명단 저장을 누르면 이 기기에 저장돼요. 다음엔 한 번 눌러 불러와요." } }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 뽑기 기계가 직접 돌아가는 모습 -->
+      <section class="intro" id="intro" data-view="intro">
+        <div class="machine" id="introMachine">
+          <h1 class="marquee"><span class="marquee__main">제비뽑기</span><span class="marquee__sub">캡슐 1회</span></h1>
+          <canvas class="machine__canvas" aria-hidden="true"></canvas>
+          <p class="tape" id="introTag" aria-live="polite"></p>
+          <button class="coin-slot" id="start" type="button" aria-label="동전 넣고 뽑기 시작">
+            <span class="coin-slot__text">동전 넣고<br />시작</span>
+            <span class="coin-slot__hole" aria-hidden="true"><i class="coin">100</i></span>
+          </button>
+        </div>
+        <div class="intro__foot">
+          <p class="intro__invite" id="invite" hidden></p>
+          <div class="intro__chips" id="introLists"></div>
+        </div>
+      </section>
+
+      <!-- 2) 명단 -->
+      <section data-view="setup" class="setup" hidden>
+        <header class="bar">
+          <button class="bar__back" id="toIntro" type="button" aria-label="처음 화면으로">← 기계</button>
+          <span class="bar__title">명단 쪽지</span>
+          <span class="bar__count t-num" id="count">0명</span>
+        </header>
+
+        <div class="modes" role="radiogroup" aria-label="뽑기 방식">
+          <button class="mode-cap" role="radio" data-mode="one" aria-checked="true">
+            <span class="mode-cap__ball" aria-hidden="true"></span>
+            <span class="mode-cap__name">한 명씩 뽑기</span>
+            <span class="mode-cap__ex">이름 캡슐을 하나씩. 순서 정하기에도</span>
+          </button>
+          <button class="mode-cap" role="radio" data-mode="win" aria-checked="false">
+            <span class="mode-cap__ball mode-cap__ball--gold" aria-hidden="true"></span>
+            <span class="mode-cap__name">당첨 · 꽝</span>
+            <span class="mode-cap__ex">금색 캡슐 N개. 폰 돌려 각자 뽑기</span>
+          </button>
+        </div>
+
+        <div class="lists" id="lists" hidden>
+          <p class="pen-label">저장한 명단</p>
+          <div class="lists__row" id="listRow"></div>
+        </div>
+
+        <div class="slips-box">
+          <form class="row gap-8" id="addForm" autocomplete="off">
+            <label class="sr-only" for="nameInput">이름</label>
+            <input class="input grow" id="nameInput" maxlength="400" placeholder="이름 (쉼표·줄바꿈으로 여러 명)" enterkeyhint="done" />
+            <button class="btn btn--secondary" type="submit">넣기</button>
+          </form>
+          <div class="slips" id="slips" aria-live="polite"></div>
+          <div class="row gap-8 wrap">
+            <button class="chip" type="button" id="sample">예시: 민지, 철수, 영희, 지훈, 수아</button>
+            <button class="chip" type="button" id="saveList" hidden>명단 저장</button>
+            <button class="chip" type="button" id="clearNames" hidden>모두 지우기</button>
+          </div>
+        </div>
+
+        <div class="winbox" id="winBox" hidden>
+          <p class="pen-label">금색 캡슐 (당첨)</p>
+          <div class="stepper">
+            <button class="stepper__btn" type="button" id="winMinus" aria-label="당첨 줄이기">−</button>
+            <span class="stepper__val"><b id="winVal" class="t-num">1</b>개</span>
+            <button class="stepper__btn" type="button" id="winPlus" aria-label="당첨 늘리기">+</button>
+            <span class="stepper__note" id="winNote"></span>
+          </div>
+        </div>
+
+        <div class="setup__cta">
+          <p class="setup__hint" id="ctaHint">2명 이상 넣어 주세요</p>
+          <button class="coin-btn" id="go" type="button" disabled>
+            <span class="coin-btn__coin" aria-hidden="true">100</span>
+            <span class="coin-btn__label" id="goLabel">캡슐 채우기</span>
+            <span class="coin-btn__slot" aria-hidden="true"></span>
+          </button>
+        </div>
+
+        <div class="history" id="history" hidden>
+          <p class="pen-label">지난 뽑기</p>
+          <ul class="history__list" id="historyList"></ul>
+        </div>
+      </section>
+
+      <!-- 3) 뽑기 -->
+      <section data-view="draw" class="draw" hidden>
+        <header class="bar">
+          <button class="bar__back" id="toSetup" type="button">← 명단</button>
+          <span class="bar__title" id="drawTitle">한 명씩 뽑기</span>
+          <span class="bar__count t-num" id="left">남은 캡슐 0</span>
+        </header>
+        <p class="turn" id="turn" hidden></p>
+        <div class="machine machine--play" id="playMachine">
+          <canvas class="machine__canvas" aria-label="캡슐 뽑기 기계. 손잡이를 돌려요"></canvas>
+          <p class="tape tape--hint" id="crankHint">손잡이를 빙글 돌려요<br />꾹 누르고 있어도 돌아가요</p>
+          <button class="knob-btn" id="knobBtn" type="button" aria-label="손잡이 한 바퀴 돌리기"></button>
+          <div class="reveal" id="reveal" hidden>
+            <div class="reveal__cap" id="revealCap" aria-hidden="true"><span class="reveal__top"></span><span class="reveal__bottom"></span></div>
+            <div class="paper" id="paper" role="status">
+              <span class="paper__no" id="paperNo"></span>
+              <b class="paper__name" id="paperName"></b>
+              <span class="paper__stamp" id="paperStamp"></span>
+            </div>
+            <p class="reveal__hint" id="revealHint">좌우로 비틀어 열어요 · 톡톡 눌러도 돼요</p>
+            <button class="reveal__next" id="revealNext" type="button" hidden>다음 캡슐</button>
+          </div>
+        </div>
+
+        <div class="board-wrap">
+          <div class="board-head">
+            <p class="pen-label">뽑기판</p>
+            <span class="board-head__sub" id="boardSub"></span>
+          </div>
+          <ol class="board" id="board"></ol>
+          <div class="draw__actions">
+            <button class="btn btn--outline" id="shareImg">결과 이미지</button>
+            <button class="btn btn--outline" id="shareLink">명단 링크 보내기</button>
+            <button class="btn btn--ghost" id="refill">캡슐 다시 채우기</button>
+            <button class="btn btn--ghost" id="copyText">결과 복사</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEO 본문: 문방구 뽑기 설명서 -->
+      <article class="seo manual" id="seo">
+        <div class="manual__card">
+          <p class="manual__kicker">뽑기 기계 설명서 · 1회 100원</p>
+          <h2>제비뽑기 캡슐 기계 사용법</h2>
+          <ol class="manual__steps">
+            <li><b>명단 쪽지</b> 이름을 2~60명 넣어요. "민지, 철수, 영희"처럼 쉼표나 줄바꿈으로 한 번에.</li>
+            <li><b>방식 고르기</b> 한 명씩 뽑기 또는 당첨·꽝 (금색 캡슐 N개).</li>
+            <li><b>손잡이</b> 오른쪽으로 한 바퀴. 딸깍 6번이면 캡슐이 나와요. 꾹 누르고 있어도 돌아가요.</li>
+            <li><b>캡슐 열기</b> 좌우로 비틀거나 톡톡 3번 누르면 쪽지가 펼쳐져요.</li>
+            <li><b>뽑기판</b> 나온 순서대로 칸이 채워져요. 이미지로 저장하거나 단톡방에 복사해요.</li>
+          </ol>
+        </div>
+
+        <h3>공정한가요? 뽑은 캡슐은 다시 안 들어가요</h3>
+        <p>캡슐이 나올 때마다 남은 캡슐 중 하나를 같은 확률로 골라요(비복원 추출). 앞사람 결과에 따라 다음 확률은 바뀌지만, <b>처음 기준으로는 몇 번째로 뽑든 똑같아요.</b></p>
+        <div class="spec-wrap">
+          <table class="spec">
+            <caption>예시 · 5명 중 2명 당첨 (금색 캡슐 2개 + 일반 3개)</caption>
+            <thead><tr><th scope="col">차례</th><th scope="col">남은 캡슐</th><th scope="col">앞이 다 꽝이면</th><th scope="col">처음 기준</th></tr></thead>
+            <tbody>
+              <tr><td>1 민지</td><td class="t-num">5개</td><td class="t-num">2/5</td><td class="t-num">40%</td></tr>
+              <tr><td>2 철수</td><td class="t-num">4개</td><td class="t-num">2/4</td><td class="t-num">40%</td></tr>
+              <tr><td>3 영희</td><td class="t-num">3개</td><td class="t-num">2/3</td><td class="t-num">40%</td></tr>
+              <tr><td>4 지훈</td><td class="t-num">2개</td><td class="t-num">2/2</td><td class="t-num">40%</td></tr>
+              <tr><td>5 수아</td><td class="t-num">1개</td><td class="t-num">–</td><td class="t-num">40%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="manual__note">2 ÷ 5 = 40%. 앞에서 금색이 먼저 나오면 뒷사람 확률은 내려가고, 꽝이 이어지면 올라가요. 평균을 내면 다섯 자리 모두 40%예요.</p>
+
+        <h3>이럴 때 써요</h3>
+        <ul class="manual__uses">
+          <li><b>발표 순서</b> 6명 한 명씩 뽑기 → 뽑기판 1~6칸이 그대로 발표 순서</li>
+          <li><b>경품 추첨</b> 30명 중 금색 캡슐 3개 → 당첨자 3명</li>
+          <li><b>청소 당번</b> 8명 중 2명, 폰 돌려 각자 뽑기</li>
+          <li><b>팀장 정하기</b> 한 명만 뽑고 멈추기</li>
+        </ul>
+
+        <h3>문방구 Q&amp;A</h3>
+        <details>
+          <summary>먼저 뽑는 사람이 유리한가요?</summary>
+          <p>아니에요. 위 표처럼 처음 기준 확률은 차례와 상관없이 같아요. 무작위 값은 브라우저의 암호용 난수(crypto)로 만들어요.</p>
+        </details>
+        <details>
+          <summary>몇 명까지 넣을 수 있나요?</summary>
+          <p>2명부터 60명까지예요. 사람이 많으면 캡슐이 작아져서 돔 안에 다 들어가요.</p>
+        </details>
+        <details>
+          <summary>뽑다가 그만두면요?</summary>
+          <p>한 명씩 뽑기는 원하는 만큼만 뽑고 멈춰도 돼요. 뽑기판에 나온 데까지 기록되고, "지난 뽑기"에 남아요.</p>
+        </details>
+        <details>
+          <summary>명단을 친구에게 보낼 수 있나요?</summary>
+          <p>"명단 링크 보내기"를 누르면 이름과 방식이 담긴 링크가 만들어져요. 친구가 열면 같은 명단으로 바로 뽑을 수 있어요.</p>
+        </details>
+        <details>
+          <summary>명단은 어디에 저장돼요?</summary>
+          <p>이 기기 브라우저에만 저장돼요. 서버로 보내지 않아요.</p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 도구"></nav>
+      <footer class="site-footer">제비뽑기 · 결과는 무작위예요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

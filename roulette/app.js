@@ -701,9 +701,9 @@ function drawCard(run) {
   // 돌림판 (최종 각도)
   const s = sample(run.sim, run.sim.t + 0.6);
   view.draw(s.th, s.f, { zoom: 1 });
-  const vw = 400;
+  const vw = 372;
   const vh = vw * (view.H / view.W);
-  ctx.drawImage(view.canvas, (W - vw) / 2, 74, vw, vh);
+  ctx.drawImage(view.canvas, (W - vw) / 2, 100, vw, vh);
 
   // 코너 타이틀
   ctx.save();
@@ -728,7 +728,7 @@ function drawCard(run) {
   ctx.fillText(run.title, 14, 49, tw - 24);
   ctx.restore();
 
-  outlined(ctx, "당첨!!", W - 128, 120, { size: 64, fill: "#ff3b2f", rot: -0.1 });
+  outlined(ctx, "당첨!!", W - 118, 150, { size: 64, fill: "#ff3b2f", rot: -0.1 });
   const ns = fitSize(ctx, run.winnerName, W - 70, 72);
   outlined(ctx, run.winnerName, W / 2, H - 112, { size: ns, fill: "#ffd400", rot: 0.03, lw: 14 });
   ctx.font = `700 18px ${CANVAS_FONT}`;
