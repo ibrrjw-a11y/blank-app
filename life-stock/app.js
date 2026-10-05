@@ -785,7 +785,7 @@ function renderReport() {
     .join("");
   const sectors = R.sectors
     .map((s) => {
-      const col = s.delta >= 0 ? C.up : C.down;
+      const col = s.series[s.series.length - 1] >= s.series[0] ? C.up : C.down; // 10년 추세 방향
       return `<div class="sector">
         <div class="sector__top"><span class="sector__name">${s.name} <span class="t-tertiary t-label-03">${s.god}</span></span><span class="sector__d t-num ${sign(s.delta)}">${arrow(s.delta)}${Math.abs(
         s.delta
