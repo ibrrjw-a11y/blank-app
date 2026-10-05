@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>대운 그래프·사주 무료 | 나 상장하기 - 내 인생을 주가 차트로</title>
+    <meta
+      name="description"
+      content="생년월일시를 넣으면 사주 대운·세운이 평생 주가 차트가 돼요. 무료 사주로 보는 인생 그래프, 올해 운세 일봉, 손 없는 날·이사 날짜 길일 달력, 친구와 M&A 궁합까지."
+    />
+    <meta name="keywords" content="대운, 대운 그래프, 사주, 무료 사주, 인생 그래프, 올해 운세, 세운, 일진, 손 없는 날, 길일, 이사 날짜, 이사 길일" />
+    <link rel="canonical" href="https://example.com/life-stock/" />
+    <meta name="theme-color" content="#0a0c10" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/life-stock/" />
+    <meta property="og:title" content="나 상장하기 - 내 인생을 주가 차트로" />
+    <meta property="og:description" content="사주 대운·세운으로 그린 평생 주가 차트. 내 인생 사상 최고가는 언제일까요?" />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "나 상장하기",
+            "url": "https://example.com/life-stock/",
+            "description": "사주 대운·세운을 평생 주가 차트로 보여주는 무료 사주 인생 그래프. 일진 일봉, 손 없는 날 달력, 친구 궁합 포함.",
+            "applicationCategory": "EntertainmentApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "태어난 시간을 모르면 어떻게 하나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "‘모름’을 고르면 시주(태어난 시의 두 글자)를 빼고 나머지 6글자로 오행을 계산해요. 대운 시작 나이는 정오 기준으로 잡아서 몇 달 정도 차이가 날 수 있어요." }
+              },
+              {
+                "@type": "Question",
+                "name": "대운은 몇 살부터 시작하나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "사람마다 달라요. 태어난 날부터 가장 가까운 절기까지의 날짜 수를 3으로 나눠 대운 시작 나이(대운수)를 정해요. 보통 1~10세 사이에 시작하고, 그 뒤로 10년마다 바뀌어요." }
+              },
+              {
+                "@type": "Question",
+                "name": "손 없는 날이란 무엇인가요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "‘손’은 날짜마다 방향을 옮겨 다니며 사람의 일을 방해한다고 믿었던 귀신이에요. 음력으로 끝자리가 9와 0인 날(9·10·19·20·29·30일)에는 손이 하늘로 올라가 어느 방향에도 없다고 해서 이사·개업·결혼 날짜로 많이 골라요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+    <script src="../shared/vendor/lunar.js"></script>
+  </head>
+  <body>
+    <main class="app">
+      <!-- 1) 첫 화면: 모션그래픽 -->
+      <section class="intro" id="intro" data-view="intro">
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__steps"></div>
+        <div class="intro__caption" aria-live="polite"></div>
+        <div class="ma-invite card card--flat" id="maInvite" hidden></div>
+        <div class="intro__cta">
+          <button class="btn btn--primary btn--lg btn--block" id="start">내 주식 상장하기</button>
+          <button class="btn btn--ghost btn--block" id="openCal" type="button">📅 손 없는 날 달력만 보기</button>
+        </div>
+      </section>
+
+      <!-- 2) 입력 -->
+      <section data-view="form" hidden>
+        <header class="topbar">
+          <button class="btn btn--ghost btn--icon" type="button" data-back aria-label="뒤로">←</button>
+          <span class="topbar__brand">상장 신청서</span>
+          <span class="btn--icon" aria-hidden="true"></span>
+        </header>
+        <form id="form" class="stack gap-24 form" novalidate>
+          <div>
+            <p class="t-label-02 t-primary">KRX 인생시장 · 신규 상장 신청</p>
+            <h1 class="t-title-01 form__title">내 인생을 상장해 볼까요?</h1>
+            <p class="t-body-03 t-secondary">생년월일시로 사주 8글자를 뽑고, 대운·세운을 주가로 바꿔요.</p>
+          </div>
+
+          <label class="field" id="f-name">
+            <span class="field__label">종목명 (이름이나 별명)</span>
+            <input class="input" name="name" maxlength="10" placeholder="예: 홍길동" autocomplete="nickname" required />
+            <span class="field__help">차트 맨 위에 종목명으로 쓰여요.</span>
+          </label>
+
+          <fieldset class="field" id="f-date">
+            <legend class="field__label">생년월일</legend>
+            <div class="seg" role="group" aria-label="달력 종류">
+              <button type="button" class="seg__btn" data-cal="solar" aria-pressed="true">양력</button>
+              <button type="button" class="seg__btn" data-cal="lunar" aria-pressed="false">음력</button>
+            </div>
+            <div class="date-row">
+              <select class="input" name="y" aria-label="태어난 해"></select>
+              <select class="input" name="m" aria-label="태어난 달"></select>
+              <select class="input" name="d" aria-label="태어난 날"></select>
+            </div>
+            <label class="check" id="leapWrap" hidden><input type="checkbox" name="leap" /> 윤달이에요</label>
+            <span class="field__help" id="dateHelp">양력 생일을 골라 주세요.</span>
+          </fieldset>
+
+          <fieldset class="field" id="f-time">
+            <legend class="field__label">태어난 시간</legend>
+            <div class="time-row">
+              <input class="input" type="time" name="time" value="12:00" aria-label="태어난 시간" />
+              <button type="button" class="chip" id="timeUnknown" aria-pressed="false">모름</button>
+            </div>
+            <span class="field__help" id="timeHelp">한국 표준시 보정(−30분)을 적용해 시주를 계산해요.</span>
+          </fieldset>
+
+          <fieldset class="field">
+            <legend class="field__label">성별 <span class="t-tertiary">(대운이 흐르는 방향을 정해요)</span></legend>
+            <div class="seg" role="group" aria-label="성별">
+              <button type="button" class="seg__btn" data-g="M" aria-pressed="false">남성</button>
+              <button type="button" class="seg__btn" data-g="F" aria-pressed="false">여성</button>
+            </div>
+            <span class="field__help" id="gHelp"></span>
+          </fieldset>
+
+          <button class="btn btn--primary btn--lg btn--block" type="submit" id="submit">🔔 상장하기</button>
+          <p class="t-caption-01 t-tertiary t-center">입력한 정보는 이 기기에만 저장돼요. 재미로 보는 콘텐츠예요.</p>
+        </form>
+      </section>
+
+      <!-- 3) 대시보드 -->
+      <section data-view="dash" hidden id="dash">
+        <header class="topbar">
+          <a class="topbar__brand" href="./">📈 나 상장하기</a>
+          <button class="btn btn--ghost btn--sm" type="button" id="shareTop">공유하기</button>
+        </header>
+
+        <div class="quote" id="quote"></div>
+
+        <nav class="subnav" aria-label="섹션 이동">
+          <a href="#sec-chart" class="subnav__a">평생 차트</a>
+          <a href="#sec-candle" class="subnav__a">일봉</a>
+          <a href="#sec-report" class="subnav__a">리포트</a>
+          <a href="#sec-cal" class="subnav__a">택일</a>
+          <a href="#sec-ma" class="subnav__a">M&amp;A</a>
+        </nav>
+
+        <section class="panel" id="sec-chart">
+          <div class="panel__head">
+            <h2 class="t-title-04">평생 차트</h2>
+            <div class="seg seg--sm" role="tablist" aria-label="기간" id="rangeTabs">
+              <button type="button" class="seg__btn" data-range="all" aria-pressed="true">전체</button>
+              <button type="button" class="seg__btn" data-range="10y" aria-pressed="false">10년</button>
+              <button type="button" class="seg__btn" data-range="year" aria-pressed="false">올해</button>
+            </div>
+          </div>
+          <p class="t-caption-01 t-tertiary chart-hint">차트를 누른 채 좌우로 움직여 보세요</p>
+          <div class="chart-wrap">
+            <canvas id="lifeChart" aria-label="평생 주가 차트"></canvas>
+            <div class="chart-tip" id="lifeTip" hidden></div>
+          </div>
+          <div class="stat-row" id="lifeStats"></div>
+          <h3 class="t-label-02 t-secondary daeun-title">대운표 · 10년마다 바뀌는 추세</h3>
+          <ol class="daeun-list" id="daeunList"></ol>
+        </section>
+
+        <section class="panel" id="sec-candle">
+          <div class="panel__head">
+            <h2 class="t-title-04" id="candleTitle">이번 달 일봉</h2>
+            <span class="badge" id="streakBadge"></span>
+          </div>
+          <div class="today" id="todayBox"></div>
+          <div class="chart-wrap"><canvas id="candleChart" aria-label="이번 달 일봉 차트"></canvas></div>
+          <p class="t-body-03 t-secondary candle-pick" id="candlePick">캔들을 누르면 그날의 일진을 보여줘요.</p>
+        </section>
+
+        <section class="panel report" id="sec-report"></section>
+
+        <section class="panel" id="sec-cal">
+          <div class="panel__head">
+            <h2 class="t-title-04">택일 캘린더</h2>
+          </div>
+          <div class="cal" id="calMain"></div>
+        </section>
+
+        <section class="panel" id="sec-ma"></section>
+
+        <section class="panel share-panel">
+          <h2 class="t-title-04">내 종목 자랑하기</h2>
+          <p class="t-body-03 t-secondary">결과 카드를 저장하거나 링크를 보내 친구 종목과 합병해 보세요.</p>
+          <div class="stack gap-8">
+            <button class="btn btn--primary btn--block" type="button" id="shareImg">📷 결과 카드 저장하기</button>
+            <button class="btn btn--outline btn--block" type="button" id="shareLink">🔗 M&amp;A 제안 링크 보내기</button>
+            <button class="btn btn--ghost btn--block" type="button" id="reset">다른 사람 상장하기</button>
+          </div>
+        </section>
+        <p class="disclaimer t-caption-01">재미로 보는 콘텐츠예요. 투자·인생 결정의 근거가 아니에요. 주가는 사주 오행 규칙으로 계산한 가상의 숫자예요.</p>
+      </section>
+
+      <!-- 4) 손 없는 날 달력 (프로필 없이) -->
+      <section data-view="cal" hidden>
+        <header class="topbar">
+          <button class="btn btn--ghost btn--icon" type="button" data-back aria-label="뒤로">←</button>
+          <span class="topbar__brand">손 없는 날 달력</span>
+          <span class="btn--icon" aria-hidden="true"></span>
+        </header>
+        <div class="stack gap-16">
+          <div>
+            <h1 class="t-title-02">손 없는 날 · 이사 길일</h1>
+            <p class="t-body-03 t-secondary">음력 끝자리가 9·0인 날(9·10·19·20·29·30일)이 손 없는 날이에요. 날짜를 누르면 음력과 일진을 보여줘요.</p>
+          </div>
+          <div class="panel"><div class="cal" id="calOnly"></div></div>
+          <div class="card card--flat cta-card">
+            <p class="t-body-02-strong">나한테 맞는 이사·계약·면접 날은?</p>
+            <p class="t-body-03 t-secondary">생년월일시를 넣으면 손 없는 날 중에서도 내 일진이 좋은 날을 골라 드려요.</p>
+            <button class="btn btn--primary btn--block" type="button" id="calToStart">내 주식 상장하기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5) SEO 본문 -->
+      <article class="seo" id="seo">
+        <h2>대운 그래프로 보는 내 인생, 나 상장하기</h2>
+        <p>
+          나 상장하기는 생년월일시로 사주 여덟 글자를 뽑고, 10년마다 바뀌는 <strong>대운</strong>과 해마다 바뀌는 <strong>세운</strong>을
+          주식 차트처럼 그려 주는 무료 사주 서비스예요. 0세에 시가 10,000원으로 상장한 내 인생 주식이 언제 오르고 언제 쉬어 가는지
+          인생 그래프로 한눈에 볼 수 있어요.
+        </p>
+
+        <h3>사용법</h3>
+        <ol>
+          <li>이름(종목명), 생년월일(양력·음력), 태어난 시간, 성별을 넣어요.</li>
+          <li>상장 세리머니가 끝나면 0~90세 평생 차트가 나와요. 차트를 누른 채 움직이면 나이·연도·주가를 볼 수 있어요.</li>
+          <li>이번 달 일봉에서 오늘의 시세를, 택일 캘린더에서 면접·고백·이사·계약하기 좋은 날을 확인해요.</li>
+          <li>링크를 친구에게 보내면 두 사람의 차트를 겹쳐 보는 M&amp;A 궁합을 볼 수 있어요.</li>
+        </ol>
+
+        <h3>대운·세운·일진이 뭐예요?</h3>
+        <p>
+          <strong>대운(大運)</strong>은 10년 단위로 바뀌는 큰 운의 흐름이에요. 태어난 달의 기둥(월주)에서 출발해 순서대로 한 칸씩 움직이고,
+          남녀와 태어난 해의 음양에 따라 앞으로 갈지 거꾸로 갈지가 정해져요. 이 사이트에서는 대운을 주가의 <em>추세</em>로 써요.
+        </p>
+        <p>
+          <strong>세운(歲運)</strong>은 그해의 간지예요. 2026년은 병오(丙午)년이죠. 세운은 1년짜리 <em>등락</em>이 되고, 매일 바뀌는
+          <strong>일진(日辰)</strong>은 하루짜리 <em>일봉</em>이 돼요.
+        </p>
+
+        <h3>주가는 어떻게 계산하나요?</h3>
+        <p>
+          먼저 사주 8글자의 오행(목·화·토·금·수)을 세고, 나를 뜻하는 일간이 강한지(신강) 약한지(신약)를 봐요. 일간과 같은 오행(비겁)과
+          일간을 돕는 오행(인성)이 절반 이상이면 신강, 아니면 신약이에요. 신약하면 인성·비겁이, 신강하면 식상·재성·관성이 유리한 오행이 돼요.
+          대운·세운·월운에 유리한 오행이 들어오면 주가가 오르고, 불리한 오행이 들어오면 조정을 받아요. 생일로 정해지는 작은 흔들림을 더해
+          자연스럽게 다듬었고, 같은 생년월일시는 언제나 같은 차트가 나와요.
+        </p>
+
+        <h3>손 없는 날 계산법</h3>
+        <p>
+          손 없는 날은 <strong>음력 날짜의 끝자리가 9 또는 0인 날</strong>, 즉 음력 9일·10일·19일·20일·29일·30일이에요. 민간 신앙에서 ‘손’은
+          1·2일엔 동쪽, 3·4일엔 남쪽, 5·6일엔 서쪽, 7·8일엔 북쪽으로 옮겨 다니다가 끝자리 9·0인 날엔 하늘로 올라가 어디에도 없다고 여겼어요.
+          그래서 이사·개업·혼례 날짜로 인기가 많고, 이삿짐센터 예약도 이날 몰려요. 택일 캘린더는 만세력으로 매일의 음력 날짜를 직접 계산해 표시해요.
+        </p>
+
+        <h3>자주 묻는 질문</h3>
+        <details>
+          <summary>태어난 시간을 모르면?</summary>
+          <p>
+            ‘모름’을 고르면 시주를 빼고 연·월·일 6글자로 오행을 계산해요. 대운 시작 나이는 정오 기준으로 잡기 때문에 몇 달 정도 차이가 날 수
+            있어요. 시간을 알면 더 정확해요.
+          </p>
+        </details>
+        <details>
+          <summary>대운은 몇 살부터 시작하나요?</summary>
+          <p>
+            사람마다 달라요. 태어난 날부터 앞뒤로 가장 가까운 절기까지의 날짜 수를 3으로 나눠 대운수를 정해요. 보통 1~10세 사이에 시작하고,
+            그 뒤로 10년마다 바뀌어요. 대운이 시작되기 전에는 월주가 흐름을 맡는다고 보고 차트에 ‘대운 전’으로 표시해요.
+          </p>
+        </details>
+        <details>
+          <summary>손 없는 날이란?</summary>
+          <p>
+            음력 끝자리가 9·0인 날이에요. 손(귀신)이 어느 방향에도 없어서 이사나 개업을 해도 탈이 없다고 믿는 날이죠. 한 달에 보통 6일(작은달은 5일)
+            있어요.
+          </p>
+        </details>
+        <details>
+          <summary>음력 생일도 되나요?</summary>
+          <p>네. 음력을 고르고 윤달이면 ‘윤달이에요’를 체크해 주세요. 양력으로 바꿔서 계산해요.</p>
+        </details>
+        <details>
+          <summary>정말 이대로 될까요?</summary>
+          <p>재미로 보는 콘텐츠예요. 전통 명리 규칙을 아주 단순하게 옮긴 계산이라 투자·인생 결정의 근거로 쓰면 안 돼요.</p>
+        </details>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">재미로 보는 콘텐츠예요. 투자·인생 결정의 근거가 아니에요.</footer>
+    </main>
+
+    <!-- 상장 세리머니 -->
+    <div class="ceremony" id="ceremony" hidden>
+      <canvas class="ceremony__confetti" id="confetti" aria-hidden="true"></canvas>
+      <div class="ceremony__inner" id="ceremonyInner"></div>
+    </div>
+
+    <!-- 날짜 상세 -->
+    <div class="sheet" id="daySheet" role="dialog" aria-modal="true" aria-label="날짜 상세"></div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

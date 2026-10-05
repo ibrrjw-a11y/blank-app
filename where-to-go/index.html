@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>점심메뉴 추천·중간지점 찾기 | 어디가? - 다같이 고르는 메뉴 월드컵</title>
+    <meta
+      name="description"
+      content="오늘 뭐 먹지? 점심메뉴 추천부터 친구들 중간지점 찾기, 데이트 코스 추천, 회식 장소 정하기까지. 근처 실제 가게로 8강·16강 월드컵을 하고 다같이 투표해서 정해요. 앱 설치 없이 무료."
+    />
+    <meta
+      name="keywords"
+      content="점심메뉴 추천, 오늘 뭐 먹지, 메뉴 정하기, 중간지점 찾기, 약속장소 추천, 데이트 코스 추천, 회식 장소, 메뉴 월드컵, 점심 메뉴 고르기"
+    />
+    <link rel="canonical" href="https://example.com/where-to-go/" />
+    <meta name="theme-color" content="#08876a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="어디가?" />
+    <meta property="og:url" content="https://example.com/where-to-go/" />
+    <meta property="og:title" content="어디가? - 다같이 고르는 메뉴·장소 월드컵" />
+    <meta property="og:description" content="점심메뉴 추천, 중간지점 찾기, 데이트 코스까지. 거부권 쓰고 투표해서 1등 가게로 바로 출발해요." />
+    <meta property="og:image" content="og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "어디가? - 다같이 고르는 메뉴·장소 월드컵",
+            "url": "https://example.com/where-to-go/",
+            "description": "점심메뉴 추천, 중간지점 찾기, 데이트 코스 추천, 회식 장소 정하기를 월드컵 투표로 해결하는 무료 웹앱",
+            "applicationCategory": "LifestyleApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "앱을 설치해야 하나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "아니요. 웹 브라우저에서 바로 쓰고, 친구에게는 링크만 보내면 돼요. 친구도 설치나 가입 없이 참여해요." }
+              },
+              {
+                "@type": "Question",
+                "name": "위치 정보가 저장되나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "'내 위치'는 근처 가게와 중간지점을 계산할 때만 브라우저 안에서 쓰고 서버로 보내 저장하지 않아요. 팀을 저장할 때 고른 회사 위치만 이 기기 브라우저에 남아요." }
+              },
+              {
+                "@type": "Question",
+                "name": "실제 가게 정보는 어디서 오나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "OpenStreetMap 공개 지도 데이터(Overpass API)에서 근처 음식점·카페를 불러와요. 운영자가 카카오 키를 설정하면 카카오 장소 검색을 써요. 불러오지 못하면 내장 메뉴 카테고리로 진행해요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <a class="topbar__brand" href="./" data-act="home"><span aria-hidden="true">📍</span>어디가?</a>
+        <button class="btn btn--ghost btn--sm" data-act="report">📒 내 점심 기록</button>
+      </header>
+      <h1 class="sr-only">점심메뉴 추천·중간지점 찾기 어디가? - 다같이 고르는 메뉴·장소 월드컵</h1>
+
+      <!-- 1) 첫 화면: 모션그래픽 -->
+      <section class="intro" id="intro" data-view="intro">
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__steps"></div>
+        <div class="intro__caption" aria-live="polite"></div>
+        <div class="intro__cta">
+          <button class="btn btn--primary btn--lg btn--block" id="start" data-act="start">오늘 뭐 먹지? 정하러 가기</button>
+          <div class="intro__extra" id="introExtra"></div>
+        </div>
+      </section>
+
+      <!-- 2) 설정 -->
+      <section class="view" data-view="setup" id="setup" hidden></section>
+      <!-- 3) 거부권 -->
+      <section class="view" data-view="veto" id="veto" hidden></section>
+      <!-- 4) 대결 -->
+      <section class="view" data-view="match" id="match" hidden></section>
+      <!-- 5) 결과 -->
+      <section class="view" data-view="result" id="result" hidden></section>
+      <!-- 6) 링크로 각자: 방 -->
+      <section class="view" data-view="room" id="room" hidden></section>
+      <!-- 7) 친구가 보낸 월드컵 -->
+      <section class="view" data-view="guest" id="guest" hidden></section>
+      <!-- 8) 점심 기록 -->
+      <section class="view" data-view="report" id="report" hidden></section>
+
+      <!-- SEO 본문 -->
+      <article class="seo">
+        <h2>어디가?는 이런 곳이에요</h2>
+        <p>
+          "오늘 뭐 먹지?", "어디서 만나지?"를 메뉴·장소 월드컵으로 끝내는 서비스예요. 메뉴 카테고리나 근처 실제 가게를
+          8강·16강 대진표로 만들고, 거부권 카드로 절대 싫은 후보를 빼고, 한 폰으로 다같이 투표하거나 링크로 각자 골라서 1등을 정해요.
+          1등이 정해지면 카카오맵·네이버지도로 바로 연결돼요.
+        </p>
+
+        <h2>사용법</h2>
+        <h3>🍱 점심메뉴 추천</h3>
+        <ol>
+          <li>회사 근처 역을 고르거나 '내 위치'를 눌러요.</li>
+          <li>국물, 매운, 가벼운, 가격대 같은 조건을 골라요. 어제·그제 먹은 메뉴는 자동으로 빠져요.</li>
+          <li>거부권을 쓰고 월드컵을 하면 오늘의 점심이 나와요. '점심으로 기록하기'를 누르면 이번 달 점심 리포트가 쌓여요.</li>
+          <li>팀을 저장해 두면 다음부터는 한 번에 시작할 수 있어요.</li>
+        </ol>
+        <h3>💑 데이트 코스 추천</h3>
+        <p>밥 → 카페 → 놀거리 순서로 세 번의 월드컵을 해요. 세 우승자가 모여 하나의 데이트 코스 카드가 돼요. 비 오는 날에는 실내 놀거리가 더 자주 나와요.</p>
+        <h3>🍻 모임·회식 장소 (중간지점 찾기)</h3>
+        <p>모이는 사람마다 출발 역이나 내 위치를 넣으면 모두에게서 가까운 중간 역을 찾아 줘요. 그 근처 가게로 회식 장소 월드컵을 하면 돼요.</p>
+
+        <h2>중간지점은 이렇게 계산해요</h2>
+        <p>
+          참가자들의 위도·경도를 지구 표면 위의 점으로 보고 평균을 낸 무게중심을 구한 뒤, 내장된 주요 역·도심 목록 중 그 점에서 가장 가까운 곳을
+          약속 장소로 골라요. 각자의 거리는 <strong>직선거리</strong>라서 실제 지하철·버스 이동 시간과는 달라요. 노선이나 환승은 고려하지 않으니
+          최종 결정 전에 지도 앱 길찾기로 한 번 확인해 주세요. 역 좌표는 약 300m 안쪽 오차의 근사치예요.
+        </p>
+
+        <h2>거부권 카드는 뭔가요?</h2>
+        <p>
+          월드컵을 시작하기 전에 한 사람당 한 번, 절대 먹기 싫은 후보를 뺄 수 있어요. 폰을 돌려 가며 각자 하나씩 누르면 빠진 자리를 다른 후보가 채워요.
+          "아무거나"라고 해 놓고 나중에 싫다고 하는 일을 막아 줘요.
+        </p>
+
+        <h2>링크로 각자 고르면 어떻게 합쳐요?</h2>
+        <p>
+          방장이 후보 목록이 담긴 링크를 보내면 친구들은 각자 폰에서 월드컵을 하고 '결과 보내기' 답장 링크를 보내요. 방장이 답장 링크를 열면
+          보르다 방식으로 점수를 합쳐요. 우승은 가장 높은 점수, 준우승은 그다음 점수를 받고, 같은 라운드에서 떨어진 후보는 같은 점수를 나눠 가져요.
+          서버 없이 링크만으로 동작해서 답장은 방장의 이 기기 브라우저에만 모여요.
+        </p>
+
+        <h2>이번 달 점심 리포트와 단골 도장</h2>
+        <p>
+          점심을 기록하면 이번 달 분류별 횟수, 가장 많이 먹은 메뉴, 편식 지수를 보여줘요. 편식 지수는 먹은 분류가 얼마나 고르게 섞였는지(정규화한
+          섀넌 엔트로피)로 계산해서, 한 분류만 계속 먹을수록 100에 가까워져요. 같은 가게를 3번 이상 가면 단골 도장이 찍혀요.
+        </p>
+
+        <h2>자주 묻는 질문</h2>
+        <details>
+          <summary>앱을 설치해야 하나요?</summary>
+          <p>아니요. 웹 브라우저에서 바로 쓰고, 친구에게는 링크만 보내면 돼요. 친구도 설치나 가입 없이 참여해요.</p>
+        </details>
+        <details>
+          <summary>위치 정보가 저장되나요?</summary>
+          <p>
+            '내 위치'는 근처 가게와 중간지점을 계산할 때만 브라우저 안에서 써요. 서버로 보내 저장하지 않아요. 근처 가게와 날씨를 불러올 때는
+            좌표를 OpenStreetMap·Open-Meteo(설정된 경우 카카오)에 요청 값으로만 보내요. 팀을 저장할 때 고른 회사 위치만 이 기기 브라우저에 남아요.
+          </p>
+        </details>
+        <details>
+          <summary>실제 가게 정보는 어디서 오나요?</summary>
+          <p>
+            OpenStreetMap 공개 지도 데이터(Overpass API)에서 근처 음식점·카페 이름과 위치를 불러와요. 운영자가 카카오 JavaScript 키를 설정하면 카카오
+            장소 검색을 먼저 써요. 네트워크 문제로 불러오지 못하면 내장 메뉴 카테고리로 자연스럽게 바뀌어요. 영업시간·가격·평점은 보여주지 않으니
+            지도 앱에서 확인해 주세요.
+          </p>
+        </details>
+        <details>
+          <summary>날씨는 어떻게 반영돼요?</summary>
+          <p>위치를 고르면 Open-Meteo에서 현재 기온과 강수량을 불러와요. 비가 오거나 5℃ 이하로 추우면 국물 메뉴, 28℃ 이상이면 가벼운 메뉴가 더 자주 뽑혀요.</p>
+        </details>
+        <details>
+          <summary>회식 인원이 많아도 되나요?</summary>
+          <p>한 폰으로 투표할 때는 인원수만큼 +1 버튼을 누르면 과반이 올라가요. 동점이면 동전 던지기로 정해요. 인원이 많으면 '링크로 각자' 방식이 편해요.</p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">가게 정보 © OpenStreetMap 기여자 · 날씨 Open-Meteo · 거리는 모두 직선거리 기준 근사치예요.</footer>
+    </main>
+
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

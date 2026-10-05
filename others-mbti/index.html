@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>MBTI 검사 말고 | 남이 정해주는 MBTI - 친구들이 보는 나의 성격 유형</title>
+    <meta
+      name="description"
+      content="무료 MBTI 테스트, 이번엔 친구들이 대신 답해요. 단톡방에 링크를 보내면 친구들이 12문항으로 나를 평가하고, 3명이 모이면 남이 보는 내 MBTI와 반전 지수, MBTI 궁합까지 볼 수 있어요."
+    />
+    <meta name="keywords" content="MBTI 검사, 무료 MBTI, 엠비티아이, 친구가 보는 나, 남이 보는 내 MBTI, MBTI 궁합, MBTI 테스트, 타인 평가 MBTI" />
+    <link rel="canonical" href="https://example.com/others-mbti/" />
+    <meta name="theme-color" content="#7b5cf5" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/others-mbti/" />
+    <meta property="og:title" content="남이 정해주는 MBTI - 친구들 눈에 나는 무슨 유형일까?" />
+    <meta property="og:description" content="내가 아니라 친구들이 답하는 MBTI. 12문항만 답해주면 남이 보는 내 MBTI가 열려요." />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪞</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "남이 정해주는 MBTI",
+            "url": "https://example.com/others-mbti/",
+            "description": "친구들이 대신 답해주는 무료 MBTI 놀이. 남이 보는 내 성격 유형과 반전 지수, MBTI 궁합을 보여줘요.",
+            "applicationCategory": "EntertainmentApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "친구가 몇 명 답해야 결과가 나오나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "3명이 답하면 남이 보는 MBTI가 열려요. 그 뒤로도 응답이 들어올 때마다 결과가 갱신돼요." }
+              },
+              {
+                "@type": "Question",
+                "name": "응답은 어디에 저장되나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "서버 없이 링크와 내 브라우저에만 저장돼요. 친구의 답은 답장 링크 안에 담겨 오고, 내가 그 링크를 열면 내 기기에 합쳐져요." }
+              },
+              {
+                "@type": "Question",
+                "name": "정식 MBTI 검사인가요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "아니요. 공식 검사와 관계없는 재미용 성격 유형 놀이예요. MBTI는 The Myers-Briggs Company의 상표예요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <!-- 1) 첫 화면: 모션그래픽 -->
+      <section class="intro" id="intro" data-view="intro">
+        <div class="intro__brand row between">
+          <span class="row gap-8 t-label-01"><span aria-hidden="true">🪞</span>남이 정해주는 MBTI</span>
+          <span class="badge" id="introBadge" hidden></span>
+        </div>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__steps"></div>
+        <div class="intro__caption" aria-live="polite"></div>
+        <div class="intro__cta">
+          <button class="btn btn--primary btn--lg btn--block" id="start">내 링크 만들기</button>
+          <button class="btn btn--secondary btn--block" id="introMine" hidden>내 결과 보기</button>
+        </div>
+      </section>
+
+      <!-- 2) 주인: 이름 + 내가 생각하는 내 MBTI -->
+      <section class="view" data-view="setup" hidden>
+        <div class="viewbar row gap-8">
+          <button class="btn btn--ghost btn--icon" data-back aria-label="뒤로">←</button>
+          <h1 class="t-title-04 grow">내 링크 만들기</h1>
+        </div>
+        <form class="stack gap-24" id="setupForm" novalidate>
+          <label class="field" id="nameField">
+            <span class="field__label">이름이나 닉네임</span>
+            <input class="input" id="ownerName" maxlength="10" autocomplete="nickname" placeholder="예) 민지" />
+            <span class="field__help">친구들에게 "OO는 어떤 사람일까요?"로 보여요</span>
+          </label>
+          <div class="field">
+            <span class="field__label">내가 생각하는 내 MBTI</span>
+            <div class="type-grid" id="selfGrid" role="group" aria-label="내 MBTI 고르기"></div>
+            <button type="button" class="btn btn--outline btn--block" id="dontKnow">잘 모르겠어요 · 12문항 셀프 테스트</button>
+            <p class="field__help" id="selfHelp">친구들 결과와 비교할 기준이에요. 결과가 공개되기 전까지 친구들에겐 안 보여요.</p>
+          </div>
+          <button class="btn btn--primary btn--lg btn--block" id="createBtn" type="submit" disabled>내 링크 만들기</button>
+        </form>
+      </section>
+
+      <!-- 3) 셀프 테스트 / 친구 문항 (같은 퀴즈 화면) -->
+      <section class="view" data-view="quiz" hidden>
+        <div class="viewbar row gap-8">
+          <button class="btn btn--ghost btn--icon" id="quizBack" aria-label="이전 문항">←</button>
+          <div class="grow quiz-progress" aria-hidden="true"><span id="quizBar"></span></div>
+          <span class="t-label-02 t-secondary t-num" id="quizCount">1/12</span>
+        </div>
+        <div class="quiz-head" id="quizHead"></div>
+        <div class="quiz-card" id="quizCard"></div>
+      </section>
+
+      <!-- 4) 친구: 닉네임 + 한마디 -->
+      <section class="view" data-view="note" hidden>
+        <div class="viewbar row gap-8">
+          <button class="btn btn--ghost btn--icon" id="noteBack" aria-label="이전 문항">←</button>
+          <h1 class="t-title-04 grow">거의 다 됐어요</h1>
+        </div>
+        <form class="stack gap-24" id="noteForm" novalidate>
+          <label class="field">
+            <span class="field__label">내 닉네임 (선택)</span>
+            <input class="input" id="fromName" maxlength="10" placeholder="비워두면 '익명 친구'" />
+            <span class="field__help" id="fromHelp">누가 어떻게 봤는지 친구 카드에 보여요</span>
+          </label>
+          <label class="field">
+            <span class="field__label" id="noteLabel">한마디 (선택)</span>
+            <textarea class="input" id="noteText" maxlength="40" rows="2" placeholder="예) 너 겉바속촉인 거 다 알아"></textarea>
+            <span class="field__help t-num" id="noteCount">0/40</span>
+          </label>
+          <button class="btn btn--primary btn--lg btn--block" type="submit">내가 보는 결과 보기</button>
+        </form>
+      </section>
+
+      <!-- 5) 친구: 내가 본 OO + 답장 링크 -->
+      <section class="view" data-view="guess" hidden></section>
+
+      <!-- 6) 주인: 대시보드 -->
+      <section class="view" data-view="me" hidden></section>
+
+      <!-- SEO 본문 -->
+      <article class="seo">
+        <h2>남이 정해주는 MBTI는 어떤 테스트인가요?</h2>
+        <p>
+          보통의 MBTI 검사는 내가 나에 대해 답해요. 남이 정해주는 MBTI는 반대로, 나를 아는 친구들이 나에 대해 답해요.
+          단톡방에 내 링크를 보내면 친구들이 일상 상황 12문항으로 "OO라면 이럴 때 어떻게 할까?"를 골라 주고,
+          3명 이상 모이면 친구들 눈에 비친 내 성격 유형이 열려요. 무료이고 가입도 필요 없어요.
+        </p>
+
+        <h3>왜 남이 보는 MBTI가 궁금할까요?</h3>
+        <p>
+          스스로 답하는 성격 검사에는 "되고 싶은 나"가 섞이기 쉬워요. 반대로 친구들은 내가 실제로 한 행동을 기억하고 답해요.
+          그래서 "나는 내향인인 줄 알았는데 친구들은 모임 분위기 메이커로 기억한다" 같은 반전이 생겨요.
+          내가 보는 나와 남이 보는 나를 나란히 놓고 보면, 대화 소재로도 자기 이해로도 꽤 재밌어요.
+        </p>
+
+        <h3>사용법</h3>
+        <ol>
+          <li>이름과 "내가 생각하는 내 MBTI"를 골라요. 잘 모르면 12문항 셀프 테스트로 정할 수 있어요.</li>
+          <li>내 링크를 단톡방이나 친구에게 보내요.</li>
+          <li>친구는 나에 대한 12문항에 답하고, 자기가 본 결과를 확인한 뒤 답장 링크를 나에게 보내 줘요.</li>
+          <li>답장 링크를 열면 응답이 내 기록에 합쳐져요. 3명이 모이면 남이 보는 MBTI, 축별 퍼센트, 반전 지수가 열려요.</li>
+          <li>결과 카드를 저장해 공유하고, 친구 MBTI와 궁합도 가볍게 볼 수 있어요.</li>
+        </ol>
+
+        <h3>결과 읽는 법</h3>
+        <p>
+          축별 퍼센트는 친구들이 고른 답을 모두 더한 비율이에요. 예를 들어 친구 3명이 에너지 문항 9개 중 7개를 외향 쪽으로 골랐다면 E 78%로 보여요.
+          반전 지수는 친구들의 답 가운데 "내가 생각한 나"와 반대쪽을 고른 비율의 평균이에요. 0%면 완전히 같은 생각, 100%면 정반대예요.
+          응답이 적을수록 한두 명의 생각에 크게 흔들리니, 친구가 많이 답할수록 더 믿을 만해요.
+        </p>
+
+        <h3>MBTI 궁합 미니</h3>
+        <p>결과 화면에서 친구의 유형을 고르면, 남이 보는 내 유형과 겹치는 글자를 바탕으로 둘의 케미를 가볍게 풀어 줘요. 재미로만 봐 주세요.</p>
+
+        <h2>자주 묻는 질문</h2>
+        <details>
+          <summary>친구가 몇 명 답해야 하나요?</summary>
+          <p>3명이 답하면 결과가 열려요. 그 전에는 흐릿한 미리보기만 보여요. 3명 이후에도 응답이 들어올 때마다 결과가 바로 갱신돼요.</p>
+        </details>
+        <details>
+          <summary>응답은 어디에 저장되나요?</summary>
+          <p>
+            서버에 저장하지 않아요. 친구의 답은 친구가 보내 준 답장 링크 안에 담겨 오고, 내가 그 링크를 열면 지금 쓰는 브라우저에 합쳐져요.
+            카카오톡 안에서 연 브라우저와 크롬·사파리는 저장 공간이 서로 달라서, 다른 앱에서 열면 응답이 안 보일 수 있어요.
+            그럴 땐 결과 화면의 "결과 보관 링크"를 열면 지금까지의 응답이 그대로 옮겨지고 합쳐져요.
+          </p>
+        </details>
+        <details>
+          <summary>정식 MBTI 검사인가요?</summary>
+          <p>
+            아니요. 공식 MBTI 검사와 관계없는 재미용 성격 유형 놀이예요. 문항과 유형 설명은 모두 이 사이트에서 새로 쓴 것이고, 진단이나 평가 용도로 쓸 수 없어요.
+            MBTI는 The Myers-Briggs Company의 상표예요.
+          </p>
+        </details>
+        <details>
+          <summary>친구가 내가 고른 MBTI를 볼 수 있나요?</summary>
+          <p>친구 화면에는 내가 고른 유형이 표시되지 않아요. 친구는 선입견 없이 평소의 나를 떠올리며 답하게 돼요.</p>
+        </details>
+        <details>
+          <summary>같은 친구가 두 번 답하면 어떻게 되나요?</summary>
+          <p>같은 답장 링크를 여러 번 열어도 한 번만 반영돼요. 친구가 답을 바꿔 다시 보내면 새 응답으로 들어가요.</p>
+        </details>
+        <details>
+          <summary>무료인가요?</summary>
+          <p>네, 완전히 무료이고 가입이나 로그인 없이 바로 쓸 수 있어요.</p>
+        </details>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">
+        재미로 보는 비공식 성격 유형 놀이예요. MBTI는 The Myers-Briggs Company의 상표이며, 이 사이트는 공식 검사와 관계가 없어요.
+      </footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

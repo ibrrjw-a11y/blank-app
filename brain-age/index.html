@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>반응속도 테스트·뇌 나이 테스트 | 뇌 나이 측정소 - 2분 만에 재는 내 뇌 나이</title>
+    <meta
+      name="description"
+      content="반응속도 테스트, 기억력 테스트, 색 구분, 고주파 청력(귀 나이), 암산까지 미니게임 5개로 2분 만에 재미로 재보는 뇌 나이 테스트. 부모님께 도전장을 보내 가족과 나란히 비교해보세요."
+    />
+    <meta name="keywords" content="반응속도 테스트, 뇌 나이 테스트, 신체나이 테스트, 순발력 테스트, 기억력 테스트, 청력 테스트, 귀 나이, 고주파 테스트, 뇌 나이" />
+    <link rel="canonical" href="https://example.com/brain-age/" />
+    <meta name="theme-color" content="#0a0c10" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/brain-age/" />
+    <meta property="og:title" content="뇌 나이 측정소 - 미니게임 5개로 재는 내 뇌 나이" />
+    <meta property="og:description" content="반응속도·기억력·색 구분·청력·계산 2분 측정. 나의 뇌 나이는 몇 살일까요?" />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "뇌 나이 측정소",
+            "url": "https://example.com/brain-age/",
+            "description": "반응속도·순간기억·색 구분·고주파 청력·순간계산 미니게임 5개로 재미로 재보는 뇌 나이 테스트",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "청력 테스트 소리가 안 들려요.",
+                "acceptedAnswer": { "@type": "Answer", "text": "스마트폰 스피커는 높은 주파수를 잘 못 내는 경우가 많아요. 이어폰을 연결하고 볼륨을 중간 정도로 맞춘 뒤 다시 해보세요. 그래도 안 들리면 청력 테스트는 건너뛰어도 돼요." }
+              },
+              {
+                "@type": "Question",
+                "name": "결과가 매번 달라요.",
+                "acceptedAnswer": { "@type": "Answer", "text": "반응속도와 기억력은 컨디션, 집중도, 기기, 화면 밝기에 따라 쉽게 달라져요. 같은 기기로 비슷한 시간에 여러 번 재고 흐름을 보는 게 좋아요." }
+              },
+              {
+                "@type": "Question",
+                "name": "의학적 의미가 있나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "없어요. 재미로 보는 측정이고 의학적 진단이 아니에요. 기억력이나 청력이 걱정된다면 의료기관에서 상담받아 보세요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <!-- 1) 첫 화면: 회로 뇌 모션그래픽 -->
+      <section class="intro" id="intro" data-view="intro">
+        <header class="intro-head">
+          <h1 class="t-label-01 intro-head__brand"><span aria-hidden="true">🧠</span> 뇌 나이 측정소</h1>
+          <span class="badge">재미용 측정</span>
+        </header>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__steps"></div>
+        <div class="intro__caption" aria-live="polite"></div>
+        <div class="intro__cta">
+          <div class="challenge" id="challengeIntro" hidden></div>
+          <p class="intro-nudge t-label-02" id="nudge" hidden></p>
+          <button class="btn btn--primary btn--lg btn--block" id="start">측정 시작 (약 2분)</button>
+          <button class="btn btn--ghost btn--block" id="openHistory" hidden>내 기록 보기</button>
+        </div>
+      </section>
+
+      <!-- 2) 준비: 실제 나이(선택) -->
+      <section class="setup" data-view="setup" hidden>
+        <header class="topbar">
+          <button class="btn btn--ghost btn--icon" type="button" data-go="intro" aria-label="처음으로">←</button>
+          <span class="t-label-01">측정 준비</span>
+          <span class="btn--icon" aria-hidden="true"></span>
+        </header>
+        <div class="stack gap-24 setup__body">
+          <div class="challenge" id="challengeSetup" hidden></div>
+          <div>
+            <h2 class="t-title-02">미니게임 5개, 약 2분</h2>
+            <p class="t-body-02 t-secondary">조용한 곳에서 집중해서 해주세요. 각 게임 전에 방법을 알려드려요.</p>
+          </div>
+          <div class="field" id="ageField">
+            <label class="field__label" for="realAge">실제 나이 (선택)</label>
+            <input class="input" id="realAge" type="number" inputmode="numeric" min="5" max="110" placeholder="예: 34" autocomplete="off" />
+            <span class="field__help">넣으면 "실제보다 몇 살 젊은지" 비교해드려요. 이 기기에만 저장돼요.</span>
+          </div>
+          <ol class="setup__list" id="gameList"></ol>
+          <p class="t-caption-01 t-tertiary">재미로 보는 측정이에요. 의학적 진단이 아니에요.</p>
+          <button class="btn btn--primary btn--lg btn--block" id="go">첫 게임 시작</button>
+        </div>
+      </section>
+
+      <!-- 3) 게임 -->
+      <section class="game" data-view="game" hidden>
+        <header class="game-head">
+          <button class="btn btn--ghost btn--icon" type="button" id="quit" aria-label="그만하기">✕</button>
+          <ol class="game-steps" id="steps" aria-label="진행 단계"></ol>
+          <span class="t-label-02 t-num t-secondary" id="stepCount">1/5</span>
+        </header>
+        <div class="game-bar" aria-hidden="true"><i id="progressFill"></i></div>
+        <div class="game-area" id="area"></div>
+      </section>
+
+      <!-- 4) 결과 -->
+      <section class="result" data-view="result" hidden>
+        <header class="topbar">
+          <button class="btn btn--ghost btn--icon" type="button" data-go="intro" aria-label="처음으로">←</button>
+          <span class="t-label-01">측정 결과</span>
+          <span class="btn--icon" aria-hidden="true"></span>
+        </header>
+        <div id="resultBody"></div>
+      </section>
+
+      <!-- 5) SEO 본문 -->
+      <article class="seo" id="about">
+        <h2>뇌 나이 측정소는 어떤 테스트인가요?</h2>
+        <p>
+          반응속도 테스트, 기억력 테스트, 색 구분, 고주파 청력 테스트, 암산을 미니게임 5개로 묶은 <b>재미용 뇌 나이 테스트</b>예요. 게임마다
+          20~30초씩, 모두 합쳐 2분 정도면 끝나요. 각 점수를 나이로 바꾼 뒤 가중 평균을 내서 "뇌 나이"를 보여줘요. 신체나이 테스트처럼 가볍게
+          즐기고, 부모님이나 친구에게 도전장을 보내 같이 해보세요.
+        </p>
+
+        <h3>⚡ 반응속도 테스트 (순발력 테스트)</h3>
+        <p>
+          화면이 초록색으로 바뀌는 순간 탭해요. 5번 재고 가장 느린 1번을 뺀 평균을 써요. 초록색이 되기 전에 누르면 다시 하고 30ms를 더해요.
+        </p>
+        <h3>🧩 순간기억 (기억력 테스트)</h3>
+        <p>3×3 칸에 불이 들어오는 순서를 기억해서 똑같이 눌러요. 맞힐 때마다 순서가 한 칸씩 길어지고, 따라 누른 최대 길이가 점수예요.</p>
+        <h3>🎨 색 구분 테스트</h3>
+        <p>여러 칸 가운데 색이 살짝 다른 한 칸을 찾아요. 단계가 오를수록 칸은 많아지고 색 차이는 작아져요. 30초 동안 통과한 단계 수가 점수예요.</p>
+        <h3>👂 고주파 청력 테스트 (귀 나이)</h3>
+        <p>
+          8kHz에서 19kHz까지 점점 높아지는 소리가 들리는지 답해요. 나이가 들수록 높은 소리부터 덜 들리는 경향이 있다고 알려져 있어서 흔히
+          "귀 나이 테스트"라고 불러요. 중간에 소리가 없는 문제를 하나 섞어 "들려요"를 습관처럼 누르는지 확인해요. 볼륨은 중간 이하로, 가능하면
+          이어폰으로 해주세요.
+        </p>
+        <h3>🔢 순간계산</h3>
+        <p>한 자리·두 자리 덧셈, 뺄셈, 곱셈을 숫자 패드로 30초 동안 풀어요. 맞힌 개수가 점수예요.</p>
+
+        <h3>반응속도 평균은 어느 정도인가요?</h3>
+        <p>
+          눈으로 보고 누르는 단순 반응 시간은 일반적으로 0.2~0.3초 안팎이라고 알려져 있어요. 스마트폰에서는 화면과 터치 지연이 더해져서 이보다
+          조금 길게 나오는 게 보통이에요. 이 사이트의 점수는 기기마다 차이가 있으니 다른 기기 기록과 직접 비교하기보다 같은 기기에서 내 기록의
+          변화를 보는 데 써주세요.
+        </p>
+
+        <h3>뇌 나이는 어떻게 계산하나요?</h3>
+        <p>
+          게임마다 "이 정도면 대략 몇 살 느낌" 하는 앵커를 몇 개 정하고 그 사이를 이어서 나이로 바꿔요. 예를 들어 반응속도 260ms는 20세 정도,
+          고주파 청력 17kHz는 25세 미만, 15kHz는 40세 전후, 12kHz는 50세 이상으로 잡았어요. 다섯 게임을 가중 평균(청력을 건너뛰면 나머지
+          4개로)해서 15~80세 사이로 보여줘요. 연령별 표본으로 만든 규준이 아니라 재미를 위한 대략적인 기준이에요.
+        </p>
+
+        <h3>이렇게 써보세요</h3>
+        <ol>
+          <li>실제 나이를 넣으면 "실제보다 몇 살 젊은지" 비교해줘요. 넣지 않아도 돼요.</li>
+          <li>게임 5개를 차례로 해요. 청력 테스트는 건너뛸 수 있어요.</li>
+          <li>결과 이미지를 저장하거나 부모님께 도전장 링크를 보내요.</li>
+          <li>일주일 뒤 같은 시간에 다시 재서 기록 그래프로 변화를 봐요.</li>
+        </ol>
+
+        <h3>자주 묻는 질문</h3>
+        <details>
+          <summary>청력 테스트 소리가 안 들려요.</summary>
+          <p>
+            스마트폰 스피커는 높은 주파수를 잘 못 내는 경우가 많아요. 이어폰을 연결하고 볼륨을 중간 정도로 맞춘 뒤 다시 해보세요. 무음 모드인지도
+            확인해주세요. 그래도 안 들리면 청력은 건너뛰고 나머지 4개로 뇌 나이를 계산해요. 귀 건강을 위해 볼륨을 갑자기 크게 올리지는 마세요.
+          </p>
+        </details>
+        <details>
+          <summary>결과가 매번 달라요.</summary>
+          <p>
+            정상이에요. 반응속도와 기억력은 잠, 피로, 집중도, 기기, 화면 밝기에 따라 쉽게 달라져요. 같은 기기로 비슷한 시간대에 여러 번 재고, 한 번의
+            숫자보다 기록 그래프의 흐름을 보는 게 좋아요.
+          </p>
+        </details>
+        <details>
+          <summary>의학적 의미가 있나요?</summary>
+          <p>
+            없어요. 이 테스트는 재미로 보는 측정이고 의학적 진단이나 검사가 아니에요. 치매나 난청 같은 질환을 판단할 수 없어요. 기억력이나 청력이
+            걱정된다면 의료기관에서 상담받아 보세요.
+          </p>
+        </details>
+        <details>
+          <summary>신체나이 테스트와 같은 건가요?</summary>
+          <p>
+            비슷하게 가볍게 즐기는 콘텐츠예요. 다만 체력이나 몸 상태가 아니라 반응, 기억, 색 구분, 고음 듣기, 암산처럼 머리와 감각을 쓰는 미니게임만
+            재요.
+          </p>
+        </details>
+        <details>
+          <summary>기록은 어디에 저장되나요?</summary>
+          <p>
+            지금 쓰는 브라우저에만 저장돼요. 서버로 보내지 않아요. 그래서 다른 앱이나 기기에서는 기록이 따로 보여요. 도전장 링크에는 내가 보내기로 한
+            이름과 점수만 담겨요.
+          </p>
+        </details>
+        <details>
+          <summary>부모님께 도전장은 어떻게 보내요?</summary>
+          <p>
+            결과 화면에서 "부모님께 도전장 보내기"를 누르고 받는 사람을 고르면 카카오톡 같은 메신저로 링크를 보낼 수 있어요. 받은 사람이 끝까지
+            해보면 두 사람 결과를 나란히 보여줘요.
+          </p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">재미로 보는 측정이에요. 의학적 진단이 아니에요. 기록은 이 기기에만 저장돼요.</footer>
+    </main>
+
+    <!-- 도전장 보내기 시트 -->
+    <div class="sheet" id="shareSheet" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+      <h2 class="t-title-03" id="shareTitle">도전장 보내기</h2>
+      <p class="t-body-03 t-secondary">링크를 받은 사람이 끝까지 해보면 두 사람 결과를 나란히 보여줘요.</p>
+      <div class="stack gap-16 sheet__body">
+        <div class="field">
+          <span class="field__label">누구에게 보낼까요?</span>
+          <div class="row wrap gap-8" id="toChips" role="group" aria-label="받는 사람"></div>
+        </div>
+        <div class="field">
+          <label class="field__label" for="myName">내 이름 (상대에게 보여요)</label>
+          <input class="input" id="myName" maxlength="10" placeholder="예: 민지" autocomplete="nickname" />
+        </div>
+        <div class="share-preview" id="sharePreview"></div>
+        <button class="btn btn--primary btn--lg btn--block" id="sendChallenge">도전장 보내기</button>
+        <button class="btn btn--ghost btn--block" type="button" data-sheet-close>닫기</button>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
