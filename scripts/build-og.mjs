@@ -43,7 +43,7 @@ function html({ name, desc, keyword, brand, index }) {
   </style></head><body>
   <div class="bar"></div><div class="no">${index}</div>
   <div class="kw">${esc(keyword)}</div><h1>${esc(name)}</h1><p>${esc(desc)}</p>
-  <div class="foot">놀이터 · 익숙한 놀이를 조금 다르게</div>
+  <div class="foot">심심상가 · 심심할 때 들르는 곳</div>
   </body></html>`;
 }
 
@@ -52,7 +52,7 @@ const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.route(/^https?:/, (r) => r.abort());
 
 const targets = [
-  { slug: "", name: "놀이터", desc: "테스트·추첨·계산기를 친구랑 같이 노는 방식으로", keyword: "11가지 놀이", brand: "#ff4b1f", index: "11" },
+  { slug: "", name: "심심상가", desc: "룰렛·심리테스트·미니게임·계산기", keyword: "심심할 때 들르는 곳", brand: "#ff4b1f", index: "11" },
   ...SITES.map((s, i) => ({ ...s, brand: brandOf(s.slug), index: String(i + 1).padStart(2, "0") })),
 ];
 

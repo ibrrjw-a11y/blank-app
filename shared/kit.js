@@ -1,6 +1,34 @@
 // 공통 유틸. 각 사이트는 <script type="module"> 에서 import 해서 쓴다.
 // 서버 없이 동작하는 것이 기본 원칙: 상태 공유는 URL, 개인 기록은 localStorage.
-import { SITES } from "./sites.js";
+import { CATEGORIES, TOOLS, categoryById, toolByPath } from "./sites.js";
+
+/* ---------- 페이지 이동 시 항상 맨 위에서 시작 ----------
+ * 다른 페이지로 넘어왔을 때 이전 스크롤 위치가 복원되며 아래에서 시작하던 문제를 막는다.
+ * 뒤로 가기(back_forward)일 때만 브라우저 복원을 그대로 둔다. */
+(function resetScrollOnEnter() {
+  try {
+    const nav = performance.getEntriesByType?.("navigation")?.[0];
+    if (nav && nav.type === "back_forward") return;
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const top = () => window.scrollTo(0, 0);
+    top();
+    addEventListener("DOMContentLoaded", top, { once: true });
+    addEventListener("load", top, { once: true });
+  } catch {
+    /* noop */
+  }
+})();
+
+// 사이트 루트 URL (kit.js 는 /shared/ 에 있으므로 한 단계 위)
+export const ROOT_URL = new URL("../", import.meta.url).href;
+
+// 현재 페이지의 도구 경로 (예: "ddanjit/zoom"). 루트·카테고리 페이지면 ""
+export function currentPath() {
+  const rel = decodeURIComponent(location.href.slice(ROOT_URL.length).split(/[?#]/)[0]);
+  return rel.replace(/index\.html$/, "").replace(/\/$/, "");
+}
+
+export const urlOf = (path) => (path ? `${ROOT_URL}${path}/` : ROOT_URL);
 
 export const $ = (sel, root = document) => root.querySelector(sel);
 export const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -321,23 +349,48 @@ export function openSheet(sheet) {
   return close;
 }
 
-/* ---------- 다른 놀이 링크 ---------- */
-export function renderMoreSites(el, currentSlug, { base = "../" } = {}) {
+/* ---------- 상단 경로 (홈 › 카테고리) ----------
+ * 각 페이지 상단에 홈과 카테고리로 돌아가는 링크를 단다. 디자인은 사이트가 .crumb 를 덮어써서 맞춘다. */
+export function renderCrumb(el, toolPath = currentPath()) {
   if (!el) return;
-  const items = SITES.filter((s) => s.slug !== currentSlug);
+  const tool = toolByPath(toolPath);
+  const cat = tool && categoryById(tool.cat);
+  el.classList.add("crumb");
+  el.setAttribute("aria-label", "위치");
+  el.innerHTML = `<a href="${urlOf("")}">홈</a>${
+    cat ? `<span aria-hidden="true">›</span><a href="${urlOf(cat.path)}">${cat.name}</a>` : ""
+  }`;
+}
+
+/* ---------- 하단 추천: 같은 카테고리 먼저, 그다음 다른 카테고리 ---------- */
+export function renderMoreSites(el, toolPath = currentPath()) {
+  if (!el) return;
+  if (typeof toolPath !== "string") toolPath = currentPath();
+  const tool = toolByPath(toolPath);
+  const cat = tool ? categoryById(tool.cat) : null;
+  const same = cat ? TOOLS.filter((t) => t.cat === cat.id && t.path !== toolPath) : [];
+  const others = CATEGORIES.filter((c) => !cat || c.id !== cat.id);
   el.classList.add("more-sites");
   el.innerHTML = `
-    <h2 class="more-sites__title">다른 놀이도 해보기</h2>
+    ${
+      same.length
+        ? `<h2 class="more-sites__title">${cat.name} 더 하기</h2>
     <div class="more-sites__grid">
-      ${items
+      ${same
         .map(
-          (s) => `<a class="more-sites__item" href="${base}${s.slug}/">
-            <span class="more-sites__emoji" aria-hidden="true">${s.emoji}</span>
-            <span class="more-sites__name">${s.name}</span>
-            <span class="more-sites__desc">${s.desc}</span>
+          (t) => `<a class="more-sites__item" href="${urlOf(t.path)}">
+            <span class="more-sites__name">${t.name}</span>
+            <span class="more-sites__desc">${t.desc}</span>
           </a>`
         )
         .join("")}
+    </div>`
+        : ""
+    }
+    <h2 class="more-sites__title">다른 카테고리</h2>
+    <div class="more-sites__cats">
+      ${others.map((c) => `<a class="more-sites__cat" href="${urlOf(c.path)}">${c.name}</a>`).join("")}
+      <a class="more-sites__cat" href="${urlOf("")}">전체 보기</a>
     </div>`;
 }
 

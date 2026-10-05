@@ -535,7 +535,42 @@ textarea.input {
 }
 
 .more-sites__item:active { transform: scale(0.97); }
-.more-sites__emoji { font-size: 24px; line-height: 32px; }
+.more-sites__grid + .more-sites__title { margin-top: var(--sp-32); }
+
+.more-sites__cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-8);
+}
+
+.more-sites__cat {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--sp-16);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--r-full);
+  color: var(--color-text);
+  font: var(--label-02);
+  text-decoration: none;
+}
+
+.more-sites__cat:active { transform: scale(0.96); }
+
+/* 상단 경로 */
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  font: var(--label-03);
+  color: var(--color-text-tertiary);
+}
+
+.crumb a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  padding: var(--sp-6) 0;
+}
 .more-sites__name { font: var(--label-02); color: var(--color-text); }
 .more-sites__desc { font: var(--caption-01); color: var(--color-text-tertiary); }
 
