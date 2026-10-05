@@ -228,19 +228,19 @@ export function startIntro(root) {
       function scene3(t, dt) {
         env.floor();
         const { w, h, cx, cy, R, r } = geo();
-        const rNow = R * 0.58;
+        const rNow = R * 0.66;
         ring(cx, cy, R, rNow, 1, 0.4);
         const base = [
           [cx - rNow * 0.72, cy + rNow * 0.38],
-          [cx + rNow * 0.05, cy + rNow * 0.25],
-          [cx + rNow * 0.42, cy - rNow * 0.3],
-          [cx - rNow * 0.25, cy - rNow * 0.45],
+          [cx + rNow * 0.02, cy + rNow * 0.42],
+          [cx + rNow * 0.48, cy - rNow * 0.12],
+          [cx - rNow * 0.18, cy - rNow * 0.5],
         ];
         const pos = base.map(([x, y], i) => [x + Math.sin(t * 2 + i) * 4, y + Math.cos(t * 1.8 + i) * 4]);
         // 철수(2)가 아니라 영희(1)가 다시 밀어냄
         const hit = 0.55;
         const lean = clamp01(t / hit);
-        pos[1][0] -= easeIn(lean) * rNow * 0.3;
+        pos[1][0] -= easeIn(lean) * rNow * 0.22;
         const out = clamp01((t - hit) / 0.45);
         const ang = Math.atan2(base[0][1] - cy, base[0][0] - cx);
         const dOut = rNow * 0.82 + easeOut(out) * rNow * 0.65;
@@ -296,7 +296,7 @@ export function startIntro(root) {
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillText("먼저 떨어지면 당첨", px + 10, 27);
-        drawVerdict(ctx, w, cy - R * 0.15, "민수가 쏩니다 ☕", t - 1.75, tk);
+        drawVerdict(ctx, w, cy - R * 0.72, "민수가 쏩니다 ☕", t - 1.75, tk);
       }
 
       return [scene1, scene2, scene3];

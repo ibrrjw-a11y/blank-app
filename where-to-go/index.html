@@ -70,6 +70,7 @@
   </head>
   <body>
     <main class="app">
+      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="./" data-act="home"><span class="brand-mark" aria-hidden="true"></span>&nbsp;어디가?</a>
         <button class="btn btn--ghost btn--sm" data-act="report">점심 기록</button>
@@ -82,7 +83,14 @@
         <div class="intro__steps"></div>
         <div class="intro__caption" aria-live="polite"></div>
         <div class="intro__cta">
-          <button class="btn btn--primary btn--lg btn--block" id="start" data-act="start">오늘 뭐 먹지? 정하러 가기</button>
+          <button class="ticket" id="start" data-act="start" type="button">
+            <span class="ticket__stub" aria-hidden="true"><span class="ticket__line">2</span><small>호선</small></span>
+            <span class="ticket__body">
+              <span class="ticket__meta" aria-hidden="true">승차권 · 지금 여기 → 오늘의 1등</span>
+              <span class="ticket__go">오늘 뭐 먹지? 정하러 가기</span>
+            </span>
+            <span class="ticket__gate" aria-hidden="true"><i>→</i></span>
+          </button>
           <div class="intro__extra" id="introExtra"></div>
         </div>
       </section>
@@ -102,82 +110,110 @@
       <!-- 8) 점심 기록 -->
       <section class="view" data-view="report" id="report" hidden></section>
 
-      <!-- SEO 본문 -->
-      <article class="seo">
-        <h2>어디가?는 이런 곳이에요</h2>
-        <p>
-          "오늘 뭐 먹지?", "어디서 만나지?"를 메뉴·장소 월드컵으로 끝내는 서비스예요. 메뉴 카테고리나 근처 실제 가게를
-          8강·16강 대진표로 만들고, 거부권 카드로 절대 싫은 후보를 빼고, 한 폰으로 다같이 투표하거나 링크로 각자 골라서 1등을 정해요.
-          1등이 정해지면 카카오맵·네이버지도로 바로 연결돼요.
-        </p>
+      <!-- SEO 본문: 노선 안내도 · 계산 예시 · 역 안내 게시판 -->
+      <article class="seo guide" aria-labelledby="guide-h">
+        <header class="guide__head">
+          <span class="guide__sign"><span class="lb" style="--l: var(--art-l2)" aria-hidden="true">점</span><span class="lb" style="--l: var(--art-l3)" aria-hidden="true">데</span><span class="lb" style="--l: var(--art-l4)" aria-hidden="true">모</span></span>
+          <h2 id="guide-h">어디가? 노선 안내도</h2>
+          <p class="guide__sub">점심 · 데이트 코스 · 모임 장소, 노선 3개. 종점은 모두 카카오맵·네이버지도.</p>
+        </header>
 
-        <h2>사용법</h2>
-        <h3>점심메뉴 추천</h3>
-        <ol>
-          <li>회사 근처 역을 고르거나 '내 위치'를 눌러요.</li>
-          <li>국물, 매운, 가벼운, 가격대 같은 조건을 골라요. 어제·그제 먹은 메뉴는 자동으로 빠져요.</li>
-          <li>거부권을 쓰고 월드컵을 하면 오늘의 점심이 나와요. '점심으로 기록하기'를 누르면 이번 달 점심 리포트가 쌓여요.</li>
-          <li>팀을 저장해 두면 다음부터는 한 번에 시작할 수 있어요.</li>
-        </ol>
-        <h3>데이트 코스 추천</h3>
-        <p>밥 → 카페 → 놀거리 순서로 세 번의 월드컵을 해요. 세 우승자가 모여 하나의 데이트 코스 카드가 돼요. 비 오는 날에는 실내 놀거리가 더 자주 나와요.</p>
-        <h3>모임·회식 장소 (중간지점 찾기)</h3>
-        <p>모이는 사람마다 출발 역이나 내 위치를 넣으면 모두에게서 가까운 중간 역을 찾아 줘요. 그 근처 가게로 회식 장소 월드컵을 하면 돼요.</p>
+        <section class="route" style="--l: var(--art-l2)" aria-labelledby="r-lunch">
+          <h3 class="route__name" id="r-lunch"><span class="lb" aria-hidden="true">점</span>점심메뉴 추천 노선</h3>
+          <ol class="route__stops">
+            <li><b>회사 근처 역</b> 고르기 또는 '내 위치'</li>
+            <li><b>조건</b>: 국물 · 매운 · 가벼운 · 가격대</li>
+            <li><b>제외</b>: 어제·그제 먹은 분류는 자동으로 빠짐</li>
+            <li><b>거부권</b>: 한 명당 1장, 싫은 후보 빼기</li>
+            <li><b>8강·16강 월드컵</b> → 오늘의 점심</li>
+            <li class="is-end"><b>점심으로 기록</b> → 이번 달 리포트</li>
+          </ol>
+        </section>
 
-        <h2>중간지점은 이렇게 계산해요</h2>
-        <p>
-          참가자들의 위도·경도를 지구 표면 위의 점으로 보고 평균을 낸 무게중심을 구한 뒤, 내장된 주요 역·도심 목록 중 그 점에서 가장 가까운 곳을
-          약속 장소로 골라요. 각자의 거리는 <strong>직선거리</strong>라서 실제 지하철·버스 이동 시간과는 달라요. 노선이나 환승은 고려하지 않으니
-          최종 결정 전에 지도 앱 길찾기로 한 번 확인해 주세요. 역 좌표는 약 300m 안쪽 오차의 근사치예요.
-        </p>
+        <section class="route" style="--l: var(--art-l3)" aria-labelledby="r-date">
+          <h3 class="route__name" id="r-date"><span class="lb" aria-hidden="true">데</span>데이트 코스 노선</h3>
+          <ol class="route__stops">
+            <li><b>1코스 밥</b> 월드컵</li>
+            <li><b>2코스 카페</b> 월드컵</li>
+            <li><b>3코스 놀거리</b> 월드컵 (비 오면 실내가 더 자주)</li>
+            <li class="is-end"><b>코스 카드 1장</b>으로 합쳐서 공유</li>
+          </ol>
+        </section>
 
-        <h2>거부권 카드는 뭔가요?</h2>
-        <p>
-          월드컵을 시작하기 전에 한 사람당 한 번, 절대 먹기 싫은 후보를 뺄 수 있어요. 폰을 돌려 가며 각자 하나씩 누르면 빠진 자리를 다른 후보가 채워요.
-          "아무거나"라고 해 놓고 나중에 싫다고 하는 일을 막아 줘요.
-        </p>
+        <section class="route" style="--l: var(--art-l4)" aria-labelledby="r-group">
+          <h3 class="route__name" id="r-group"><span class="lb" aria-hidden="true">모</span>모임·회식 장소 노선 (중간지점 찾기)</h3>
+          <ol class="route__stops">
+            <li>사람마다 <b>출발역</b> 또는 '내 위치'</li>
+            <li>모든 좌표의 <b>무게중심</b> 계산</li>
+            <li>내장된 역·도심 95곳 중 <b>가장 가까운 역</b> = 중간역</li>
+            <li class="is-end">그 근처 가게로 <b>회식 장소 월드컵</b></li>
+          </ol>
+        </section>
 
-        <h2>링크로 각자 고르면 어떻게 합쳐요?</h2>
-        <p>
-          방장이 후보 목록이 담긴 링크를 보내면 친구들은 각자 폰에서 월드컵을 하고 '결과 보내기' 답장 링크를 보내요. 방장이 답장 링크를 열면
-          보르다 방식으로 점수를 합쳐요. 우승은 가장 높은 점수, 준우승은 그다음 점수를 받고, 같은 라운드에서 떨어진 후보는 같은 점수를 나눠 가져요.
-          서버 없이 링크만으로 동작해서 답장은 방장의 이 기기 브라우저에만 모여요.
-        </p>
+        <h3 class="guide__title">중간역 계산 예시</h3>
+        <div class="guide__table-wrap">
+          <table class="guide__table">
+            <thead><tr><th scope="col">출발</th><th scope="col">→ 중간역</th><th scope="col">직선거리</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><span class="lb" style="--l: var(--art-l2)" aria-hidden="true">2</span>신촌</th><td rowspan="3" class="guide__mid"><span class="lb lb--ring" style="--l: var(--art-l6)" aria-hidden="true">6</span>이태원</td><td class="num">5.6km</td></tr>
+              <tr><th scope="row"><span class="lb" style="--l: var(--art-l2)" aria-hidden="true">2</span>왕십리</th><td class="num">4.8km</td></tr>
+              <tr><th scope="row"><span class="lb" style="--l: var(--art-l2)" aria-hidden="true">2</span>사당</th><td class="num">6.5km</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="guide__note">세 역의 무게중심은 이태원역에서 약 0.9km. 거리는 <b>직선거리</b>라서 환승·배차는 안 들어가요. 출발 전 지도 앱 길찾기로 한 번 더 확인해요.</p>
 
-        <h2>이번 달 점심 리포트와 단골 도장</h2>
-        <p>
-          점심을 기록하면 이번 달 분류별 횟수, 가장 많이 먹은 메뉴, 편식 지수를 보여줘요. 편식 지수는 먹은 분류가 얼마나 고르게 섞였는지(정규화한
-          섀넌 엔트로피)로 계산해서, 한 분류만 계속 먹을수록 100에 가까워져요. 같은 가게를 3번 이상 가면 단골 도장이 찍혀요.
-        </p>
+        <h3 class="guide__title">링크로 각자 고를 때 점수 (8강 예시)</h3>
+        <div class="guide__table-wrap">
+          <table class="guide__table">
+            <thead><tr><th scope="col">후보</th><th scope="col">지민</th><th scope="col">도윤</th><th scope="col">나</th><th scope="col">합계</th></tr></thead>
+            <tbody>
+              <tr class="is-win"><th scope="row">국밥</th><td class="num">7</td><td class="num">4.5</td><td class="num">6</td><td class="num"><b>17.5</b></td></tr>
+              <tr><th scope="row">초밥</th><td class="num">6</td><td class="num">7</td><td class="num">1.5</td><td class="num">14.5</td></tr>
+              <tr><th scope="row">마라탕</th><td class="num">1.5</td><td class="num">6</td><td class="num">7</td><td class="num">14.5</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="guide__note">8강 점수: 우승 7 · 준우승 6 · 4강 탈락 4.5 · 8강 탈락 1.5 (보르다 방식). 각자 1등이 달라도 국밥이 최종 1등.</p>
 
-        <h2>자주 묻는 질문</h2>
-        <details>
-          <summary>앱을 설치해야 하나요?</summary>
-          <p>아니요. 웹 브라우저에서 바로 쓰고, 친구에게는 링크만 보내면 돼요. 친구도 설치나 가입 없이 참여해요.</p>
-        </details>
-        <details>
-          <summary>위치 정보가 저장되나요?</summary>
-          <p>
-            '내 위치'는 근처 가게와 중간지점을 계산할 때만 브라우저 안에서 써요. 서버로 보내 저장하지 않아요. 근처 가게와 날씨를 불러올 때는
-            좌표를 OpenStreetMap·Open-Meteo(설정된 경우 카카오)에 요청 값으로만 보내요. 팀을 저장할 때 고른 회사 위치만 이 기기 브라우저에 남아요.
-          </p>
-        </details>
-        <details>
-          <summary>실제 가게 정보는 어디서 오나요?</summary>
-          <p>
-            OpenStreetMap 공개 지도 데이터(Overpass API)에서 근처 음식점·카페 이름과 위치를 불러와요. 운영자가 카카오 JavaScript 키를 설정하면 카카오
-            장소 검색을 먼저 써요. 네트워크 문제로 불러오지 못하면 내장 메뉴 카테고리로 자연스럽게 바뀌어요. 영업시간·가격·평점은 보여주지 않으니
-            지도 앱에서 확인해 주세요.
-          </p>
-        </details>
-        <details>
-          <summary>날씨는 어떻게 반영돼요?</summary>
-          <p>위치를 고르면 Open-Meteo에서 현재 기온과 강수량을 불러와요. 비가 오거나 5℃ 이하로 추우면 국물 메뉴, 28℃ 이상이면 가벼운 메뉴가 더 자주 뽑혀요.</p>
-        </details>
-        <details>
-          <summary>회식 인원이 많아도 되나요?</summary>
-          <p>한 폰으로 투표할 때는 인원수만큼 +1 버튼을 누르면 과반이 올라가요. 동점이면 동전 던지기로 정해요. 인원이 많으면 '링크로 각자' 방식이 편해요.</p>
-        </details>
+        <h3 class="guide__title">반경 · 날씨 · 기록 기준</h3>
+        <div class="guide__table-wrap">
+          <table class="guide__table">
+            <tbody>
+              <tr><th scope="row">도보 5분</th><td>반경 400m</td></tr>
+              <tr><th scope="row">10분</th><td>반경 800m</td></tr>
+              <tr><th scope="row">15분</th><td>반경 1.2km</td></tr>
+              <tr><th scope="row">비 또는 5℃ 이하</th><td>국물 메뉴 자주</td></tr>
+              <tr><th scope="row">28℃ 이상</th><td>가벼운 메뉴 자주</td></tr>
+              <tr><th scope="row">같은 가게 3번</th><td>단골 도장</td></tr>
+              <tr><th scope="row">편식 지수</th><td>한식 6 · 일식 2 · 중식 2번 → 57 / 100</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <section class="qboard" aria-labelledby="board-h">
+          <h2 class="qboard__head" id="board-h"><span class="qboard__dot" aria-hidden="true"></span>역 안내 게시판</h2>
+          <details>
+            <summary>앱을 설치해야 하나요?</summary>
+            <p>아니요. 브라우저에서 바로 써요. 친구도 링크만 받으면 가입 없이 참여해요.</p>
+          </details>
+          <details>
+            <summary>위치 정보가 저장되나요?</summary>
+            <p>'내 위치'는 브라우저 안에서 계산에만 써요. 가게·날씨를 불러올 때 좌표를 OpenStreetMap·Open-Meteo(설정된 경우 카카오)에 요청 값으로만 보내요. 이 기기에 남는 건 팀 저장 때 고른 회사 위치뿐이에요.</p>
+          </details>
+          <details>
+            <summary>실제 가게 정보는 어디서 오나요?</summary>
+            <p>OpenStreetMap(Overpass API)의 음식점·카페 이름과 위치예요. 카카오 키가 설정돼 있으면 카카오 장소 검색을 먼저 써요. 못 불러오면 내장 메뉴 분류로 바뀌어요. 영업시간·가격·평점은 지도 앱에서 확인해요.</p>
+          </details>
+          <details>
+            <summary>한 폰으로 여러 명이 투표하면요?</summary>
+            <p>대결마다 각자 고른 쪽을 +1 해요. 다 누르면 과반이 올라가고, 동점이면 동전 던지기예요. 인원이 많으면 '링크로 각자'가 편해요.</p>
+          </details>
+          <details>
+            <summary>링크 답장은 어디에 모이나요?</summary>
+            <p>서버 없이 링크로만 오가요. 친구가 보낸 '결과 보내기' 링크를 방장이 열면 방장 기기 브라우저에 쌓여요.</p>
+          </details>
+        </section>
       </article>
 
       <nav id="more" aria-label="다른 놀이"></nav>

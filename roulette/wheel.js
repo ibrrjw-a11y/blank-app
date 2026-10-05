@@ -510,7 +510,7 @@ export class WheelView {
     g.translate(cx, cy);
     if (sq) g.scale(1 + sq, 1 - sq);
     g.fillStyle = "#ffd400";
-    g.font = `400 ${Math.round(this.hubR * 0.52)}px ${this.font}`;
+    g.font = `400 ${Math.round(this.hubR * 0.4)}px ${this.font}`;
     g.textAlign = "center";
     g.textBaseline = "middle";
     g.fillText(this.hubText, 0, 1);

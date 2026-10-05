@@ -28,13 +28,14 @@
   <body>
     <svg class="ink-defs" aria-hidden="true" focusable="false"><filter id="ink-rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
     <main class="app">
+      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="../../"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <a class="btn btn--ghost btn--sm" href="../../">4칸으로 꿈 풀기</a>
       </header>
 
-      <p class="crumbs"><a href="../../">꿈 사주</a> › <a href="../">꿈해몽 사전</a> › 반지 꿈</p>
-      <article>
+      <article class="book">
+        <p class="book__vol"><a href="../">꿈해몽 사전</a><span>반지 꿈</span></p>
         <div class="sym-hero">
           <p class="sym-kicker">꿈풀이</p>
           <div class="sym-hero__main">
@@ -44,49 +45,62 @@
             <div class="sym-tags"><span class="badge">좋은 꿈 쪽</span><span class="badge">재물운</span><span class="badge">연애운</span><span class="badge">관계운</span><span class="badge">태몽 속설</span></div>
           </div>
         </div>
-        <div class="cta-paper"><p>내 반지 꿈의 장소·사건·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p1=gold-ring">💍 금반지 넣고 4칸으로 풀기</a></div>
+        <div class="cta-tab"><p>장소·사건·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
+          <a class="talisman" href="../../?p1=gold-ring"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">금반지 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
 
-        <section class="sym-sec">
-          <h2>전통 해몽으로 본 반지 꿈</h2>
-          <p>반지나 금붙이는 약속과 귀한 재물을 뜻해요. 반지를 받거나 끼는 꿈은 좋은 인연이나 약속이 생긴다고 풀고, 금을 줍거나 얻으면 재물운이 오른다고 봐요. 반지를 잃어버렸다면 소중한 관계를 한 번 더 살피라는 뜻이에요.</p>
+        <section class="book__sec">
+          <h2><span class="bk">풀이</span>전통 해몽 속 반지 꿈</h2>
+          <p>반지나 금붙이는 약속과 귀한 재물을 뜻해요.</p><p>반지를 받거나 끼는 꿈은 좋은 인연이나 약속이 생긴다고 풀고, 금을 줍거나 얻으면 재물운이 오른다고 봐요.</p><p>반지를 잃어버렸다면 소중한 관계를 한 번 더 살피라는 뜻이에요.</p>
         </section>
 
-        <section class="sym-sec"><h2>상황별 반지 꿈 해몽</h2><div class="variant"><h3>돈이나 금을 줍는 꿈 <span class="mini-seal">대길몽</span></h3><p>길에서 돈이나 금을 줍는 꿈은 뜻밖의 수입이나 작은 횡재수가 있다는 길몽이에요. 지폐나 금덩이일수록 기운이 크다고 봐요.</p><a href="../../?p1=gold-ring&p2=unknown&p3=picking-up&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>반지를 받는 꿈 <span class="mini-seal">대길몽</span></h3><p>반지를 받는 꿈은 고백, 약혼, 계약처럼 귀한 약속이 생긴다는 뜻이에요.</p><a href="../../?p1=gold-ring&p2=unknown&p3=receiving&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>반지를 잃어버리는 꿈 <span class="mini-seal">평몽</span></h3><p>반지를 잃어버리는 꿈은 소중한 관계에 서운함이 쌓이지 않게 챙기라는 뜻이에요.</p><a href="../../?p1=gold-ring&p2=unknown&p3=losing&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div></section>
+        <section class="book__sec">
+          <h2><span class="bk">예</span>금반지 · 집 · 줍기 · 기쁨</h2>
+          <p class="book__note">점수 = 등장 + 장소×0.5 + 사건×0.7 + 맞는 조합(두 번째는 절반) + 기분</p>
+          <table class="ptable ptable--ex"><caption class="sr-only">금반지 · 집 · 줍기 · 기쁨 꿈 점수 풀이</caption>
+          <thead><tr><th scope="col">칸</th><th scope="col">고른 것</th><th scope="col">점수</th></tr></thead>
+          <tbody><tr><th scope="row">등장</th><td>💍 금반지</td><td class="num pos">+1</td></tr><tr><th scope="row">장소</th><td>🏠 집<small>× 0.5</small></td><td class="num pos">+0.25</td></tr><tr><th scope="row">사건</th><td>🪙 줍기<small>× 0.7</small></td><td class="num pos">+0.7</td></tr><tr><th scope="row">조합</th><td>돈이나 금을 줍는 꿈</td><td class="num pos">+2</td></tr><tr><th scope="row">기분</th><td>😊 기쁨</td><td class="num pos">+1.5</td></tr><tr class="is-sum"><th scope="row">합계</th><td>🌕 대길몽</td><td class="num">+5.5</td></tr></tbody></table>
+          <div class="ex-result"><span class="seal-big" aria-hidden="true">大吉</span><p><b>대길몽</b> · 재물운 ▲. 좋은 기운이 크게 들어오는 꿈이에요</p></div>
+          <p class="book__note"><a href="../../?p1=gold-ring&p2=home&p3=picking-up&p4=joy">이 네 칸 그대로 풀어 보기 →</a></p>
+        </section>
 
-        <section class="sym-sec">
-          <h2>어디서 꾼 반지 꿈인가요?</h2>
-          <table class="ptable"><thead><tr><th>장소</th><th>두드러진 운</th><th>등급</th></tr></thead>
+        <section class="book__sec"><h2><span class="bk">장면</span>상황별 반지 꿈</h2><div class="variant"><h3>돈이나 금을 줍는 꿈 <span class="mini-seal">대길몽</span></h3><p>길에서 돈이나 금을 줍는 꿈은 뜻밖의 수입이나 작은 횡재수가 있다는 길몽이에요. 지폐나 금덩이일수록 기운이 크다고 봐요.</p><a href="../../?p1=gold-ring&p2=unknown&p3=picking-up&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>반지를 받는 꿈 <span class="mini-seal">대길몽</span></h3><p>반지를 받는 꿈은 고백, 약혼, 계약처럼 귀한 약속이 생긴다는 뜻이에요.</p><a href="../../?p1=gold-ring&p2=unknown&p3=receiving&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>반지를 잃어버리는 꿈 <span class="mini-seal">평몽</span></h3><p>반지를 잃어버리는 꿈은 소중한 관계에 서운함이 쌓이지 않게 챙기라는 뜻이에요.</p><a href="../../?p1=gold-ring&p2=unknown&p3=losing&p4=calm">이 장면으로 풀어 보기 →</a></div></section>
+
+        <section class="book__sec">
+          <h2><span class="bk">장소</span>어디서 꾼 반지 꿈</h2>
+          <table class="ptable"><thead><tr><th scope="col">장소</th><th scope="col">두드러진 운</th><th scope="col">등급</th></tr></thead>
           <tbody><tr><td>🏠 집</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🏫 학교</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🏢 회사</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🌊 바다·강</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>⛰️ 산</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🛣️ 길·도로</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🚽 화장실</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>☁️ 하늘</td><td>연애운 ▲</td><td>길몽</td></tr><tr><td>🌫️ 낯선 곳</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🏥 병원</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🗼 높은 곳</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🫧 물 속</td><td>재물운 ▲</td><td>길몽</td></tr></tbody></table>
-          <p class="blk__note">특별한 일 없이 보기만 했고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
+          <p class="book__note">특별한 일 없이 보기만 했고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
         </section>
 
-        <section class="sym-sec">
-          <h2>반지 꿈, 기분에 따라 달라져요</h2>
-          <p>같은 꿈이라도 꿈속 기분에 따라 풀이가 크게 달라져요.</p>
-          <div class="variant"><h3>😊 꿈속에서 기뻤다면 <span class="mini-seal">길몽</span></h3><p>꿈속에서 기뻤다면 좋은 기운을 온전히 받아들였다는 뜻이라, 전통 해몽에서는 길한 뜻을 한층 크게 봐요.</p></div><div class="variant"><h3>😌 꿈속에서 평온했다면 <span class="mini-seal">길몽</span></h3><p>꿈속 마음이 평온했다면 흐름이 순조롭다는 뜻으로, 좋은 기운이 차분하게 오래 머문다고 풀어요.</p></div><div class="variant"><h3>🥰 꿈속에서 설렜다면 <span class="mini-seal">길몽</span></h3><p>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</p></div><div class="variant"><h3>😟 꿈속에서 불안했다면 <span class="mini-seal">평몽</span></h3><p>꿈에서 불안했다면 좋은 상징이라도 기운이 덜 온전하게 들어온다고 보고, 요즘 마음에 걸린 일이 있다는 신호로 풀어요.</p></div><div class="variant"><h3>😱 꿈속에서 무서웠다면 <span class="mini-seal">평몽</span></h3><p>무서웠다면 꿈이 실제 일을 예고한다기보다 쌓인 긴장과 피로를 비춰 주는 경우가 많아요. 몸과 마음을 먼저 쉬게 해 주세요.</p></div><div class="variant"><h3>😢 꿈속에서 슬펐다면 <span class="mini-seal">평몽</span></h3><p>슬펐던 꿈은 마음속 서운함을 흘려보내는 꿈으로도 풀어요. 꿈에서 울면 현실에서 웃을 일이 생긴다는 반대 속설도 있어요.</p></div>
+        <section class="book__sec">
+          <h2><span class="bk">기분</span>꿈속 기분별 반지 꿈</h2>
+          <table class="ptable ptable--mood"><caption class="sr-only">반지 꿈 꿈속 기분별 등급</caption>
+          <thead><tr><th scope="col">꿈속 기분</th><th scope="col">점수</th><th scope="col">등급</th></tr></thead>
+          <tbody><tr><th scope="row">😊 기쁨<small>꿈속에서 기뻤다면 좋은 기운을 온전히 받아들였다는 뜻이라, 전통 해몽에서는 길한 뜻을 한층 크게 봐요.</small></th><td class="num">+2.5</td><td>🌔 길몽</td></tr><tr><th scope="row">😌 평온<small>꿈속 마음이 평온했다면 흐름이 순조롭다는 뜻으로, 좋은 기운이 차분하게 오래 머문다고 풀어요.</small></th><td class="num">+2</td><td>🌔 길몽</td></tr><tr><th scope="row">🥰 설렘<small>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</small></th><td class="num">+2</td><td>🌔 길몽</td></tr><tr><th scope="row">😟 불안<small>꿈에서 불안했다면 좋은 상징이라도 기운이 덜 온전하게 들어온다고 보고, 요즘 마음에 걸린 일이 있다는 신호로 풀어요.</small></th><td class="num">0</td><td>🌓 평몽</td></tr><tr><th scope="row">😱 공포<small>무서웠다면 꿈이 실제 일을 예고한다기보다 쌓인 긴장과 피로를 비춰 주는 경우가 많아요.</small></th><td class="num">−0.5</td><td>🌓 평몽</td></tr><tr><th scope="row">😢 슬픔<small>슬펐던 꿈은 마음속 서운함을 흘려보내는 꿈으로도 풀어요.</small></th><td class="num">+0.5</td><td>🌓 평몽</td></tr></tbody></table>
         </section>
 
-        <section class="sym-sec"><h2>반지 꿈 태몽 속설</h2><p>반지나 보석 태몽은 딸이라는 속설이 많아요.</p>
-          <p class="blk__note">태몽 속설은 아이의 성별이나 앞날을 맞히는 근거가 없어요. 재미로만 봐 주세요.</p></section>
+        <section class="book__sec"><h2><span class="bk">태몽</span>반지 꿈 태몽 속설</h2><p>반지나 보석 태몽은 딸이라는 속설이 많아요.</p>
+          <p class="book__note">태몽 속설은 아이의 성별이나 앞날을 맞히는 근거가 없어요. 재미로만 봐 주세요.</p></section>
 
-        <section class="sym-sec sym-faq">
-          <h2>반지 꿈 자주 묻는 질문</h2>
+        <section class="book__sec book__faq">
+          <h2><span class="bk">문답</span>반지 꿈 문답</h2>
           <details><summary>반지 꿈은 길몽인가요, 흉몽인가요?</summary><p>대체로 좋은 꿈으로 풀어요. 반지나 금붙이는 약속과 귀한 재물을 뜻해요. 꿈속 상황과 기분에 따라 풀이가 달라질 수 있어요.</p></details><details><summary>반지 꿈도 태몽인가요?</summary><p>반지나 보석 태몽은 딸이라는 속설이 많아요. 어디까지나 전해 오는 속설이라 아이의 성별이나 앞날을 맞히는 근거는 없어요.</p></details><details><summary>반지 꿈을 꾸면 로또를 사야 하나요?</summary><p>반지 꿈의 재물 기운은 강한 편이라고 풀어요. 꿈 사주에서는 4칸 조합과 날짜로 ‘꿈 기운 번호’ 6개를 재미로 뽑아 드리지만, 어떤 번호든 당첨 확률은 똑같아요.</p></details><details><summary>반지 꿈에서 꿈속 기분이 왜 중요한가요?</summary><p>전통 해몽에서는 꿈속 기분을 크게 봐요. 꿈 사주 풀이 기준으로 같은 반지 꿈라도 기뻤다면 길몽, 무서웠다면 평몽으로 등급이 달라져요.</p></details>
         </section>
 
-        <section class="sym-sec"><h2>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../picking-up/"><span aria-hidden="true">🪙</span> 줍는 꿈 해몽</a></li><li><a href="../receiving/"><span aria-hidden="true">🎁</span> 선물 받는 꿈 해몽</a></li><li><a href="../losing/"><span aria-hidden="true">🔍</span> 잃어버리는 꿈 해몽</a></li><li><a href="../snake/"><span aria-hidden="true">🐍</span> 뱀꿈 해몽</a></li><li><a href="../pig/"><span aria-hidden="true">🐷</span> 돼지꿈 해몽</a></li><li><a href="../fish/"><span aria-hidden="true">🐟</span> 물고기 꿈 해몽</a></li><li><a href="../poop/"><span aria-hidden="true">💩</span> 똥꿈 해몽</a></li><li><a href="../money/"><span aria-hidden="true">💰</span> 돈 꿈 해몽</a></li><li><a href="../fire/"><span aria-hidden="true">🔥</span> 불 꿈 해몽</a></li><li><a href="../water/"><span aria-hidden="true">💧</span> 물 꿈 해몽</a></li></ul></section>
+        <section class="book__sec"><h2><span class="bk">이웃</span>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../picking-up/"><span aria-hidden="true">🪙</span> 줍는 꿈 해몽</a></li><li><a href="../receiving/"><span aria-hidden="true">🎁</span> 선물 받는 꿈 해몽</a></li><li><a href="../losing/"><span aria-hidden="true">🔍</span> 잃어버리는 꿈 해몽</a></li><li><a href="../snake/"><span aria-hidden="true">🐍</span> 뱀꿈 해몽</a></li><li><a href="../pig/"><span aria-hidden="true">🐷</span> 돼지꿈 해몽</a></li><li><a href="../fish/"><span aria-hidden="true">🐟</span> 물고기 꿈 해몽</a></li><li><a href="../poop/"><span aria-hidden="true">💩</span> 똥꿈 해몽</a></li><li><a href="../money/"><span aria-hidden="true">💰</span> 돈 꿈 해몽</a></li><li><a href="../fire/"><span aria-hidden="true">🔥</span> 불 꿈 해몽</a></li><li><a href="../water/"><span aria-hidden="true">💧</span> 물 꿈 해몽</a></li></ul></section>
 
-        <div class="cta-paper"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p1=gold-ring">💍 금반지 넣고 4칸으로 풀기</a></div>
-        <p class="t-center"><a class="btn btn--ghost" href="../">꿈해몽 사전 전체 보기</a></p>
+        <div class="cta-tab"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
+          <a class="talisman" href="../../?p1=gold-ring"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">금반지 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
+        <p class="t-center"><a class="brush-link" href="../">꿈해몽 사전 전체 보기</a></p>
       </article>
       <nav id="more" aria-label="다른 놀이"></nav>
       <footer class="site-footer">재미로 보는 해몽이에요. 전통 해몽 속설을 바탕으로 풀었고, 실제 일을 예언하지 않아요.</footer>
     </main>
     <script type="module">
-      import { renderMoreSites } from "../../../shared/kit.js";
-      renderMoreSites(document.getElementById("more"), "dream-saju", { base: "../../../" });
+      import { renderCrumb, renderMoreSites } from "../../../shared/kit.js";
+      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 경로·추천을 단다
+      renderCrumb(document.getElementById("crumb"), "dream-saju");
+      renderMoreSites(document.getElementById("more"), "dream-saju");
     </script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 // 어디가? — 다같이 고르는 메뉴·장소 월드컵
 import {
   $, $$, createStore, toast, haptic, share, shareImage, encodeState, decodeState, urlWith, getParam, todayKey,
-  showView, openSheet, renderMoreSites, createCanvas, roundRect, wrapText, CANVAS_FONT, prefersReducedMotion, sleep,
+  showView, openSheet, renderCrumb, renderMoreSites, createCanvas, roundRect, wrapText, CANVAS_FONT, prefersReducedMotion, sleep,
 } from "../shared/kit.js";
 import { STATIONS, REGIONS, MENU_TAGS, DATE_TAGS, PRICE_LABEL } from "./data.js";
 import { catalogAdapter, getNearbyPlaces, getWeather, findMenuNearby, mapLinks, loadConfig } from "./adapters.js";
@@ -1576,14 +1576,14 @@ const actions = {
   addName() {
     const inp = $("#nameInput");
     const v = inp.value.trim();
-    if (!v) return inp.focus();
+    if (!v) return inp.focus({ preventScroll: true });
     const list = S.namesBy[S.mode];
     if (list.includes(v)) return toast("이미 있는 이름이에요");
     if (list.length >= 12) return toast("12명까지 넣을 수 있어요");
     list.push(v);
     savePrefs();
     renderSetup();
-    $("#nameInput")?.focus();
+    $("#nameInput")?.focus({ preventScroll: true });
   },
   delName(b) {
     const list = S.namesBy[S.mode];
@@ -1767,7 +1767,7 @@ const actions = {
     const name = inp?.value.trim();
     if (!name) {
       inp?.classList.add("is-error");
-      inp?.focus();
+      inp?.focus({ preventScroll: true });
       toast("친구들이 알아볼 수 있게 이름을 넣어 주세요");
       return;
     }
@@ -1839,7 +1839,8 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* ---------- 시작 ---------- */
-renderMoreSites($("#more"), "where-to-go");
+renderCrumb($("#crumb"));
+renderMoreSites($("#more"));
 loadConfig().then((c) => {
   S.kakao = !!c.kakaoJsKey;
 });

@@ -253,12 +253,12 @@ body.is-playing {
 .hero__btn {
   display: inline-grid;
   place-items: center;
-  width: 1.18em;
-  height: 1.18em;
+  width: 54px;
+  height: 54px;
   border-radius: var(--r-full);
   background: conic-gradient(from 200deg, var(--art-steel-1), var(--art-steel-3) 22%, var(--art-steel-hi) 48%, var(--art-steel-3) 74%, var(--art-steel-1));
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3), 0 3px 4px -2px rgba(0, 0, 0, 0.4);
-  font: 900 0.5em/1 var(--art-num);
+  font: 900 22px/1 var(--art-num);
   letter-spacing: -0.04em;
   position: relative;
   animation: chip-in 700ms var(--art-spring) both;
@@ -290,7 +290,7 @@ body.is-playing {
   0% { clip-path: inset(0 100% 0 0); transform: translateX(-10px); }
   100% { clip-path: inset(0); transform: none; }
 }
-.kt { display: inline-block; transform-origin: 50% 100%; }
+.kt { display: inline-block; margin-right: -0.02em; transform-origin: 50% 100%; }
 .hero.is-in .kt { animation: kt-press 760ms both; animation-delay: calc(320ms + var(--i) * 45ms); }
 /* 버튼처럼 위에서 눌려 들어갔다 튀어나온다 */
 @keyframes kt-press {
@@ -323,8 +323,8 @@ body.is-playing {
   height: 36px;
   margin: -18px 0 0 -18px;
   border-radius: var(--r-full);
-  background: color-mix(in srgb, var(--art-engrave) 28%, transparent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--art-steel-hi) 80%, transparent);
+  background: color-mix(in srgb, var(--art-steel-hi) 45%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--art-engrave) 55%, transparent), 0 6px 12px -4px rgba(0, 0, 0, 0.4);
   opacity: 0;
   pointer-events: none;
   transition: transform 150ms cubic-bezier(0.3, 0.75, 0.25, 1), opacity 300ms;
@@ -450,9 +450,26 @@ body.is-playing {
 .nextbox__k { color: var(--art-led); font: var(--label-03); opacity: 0.8; }
 .nextbox__seg { height: 36px; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--art-led) 70%, transparent)); }
 .board-wrap { position: relative; }
+.play__mid { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+.mplate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: var(--sp-12) var(--sp-24);
+  border-radius: var(--r-8);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px 0 var(--art-steel-hi);
+}
+.mplate b { font: 900 18px/1 var(--art-num); letter-spacing: 0.2em; color: var(--art-engrave); text-shadow: 0 1px 0 var(--art-steel-hi); }
+.braille { display: grid; grid-template-columns: repeat(3, var(--sp-6)); gap: var(--sp-4); }
+.braille i { width: var(--sp-6); height: var(--sp-6); border-radius: var(--r-full); background: var(--art-steel-1); box-shadow: 0 1px 1px rgba(0, 0, 0, 0.35), inset 0 1px 0 var(--art-steel-hi); }
+.braille i:nth-child(2), .braille i:nth-child(6) { visibility: hidden; }
+.play__cap { margin: 0; text-align: center; font: var(--label-03); color: var(--art-engrave-2); }
 .board-wrap .board { margin-top: 0; }
+@media (max-height: 700px) { .mplate { display: none; } }
 .play__bottom { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--sp-8); align-items: center; margin-top: auto; }
 .play__hint { margin: 0; text-align: center; font: var(--label-02); color: var(--art-engrave); }
+.play__hint.is-pop { animation: chip-hit 420ms var(--art-spring); }
 
 /* 열림/닫힘 같은 작은 판 버튼 */
 .panelbtn {

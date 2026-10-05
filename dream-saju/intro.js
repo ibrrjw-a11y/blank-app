@@ -14,6 +14,12 @@ const COLS = [
 const DEX = ["🐷", "🐉", "💩", "🦷", "🐯", "🌸", "💰", "🔥", "🐟", "👵", "🍑", "🐢"];
 const WEEK = ["월", "화", "수", "목", "금", "토", "일"];
 const PHASES = ["38%", "55%", "72%", "100%", "100%"];
+// 장면별 세로 캡션(cap)과 화면 읽기용 문장(say)
+const SCENES_TEXT = [
+  { cap: "네 칸에 꿈을 넣고", say: "누가·어디서·무슨 일·기분, 꿈을 아이콘 4칸에 넣어요" },
+  { cap: "해몽이 끝나요", say: "꿈속 기분까지 읽어서 길몽인지 풀어 드려요" },
+  { cap: "아침마다 적으면", say: "매일 기록하면 꿈 도감이 채워지고 이번 달 꿈 리포트가 열려요" },
+];
 
 export function startIntro(root) {
   const stage = root.querySelector(".intro__stage");
@@ -54,22 +60,35 @@ export function startIntro(root) {
     return { x: r.left - base.left + r.width / 2, y: r.top - base.top + r.height / 2, w: r.width, h: r.height, top: r.top - base.top, left: r.left - base.left };
   };
 
-  // 제목은 글자 단위로 튀어 오르게 (키네틱 타이포)
+  // 캡션: 한지 오른쪽 첫 줄에 세로 붓글씨로 한 획씩 내려 쓴다 (제목+부제 두 줄 대신)
+  const vcap = stage.querySelector(".vcap");
+  const say = root.querySelector("#introSay");
+  const NUM = ["一", "二", "三", "四"];
+  let capIndex = 0;
   function kinetic() {
-    const h = root.querySelector(".intro__caption h2");
-    if (!h || rm) return;
-    const text = h.textContent;
-    h.innerHTML = [...text].map((ch) => `<span class="kchar">${ch === " " ? "&nbsp;" : ch}</span>`).join("");
-    h.querySelectorAll(".kchar").forEach((c, i) =>
+    const sc = SCENES_TEXT[capIndex % SCENES_TEXT.length];
+    if (say) say.textContent = sc.say;
+    if (!vcap) return;
+    vcap.innerHTML = `${[...sc.cap].map((ch) => (ch === " " ? '<span class="vcap__sp"></span>' : `<span class="vcap__ch">${ch}</span>`)).join("")}<span class="vcap__no">${NUM[capIndex % 4]}</span>`;
+    vcap.querySelectorAll(".vcap__ch").forEach((c, i) =>
       anim(
         c,
         [
-          { transform: "translateY(70%) scaleY(1.3)", opacity: 0 },
-          { transform: "translateY(-8%) scaleY(.92)", opacity: 1, offset: 0.6 },
-          { transform: "none", opacity: 1 },
+          { clipPath: "inset(0 0 100% 0)", transform: "translateY(-6px) scale(1.15)", opacity: 0.4 },
+          { clipPath: "inset(0 0 0 0)", transform: "translateY(1px) scale(.97)", opacity: 1, offset: 0.7 },
+          { clipPath: "inset(0 0 0 0)", transform: "none", opacity: 1 },
         ],
-        { duration: 520, delay: 40 * i }
+        { duration: 300, delay: 120 + 70 * i, easing: OUT }
       )
+    );
+    anim(
+      vcap.querySelector(".vcap__no"),
+      [
+        { transform: "scale(2.4) rotate(12deg)", opacity: 0 },
+        { transform: "scale(.9) rotate(-6deg)", opacity: 1, offset: 0.7 },
+        { transform: "rotate(-4deg)", opacity: 1 },
+      ],
+      { duration: 380, delay: 200 + 70 * sc.cap.length, easing: SLAM }
     );
   }
 
@@ -414,9 +433,9 @@ export function startIntro(root) {
     root,
     loop: true,
     scenes: [
-      { title: "꿈을 4칸에 넣으면", desc: "누가·어디서·무슨 일·기분, 아이콘만 톡톡 눌러요", duration: 4300, play: (_, s) => playPillars(s) },
-      { title: "해몽이 끝나요", desc: "꿈속 기분까지 읽어서 길몽인지 풀어 드려요", duration: 4400, play: (_, s) => playCard(s) },
-      { title: "매일 아침 기록하면", desc: "꿈 도감이 채워지고 이번 달 꿈 리포트가 열려요", duration: 4400, play: (_, s) => playDex(s) },
+      { duration: 4300, play: (_, s) => ((capIndex = 0), playPillars(s)) },
+      { duration: 4400, play: (_, s) => ((capIndex = 1), playCard(s)) },
+      { duration: 4400, play: (_, s) => ((capIndex = 2), playDex(s)) },
     ],
   });
 
@@ -426,6 +445,7 @@ export function startIntro(root) {
       sky.stop();
       running.forEach((a) => a.cancel());
       scene.innerHTML = "";
+      if (vcap) vcap.innerHTML = "";
     },
   };
 }

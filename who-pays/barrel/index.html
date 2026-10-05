@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>통아저씨 게임 온라인 | 누가 쏠래? - 해적 룰렛으로 벌칙 정하기</title>
+    <meta name="description" content="폰을 돌려 가며 통에 칼을 꽂아요. 해적이 튀어나오게 한 사람이 벌칙 당첨. 구멍은 사람 수의 2배, 한 사람당 확률은 똑같아요. 2~12명 무료 통아저씨 게임." />
+    <meta name="keywords" content="통아저씨, 통아저씨 게임, 해적 룰렛, 벌칙 정하기, 제비뽑기, 커피 내기, 랜덤 추첨" />
+    <link rel="canonical" href="https://example.com/who-pays/barrel/" />
+    <meta name="theme-color" content="#0a0c10" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/who-pays/barrel/" />
+    <meta property="og:title" content="통아저씨 - 누가 쏠래?" />
+    <meta property="og:description" content="돌아가며 칼 꽂기. 해적이 튀어나오면 커피 쏘기." />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&display=swap" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "누가 쏠래? 통아저씨",
+        "url": "https://example.com/who-pays/barrel/",
+        "description": "폰을 돌려 가며 통에 칼을 꽂고, 해적이 튀어나오게 한 사람이 벌칙을 받는 온라인 통아저씨 게임이에요.",
+        "applicationCategory": "EntertainmentApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "먼저 찌르는 사람이 불리한가요?", "acceptedAnswer": { "@type": "Answer", "text": "아니에요. 해적 구멍은 처음에 무작위로 정해지고 칼마다 확률이 같아서, 4명이면 누가 먼저 찌르든 한 사람당 25%예요." } },
+          { "@type": "Question", "name": "구멍은 몇 개예요?", "acceptedAnswer": { "@type": "Answer", "text": "사람 수의 2배예요. 4명이면 8개, 12명이면 24개예요." } }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <section class="intro" id="intro" data-view="intro">
+        <div class="bc-top">
+          <span class="live-bug"><i></i>LIVE</span>
+          <span class="wordmark">통아저씨</span>
+          <span class="odo" aria-hidden="true"><span class="odo__col"></span><span class="odo__col"></span><b>:</b><span class="odo__col"></span><span class="odo__col"></span><b>.</b><span class="odo__col"></span></span>
+        </div>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="bc-steps" role="group" aria-label="장면"></div>
+        <div class="intro__caption" aria-live="polite">
+          <h1 class="kinetic" aria-label="통아저씨"></h1>
+          <p class="intro__desc lt"></p>
+        </div>
+        <div class="intro__cta">
+          <p class="intro__invite t-label-02" id="invite" hidden></p>
+          <button class="gantry" id="start" type="button">
+            <span class="gantry__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="gantry__plate"><b class="gantry__word" aria-hidden="true">STAB</b><span class="gantry__label">명단 짜기</span></span>
+          </button>
+          <div class="intro__links">
+            <p class="alt-modes"></p>
+            <button class="btn btn--ghost btn--sm" id="introLedger" hidden>벌칙 장부</button>
+          </div>
+        </div>
+      </section>
+
+      <div id="views"></div>
+
+      <article class="seo rulebook" id="seo">
+        <p class="bc-kicker">OFFICIAL RULEBOOK · 통아저씨</p>
+        <h2>온라인 통아저씨 게임 규정</h2>
+        <p class="rulebook__lead">장난감 통아저씨를 폰으로 옮겼어요. 폰 하나를 돌려 가며 구멍을 하나씩 찌르고, 해적이 튀어나오게 한 사람이 벌칙을 받아요. 레이스처럼 시끄럽지 않아서 식당 테이블에서 조용히 하기 좋아요.</p>
+
+        <ol class="articles">
+          <li><b>제1조 구멍</b><span>사람 수 × 2개. 4명이면 8개, 12명이면 24개예요.</span></li>
+          <li><b>제2조 해적 구멍</b><span>시작할 때 1개를 무작위로 정해요. 모든 구멍이 같은 확률이에요.</span></li>
+          <li><b>제3조 차례</b><span>이름 넣은 순서와 상관없이 무작위로 섞어요. 화면 위 차례표에 보여요.</span></li>
+          <li><b>제4조 찌르기</b><span>자기 차례에 빈 구멍 하나를 눌러요. 한 번 찌른 구멍은 다시 못 골라요.</span></li>
+          <li><b>제5조 판정</b><span>해적이 튀어나오게 한 사람이 당첨. 당첨 규칙 선택은 없어요.</span></li>
+        </ol>
+
+        <h3>확률표 · 4명, 구멍 8개</h3>
+        <div class="spec-wrap">
+          <table class="spec cue">
+            <thead><tr><th scope="col">칼</th><th scope="col">차례</th><th scope="col">이 칼에서 튈 확률</th><th scope="col">앞이 다 세이프일 때</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>철수</td><td class="t-num">12.5%</td><td class="t-num">1/8</td></tr>
+              <tr><td>2</td><td>민수</td><td class="t-num">12.5%</td><td class="t-num">1/7</td></tr>
+              <tr><td>3</td><td>지은</td><td class="t-num">12.5%</td><td class="t-num">1/6</td></tr>
+              <tr><td>4</td><td>영희</td><td class="t-num">12.5%</td><td class="t-num">1/5</td></tr>
+              <tr><td>5</td><td>철수</td><td class="t-num">12.5%</td><td class="t-num">1/4</td></tr>
+              <tr><td>6</td><td>민수</td><td class="t-num">12.5%</td><td class="t-num">1/3</td></tr>
+              <tr><td>7</td><td>지은</td><td class="t-num">12.5%</td><td class="t-num">1/2</td></tr>
+              <tr><td>8</td><td>영희</td><td class="t-num">12.5%</td><td class="t-num">1/1</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="rulebook__note">한 사람이 칼을 2번씩 들어서 12.5% × 2 = <b>25%</b>. 순서와 상관없이 모두 같아요. 뒤로 갈수록 긴장되는 건 "앞이 다 세이프일 때" 확률이 올라가기 때문이에요.</p>
+
+        <h3>중계석 Q&amp;A</h3>
+        <details>
+          <summary>먼저 찌르는 사람이 불리한가요?</summary>
+          <p>아니에요. 해적 구멍은 시작할 때 정해지고 칼마다 확률이 같아요. 위 표처럼 4명이면 누구든 25%예요.</p>
+        </details>
+        <details>
+          <summary>사람이 많으면 오래 걸리나요?</summary>
+          <p>평균적으로 구멍의 절반쯤에서 끝나요. 4명(8구멍)이면 4~5번째 칼, 10명(20구멍)이면 10번째 칼 무렵이에요.</p>
+        </details>
+        <details>
+          <summary>제비뽑기랑 뭐가 달라요?</summary>
+          <p>확률은 비슷하지만, 한 칼씩 넘길 때마다 다 같이 숨죽이는 맛이 있어요. 당첨자 여러 명을 뽑을 땐 제비뽑기가 더 맞아요.</p>
+        </details>
+        <details>
+          <summary>결과는 어디에 남아요?</summary>
+          <p>이 폰의 벌칙 장부에 적혀요. 구슬 레이스, 배틀로얄 결과와 같은 장부예요.</p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">누가 쏠래? · 결과는 무작위예요. 내기는 가볍게!</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

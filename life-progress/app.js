@@ -14,6 +14,7 @@ import {
   runIntro,
   showView,
   renderMoreSites,
+  renderCrumb,
   createCanvas,
   roundRect,
   CANVAS_FONT,
@@ -21,85 +22,29 @@ import {
   fmt,
   prefersReducedMotion,
 } from "../shared/kit.js";
+import {
+  YEAR_DAYS,
+  ZODIAC,
+  DEFAULT_LIFE,
+  parts,
+  toUTC,
+  fromUTC,
+  addDays,
+  diffDays,
+  dotDate,
+  longDate,
+  birthdayIn,
+  manAge,
+  nextBirthday,
+  esc,
+  token,
+  alpha,
+  odometer,
+  parseBirth,
+  formatBirthInput,
+} from "./core.js";
 
 const store = createStore("life-progress");
-const DAY = 86400000;
-const YEAR_DAYS = 365.2425;
-const WD = ["일", "월", "화", "수", "목", "금", "토"];
-const ZODIAC = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
-const DEFAULT_LIFE = 83.5; // 통계청 2023년 생명표 기대수명
-
-/* ---------- 날짜 ---------- */
-const pad = (n) => String(n).padStart(2, "0");
-const key = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
-const parts = (k) => k.split("-").map(Number);
-const toUTC = (k) => {
-  const [y, m, d] = parts(k);
-  return Date.UTC(y, m - 1, d);
-};
-const fromUTC = (ms) => new Date(ms).toISOString().slice(0, 10);
-const addDays = (k, n) => fromUTC(toUTC(k) + n * DAY);
-const diffDays = (a, b) => Math.round((toUTC(b) - toUTC(a)) / DAY);
-const weekday = (k) => WD[new Date(toUTC(k)).getUTCDay()];
-const dotDate = (k) => k.replaceAll("-", ".");
-const longDate = (k) => `${dotDate(k)} (${weekday(k)})`;
-const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
-function validKey(y, m, d) {
-  if (!(y >= 1900 && m >= 1 && m <= 12 && d >= 1)) return null;
-  const dim = [31, isLeap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
-  return d <= dim ? key(y, m, d) : null;
-}
-// 그 해의 생일. 2월 29일생은 평년에 3월 1일로 봐요 (민법 기간 계산 방식)
-function birthdayIn(birth, y) {
-  const [, m, d] = parts(birth);
-  if (m === 2 && d === 29 && !isLeap(y)) return key(y, 3, 1);
-  return key(y, m, d);
-}
-function manAge(birth, asOf) {
-  const [by] = parts(birth);
-  const [y] = parts(asOf);
-  return y - by - (asOf < birthdayIn(birth, y) ? 1 : 0);
-}
-function nextBirthday(birth, asOf) {
-  const [y] = parts(asOf);
-  let b = birthdayIn(birth, y);
-  if (b < asOf) b = birthdayIn(birth, y + 1);
-  return b;
-}
-const esc = (s) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const token = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-function alpha(hex, a) {
-  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
-  if (!m) return hex;
-  const n = parseInt(m[1], 16);
-  return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
-}
-
-// 자리별로 굴러가는 숫자 (스프링은 CSS)
-function odometer(el, text) {
-  if (el.dataset.odo === text) return;
-  el.dataset.odo = text;
-  el.classList.add("odo");
-  el.classList.remove("is-on");
-  el.setAttribute("aria-label", text);
-  const strip = "01234567890123456789"
-    .split("")
-    .map((n) => `<span>${n}</span>`)
-    .join("");
-  let k = 0;
-  el.innerHTML = [...text]
-    .map((ch) =>
-      /\d/.test(ch)
-        ? `<span class="odo__col" aria-hidden="true" style="--d:${ch};--i:${k++}"><span class="odo__strip">${strip}</span></span>`
-        : `<span class="odo__ch" aria-hidden="true">${ch}</span>`,
-    )
-    .join("");
-  if (prefersReducedMotion()) return el.classList.add("is-on");
-  void el.offsetWidth;
-  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-on")));
-}
-
 /* ---------- 상태 ---------- */
 const state = {
   birth: store.get("birth", null),
@@ -177,26 +122,14 @@ function milestones(birth, life) {
   return list.sort((a, b) => (a.date < b.date ? -1 : 1));
 }
 
-/* ---------- 만나이 계산기 ---------- */
-function parseBirth(raw) {
-  const digits = raw.replace(/\D/g, "");
-  if (digits.length !== 8) return null;
-  return validKey(Number(digits.slice(0, 4)), Number(digits.slice(4, 6)), Number(digits.slice(6, 8)));
-}
-function formatBirthInput(raw) {
-  const d = raw.replace(/\D/g, "").slice(0, 8);
-  if (d.length <= 4) return d;
-  if (d.length <= 6) return `${d.slice(0, 4)}.${d.slice(4)}`;
-  return `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6)}`;
-}
+/* ---------- 생년월일 (만나이 계산기는 age/ 페이지) ---------- */
 const birthInput = $("#birth");
 birthInput.addEventListener("input", () => {
-  const before = birthInput.value;
-  birthInput.value = formatBirthInput(before);
+  birthInput.value = formatBirthInput(birthInput.value);
   const field = $("#birthField");
   const digits = birthInput.value.replace(/\D/g, "");
   field.classList.remove("is-error");
-  $("#birthHelp").textContent = "숫자 8자리만 넣으면 돼요";
+  $("#birthHelp").textContent = "숫자 8자리만 넣으면 돼요 · 이 기기에만 저장";
   if (digits.length < 8) return;
   const k = parseBirth(digits);
   if (!k || k > todayKey()) {
@@ -207,16 +140,6 @@ birthInput.addEventListener("input", () => {
   setBirth(k, { fresh: true });
   birthInput.blur();
 });
-$("#asof").addEventListener("change", () => {
-  const v = $("#asof").value;
-  state.asOf = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
-  renderCalc();
-});
-$("#asofToday").onclick = () => {
-  state.asOf = null;
-  $("#asof").value = todayKey();
-  renderCalc();
-};
 
 function setBirth(k, { fresh = false } = {}) {
   const changed = state.birth !== k;
@@ -226,42 +149,18 @@ function setBirth(k, { fresh = false } = {}) {
   if (fresh) haptic(14);
 }
 
-function renderCalc(animate = false) {
+// 한 줄 요약: 만 나이 · 살아온 날 · 다음 생일 (자세한 계산은 만나이 계산기에서)
+function renderBirthSummary() {
   const b = state.birth;
-  if (!b) return;
   const today = todayKey();
-  const asOf = state.asOf || today;
-  $("#asofLabel").textContent = asOf === today ? "(오늘)" : `(${dotDate(asOf)})`;
-  const res = $("#calcResult");
-  res.hidden = false;
-  if (asOf < b) {
-    $("#ageAsOf").textContent = "기준일이 생일보다 앞이에요";
-    $("#ageMan").dataset.odo = "";
-    $("#ageMan").textContent = "–";
-    return;
-  }
-  const [by, bm, bd] = parts(b);
-  const [ay] = parts(asOf);
-  const age = manAge(b, asOf);
-  $("#ageAsOf").textContent = `${asOf === today ? "오늘" : longDate(asOf)} 기준 · ${dotDate(b)}생`;
-  odometer($("#ageMan"), String(age));
-  $("#ageYear").textContent = `${ay - by}세`;
-  $("#ageKor").textContent = `${ay - by + 1}살`;
-  const nb = nextBirthday(b, asOf);
-  const gap = diffDays(asOf, nb);
-  $("#nextBday").textContent = gap === 0 ? "오늘 🎂" : `D-${fmt.num(gap)}`;
-  const leapNote = bm === 2 && bd === 29 && nb.slice(5) === "03-01" ? " · 평년이라 3월 1일 기준" : "";
-  $("#nextBdaySub").textContent = `${longDate(nb)} · 만 ${manAge(b, nb)}세${leapNote}`;
-  const zi = (((by - 4) % 12) + 12) % 12;
-  $("#zodiac").textContent = `${ZODIAC[zi]}띠`;
-  $("#zodiacSub").textContent = bm <= 2 ? "1~2월생은 설·입춘 기준으로 앞 해 띠일 수 있어요" : "양력 출생 연도 기준";
-  const lived = diffDays(b, asOf) + 1;
-  if (animate) countUp($("#livedDays"), lived, { duration: 900, format: (n) => `${fmt.num(Math.round(n))}일째` });
-  else $("#livedDays").textContent = `${fmt.num(lived)}일째`;
-  $("#calcNote").textContent =
-    bm === 2 && bd === 29
-      ? "2월 29일생은 평년에는 3월 1일에 만 나이가 한 살 늘어나는 것으로 계산해요. 2023년 6월 28일부터 법적 나이는 만 나이로 통일됐어요."
-      : "2023년 6월 28일부터 법적 나이는 만 나이로 통일됐어요. 연 나이는 일부 법(청소년보호법·병역법 등)에서만 써요.";
+  const nb = nextBirthday(b, today);
+  const gap = diffDays(today, nb);
+  const [by] = parts(b);
+  $("#birthSum").hidden = false;
+  $("#sumAge").textContent = `만 ${manAge(b, today)}세`;
+  $("#sumDays").textContent = `${fmt.num(diffDays(b, today) + 1)}일째`;
+  $("#sumNext").textContent = gap === 0 ? "오늘 생일" : `생일 D-${fmt.num(gap)}`;
+  $("#sumZodiac").textContent = `${ZODIAC[(((by - 4) % 12) + 12) % 12]}띠`;
 }
 
 /* ---------- 생일 주간 배너 ---------- */
@@ -812,13 +711,13 @@ $("#shareLink").onclick = () => {
 function renderAll({ animate = false, sweep = true } = {}) {
   if (!state.birth) {
     ["#lifeSection", "#statsSection", "#milesSection", "#bucketSection", "#shareSection"].forEach((s) => ($(s).hidden = true));
-    $("#calcResult").hidden = true;
+    $("#birthSum").hidden = true;
     $("#bdayBanner").hidden = true;
     return;
   }
   if (!birthInput.value || parseBirth(birthInput.value) !== state.birth) birthInput.value = dotDate(state.birth);
   ["#lifeSection", "#statsSection", "#milesSection", "#bucketSection", "#shareSection"].forEach((s) => ($(s).hidden = false));
-  renderCalc(animate);
+  renderBirthSummary();
   renderBanner();
   renderProgress(animate);
   renderStats(animate);
@@ -1117,16 +1016,19 @@ function openApp() {
   stopIntro();
   showView("app");
   renderAll({ animate: true });
-  if (!state.birth) setTimeout(() => birthInput.focus(), 200);
 }
-$("#start").onclick = openApp;
+// 시작 키를 눌렀을 때만 입력칸으로 커서를 옮긴다 (로딩 직후 자동 포커스 없음)
+$("#start").onclick = () => {
+  openApp();
+  if (!state.birth) birthInput.focus({ preventScroll: true });
+};
 $("#replayIntro").onclick = startIntro;
 window.addEventListener("resize", () => ip.running && ipLayout());
 
 /* ---------- 시작 ---------- */
-renderMoreSites($("#more"), "life-progress");
+renderCrumb($("#crumb"));
+renderMoreSites($("#more"));
 $("#todayMeta").textContent = dotDate(todayKey());
-$("#asof").value = todayKey();
 const fromParam = getParam("from");
 if (fromParam) {
   const f = decodeState(fromParam);

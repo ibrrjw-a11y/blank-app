@@ -47,7 +47,7 @@
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
-          { "@type": "Question", "name": "꿈 사주 꿈해몽은 무료인가요?", "acceptedAnswer": { "@type": "Answer", "text": "네, 회원가입 없이 무료예요. 꿈 일기도 내 기기에만 저장돼요." } },
+          { "@type": "Question", "name": "꿈 사주 꿈해몽은 무료인가요?", "acceptedAnswer": { "@type": "Answer", "text": "네, 회원가입 없이 무료예요. 꿈 일기는 내 기기에만 저장돼요." } },
           { "@type": "Question", "name": "태몽도 볼 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "결과 화면에서 태몽 모드를 켜면 전해지는 태몽 속설을 함께 보여 드려요. 아들·딸 속설은 재미로만 봐 주세요." } },
           { "@type": "Question", "name": "꿈 기운 번호는 로또 당첨 번호인가요?", "acceptedAnswer": { "@type": "Answer", "text": "아니에요. 꿈 4칸과 날짜로 재미 삼아 뽑은 번호예요. 어떤 번호든 당첨 확률은 같아요." } },
           { "@type": "Question", "name": "흉몽이 나오면 걱정해야 하나요?", "acceptedAnswer": { "@type": "Answer", "text": "걱정하지 않아도 돼요. 주의몽·경고몽은 쉬어 가라는 신호 정도로 풀이해요. 해몽은 재미로 보는 전통 속설이에요." } }
@@ -72,6 +72,7 @@
       </filter>
     </svg>
     <main class="app">
+      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="./" id="home"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <button class="btn btn--ghost btn--sm" id="diaryBtn" type="button">
@@ -93,12 +94,19 @@
             </svg>
           </div>
           <div class="scene"></div>
+          <!-- 캡션: 한지 오른쪽 첫 줄에 세로 붓글씨로 -->
+          <p class="vcap"></p>
         </div>
+        <p class="sr-only" id="introSay" aria-live="polite"></p>
         <div class="intro__steps"></div>
-        <div class="intro__caption" aria-live="polite"></div>
         <div class="intro__cta">
-          <button class="btn btn--primary btn--lg btn--block" id="start" type="button">오늘 꾼 꿈 풀기</button>
-          <button class="btn btn--ghost btn--block" id="introDiary" type="button" hidden>꿈 일기 이어 보기</button>
+          <!-- 시작 버튼: 도장이 찍힌 부적 종이 -->
+          <button class="talisman" id="start" type="button">
+            <span class="talisman__head" aria-hidden="true">勅令</span>
+            <span class="talisman__label">오늘 꾼 꿈 풀기</span>
+            <span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span>
+          </button>
+          <button class="brush-link" id="introDiary" type="button" hidden>꿈 일기 이어 보기</button>
         </div>
       </section>
 
@@ -134,40 +142,52 @@
       <!-- 4) 꿈 일기 · 도감 · 리포트 -->
       <section class="diary" data-view="diary" id="diary" hidden></section>
 
-      <!-- 5) SEO 본문 -->
-      <article class="seo">
-        <h2>꿈 사주는 어떤 꿈해몽인가요?</h2>
-        <p>
-          사주가 태어난 때를 네 기둥으로 보듯, 꿈 사주는 꿈을 <strong>등장 · 장소 · 사건 · 기분</strong> 네 칸으로 나눠 풀어요.
-          아침에 비몽사몽이어도 글을 쓸 필요 없이 아이콘만 네 번 누르면 돼요. 뱀꿈, 돼지꿈, 이빨 빠지는 꿈처럼 많이 꾸는 꿈을
-          전통 해몽 속설과 조합 규칙으로 풀어서 길몽인지, 재물운·연애운·건강운은 어떤지 한눈에 보여 드려요.
-        </p>
+      <!-- 5) SEO 본문: 한지 해몽책 한 쪽 -->
+      <article class="seo book" aria-labelledby="bookTitle">
+        <p class="book__vol"><span>꿈 사주 해몽책</span><span>권一 · 네 칸 풀이법</span></p>
+        <h2 id="bookTitle" class="book__title">꿈해몽 네 칸 풀이법</h2>
 
-        <h3>4칸 꿈해몽 사용법</h3>
-        <ol>
-          <li><strong>등장</strong>: 뱀, 돼지, 용, 똥, 이빨, 돌아가신 분처럼 꿈에 나온 것을 골라요.</li>
-          <li><strong>장소</strong>: 집, 학교, 회사, 바다, 화장실, 하늘처럼 꿈의 배경을 골라요. 기억이 안 나면 건너뛰어도 돼요.</li>
-          <li><strong>사건</strong>: 쫓김, 떨어짐, 물림, 받기, 빠짐처럼 꿈에서 일어난 일을 골라요.</li>
-          <li><strong>기분</strong>: 꿈속에서 기뻤는지, 무서웠는지 골라요. 전통 해몽에서는 꿈속 기분을 아주 중요하게 봐요.</li>
-        </ol>
-        <p>“뱀한테 물려서 무서웠어”처럼 말하거나 적으면 낱말을 알아듣고 네 칸을 자동으로 채워 줘요.</p>
+        <section class="book__sec">
+          <h3><span class="bk">법</span>꿈을 네 기둥으로 나눠요</h3>
+          <table class="ptable ptable--pillars">
+            <caption class="sr-only">꿈 사주의 네 기둥</caption>
+            <thead><tr><th scope="col">기둥</th><th scope="col">무엇을</th><th scope="col">고르는 예</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">등장</th><td>꿈에 나온 것</td><td>뱀, 돼지, 이빨, 조상님 (30가지)</td></tr>
+              <tr><th scope="row">장소</th><td>꿈의 배경</td><td>집, 바다·강, 화장실 (모르면 건너뜀)</td></tr>
+              <tr><th scope="row">사건</th><td>일어난 일</td><td>쫓김, 떨어짐, 물림, 받기 (19가지)</td></tr>
+              <tr><th scope="row">기분</th><td>꿈속 마음</td><td>기쁨, 평온, 설렘, 불안, 공포, 슬픔</td></tr>
+            </tbody>
+          </table>
+          <p class="book__note">“뱀한테 물려서 무서웠어”처럼 적거나 말하면 낱말을 알아듣고 네 칸을 채워요.</p>
+        </section>
 
-        <h3>꿈속 기분이 왜 중요할까요?</h3>
-        <p>
-          같은 뱀꿈이라도 반갑게 바라봤다면 재물이 들어오는 길몽으로, 무섭게 쫓겼다면 부담감을 비추는 꿈으로 풀어요.
-          죽는 꿈처럼 겉보기에 무서운 꿈도 마음이 편안했다면 새 출발을 뜻하는 대길몽으로 보는 경우가 많아요.
-        </p>
+        <!-- GEN:example (scripts/build-dream-pages.mjs 가 채워요) -->
+        <section class="book__sec">
+          <h3><span class="bk">예</span>뱀 · 집 · 쫓김 · 공포</h3>
+          <p class="book__note">점수 = 등장 + 장소×0.5 + 사건×0.7 + 맞는 조합(두 번째는 절반) + 기분</p>
+          <table class="ptable ptable--ex"><caption class="sr-only">뱀 · 집 · 쫓김 · 공포 꿈 점수 풀이</caption>
+          <thead><tr><th scope="col">칸</th><th scope="col">고른 것</th><th scope="col">점수</th></tr></thead>
+          <tbody><tr><th scope="row">등장</th><td>🐍 뱀</td><td class="num pos">+1</td></tr><tr><th scope="row">장소</th><td>🏠 집<small>× 0.5</small></td><td class="num pos">+0.25</td></tr><tr><th scope="row">사건</th><td>🏃 쫓김<small>× 0.7</small></td><td class="num neg">−0.7</td></tr><tr><th scope="row">조합</th><td>무서워서 도망치는 꿈</td><td class="num neg">−1</td></tr><tr><th scope="row">조합</th><td>뱀에게 쫓기는 꿈<small>× 0.5</small></td><td class="num pos">+0.25</td></tr><tr><th scope="row">기분</th><td>😱 공포</td><td class="num neg">−1.5</td></tr><tr class="is-sum"><th scope="row">합계</th><td>🌒 주의몽</td><td class="num">−1.7</td></tr></tbody></table>
+          <div class="ex-result"><span class="seal-big is-soft" aria-hidden="true">愼</span><p><b>주의몽</b> · 건강운 ▼. 조금 쉬어 가라고 알려 주는 꿈이에요</p></div>
+        </section>
+        <section class="book__sec">
+          <h3><span class="bk">기분</span>같은 꿈, 기분만 바꾸면</h3>
+          <table class="ptable ptable--mood"><caption class="sr-only">뱀 · 집 · 쫓김 · 공포 꿈의 기분별 등급</caption>
+          <thead><tr><th scope="col">꿈속 기분</th><th scope="col">점수</th><th scope="col">등급</th></tr></thead>
+          <tbody><tr><th scope="row">😊 기쁨</th><td class="num">+2.6</td><td>🌔 길몽</td></tr><tr><th scope="row">😌 평온</th><td class="num">+2.1</td><td>🌔 길몽</td></tr><tr><th scope="row">🥰 설렘</th><td class="num">+2.1</td><td>🌔 길몽</td></tr><tr><th scope="row">😟 불안</th><td class="num">−1.2</td><td>🌒 주의몽</td></tr><tr><th scope="row">😱 공포</th><td class="num">−1.7</td><td>🌒 주의몽</td></tr><tr><th scope="row">😢 슬픔</th><td class="num">+0.6</td><td>🌓 평몽</td></tr></tbody></table>
+          <p class="book__note">전통 해몽은 꿈속 기분을 크게 봐요. 같은 장면이 기쁨이면 길몽, 공포면 주의몽이에요.</p>
+        </section>
+        <section class="book__sec">
+          <h3><span class="bk">등급</span>다섯 단계</h3>
+          <table class="ptable ptable--grade"><caption class="sr-only">꿈 등급과 점수 범위</caption>
+          <thead><tr><th scope="col">등급</th><th scope="col">점수</th><th scope="col">뜻</th></tr></thead>
+          <tbody><tr><th scope="row">🌕 대길몽</th><td class="num">4 이상</td><td>좋은 기운이 크게 들어오는 꿈이에요</td></tr><tr><th scope="row">🌔 길몽</th><td class="num">1.5 ~ 4 미만</td><td>반가운 일이 다가오는 꿈이에요</td></tr><tr><th scope="row">🌓 평몽</th><td class="num">−1 ~ 1.5 미만</td><td>요즘 마음을 잔잔하게 비춰 주는 꿈이에요</td></tr><tr><th scope="row">🌒 주의몽</th><td class="num">−3.5 ~ −1 미만</td><td>조금 쉬어 가라고 알려 주는 꿈이에요</td></tr><tr><th scope="row">🌘 경고몽</th><td class="num">−3.5 미만</td><td>몸과 마음을 먼저 챙겨 달라는 다정한 신호예요</td></tr></tbody></table>
+        </section>
+        <!-- /GEN:example -->
 
-        <h3>꿈 등급은 이렇게 나눠요</h3>
-        <ul>
-          <li>🌕 대길몽 · 좋은 기운이 크게 들어오는 꿈</li>
-          <li>🌔 길몽 · 반가운 일이 다가오는 꿈</li>
-          <li>🌓 평몽 · 요즘 마음을 잔잔하게 비춰 주는 꿈</li>
-          <li>🌒 주의몽 · 조금 쉬어 가라고 알려 주는 꿈</li>
-          <li>🌘 경고몽 · 몸과 마음을 먼저 챙겨 달라는 신호</li>
-        </ul>
-
-        <h2 class="seo__h2-gap">자주 찾는 꿈해몽</h2>
+        <section class="book__sec">
+          <h3><span class="bk">찾기</span>자주 찾는 꿈해몽</h3>
         <!-- GEN:popular (scripts/build-dream-pages.mjs 가 채워요) -->
         <ul class="dream-links">
           <li><a href="s/snake/"><span aria-hidden="true">🐍</span> 뱀꿈</a></li>
@@ -221,11 +241,13 @@
         </ul>
         <p><a href="s/">꿈해몽 사전 전체 보기 →</a></p>
         <!-- /GEN:popular -->
+        </section>
 
-        <h2 class="seo__h2-gap">자주 묻는 질문</h2>
+        <section class="book__sec book__faq">
+          <h3><span class="bk">문답</span>자주 묻는 질문</h3>
         <details>
           <summary>꿈 사주 꿈해몽은 무료인가요?</summary>
-          <p>네, 회원가입 없이 무료예요. 꿈 일기는 서버가 아니라 지금 쓰는 기기(브라우저)에만 저장돼요.</p>
+          <p>네, 회원가입 없이 무료예요. 꿈 일기는 지금 쓰는 기기(브라우저)에만 저장돼요.</p>
         </details>
         <details>
           <summary>태몽도 볼 수 있나요?</summary>
@@ -243,6 +265,7 @@
           <summary>꿈 도감과 꿈 리포트는 뭔가요?</summary>
           <p>꿈을 기록할 때마다 꿈에 나온 상징이 도감에 불을 밝혀요. 한 달에 꿈을 세 번 이상 기록하면 자주 꾼 상징, 기분 분포, 길몽 비율을 모아 이번 달 꿈 리포트를 보여 드려요.</p>
         </details>
+        </section>
       </article>
 
       <nav id="more" aria-label="다른 놀이"></nav>

@@ -1,7 +1,6 @@
 // 통아저씨 첫 화면: 01 구멍 뚫기(사람 수 × 2) · 02 차례대로 칼 꽂기(세이프!) · 03 해적 튀어나옴 + 판정
-import { CANVAS_FONT } from "../../shared/kit.js";
 import { alpha, spring, squashAmt, slant, drawVerdict } from "../common.js";
-import { runBroadcast, clamp01, easeOut, easeIn, DEMO_NAMES as NAMES, DEMO_COLORS as COLORS } from "../broadcast.js";
+import { runBroadcast, clamp01, easeOut, easeIn } from "../broadcast.js";
 
 const SCENES = [
   { tag: "01 구멍", lines: ["사람 수 × 2", "구멍이 뚫려요"], desc: "4명이면 구멍 8개. 해적 스위치는 그중 딱 하나.", dur: 3000 },
@@ -294,7 +293,7 @@ export function startIntro(root) {
         plate("LEFT", String(8 - used.length), 0.6, "남은 구멍");
       }
 
-      /* 03 판정: 영희? 아니, 지은 차례에 해적이 튐 */
+      /* 03 판정: 지은 차례에 해적이 튐 */
       function scene3(t, dt) {
         env.floor();
         const g = geo();
@@ -340,11 +339,8 @@ export function startIntro(root) {
           pirate(px, py, (g.bw / 260) * (1.1 + squashAmt(a, 0.2)), -Math.min(1, a / 0.55) * Math.PI * 4);
         }
         const status = ["SAFE", "SAFE", t > popAt ? "POP!" : "NOW", ""];
-        turns(t > popAt ? -1 : 2, dt, status);
-        if (t > popAt) {
-          env.tower(ORDER, status, 0, { title: "TURN", x: 10, y: 10, hot: 3 });
-        }
-        plate("ODDS", "25%", 0.6, "1인당 확률");
+        turns(2, dt, status);
+        if (t < popAt) plate("ODDS", "25%", 0.6, "1인당 확률");
         drawVerdict(ctx, env.view.w, g.y + g.bh * 0.55, "지은이 쏩니다 ☕", t - popAt - 0.6, tk);
       }
 

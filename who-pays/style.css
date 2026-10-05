@@ -1450,3 +1450,12 @@ body.is-playing .site-footer { display: none; }
 }
 
 .seo details p { color: var(--color-text-secondary); }
+
+.rulebook__note {
+  margin: var(--sp-8) 0 0;
+  padding: var(--sp-10) var(--sp-12);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+}
+
+.rulebook__note b { color: var(--color-primary); }

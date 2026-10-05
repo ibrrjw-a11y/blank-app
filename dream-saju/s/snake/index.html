@@ -28,13 +28,14 @@
   <body>
     <svg class="ink-defs" aria-hidden="true" focusable="false"><filter id="ink-rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
     <main class="app">
+      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="../../"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <a class="btn btn--ghost btn--sm" href="../../">4칸으로 꿈 풀기</a>
       </header>
 
-      <p class="crumbs"><a href="../../">꿈 사주</a> › <a href="../">꿈해몽 사전</a> › 뱀꿈</p>
-      <article>
+      <article class="book">
+        <p class="book__vol"><a href="../">꿈해몽 사전</a><span>뱀꿈</span></p>
         <div class="sym-hero">
           <p class="sym-kicker">꿈풀이</p>
           <div class="sym-hero__main">
@@ -44,49 +45,62 @@
             <div class="sym-tags"><span class="badge">좋은 꿈 쪽</span><span class="badge">재물운</span><span class="badge">연애운</span><span class="badge">일운</span><span class="badge">태몽 속설</span></div>
           </div>
         </div>
-        <div class="cta-paper"><p>내 뱀꿈의 장소·사건·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p1=snake">🐍 뱀 넣고 4칸으로 풀기</a></div>
+        <div class="cta-tab"><p>장소·사건·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
+          <a class="talisman" href="../../?p1=snake"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">뱀 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
 
-        <section class="sym-sec">
-          <h2>전통 해몽으로 본 뱀꿈</h2>
-          <p>뱀은 전통 해몽에서 재물과 귀한 인연, 그리고 태몽을 뜻하는 대표적인 길한 동물이에요. 크고 빛깔이 선명한 뱀일수록 큰 재물이나 좋은 소식이 들어온다고 풀어요. 다만 뱀이 노려보며 위협만 했다면 주변 사람과의 신경전을 조심하라는 뜻으로 보기도 해요.</p>
+        <section class="book__sec">
+          <h2><span class="bk">풀이</span>전통 해몽 속 뱀꿈</h2>
+          <p>뱀은 전통 해몽에서 재물과 귀한 인연, 그리고 태몽을 뜻하는 대표적인 길한 동물이에요.</p><p>크고 빛깔이 선명한 뱀일수록 큰 재물이나 좋은 소식이 들어온다고 풀어요.</p><p>다만 뱀이 노려보며 위협만 했다면 주변 사람과의 신경전을 조심하라는 뜻으로 보기도 해요.</p>
         </section>
 
-        <section class="sym-sec"><h2>상황별 뱀꿈 해몽</h2><div class="variant"><h3>뱀이 집이나 품으로 들어오는 꿈 <span class="mini-seal">대길몽</span></h3><p>뱀이 집 안이나 품으로 들어오는 꿈은 재물과 귀한 인연이 내게 머문다는 대길몽이에요. 태몽으로도 아주 유명한 장면이에요.</p><a href="../../?p1=snake&p2=unknown&p3=coming-in&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>뱀에게 물리는 꿈 <span class="mini-seal">대길몽</span></h3><p>뱀에게 물리는 꿈은 아픈 장면과 달리 재물이나 태몽 같은 큰 복이 내 몸에 단단히 붙는다는 길몽으로 풀어요. 세게 물릴수록 기운이 크다고 봐요.</p><a href="../../?p1=snake&p2=unknown&p3=bitten&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>뱀에게 쫓기는 꿈 <span class="mini-seal">길몽</span></h3><p>뱀에게 쫓기는 꿈은 재물이나 기회가 나를 따라온다고 보기도 하지만, 쫓기며 무서웠다면 다가오는 기회를 부담으로 느끼고 있다는 뜻이에요.</p><a href="../../?p1=snake&p2=unknown&p3=chased&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>뱀을 죽이는 꿈 <span class="mini-seal">길몽</span></h3><p>뱀을 죽이는 꿈은 다가온 재물이나 인연을 스스로 밀어낸다고 보는 풀이가 있어요. 다만 위협하던 뱀을 물리쳤다면 골치 아픈 문제를 해결한다는 뜻으로 보기도 해요.</p><a href="../../?p1=snake&p2=unknown&p3=dying&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div></section>
+        <section class="book__sec">
+          <h2><span class="bk">예</span>뱀 · 집 · 들어옴 · 기쁨</h2>
+          <p class="book__note">점수 = 등장 + 장소×0.5 + 사건×0.7 + 맞는 조합(두 번째는 절반) + 기분</p>
+          <table class="ptable ptable--ex"><caption class="sr-only">뱀 · 집 · 들어옴 · 기쁨 꿈 점수 풀이</caption>
+          <thead><tr><th scope="col">칸</th><th scope="col">고른 것</th><th scope="col">점수</th></tr></thead>
+          <tbody><tr><th scope="row">등장</th><td>🐍 뱀</td><td class="num pos">+1</td></tr><tr><th scope="row">장소</th><td>🏠 집<small>× 0.5</small></td><td class="num pos">+0.25</td></tr><tr><th scope="row">사건</th><td>🚪 들어옴<small>× 0.7</small></td><td class="num pos">+1.4</td></tr><tr><th scope="row">조합</th><td>뱀이 집이나 품으로 들어오는 꿈</td><td class="num pos">+2</td></tr><tr><th scope="row">기분</th><td>😊 기쁨</td><td class="num pos">+1.5</td></tr><tr class="is-sum"><th scope="row">합계</th><td>🌕 대길몽</td><td class="num">+6.2</td></tr></tbody></table>
+          <div class="ex-result"><span class="seal-big" aria-hidden="true">大吉</span><p><b>대길몽</b> · 재물운 ▲. 좋은 기운이 크게 들어오는 꿈이에요</p></div>
+          <p class="book__note"><a href="../../?p1=snake&p2=home&p3=coming-in&p4=joy">이 네 칸 그대로 풀어 보기 →</a></p>
+        </section>
 
-        <section class="sym-sec">
-          <h2>어디서 꾼 뱀꿈인가요?</h2>
-          <table class="ptable"><thead><tr><th>장소</th><th>두드러진 운</th><th>등급</th></tr></thead>
+        <section class="book__sec"><h2><span class="bk">장면</span>상황별 뱀꿈</h2><div class="variant"><h3>뱀이 집이나 품으로 들어오는 꿈 <span class="mini-seal">대길몽</span></h3><p>뱀이 집 안이나 품으로 들어오는 꿈은 재물과 귀한 인연이 내게 머문다는 대길몽이에요. 태몽으로도 아주 유명한 장면이에요.</p><a href="../../?p1=snake&p2=unknown&p3=coming-in&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>뱀에게 물리는 꿈 <span class="mini-seal">대길몽</span></h3><p>뱀에게 물리는 꿈은 아픈 장면과 달리 재물이나 태몽 같은 큰 복이 내 몸에 단단히 붙는다는 길몽으로 풀어요. 세게 물릴수록 기운이 크다고 봐요.</p><a href="../../?p1=snake&p2=unknown&p3=bitten&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>뱀에게 쫓기는 꿈 <span class="mini-seal">길몽</span></h3><p>뱀에게 쫓기는 꿈은 재물이나 기회가 나를 따라온다고 보기도 하지만, 쫓기며 무서웠다면 다가오는 기회를 부담으로 느끼고 있다는 뜻이에요.</p><a href="../../?p1=snake&p2=unknown&p3=chased&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>뱀을 죽이는 꿈 <span class="mini-seal">길몽</span></h3><p>뱀을 죽이는 꿈은 다가온 재물이나 인연을 스스로 밀어낸다고 보는 풀이가 있어요. 다만 위협하던 뱀을 물리쳤다면 골치 아픈 문제를 해결한다는 뜻으로 보기도 해요.</p><a href="../../?p1=snake&p2=unknown&p3=dying&p4=calm">이 장면으로 풀어 보기 →</a></div></section>
+
+        <section class="book__sec">
+          <h2><span class="bk">장소</span>어디서 꾼 뱀꿈</h2>
+          <table class="ptable"><thead><tr><th scope="col">장소</th><th scope="col">두드러진 운</th><th scope="col">등급</th></tr></thead>
           <tbody><tr><td>🏠 집</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🏫 학교</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🏢 회사</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🌊 바다·강</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>⛰️ 산</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🛣️ 길·도로</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🚽 화장실</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>☁️ 하늘</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🌫️ 낯선 곳</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🏥 병원</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🗼 높은 곳</td><td>재물운 ▲</td><td>길몽</td></tr><tr><td>🫧 물 속</td><td>재물운 ▲</td><td>길몽</td></tr></tbody></table>
-          <p class="blk__note">특별한 일 없이 보기만 했고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
+          <p class="book__note">특별한 일 없이 보기만 했고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
         </section>
 
-        <section class="sym-sec">
-          <h2>뱀꿈, 기분에 따라 달라져요</h2>
-          <p>같은 꿈이라도 꿈속 기분에 따라 풀이가 크게 달라져요.</p>
-          <div class="variant"><h3>😊 꿈속에서 기뻤다면 <span class="mini-seal">길몽</span></h3><p>꿈속에서 기뻤다면 좋은 기운을 온전히 받아들였다는 뜻이라, 전통 해몽에서는 길한 뜻을 한층 크게 봐요.</p></div><div class="variant"><h3>😌 꿈속에서 평온했다면 <span class="mini-seal">길몽</span></h3><p>꿈속 마음이 평온했다면 흐름이 순조롭다는 뜻으로, 좋은 기운이 차분하게 오래 머문다고 풀어요.</p></div><div class="variant"><h3>🥰 꿈속에서 설렜다면 <span class="mini-seal">길몽</span></h3><p>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</p></div><div class="variant"><h3>😟 꿈속에서 불안했다면 <span class="mini-seal">평몽</span></h3><p>꿈에서 불안했다면 좋은 상징이라도 기운이 덜 온전하게 들어온다고 보고, 요즘 마음에 걸린 일이 있다는 신호로 풀어요.</p></div><div class="variant"><h3>😱 꿈속에서 무서웠다면 <span class="mini-seal">평몽</span></h3><p>무서웠다면 꿈이 실제 일을 예고한다기보다 쌓인 긴장과 피로를 비춰 주는 경우가 많아요. 몸과 마음을 먼저 쉬게 해 주세요.</p></div><div class="variant"><h3>😢 꿈속에서 슬펐다면 <span class="mini-seal">평몽</span></h3><p>슬펐던 꿈은 마음속 서운함을 흘려보내는 꿈으로도 풀어요. 꿈에서 울면 현실에서 웃을 일이 생긴다는 반대 속설도 있어요.</p></div>
+        <section class="book__sec">
+          <h2><span class="bk">기분</span>꿈속 기분별 뱀꿈</h2>
+          <table class="ptable ptable--mood"><caption class="sr-only">뱀꿈 꿈속 기분별 등급</caption>
+          <thead><tr><th scope="col">꿈속 기분</th><th scope="col">점수</th><th scope="col">등급</th></tr></thead>
+          <tbody><tr><th scope="row">😊 기쁨<small>꿈속에서 기뻤다면 좋은 기운을 온전히 받아들였다는 뜻이라, 전통 해몽에서는 길한 뜻을 한층 크게 봐요.</small></th><td class="num">+2.5</td><td>🌔 길몽</td></tr><tr><th scope="row">😌 평온<small>꿈속 마음이 평온했다면 흐름이 순조롭다는 뜻으로, 좋은 기운이 차분하게 오래 머문다고 풀어요.</small></th><td class="num">+2</td><td>🌔 길몽</td></tr><tr><th scope="row">🥰 설렘<small>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</small></th><td class="num">+2</td><td>🌔 길몽</td></tr><tr><th scope="row">😟 불안<small>꿈에서 불안했다면 좋은 상징이라도 기운이 덜 온전하게 들어온다고 보고, 요즘 마음에 걸린 일이 있다는 신호로 풀어요.</small></th><td class="num">0</td><td>🌓 평몽</td></tr><tr><th scope="row">😱 공포<small>무서웠다면 꿈이 실제 일을 예고한다기보다 쌓인 긴장과 피로를 비춰 주는 경우가 많아요.</small></th><td class="num">−0.5</td><td>🌓 평몽</td></tr><tr><th scope="row">😢 슬픔<small>슬펐던 꿈은 마음속 서운함을 흘려보내는 꿈으로도 풀어요.</small></th><td class="num">+0.5</td><td>🌓 평몽</td></tr></tbody></table>
         </section>
 
-        <section class="sym-sec"><h2>뱀꿈 태몽 속설</h2><p>크고 힘센 뱀이나 구렁이는 아들, 작고 예쁜 뱀은 딸 태몽이라는 속설이 있어요.</p><p>뱀이 품으로 들어오는 꿈은 대표적인 태몽 속설이에요.</p><p>뱀에게 물리는 꿈은 태몽 속설로도 자주 등장해요.</p>
-          <p class="blk__note">태몽 속설은 아이의 성별이나 앞날을 맞히는 근거가 없어요. 재미로만 봐 주세요.</p></section>
+        <section class="book__sec"><h2><span class="bk">태몽</span>뱀꿈 태몽 속설</h2><p>크고 힘센 뱀이나 구렁이는 아들, 작고 예쁜 뱀은 딸 태몽이라는 속설이 있어요.</p><p>뱀이 품으로 들어오는 꿈은 대표적인 태몽 속설이에요.</p><p>뱀에게 물리는 꿈은 태몽 속설로도 자주 등장해요.</p>
+          <p class="book__note">태몽 속설은 아이의 성별이나 앞날을 맞히는 근거가 없어요. 재미로만 봐 주세요.</p></section>
 
-        <section class="sym-sec sym-faq">
-          <h2>뱀꿈 자주 묻는 질문</h2>
+        <section class="book__sec book__faq">
+          <h2><span class="bk">문답</span>뱀꿈 문답</h2>
           <details><summary>뱀꿈은 길몽인가요, 흉몽인가요?</summary><p>대체로 좋은 꿈으로 풀어요. 뱀은 전통 해몽에서 재물과 귀한 인연, 그리고 태몽을 뜻하는 대표적인 길한 동물이에요. 꿈속 상황과 기분에 따라 풀이가 달라질 수 있어요.</p></details><details><summary>뱀꿈도 태몽인가요?</summary><p>크고 힘센 뱀이나 구렁이는 아들, 작고 예쁜 뱀은 딸 태몽이라는 속설이 있어요. 뱀이 품으로 들어오는 꿈은 대표적인 태몽 속설이에요. 뱀에게 물리는 꿈은 태몽 속설로도 자주 등장해요. 어디까지나 전해 오는 속설이라 아이의 성별이나 앞날을 맞히는 근거는 없어요.</p></details><details><summary>뱀꿈을 꾸면 로또를 사야 하나요?</summary><p>뱀꿈의 재물 기운은 강한 편이라고 풀어요. 꿈 사주에서는 4칸 조합과 날짜로 ‘꿈 기운 번호’ 6개를 재미로 뽑아 드리지만, 어떤 번호든 당첨 확률은 똑같아요.</p></details><details><summary>뱀꿈에서 꿈속 기분이 왜 중요한가요?</summary><p>전통 해몽에서는 꿈속 기분을 크게 봐요. 꿈 사주 풀이 기준으로 같은 뱀꿈라도 기뻤다면 길몽, 무서웠다면 평몽으로 등급이 달라져요.</p></details>
         </section>
 
-        <section class="sym-sec"><h2>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../coming-in/"><span aria-hidden="true">🚪</span> 들어오는 꿈 해몽</a></li><li><a href="../bitten/"><span aria-hidden="true">🩹</span> 물리는 꿈 해몽</a></li><li><a href="../chased/"><span aria-hidden="true">🏃</span> 쫓기는 꿈 해몽</a></li><li><a href="../dying/"><span aria-hidden="true">🦋</span> 죽는 꿈 해몽</a></li><li><a href="../fighting/"><span aria-hidden="true">🥊</span> 싸우는 꿈 해몽</a></li><li><a href="../pig/"><span aria-hidden="true">🐷</span> 돼지꿈 해몽</a></li><li><a href="../fish/"><span aria-hidden="true">🐟</span> 물고기 꿈 해몽</a></li><li><a href="../poop/"><span aria-hidden="true">💩</span> 똥꿈 해몽</a></li><li><a href="../money/"><span aria-hidden="true">💰</span> 돈 꿈 해몽</a></li><li><a href="../fire/"><span aria-hidden="true">🔥</span> 불 꿈 해몽</a></li></ul></section>
+        <section class="book__sec"><h2><span class="bk">이웃</span>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../coming-in/"><span aria-hidden="true">🚪</span> 들어오는 꿈 해몽</a></li><li><a href="../bitten/"><span aria-hidden="true">🩹</span> 물리는 꿈 해몽</a></li><li><a href="../chased/"><span aria-hidden="true">🏃</span> 쫓기는 꿈 해몽</a></li><li><a href="../dying/"><span aria-hidden="true">🦋</span> 죽는 꿈 해몽</a></li><li><a href="../fighting/"><span aria-hidden="true">🥊</span> 싸우는 꿈 해몽</a></li><li><a href="../pig/"><span aria-hidden="true">🐷</span> 돼지꿈 해몽</a></li><li><a href="../fish/"><span aria-hidden="true">🐟</span> 물고기 꿈 해몽</a></li><li><a href="../poop/"><span aria-hidden="true">💩</span> 똥꿈 해몽</a></li><li><a href="../money/"><span aria-hidden="true">💰</span> 돈 꿈 해몽</a></li><li><a href="../fire/"><span aria-hidden="true">🔥</span> 불 꿈 해몽</a></li></ul></section>
 
-        <div class="cta-paper"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p1=snake">🐍 뱀 넣고 4칸으로 풀기</a></div>
-        <p class="t-center"><a class="btn btn--ghost" href="../">꿈해몽 사전 전체 보기</a></p>
+        <div class="cta-tab"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
+          <a class="talisman" href="../../?p1=snake"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">뱀 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
+        <p class="t-center"><a class="brush-link" href="../">꿈해몽 사전 전체 보기</a></p>
       </article>
       <nav id="more" aria-label="다른 놀이"></nav>
       <footer class="site-footer">재미로 보는 해몽이에요. 전통 해몽 속설을 바탕으로 풀었고, 실제 일을 예언하지 않아요.</footer>
     </main>
     <script type="module">
-      import { renderMoreSites } from "../../../shared/kit.js";
-      renderMoreSites(document.getElementById("more"), "dream-saju", { base: "../../../" });
+      import { renderCrumb, renderMoreSites } from "../../../shared/kit.js";
+      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 경로·추천을 단다
+      renderCrumb(document.getElementById("crumb"), "dream-saju");
+      renderMoreSites(document.getElementById("more"), "dream-saju");
     </script>
   </body>
 </html>

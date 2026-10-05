@@ -28,13 +28,14 @@
   <body>
     <svg class="ink-defs" aria-hidden="true" focusable="false"><filter id="ink-rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
     <main class="app">
+      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="../../"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <a class="btn btn--ghost btn--sm" href="../../">4칸으로 꿈 풀기</a>
       </header>
 
-      <p class="crumbs"><a href="../../">꿈 사주</a> › <a href="../">꿈해몽 사전</a> › 이사하는 꿈</p>
-      <article>
+      <article class="book">
+        <p class="book__vol"><a href="../">꿈해몽 사전</a><span>이사하는 꿈</span></p>
         <div class="sym-hero">
           <p class="sym-kicker">꿈풀이</p>
           <div class="sym-hero__main">
@@ -44,48 +45,61 @@
             <div class="sym-tags"><span class="badge">좋은 꿈 쪽</span><span class="badge">재물운</span><span class="badge">일운</span></div>
           </div>
         </div>
-        <div class="cta-paper"><p>내 이사하는 꿈의 등장·장소·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p3=moving">📦 이사 넣고 4칸으로 풀기</a></div>
+        <div class="cta-tab"><p>등장·장소·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
+          <a class="talisman" href="../../?p3=moving"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">이사 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
 
-        <section class="sym-sec">
-          <h2>전통 해몽으로 본 이사하는 꿈</h2>
-          <p>이사하는 꿈은 환경이 바뀌거나 새로운 단계로 넘어가는 변화를 뜻해요. 넓고 밝은 집으로 옮겼다면 운이 트인다고 풀고, 어수선한 이사였다면 변화를 앞두고 마음이 바쁘다는 뜻이에요.</p>
+        <section class="book__sec">
+          <h2><span class="bk">풀이</span>전통 해몽 속 이사하는 꿈</h2>
+          <p>이사하는 꿈은 환경이 바뀌거나 새로운 단계로 넘어가는 변화를 뜻해요.</p><p>넓고 밝은 집으로 옮겼다면 운이 트인다고 풀고, 어수선한 이사였다면 변화를 앞두고 마음이 바쁘다는 뜻이에요.</p>
         </section>
 
-        <section class="sym-sec"><h2>상황별 이사하는 꿈 해몽</h2><div class="variant"><h3>새 집으로 이사하는 꿈 <span class="mini-seal">대길몽</span></h3><p>넓고 밝은 새 집으로 옮기는 꿈은 살림과 운이 함께 넓어진다는 길몽이에요.</p><a href="../../?p1=house&p2=unknown&p3=moving&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>낯선 곳으로 이사하는 꿈 <span class="mini-seal">길몽</span></h3><p>낯선 곳으로 이사하는 꿈은 새 환경에 대한 기대와 걱정이 함께 있다는 뜻이에요. 변화를 차근차근 준비하면 좋아요.</p><a href="../../?p2=strange&p3=moving&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div></section>
+        <section class="book__sec">
+          <h2><span class="bk">예</span>새 집 · 집 · 이사 · 기쁨</h2>
+          <p class="book__note">점수 = 등장 + 장소×0.5 + 사건×0.7 + 맞는 조합(두 번째는 절반) + 기분</p>
+          <table class="ptable ptable--ex"><caption class="sr-only">새 집 · 집 · 이사 · 기쁨 꿈 점수 풀이</caption>
+          <thead><tr><th scope="col">칸</th><th scope="col">고른 것</th><th scope="col">점수</th></tr></thead>
+          <tbody><tr><th scope="row">등장</th><td>🏡 새 집</td><td class="num pos">+1</td></tr><tr><th scope="row">장소</th><td>🏠 집<small>× 0.5</small></td><td class="num pos">+0.25</td></tr><tr><th scope="row">사건</th><td>📦 이사<small>× 0.7</small></td><td class="num pos">+0.7</td></tr><tr><th scope="row">조합</th><td>새 집으로 이사하는 꿈</td><td class="num pos">+2</td></tr><tr><th scope="row">기분</th><td>😊 기쁨</td><td class="num pos">+1.5</td></tr><tr class="is-sum"><th scope="row">합계</th><td>🌕 대길몽</td><td class="num">+5.5</td></tr></tbody></table>
+          <div class="ex-result"><span class="seal-big" aria-hidden="true">大吉</span><p><b>대길몽</b> · 재물운 ▲. 좋은 기운이 크게 들어오는 꿈이에요</p></div>
+          <p class="book__note"><a href="../../?p1=house&p2=home&p3=moving&p4=joy">이 네 칸 그대로 풀어 보기 →</a></p>
+        </section>
 
-        <section class="sym-sec">
-          <h2>무엇이 나온 이사하는 꿈인가요?</h2>
-          <table class="ptable"><thead><tr><th>등장</th><th>두드러진 운</th><th>등급</th></tr></thead>
+        <section class="book__sec"><h2><span class="bk">장면</span>상황별 이사하는 꿈</h2><div class="variant"><h3>새 집으로 이사하는 꿈 <span class="mini-seal">대길몽</span></h3><p>넓고 밝은 새 집으로 옮기는 꿈은 살림과 운이 함께 넓어진다는 길몽이에요.</p><a href="../../?p1=house&p2=unknown&p3=moving&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>낯선 곳으로 이사하는 꿈 <span class="mini-seal">길몽</span></h3><p>낯선 곳으로 이사하는 꿈은 새 환경에 대한 기대와 걱정이 함께 있다는 뜻이에요. 변화를 차근차근 준비하면 좋아요.</p><a href="../../?p2=strange&p3=moving&p4=calm">이 장면으로 풀어 보기 →</a></div></section>
+
+        <section class="book__sec">
+          <h2><span class="bk">등장</span>무엇이 나온 이사하는 꿈</h2>
+          <table class="ptable"><thead><tr><th scope="col">등장</th><th scope="col">두드러진 운</th><th scope="col">등급</th></tr></thead>
           <tbody><tr><td><a href="../house/">🏡 새 집</a></td><td>재물운 ▲</td><td>대길몽</td></tr><tr><td><a href="../snake/">🐍 뱀</a></td><td>재물운 ▲</td><td>길몽</td></tr><tr><td><a href="../tiger/">🐯 호랑이</a></td><td>일운 ▲</td><td>길몽</td></tr><tr><td><a href="../fish/">🐟 물고기</a></td><td>재물운 ▲</td><td>길몽</td></tr><tr><td><a href="../poop/">💩 똥</a></td><td>재물운 ▲</td><td>길몽</td></tr><tr><td><a href="../fire/">🔥 불</a></td><td>재물운 ▲</td><td>길몽</td></tr><tr><td><a href="../baby/">👶 아기</a></td><td>건강운 ▲</td><td>길몽</td></tr><tr><td><a href="../ex/">💔 옛 연인</a></td><td>연애운 ▲</td><td>길몽</td></tr><tr><td><a href="../vip/">👑 높은 분</a></td><td>일운 ▲</td><td>길몽</td></tr><tr><td><a href="../gold-ring/">💍 금반지</a></td><td>재물운 ▲</td><td>길몽</td></tr><tr><td><a href="../cow/">🐮 소</a></td><td>재물운 ▲</td><td>길몽</td></tr></tbody></table>
-          <p class="blk__note">장소는 빼고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
+          <p class="book__note">장소는 빼고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
         </section>
 
-        <section class="sym-sec">
-          <h2>이사하는 꿈, 기분에 따라 달라져요</h2>
-          <p>같은 꿈이라도 꿈속 기분에 따라 풀이가 크게 달라져요.</p>
-          <div class="variant"><h3>😊 꿈속에서 기뻤다면 <span class="mini-seal">길몽</span></h3><p>꿈속에서 기뻤다면 좋은 기운을 온전히 받아들였다는 뜻이라, 전통 해몽에서는 길한 뜻을 한층 크게 봐요.</p></div><div class="variant"><h3>😌 꿈속에서 평온했다면 <span class="mini-seal">길몽</span></h3><p>꿈속 마음이 평온했다면 흐름이 순조롭다는 뜻으로, 좋은 기운이 차분하게 오래 머문다고 풀어요.</p></div><div class="variant"><h3>🥰 꿈속에서 설렜다면 <span class="mini-seal">길몽</span></h3><p>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</p></div><div class="variant"><h3>😟 꿈속에서 불안했다면 <span class="mini-seal">평몽</span></h3><p>꿈에서 불안했다면 좋은 상징이라도 기운이 덜 온전하게 들어온다고 보고, 요즘 마음에 걸린 일이 있다는 신호로 풀어요.</p></div><div class="variant"><h3>😱 꿈속에서 무서웠다면 <span class="mini-seal">평몽</span></h3><p>무서웠다면 꿈이 실제 일을 예고한다기보다 쌓인 긴장과 피로를 비춰 주는 경우가 많아요. 몸과 마음을 먼저 쉬게 해 주세요.</p></div><div class="variant"><h3>😢 꿈속에서 슬펐다면 <span class="mini-seal">평몽</span></h3><p>슬펐던 꿈은 마음속 서운함을 흘려보내는 꿈으로도 풀어요. 꿈에서 울면 현실에서 웃을 일이 생긴다는 반대 속설도 있어요.</p></div>
+        <section class="book__sec">
+          <h2><span class="bk">기분</span>꿈속 기분별 이사하는 꿈</h2>
+          <table class="ptable ptable--mood"><caption class="sr-only">이사하는 꿈 꿈속 기분별 등급</caption>
+          <thead><tr><th scope="col">꿈속 기분</th><th scope="col">점수</th><th scope="col">등급</th></tr></thead>
+          <tbody><tr><th scope="row">😊 기쁨<small>꿈속에서 기뻤다면 좋은 기운을 온전히 받아들였다는 뜻이라, 전통 해몽에서는 길한 뜻을 한층 크게 봐요.</small></th><td class="num">+2.2</td><td>🌔 길몽</td></tr><tr><th scope="row">😌 평온<small>꿈속 마음이 평온했다면 흐름이 순조롭다는 뜻으로, 좋은 기운이 차분하게 오래 머문다고 풀어요.</small></th><td class="num">+1.7</td><td>🌔 길몽</td></tr><tr><th scope="row">🥰 설렘<small>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</small></th><td class="num">+1.7</td><td>🌔 길몽</td></tr><tr><th scope="row">😟 불안<small>꿈에서 불안했다면 좋은 상징이라도 기운이 덜 온전하게 들어온다고 보고, 요즘 마음에 걸린 일이 있다는 신호로 풀어요.</small></th><td class="num">−0.3</td><td>🌓 평몽</td></tr><tr><th scope="row">😱 공포<small>무서웠다면 꿈이 실제 일을 예고한다기보다 쌓인 긴장과 피로를 비춰 주는 경우가 많아요.</small></th><td class="num">−0.8</td><td>🌓 평몽</td></tr><tr><th scope="row">😢 슬픔<small>슬펐던 꿈은 마음속 서운함을 흘려보내는 꿈으로도 풀어요.</small></th><td class="num">+0.2</td><td>🌓 평몽</td></tr></tbody></table>
         </section>
 
         
 
-        <section class="sym-sec sym-faq">
-          <h2>이사하는 꿈 자주 묻는 질문</h2>
+        <section class="book__sec book__faq">
+          <h2><span class="bk">문답</span>이사하는 꿈 문답</h2>
           <details><summary>이사하는 꿈은 길몽인가요, 흉몽인가요?</summary><p>대체로 좋은 꿈으로 풀어요. 이사하는 꿈은 환경이 바뀌거나 새로운 단계로 넘어가는 변화를 뜻해요. 꿈속 상황과 기분에 따라 풀이가 달라질 수 있어요.</p></details><details><summary>이사하는 꿈을 꾸면 로또를 사야 하나요?</summary><p>이사하는 꿈의 재물 기운은 있는 편이라고 풀어요. 꿈 사주에서는 4칸 조합과 날짜로 ‘꿈 기운 번호’ 6개를 재미로 뽑아 드리지만, 어떤 번호든 당첨 확률은 똑같아요.</p></details><details><summary>이사하는 꿈에서 꿈속 기분이 왜 중요한가요?</summary><p>전통 해몽에서는 꿈속 기분을 크게 봐요. 꿈 사주 풀이 기준으로 같은 이사하는 꿈라도 기뻤다면 길몽, 무서웠다면 평몽으로 등급이 달라져요.</p></details>
         </section>
 
-        <section class="sym-sec"><h2>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../house/"><span aria-hidden="true">🏡</span> 집 꿈 해몽</a></li><li><a href="../eating/"><span aria-hidden="true">🍚</span> 먹는 꿈 해몽</a></li><li><a href="../dying/"><span aria-hidden="true">🦋</span> 죽는 꿈 해몽</a></li><li><a href="../receiving/"><span aria-hidden="true">🎁</span> 선물 받는 꿈 해몽</a></li><li><a href="../bitten/"><span aria-hidden="true">🩹</span> 물리는 꿈 해몽</a></li><li><a href="../burning/"><span aria-hidden="true">🚒</span> 불나는 꿈 해몽</a></li><li><a href="../flood/"><span aria-hidden="true">🌧️</span> 홍수 꿈 해몽</a></li><li><a href="../picking-up/"><span aria-hidden="true">🪙</span> 줍는 꿈 해몽</a></li><li><a href="../touching/"><span aria-hidden="true">✋</span> 밟는 꿈 해몽</a></li><li><a href="../coming-in/"><span aria-hidden="true">🚪</span> 들어오는 꿈 해몽</a></li></ul></section>
+        <section class="book__sec"><h2><span class="bk">이웃</span>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../house/"><span aria-hidden="true">🏡</span> 집 꿈 해몽</a></li><li><a href="../eating/"><span aria-hidden="true">🍚</span> 먹는 꿈 해몽</a></li><li><a href="../dying/"><span aria-hidden="true">🦋</span> 죽는 꿈 해몽</a></li><li><a href="../receiving/"><span aria-hidden="true">🎁</span> 선물 받는 꿈 해몽</a></li><li><a href="../bitten/"><span aria-hidden="true">🩹</span> 물리는 꿈 해몽</a></li><li><a href="../burning/"><span aria-hidden="true">🚒</span> 불나는 꿈 해몽</a></li><li><a href="../flood/"><span aria-hidden="true">🌧️</span> 홍수 꿈 해몽</a></li><li><a href="../picking-up/"><span aria-hidden="true">🪙</span> 줍는 꿈 해몽</a></li><li><a href="../touching/"><span aria-hidden="true">✋</span> 밟는 꿈 해몽</a></li><li><a href="../coming-in/"><span aria-hidden="true">🚪</span> 들어오는 꿈 해몽</a></li></ul></section>
 
-        <div class="cta-paper"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p3=moving">📦 이사 넣고 4칸으로 풀기</a></div>
-        <p class="t-center"><a class="btn btn--ghost" href="../">꿈해몽 사전 전체 보기</a></p>
+        <div class="cta-tab"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
+          <a class="talisman" href="../../?p3=moving"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">이사 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
+        <p class="t-center"><a class="brush-link" href="../">꿈해몽 사전 전체 보기</a></p>
       </article>
       <nav id="more" aria-label="다른 놀이"></nav>
       <footer class="site-footer">재미로 보는 해몽이에요. 전통 해몽 속설을 바탕으로 풀었고, 실제 일을 예언하지 않아요.</footer>
     </main>
     <script type="module">
-      import { renderMoreSites } from "../../../shared/kit.js";
-      renderMoreSites(document.getElementById("more"), "dream-saju", { base: "../../../" });
+      import { renderCrumb, renderMoreSites } from "../../../shared/kit.js";
+      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 경로·추천을 단다
+      renderCrumb(document.getElementById("crumb"), "dream-saju");
+      renderMoreSites(document.getElementById("more"), "dream-saju");
     </script>
   </body>
 </html>

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>탑 쌓기 게임 | 스택 게임 - 크레인으로 블록 쌓기, 몇 층까지 올라갈까</title>
+    <meta
+      name="description"
+      content="탑 쌓기 게임(스택 게임). 크레인에 매달려 오가는 철골 블록을 타이밍 맞춰 떨어뜨려 쌓는 블록 쌓기 게임이에요. 삐져나온 부분은 잘려 나가고, 딱 맞추면 다시 넓어져요. 내 최고 층수와 탑 실루엣 이미지, 친구에게 도전장까지."
+    />
+    <meta name="keywords" content="탑 쌓기 게임, 스택 게임, 블록 쌓기, 블록 쌓기 게임, 쌓기 게임, 타이밍 게임, stack 게임" />
+    <link rel="canonical" href="https://example.com/stack-tower/" />
+    <meta name="theme-color" content="#1b1916" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/stack-tower/" />
+    <meta property="og:title" content="탑 쌓기 - 크레인으로 몇 층까지 올릴 수 있을까" />
+    <meta property="og:description" content="타이밍 맞춰 철골을 떨어뜨리는 블록 쌓기 게임. 내 기록, 깨볼래요?" />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='22' y='70' width='56' height='16' fill='%23c4512f'/><rect x='28' y='50' width='48' height='16' fill='%23a8432a'/><rect x='30' y='30' width='40' height='16' fill='%23c4512f'/><rect x='0' y='4' width='100' height='10' fill='%23ffc400'/></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "탑 쌓기",
+            "url": "https://example.com/stack-tower/",
+            "description": "크레인에 매달린 블록을 타이밍 맞춰 떨어뜨려 쌓는 스택 게임",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "블록이 왜 점점 좁아지나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "아래 블록 밖으로 삐져나온 부분은 잘려서 떨어져요. 남은 폭이 다음 블록의 폭이 돼요." }
+              },
+              {
+                "@type": "Question",
+                "name": "좁아진 블록을 다시 넓힐 수 있나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "딱 맞추기를 두 번 이상 연달아 하면 한 번에 8씩 다시 넓어져요. 처음 폭 200까지만 넓어져요." }
+              },
+              {
+                "@type": "Question",
+                "name": "기록은 어디에 저장되나요?",
+                "acceptedAnswer": { "@type": "Answer", "text": "지금 쓰는 브라우저에만 저장돼요. 서버로 보내지 않아요." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 크레인이 실제로 쌓는 데모 -->
+      <section class="intro" id="intro" data-view="intro">
+        <h1 class="hero" id="hero" aria-label="떨어뜨려 쌓아 올려요, 탑 쌓기 게임">
+          <span class="hero__row" data-row="2"></span>
+          <span class="hero__row" data-row="1"></span>
+        </h1>
+
+        <div class="site">
+          <canvas class="site__cv" id="demoCv" aria-hidden="true"></canvas>
+          <p class="site__tag">작업중 · 데모</p>
+        </div>
+
+        <div class="control">
+          <div class="dare-note" id="challengeIntro" hidden></div>
+          <button class="lever" id="start" type="button">
+            <span class="lever__slot" aria-hidden="true"><span class="lever__arm"><i class="lever__knob"></i></span></span>
+            <span class="lever__txt"><b>레버 당겨서 시작</b><small id="startSub">탭 한 번에 블록 하나</small></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2) 게임 -->
+      <section class="play" data-view="play" hidden>
+        <div class="stage" id="stage">
+          <canvas class="stage__cv" id="cv"></canvas>
+          <div class="hud">
+            <button class="hud__quit" id="quit" type="button" aria-label="그만하기">철수</button>
+            <p class="hud__floor"><b id="floorNum">0</b><span>층</span></p>
+            <p class="hud__best" id="hudBest"></p>
+          </div>
+          <p class="stage__hint" id="hint">아무 데나 탭하면 떨어져요</p>
+          <button class="pause" id="pause" type="button" hidden><b>작업 중지</b><span>탭하면 다시 시작해요</span></button>
+        </div>
+      </section>
+
+      <!-- 3) 결과 -->
+      <section class="result" data-view="result" hidden>
+        <div id="resultBody"></div>
+      </section>
+
+      <!-- 4) SEO 본문: 현장 안전 수칙 게시판 -->
+      <article class="seo board" id="about">
+        <header class="board__head">
+          <p class="board__k">현장 게시판</p>
+          <h2>탑 쌓기 게임 작업 수칙</h2>
+        </header>
+
+        <section class="board__sec">
+          <h3>작업 순서</h3>
+          <ol class="steps">
+            <li><b>01</b><span>크레인에 매달린 철골이 좌우로 오가요.</span></li>
+            <li><b>02</b><span>화면 아무 데나 탭하면 철골이 떨어져요.</span></li>
+            <li><b>03</b><span>아래 블록 밖으로 삐져나온 부분은 잘려 나가요. 남은 폭이 다음 철골 폭이에요.</span></li>
+            <li><b>04</b><span>완전히 빗나가면 작업 종료. 쌓은 층수가 기록이에요.</span></li>
+          </ol>
+        </section>
+
+        <section class="board__sec">
+          <h3>폭 계산 예시</h3>
+          <table class="calc">
+            <thead><tr><th scope="col">층</th><th scope="col">어긋남</th><th scope="col">남은 폭</th></tr></thead>
+            <tbody>
+              <tr><td>1층</td><td>0 (딱!)</td><td>200</td></tr>
+              <tr><td>2층</td><td>오른쪽 30</td><td>170</td></tr>
+              <tr><td>3층</td><td>왼쪽 12</td><td>158</td></tr>
+              <tr><td>4층</td><td>3 (딱!)</td><td>158</td></tr>
+              <tr><td>5층</td><td>2 (딱! x2)</td><td>166 <em>+8</em></td></tr>
+            </tbody>
+          </table>
+          <p class="board__note">5 이하로 어긋나면 "딱!"으로 쳐서 잘리지 않아요. 딱을 두 번 이상 이어가면 한 번에 8씩, 처음 폭 200까지 다시 넓어져요.</p>
+        </section>
+
+        <section class="board__sec">
+          <h3>안전 수칙</h3>
+          <ul class="rules">
+            <li><b>보고 누르기</b>철골 왼쪽 끝이 아래 블록 왼쪽 끝과 겹치는 순간에 탭해요. 가운데보다 끝을 보는 게 정확해요.</li>
+            <li><b>속도 주의</b>층이 오를수록 빨라져요. 1층에선 한쪽 끝에서 반대쪽까지 2.3초, 30층쯤엔 1초 남짓이에요.</li>
+            <li><b>넓을 때 아끼기</b>폭이 넓은 초반에 딱을 이어가며 폭을 지켜두면 후반이 편해요.</li>
+            <li><b>하늘 보기</b>15층 즈음 노을, 30층부터는 밤이에요. 별이 보이면 꽤 높이 온 거예요.</li>
+          </ul>
+        </section>
+
+        <section class="board__sec">
+          <h3>현장 Q&amp;A</h3>
+          <details>
+            <summary>블록이 왜 점점 좁아지나요?</summary>
+            <p>아래 블록 밖으로 삐져나온 부분은 잘려서 떨어져요. 남은 폭이 다음 블록의 폭이 돼요.</p>
+          </details>
+          <details>
+            <summary>좁아진 블록을 다시 넓힐 수 있나요?</summary>
+            <p>딱 맞추기를 두 번 이상 연달아 하면 한 번에 8씩 다시 넓어져요. 처음 폭 200까지만 넓어져요.</p>
+          </details>
+          <details>
+            <summary>다른 앱을 보다 오면 어떻게 돼요?</summary>
+            <p>화면을 벗어나면 크레인이 멈춰요. 돌아와서 탭하면 멈춘 자리에서 이어서 해요.</p>
+          </details>
+          <details>
+            <summary>기록은 어디에 저장되나요?</summary>
+            <p>지금 쓰는 브라우저에만 저장돼요. 서버로 보내지 않아요. 순위표 없이 내 최고 층수와 친구 도전장만 있어요.</p>
+          </details>
+          <details>
+            <summary>도전장은 어떻게 보내요?</summary>
+            <p>결과 화면에서 "도전장 보내기"를 누르면 링크에 내 이름과 층수가 담겨요. 친구가 열면 "민지의 기록 24층, 깨볼래요?"가 먼저 떠요.</p>
+          </details>
+        </section>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">기록은 이 기기에만 저장돼요.</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

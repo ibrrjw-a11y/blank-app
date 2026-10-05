@@ -45,7 +45,7 @@ export function bootGame(g) {
     tick();
     const s = statusOf(g);
     const label = $("#startLabel");
-    if (s.kind === "done") label.textContent = "오늘 결과 다시 보기";
+    if (s.kind === "done") label.textContent = "오늘 결과 보기";
     else if (s.kind === "doing") label.textContent = "이어서 하기";
   }
 

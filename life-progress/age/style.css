@@ -1,0 +1,52 @@
+/* 만나이 계산기 — 인생 진행률과 같은 스위스 타이포·정보 디자인.
+ * 공통 장르 스타일은 ../style.css, 여기는 이 페이지에만 있는 것. */
+
+.age-brand { margin-bottom: var(--sp-8); }
+
+/* 계산식 도표: 회계 장부처럼 오른쪽 정렬한 큰 숫자 */
+.eq { margin: 0 0 var(--sp-16); }
+.eq__row {
+  display: grid;
+  grid-template-columns: 28px 128px minmax(0, 1fr);
+  align-items: end;
+  gap: var(--sp-8);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--art-hair);
+}
+.eq__op { font: 900 26px/1 var(--art-num); color: var(--color-text-secondary); text-align: center; padding-bottom: var(--sp-4); }
+.eq__n { justify-self: end; font: 900 46px/1 var(--art-num); letter-spacing: -0.05em; --odo-h: 0.9em; }
+.eq__k { padding-bottom: var(--sp-6); font: 700 13px/16px var(--font-display); color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eq__row--sum { border-top: 2px solid var(--art-white); border-bottom: 0; margin-top: var(--sp-2); }
+.eq__row--sum .eq__n { font-size: 64px; color: var(--brand); }
+.eq__row--sum .eq__op,
+.eq__row--sum .eq__k { color: var(--art-white); }
+.eq__row { clip-path: inset(0 100% 0 0); animation: wipe 560ms var(--ease-out) both; }
+.eq__row:nth-child(2) { animation-delay: 120ms; }
+.eq__row:nth-child(3) { animation-delay: 240ms; }
+.eq__row:nth-child(4) { animation-delay: 420ms; }
+.eq__cap { padding-top: var(--sp-8); font: var(--caption-01); color: var(--color-text-secondary); }
+.eq__cap b { margin-right: var(--sp-6); font: 800 11px/1 var(--art-num); letter-spacing: 0.1em; color: var(--art-white); }
+.eq.is-mine .eq__cap b { color: var(--brand); }
+
+/* 입력 */
+.age-form { display: flex; flex-direction: column; gap: var(--sp-12); padding-bottom: var(--sp-24); }
+.asof-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-8); }
+.asof-row__k { font: 600 11px/14px var(--art-num); letter-spacing: 0.14em; color: var(--color-text-secondary); }
+.asof-row__in { min-height: var(--tap-min); color-scheme: dark; font: 700 16px/1 var(--art-num); }
+.age-form .idx-btn { margin-top: var(--sp-8); }
+.age-form .idx-btn__tab { font-family: var(--font-display); font-size: 40px; line-height: 0.9; }
+
+/* 결과 */
+.age-result { padding-bottom: var(--sp-24); border-top: 1px solid var(--art-white); scroll-margin-top: var(--sp-8); }
+.age-result .giant { margin-top: var(--sp-16); }
+.age-share { margin-top: var(--sp-20); }
+.idx-link__sub { display: block; margin-top: var(--sp-2); font: 600 11px/14px var(--art-num); letter-spacing: 0.02em; color: var(--color-text-secondary); }
+.idx-link > span:last-child { padding: var(--sp-8) 0; }
+
+/* 표 열 폭 */
+.data--age td.data__how { text-align: left; }
+.data--use td { color: var(--brand); font-family: var(--font-display); font-weight: 800; font-size: 14px; }
+.data--use th { font-weight: 400; color: var(--color-text-secondary); white-space: normal; }
+.data--ex th { font-family: var(--art-num); font-weight: 800; letter-spacing: -0.02em; }
+.data--ex td:last-child { color: var(--brand); }
+.report__note { border-top: 0; padding-top: var(--sp-10); }

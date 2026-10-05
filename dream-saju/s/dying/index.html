@@ -28,13 +28,14 @@
   <body>
     <svg class="ink-defs" aria-hidden="true" focusable="false"><filter id="ink-rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
     <main class="app">
+      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="../../"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <a class="btn btn--ghost btn--sm" href="../../">4칸으로 꿈 풀기</a>
       </header>
 
-      <p class="crumbs"><a href="../../">꿈 사주</a> › <a href="../">꿈해몽 사전</a> › 죽는 꿈</p>
-      <article>
+      <article class="book">
+        <p class="book__vol"><a href="../">꿈해몽 사전</a><span>죽는 꿈</span></p>
         <div class="sym-hero">
           <p class="sym-kicker">꿈풀이</p>
           <div class="sym-hero__main">
@@ -44,48 +45,61 @@
             <div class="sym-tags"><span class="badge">길몽 성향</span><span class="badge">재물운</span><span class="badge">건강운</span><span class="badge">일운</span></div>
           </div>
         </div>
-        <div class="cta-paper"><p>내 죽는 꿈의 등장·장소·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p3=dying">🦋 죽음 넣고 4칸으로 풀기</a></div>
+        <div class="cta-tab"><p>등장·장소·기분까지 넣으면 등급과 재물·연애·건강 지수가 나와요.</p>
+          <a class="talisman" href="../../?p3=dying"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">죽음 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
 
-        <section class="sym-sec">
-          <h2>전통 해몽으로 본 죽는 꿈</h2>
-          <p>죽는 꿈은 전통 해몽에서 대표적인 반대 꿈이에요. 내가 죽거나 누군가 죽는 꿈은 낡은 것이 끝나고 새로 시작한다는 뜻의 길몽으로 풀어요. 그래서 꿈에서 죽은 사람은 오히려 오래 산다는 속설도 있어요.</p>
+        <section class="book__sec">
+          <h2><span class="bk">풀이</span>전통 해몽 속 죽는 꿈</h2>
+          <p>죽는 꿈은 전통 해몽에서 대표적인 반대 꿈이에요.</p><p>내가 죽거나 누군가 죽는 꿈은 낡은 것이 끝나고 새로 시작한다는 뜻의 길몽으로 풀어요.</p><p>그래서 꿈에서 죽은 사람은 오히려 오래 산다는 속설도 있어요.</p>
         </section>
 
-        <section class="sym-sec"><h2>상황별 죽는 꿈 해몽</h2><div class="variant"><h3>뱀을 죽이는 꿈 <span class="mini-seal">길몽</span></h3><p>뱀을 죽이는 꿈은 다가온 재물이나 인연을 스스로 밀어낸다고 보는 풀이가 있어요. 다만 위협하던 뱀을 물리쳤다면 골치 아픈 문제를 해결한다는 뜻으로 보기도 해요.</p><a href="../../?p1=snake&p2=unknown&p3=dying&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>벌레를 잡는 꿈 <span class="mini-seal">대길몽</span></h3><p>벌레를 잡거나 없애는 꿈은 골치 아픈 걱정거리가 해결된다는 길몽이에요.</p><a href="../../?p1=bug&p2=unknown&p3=dying&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>죽었는데 마음이 편안했던 꿈 <span class="mini-seal">대길몽</span></h3><p>죽는 꿈인데 마음이 편안했다면 묵은 일이 끝나고 새 출발이 시작된다는 대길몽이에요.</p><a href="../../?p2=unknown&p3=dying&p4=joy">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>죽을까 봐 무서웠던 꿈 <span class="mini-seal mini-seal--soft">주의몽</span></h3><p>죽음 앞에서 무서웠다면 길몽이라는 풀이보다 큰 변화를 앞둔 긴장이 먼저 보여요. 변화는 천천히 받아들여도 괜찮아요.</p><a href="../../?p2=unknown&p3=dying&p4=fear">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>가족이 죽어서 우는 꿈 <span class="mini-seal">길몽</span></h3><p>누군가 죽어서 슬피 우는 꿈은 그 사람이 오히려 무탈하다는 반대 꿈으로 풀어요. 오늘 안부 한 통 전해 보세요.</p><a href="../../?p2=unknown&p3=dying&p4=sad">이 장면으로 4칸 풀어 보기 →</a></div><div class="variant"><h3>귀신을 물리치는 꿈 <span class="mini-seal">대길몽</span></h3><p>귀신과 싸워 이기거나 쫓아내는 꿈은 오래된 걱정을 떨쳐 낸다는 길몽이에요.</p><a href="../../?p1=ghost&p2=unknown&p3=dying&p4=calm">이 장면으로 4칸 풀어 보기 →</a></div></section>
+        <section class="book__sec">
+          <h2><span class="bk">예</span>뱀 · 집 · 죽음 · 기쁨</h2>
+          <p class="book__note">점수 = 등장 + 장소×0.5 + 사건×0.7 + 맞는 조합(두 번째는 절반) + 기분</p>
+          <table class="ptable ptable--ex"><caption class="sr-only">뱀 · 집 · 죽음 · 기쁨 꿈 점수 풀이</caption>
+          <thead><tr><th scope="col">칸</th><th scope="col">고른 것</th><th scope="col">점수</th></tr></thead>
+          <tbody><tr><th scope="row">등장</th><td>🐍 뱀</td><td class="num pos">+1</td></tr><tr><th scope="row">장소</th><td>🏠 집<small>× 0.5</small></td><td class="num pos">+0.25</td></tr><tr><th scope="row">사건</th><td>🦋 죽음<small>× 0.7</small></td><td class="num pos">+1.4</td></tr><tr><th scope="row">조합</th><td>뱀을 죽이는 꿈</td><td class="num neg">−2</td></tr><tr><th scope="row">조합</th><td>죽었는데 마음이 편안했던 꿈<small>× 0.5</small></td><td class="num pos">+1</td></tr><tr><th scope="row">기분</th><td>😊 기쁨</td><td class="num pos">+1.5</td></tr><tr class="is-sum"><th scope="row">합계</th><td>🌔 길몽</td><td class="num">+3.2</td></tr></tbody></table>
+          <div class="ex-result"><span class="seal-big" aria-hidden="true">吉</span><p><b>길몽</b> · 일운 ▲. 반가운 일이 다가오는 꿈이에요</p></div>
+          <p class="book__note"><a href="../../?p1=snake&p2=home&p3=dying&p4=joy">이 네 칸 그대로 풀어 보기 →</a></p>
+        </section>
 
-        <section class="sym-sec">
-          <h2>무엇이 나온 죽는 꿈인가요?</h2>
-          <table class="ptable"><thead><tr><th>등장</th><th>두드러진 운</th><th>등급</th></tr></thead>
+        <section class="book__sec"><h2><span class="bk">장면</span>상황별 죽는 꿈</h2><div class="variant"><h3>뱀을 죽이는 꿈 <span class="mini-seal">길몽</span></h3><p>뱀을 죽이는 꿈은 다가온 재물이나 인연을 스스로 밀어낸다고 보는 풀이가 있어요. 다만 위협하던 뱀을 물리쳤다면 골치 아픈 문제를 해결한다는 뜻으로 보기도 해요.</p><a href="../../?p1=snake&p2=unknown&p3=dying&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>벌레를 잡는 꿈 <span class="mini-seal">대길몽</span></h3><p>벌레를 잡거나 없애는 꿈은 골치 아픈 걱정거리가 해결된다는 길몽이에요.</p><a href="../../?p1=bug&p2=unknown&p3=dying&p4=calm">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>죽었는데 마음이 편안했던 꿈 <span class="mini-seal">대길몽</span></h3><p>죽는 꿈인데 마음이 편안했다면 묵은 일이 끝나고 새 출발이 시작된다는 대길몽이에요.</p><a href="../../?p2=unknown&p3=dying&p4=joy">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>죽을까 봐 무서웠던 꿈 <span class="mini-seal mini-seal--soft">주의몽</span></h3><p>죽음 앞에서 무서웠다면 길몽이라는 풀이보다 큰 변화를 앞둔 긴장이 먼저 보여요. 변화는 천천히 받아들여도 괜찮아요.</p><a href="../../?p2=unknown&p3=dying&p4=fear">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>가족이 죽어서 우는 꿈 <span class="mini-seal">길몽</span></h3><p>누군가 죽어서 슬피 우는 꿈은 그 사람이 오히려 무탈하다는 반대 꿈으로 풀어요. 오늘 안부 한 통 전해 보세요.</p><a href="../../?p2=unknown&p3=dying&p4=sad">이 장면으로 풀어 보기 →</a></div><div class="variant"><h3>귀신을 물리치는 꿈 <span class="mini-seal">대길몽</span></h3><p>귀신과 싸워 이기거나 쫓아내는 꿈은 오래된 걱정을 떨쳐 낸다는 길몽이에요.</p><a href="../../?p1=ghost&p2=unknown&p3=dying&p4=calm">이 장면으로 풀어 보기 →</a></div></section>
+
+        <section class="book__sec">
+          <h2><span class="bk">등장</span>무엇이 나온 죽는 꿈</h2>
+          <table class="ptable"><thead><tr><th scope="col">등장</th><th scope="col">두드러진 운</th><th scope="col">등급</th></tr></thead>
           <tbody><tr><td><a href="../snake/">🐍 뱀</a></td><td>건강운 ▲</td><td>길몽</td></tr><tr><td><a href="../bug/">🐛 벌레</a></td><td>건강운 ▲</td><td>대길몽</td></tr><tr><td><a href="../ghost/">👻 귀신</a></td><td>건강운 ▲</td><td>대길몽</td></tr><tr><td><a href="../pig/">🐷 돼지</a></td><td>건강운 ▲</td><td>대길몽</td></tr><tr><td><a href="../dog/">🐶 강아지</a></td><td>건강운 ▲</td><td>대길몽</td></tr><tr><td><a href="../bird/">🐦 새</a></td><td>건강운 ▲</td><td>대길몽</td></tr><tr><td><a href="../money/">💰 돈</a></td><td>재물운 ▲</td><td>대길몽</td></tr><tr><td><a href="../blood/">🩸 피</a></td><td>재물운 ▲</td><td>대길몽</td></tr><tr><td><a href="../celebrity/">🌟 연예인</a></td><td>건강운 ▲</td><td>대길몽</td></tr><tr><td><a href="../vip/">👑 높은 분</a></td><td>일운 ▲</td><td>대길몽</td></tr><tr><td><a href="../gold-ring/">💍 금반지</a></td><td>재물운 ▲</td><td>대길몽</td></tr><tr><td><a href="../exam-paper/">📝 시험지</a></td><td>일운 ▲</td><td>대길몽</td></tr></tbody></table>
-          <p class="blk__note">장소는 빼고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
+          <p class="book__note">장소는 빼고 마음이 평온했을 때를 기준으로 꿈 사주 풀이 규칙을 적용한 결과예요.</p>
         </section>
 
-        <section class="sym-sec">
-          <h2>죽는 꿈, 기분에 따라 달라져요</h2>
-          <p>같은 꿈이라도 꿈속 기분에 따라 풀이가 크게 달라져요.</p>
-          <div class="variant"><h3>😊 꿈속에서 기뻤다면 <span class="mini-seal">대길몽</span></h3><p>죽는 꿈인데 마음이 편안했다면 묵은 일이 끝나고 새 출발이 시작된다는 대길몽이에요.</p></div><div class="variant"><h3>😌 꿈속에서 평온했다면 <span class="mini-seal">대길몽</span></h3><p>죽는 꿈인데 마음이 편안했다면 묵은 일이 끝나고 새 출발이 시작된다는 대길몽이에요.</p></div><div class="variant"><h3>🥰 꿈속에서 설렜다면 <span class="mini-seal">길몽</span></h3><p>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</p></div><div class="variant"><h3>😟 꿈속에서 불안했다면 <span class="mini-seal">평몽</span></h3><p>죽음 앞에서 무서웠다면 길몽이라는 풀이보다 큰 변화를 앞둔 긴장이 먼저 보여요. 변화는 천천히 받아들여도 괜찮아요.</p></div><div class="variant"><h3>😱 꿈속에서 무서웠다면 <span class="mini-seal mini-seal--soft">주의몽</span></h3><p>죽음 앞에서 무서웠다면 길몽이라는 풀이보다 큰 변화를 앞둔 긴장이 먼저 보여요. 변화는 천천히 받아들여도 괜찮아요.</p></div><div class="variant"><h3>😢 꿈속에서 슬펐다면 <span class="mini-seal">길몽</span></h3><p>누군가 죽어서 슬피 우는 꿈은 그 사람이 오히려 무탈하다는 반대 꿈으로 풀어요. 오늘 안부 한 통 전해 보세요.</p></div>
+        <section class="book__sec">
+          <h2><span class="bk">기분</span>꿈속 기분별 죽는 꿈</h2>
+          <table class="ptable ptable--mood"><caption class="sr-only">죽는 꿈 꿈속 기분별 등급</caption>
+          <thead><tr><th scope="col">꿈속 기분</th><th scope="col">점수</th><th scope="col">등급</th></tr></thead>
+          <tbody><tr><th scope="row">😊 기쁨<small>죽는 꿈인데 마음이 편안했다면 묵은 일이 끝나고 새 출발이 시작된다는 대길몽이에요.</small></th><td class="num">+4.9</td><td>🌕 대길몽</td></tr><tr><th scope="row">😌 평온<small>죽는 꿈인데 마음이 편안했다면 묵은 일이 끝나고 새 출발이 시작된다는 대길몽이에요.</small></th><td class="num">+4.4</td><td>🌕 대길몽</td></tr><tr><th scope="row">🥰 설렘<small>설레는 마음이었다면 새로운 인연이나 기회를 기다리는 마음이 커졌다는 뜻이고, 연애운과 시작운이 함께 오른다고 봐요.</small></th><td class="num">+2.4</td><td>🌔 길몽</td></tr><tr><th scope="row">😟 불안<small>죽음 앞에서 무서웠다면 길몽이라는 풀이보다 큰 변화를 앞둔 긴장이 먼저 보여요.</small></th><td class="num">−0.6</td><td>🌓 평몽</td></tr><tr><th scope="row">😱 공포<small>죽음 앞에서 무서웠다면 길몽이라는 풀이보다 큰 변화를 앞둔 긴장이 먼저 보여요.</small></th><td class="num">−1.1</td><td>🌒 주의몽</td></tr><tr><th scope="row">😢 슬픔<small>누군가 죽어서 슬피 우는 꿈은 그 사람이 오히려 무탈하다는 반대 꿈으로 풀어요.</small></th><td class="num">+1.9</td><td>🌔 길몽</td></tr></tbody></table>
         </section>
 
         
 
-        <section class="sym-sec sym-faq">
-          <h2>죽는 꿈 자주 묻는 질문</h2>
+        <section class="book__sec book__faq">
+          <h2><span class="bk">문답</span>죽는 꿈 문답</h2>
           <details><summary>죽는 꿈은 길몽인가요, 흉몽인가요?</summary><p>전통 해몽에서 죽는 꿈은 대표적인 길몽으로 꼽혀요. 특히 재물·건강운과 관련이 깊다고 풀어요. 다만 꿈속에서 무섭거나 불안했다면 좋은 기운이 덜 온전하게 들어온다고 보니 기분까지 함께 넣어 풀어 보세요.</p></details><details><summary>죽는 꿈을 꾸면 로또를 사야 하나요?</summary><p>죽는 꿈의 재물 기운은 있는 편이라고 풀어요. 꿈 사주에서는 4칸 조합과 날짜로 ‘꿈 기운 번호’ 6개를 재미로 뽑아 드리지만, 어떤 번호든 당첨 확률은 똑같아요.</p></details><details><summary>죽는 꿈에서 꿈속 기분이 왜 중요한가요?</summary><p>전통 해몽에서는 꿈속 기분을 크게 봐요. 꿈 사주 풀이 기준으로 같은 죽는 꿈라도 기뻤다면 대길몽, 무서웠다면 주의몽으로 등급이 달라져요.</p></details>
         </section>
 
-        <section class="sym-sec"><h2>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../snake/"><span aria-hidden="true">🐍</span> 뱀꿈 해몽</a></li><li><a href="../bug/"><span aria-hidden="true">🐛</span> 벌레 꿈 해몽</a></li><li><a href="../ghost/"><span aria-hidden="true">👻</span> 귀신 꿈 해몽</a></li><li><a href="../eating/"><span aria-hidden="true">🍚</span> 먹는 꿈 해몽</a></li><li><a href="../receiving/"><span aria-hidden="true">🎁</span> 선물 받는 꿈 해몽</a></li><li><a href="../bitten/"><span aria-hidden="true">🩹</span> 물리는 꿈 해몽</a></li><li><a href="../moving/"><span aria-hidden="true">📦</span> 이사하는 꿈 해몽</a></li><li><a href="../burning/"><span aria-hidden="true">🚒</span> 불나는 꿈 해몽</a></li><li><a href="../flood/"><span aria-hidden="true">🌧️</span> 홍수 꿈 해몽</a></li><li><a href="../picking-up/"><span aria-hidden="true">🪙</span> 줍는 꿈 해몽</a></li></ul></section>
+        <section class="book__sec"><h2><span class="bk">이웃</span>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../snake/"><span aria-hidden="true">🐍</span> 뱀꿈 해몽</a></li><li><a href="../bug/"><span aria-hidden="true">🐛</span> 벌레 꿈 해몽</a></li><li><a href="../ghost/"><span aria-hidden="true">👻</span> 귀신 꿈 해몽</a></li><li><a href="../eating/"><span aria-hidden="true">🍚</span> 먹는 꿈 해몽</a></li><li><a href="../receiving/"><span aria-hidden="true">🎁</span> 선물 받는 꿈 해몽</a></li><li><a href="../bitten/"><span aria-hidden="true">🩹</span> 물리는 꿈 해몽</a></li><li><a href="../moving/"><span aria-hidden="true">📦</span> 이사하는 꿈 해몽</a></li><li><a href="../burning/"><span aria-hidden="true">🚒</span> 불나는 꿈 해몽</a></li><li><a href="../flood/"><span aria-hidden="true">🌧️</span> 홍수 꿈 해몽</a></li><li><a href="../picking-up/"><span aria-hidden="true">🪙</span> 줍는 꿈 해몽</a></li></ul></section>
 
-        <div class="cta-paper"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
-          <a class="btn btn--primary btn--lg btn--block" href="../../?p3=dying">🦋 죽음 넣고 4칸으로 풀기</a></div>
-        <p class="t-center"><a class="btn btn--ghost" href="../">꿈해몽 사전 전체 보기</a></p>
+        <div class="cta-tab"><p>오늘 꾼 꿈, 아이콘 4번이면 끝나요.</p>
+          <a class="talisman" href="../../?p3=dying"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">죽음 넣고 4칸 풀기</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>
+        <p class="t-center"><a class="brush-link" href="../">꿈해몽 사전 전체 보기</a></p>
       </article>
       <nav id="more" aria-label="다른 놀이"></nav>
       <footer class="site-footer">재미로 보는 해몽이에요. 전통 해몽 속설을 바탕으로 풀었고, 실제 일을 예언하지 않아요.</footer>
     </main>
     <script type="module">
-      import { renderMoreSites } from "../../../shared/kit.js";
-      renderMoreSites(document.getElementById("more"), "dream-saju", { base: "../../../" });
+      import { renderCrumb, renderMoreSites } from "../../../shared/kit.js";
+      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 경로·추천을 단다
+      renderCrumb(document.getElementById("crumb"), "dream-saju");
+      renderMoreSites(document.getElementById("more"), "dream-saju");
     </script>
   </body>
 </html>

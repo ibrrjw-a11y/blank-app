@@ -58,8 +58,8 @@ function fieldSVG({ flags = [] } = {}) {
     <g class="te-pull">
       <path class="te-rope" d="M14 82 Q195 88 376 82" />
       <path class="te-rope te-rope--braid" d="M14 82 Q195 88 376 82" />
-      ${figure(40, false, "teto", 0)}${figure(96, false, "teto", 1)}
-      ${figure(350, true, "egen", 0)}${figure(294, true, "egen", 1)}
+      ${figure(72, false, "teto", 0)}${figure(126, false, "teto", 1)}
+      ${figure(318, true, "egen", 0)}${figure(264, true, "egen", 1)}
       <g class="te-knot" transform="translate(195 84)"><path d="M0 0 L-8 30 L0 24 L8 30Z" /><circle r="4.5" /></g>
       ${flags
         .map(
@@ -71,7 +71,7 @@ function fieldSVG({ flags = [] } = {}) {
   </svg>`;
 }
 
-const MAX_SHIFT = 92;
+const MAX_SHIFT = 46;
 function mountField(host, opts = {}) {
   host.innerHTML = fieldSVG(opts);
   const svg = host.querySelector("svg");
@@ -168,7 +168,7 @@ function buildStage() {
   stage.innerHTML = `
     ${bunting()}
     <span class="te-side te-side--teto">힘이 먼저<br />나가는 쪽</span>
-    <span class="te-side te-side--egen">마음이 먼저 움직이는 쪽</span>
+    <span class="te-side te-side--egen">마음이 먼저<br />움직이는 쪽</span>
     ${flower("te-flower--a", -18)}${flower("te-flower--b", 24)}
     <div class="te-stage__field" id="introField"></div>
     <div class="te-card" id="introCard">
@@ -328,6 +328,14 @@ function renderQ({ q, idx, total, dir, selected, answers }) {
           )
           .join("")}
       </div>
+    </div>
+    <div class="te-innings" aria-label="경기 진행표">
+      <p class="te-innings__title">경기 진행표</p>
+      <ol>${QUESTIONS.map((qq, i) => {
+        const o = i < idx ? qq.options[answers[i]] : null;
+        const k = o ? (o.s.t ? "t" : "e") : i === idx ? "now" : "";
+        return `<li class="is-${k}"><span>${i + 1}</span><b>${o ? (o.s.t ? "테" : "에") : ""}</b></li>`;
+      }).join("")}</ol>
     </div>`;
   $$(".te-lane", card).forEach((b) =>
     b.addEventListener("click", async () => {

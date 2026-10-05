@@ -162,7 +162,7 @@ function viewsHtml(mode) {
     <div class="bc-head"><span class="bc-tag">FINAL</span><h2 class="bc-h">최종 순위</h2></div>
     <ol class="ranks" id="ranks"></ol>
     <div class="stack gap-8">
-      ${gantry("again", "AGAIN", "같은 멤버로 한 판 더")}
+      ${gantry("again", "AGAIN", "한 판 더")}
       <div class="result__grid">
         <button class="btn btn--outline" id="shareCard">결과 카드 저장</button>
         <button class="btn btn--outline" id="shareLink">단톡방에 보내기</button>

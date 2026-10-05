@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>만나이 계산기 | 인생 진행률 - 만 나이·살아온 날·10000일 계산</title>
-    <meta name="description" content="생년월일만 넣으면 2023년 만 나이 통일법 기준 만 나이, 연 나이, 다음 생일, 띠, 살아온 날과 10000일을 바로 계산해요. 내 인생을 4,000칸 주 단위 그리드로 보여주는 인생 진행률까지." />
-    <meta name="keywords" content="만나이 계산기, 만 나이, 나이 계산기, 살아온 날 계산, 태어난 지 며칠, 10000일 계산, 만 나이 통일법, 연 나이, 세는 나이" />
+    <title>인생 진행률 | 내 인생을 4,000칸으로 - 살아온 날·10000일·남은 주말 계산</title>
+    <meta name="description" content="생년월일만 넣으면 내 인생이 몇 % 지나왔는지 주 단위 4,342칸 그리드로 보여줘요. 1994.05.12생이면 2026.10.05 기준 38.8%. 살아온 날, 10000일, 남은 크리스마스·주말, 버킷리스트까지." />
+    <meta name="keywords" content="인생 진행률, 인생 그리드, life in weeks, 살아온 날 계산, 태어난 지 며칠, 10000일 계산, 남은 주말, 버킷리스트" />
     <link rel="canonical" href="https://example.com/life-progress/" />
     <meta name="theme-color" content="#0a0c10" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:url" content="https://example.com/life-progress/" />
     <meta property="og:title" content="인생 진행률 - 내 인생을 4,000칸으로" />
-    <meta property="og:description" content="만 나이 계산부터 살아온 날, 남은 크리스마스까지. 내 인생은 지금 몇 %일까요?" />
+    <meta property="og:description" content="살아온 날, 남은 크리스마스와 주말까지. 내 인생은 지금 몇 %일까요?" />
     <meta property="og:image" content="og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏳</text></svg>" />
@@ -26,9 +26,8 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "인생 진행률",
-        "alternateName": "만나이 계산기",
         "url": "https://example.com/life-progress/",
-        "description": "2023년 만 나이 통일법 기준 만 나이 계산기와 살아온 날·10000일 계산, 주 단위 인생 그리드.",
+        "description": "생년월일로 인생 진행률을 계산하고 주 단위 인생 그리드, 살아온 날, 10000일 같은 이정표, 버킷리스트를 보여주는 도구.",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "inLanguage": "ko",
@@ -40,19 +39,21 @@
         "@context": "https://schema.org",
         "@type": "FAQPage",
         "mainEntity": [
-          { "@type": "Question", "name": "만 나이는 어떻게 계산해요?", "acceptedAnswer": { "@type": "Answer", "text": "올해 연도에서 태어난 연도를 빼고, 올해 생일이 아직 안 지났다면 1을 더 빼요." } },
-          { "@type": "Question", "name": "만 나이 통일법은 언제부터예요?", "acceptedAnswer": { "@type": "Answer", "text": "2023년 6월 28일부터 법령·계약·공문서의 나이는 원칙적으로 만 나이로 계산해요." } },
-          { "@type": "Question", "name": "10000일은 언제예요?", "acceptedAnswer": { "@type": "Answer", "text": "태어난 날을 1일째로 세면 생일에 9,999일을 더한 날이 10000일째예요. 대략 만 27세 4개월 무렵이에요." } }
+          { "@type": "Question", "name": "인생 진행률은 어떻게 계산해요?", "acceptedAnswer": { "@type": "Answer", "text": "(살아온 날 − 1) ÷ (기대수명 × 365.2425일)이에요. 1994년 5월 12일생은 2026년 10월 5일 기준 11,834 ÷ 30,497.7 = 38.8%예요." } },
+          { "@type": "Question", "name": "10000일은 언제예요?", "acceptedAnswer": { "@type": "Answer", "text": "태어난 날을 1일째로 세면 생일에 9,999일을 더한 날이 10000일째예요. 1994년 5월 12일생은 2021년 9월 26일이에요." } },
+          { "@type": "Question", "name": "기대수명 83.5세는 어디서 나온 숫자예요?", "acceptedAnswer": { "@type": "Answer", "text": "통계청 2023년 생명표의 기대수명(약 83.5세)이에요. 평균일 뿐이라 개인의 수명을 예측하지 않고, 숫자는 직접 바꿀 수 있어요." } }
         ]
       }
     </script>
   </head>
   <body>
     <main class="app">
+      <nav id="crumb"></nav>
+
       <!-- 1) 첫 화면 -->
       <section class="intro" id="intro" data-view="intro">
         <div class="intro__brand">
-          <span class="intro__name">인생 진행률</span>
+          <h1 class="intro__name">인생 진행률</h1>
           <span class="intro__fig t-num" id="introFig">FIG. 01</span>
         </div>
         <div class="intro__stage" aria-hidden="true">
@@ -63,7 +64,11 @@
         <div class="intro__caption" aria-live="polite"></div>
         <div class="intro__cta">
           <p class="friend-note t-body-03" id="friendNote" hidden></p>
-          <button class="btn btn--primary btn--lg btn--block" id="start">내 인생 진행률 보기</button>
+          <button class="idx-btn" id="start">
+            <span class="idx-btn__tab">01</span>
+            <span class="idx-btn__body"><b>내 인생 진행률 보기</b><small>생년월일 8자리 · 주 단위 그리드</small></span>
+            <span class="idx-btn__arrow" aria-hidden="true">→</span>
+          </button>
         </div>
       </section>
 
@@ -76,38 +81,21 @@
         </header>
 
         <div class="main">
-          <!-- 01 만나이 계산기 -->
-          <section class="sec" aria-labelledby="calcTitle">
-            <div class="sec__head"><span class="sec__no t-num">01</span><h1 class="sec__title" id="calcTitle">만나이 계산기</h1></div>
+          <!-- 01 생년월일 (자세한 만 나이는 age/) -->
+          <section class="sec" aria-labelledby="birthTitle">
+            <div class="sec__head"><span class="sec__no t-num">01</span><h2 class="sec__title" id="birthTitle">생년월일</h2></div>
             <label class="field birth" id="birthField">
-              <span class="field__label">생년월일</span>
+              <span class="field__label">YYYY.MM.DD</span>
               <input class="birth__input t-num" id="birth" inputmode="numeric" autocomplete="bday" placeholder="1994.05.12" maxlength="10" />
-              <span class="field__help" id="birthHelp">숫자 8자리만 넣으면 돼요</span>
+              <span class="field__help" id="birthHelp">숫자 8자리만 넣으면 돼요 · 이 기기에만 저장</span>
             </label>
-            <details class="asof">
-              <summary>기준일 바꾸기 <span class="t-secondary" id="asofLabel">(오늘)</span></summary>
-              <div class="row gap-8 asof__row">
-                <input class="input grow" id="asof" type="date" aria-label="기준일" />
-                <button class="btn btn--outline" id="asofToday">오늘</button>
-              </div>
-            </details>
-
-            <div class="calc__result" id="calcResult" hidden>
-              <div class="giant" id="ageGiant">
-                <span class="giant__pre">만</span>
-                <span class="giant__num t-num" id="ageMan">0</span>
-                <span class="giant__unit">세</span>
-              </div>
-              <p class="giant__meta t-num" id="ageAsOf"></p>
-              <dl class="rows">
-                <div><dt>연 나이</dt><dd><b class="t-num" id="ageYear"></b></dd></div>
-                <div><dt>세는 나이 <sup>참고</sup></dt><dd><b class="t-num" id="ageKor"></b></dd></div>
-                <div><dt>다음 생일</dt><dd><b class="t-num" id="nextBday"></b><small id="nextBdaySub"></small></dd></div>
-                <div><dt>띠</dt><dd><b id="zodiac"></b><small id="zodiacSub"></small></dd></div>
-                <div><dt>살아온 날</dt><dd><b class="t-num" id="livedDays"></b><small>태어난 날을 1일째로 세요</small></dd></div>
-              </dl>
-              <p class="foot" id="calcNote"></p>
-            </div>
+            <dl class="sum-row" id="birthSum" hidden>
+              <div><dt>만 나이</dt><dd class="t-num" id="sumAge"></dd></div>
+              <div><dt>살아온 날</dt><dd class="t-num" id="sumDays"></dd></div>
+              <div><dt>다음 생일</dt><dd class="t-num" id="sumNext"></dd></div>
+              <div><dt>띠</dt><dd id="sumZodiac"></dd></div>
+            </dl>
+            <a class="idx-link" href="age/"><span class="idx-link__no">↗</span><span>만 나이·연 나이·세는 나이 자세히</span></a>
           </section>
 
           <div class="bday-banner" id="bdayBanner" hidden></div>
@@ -193,50 +181,82 @@
         </div>
       </section>
 
-      <!-- SEO 본문 -->
-      <article class="seo">
-        <h2>만나이 계산기: 만 나이, 이렇게 계산해요</h2>
-        <p>만 나이는 태어난 날을 0세로 시작해, 생일이 돌아올 때마다 한 살씩 더하는 나이예요. 계산은 간단해요. <strong>올해 연도 − 태어난 연도</strong>를 하고, 올해 생일이 아직 지나지 않았다면 <strong>1을 더 빼요</strong>. 예를 들어 1994년 5월 12일생은 2026년 5월 12일 전까지 만 31세, 그날부터 만 32세예요.</p>
+      <!-- SEO 본문: 연차보고서 도표와 주석 -->
+      <article class="seo report">
+        <header class="report__head">
+          <span class="report__kicker t-num">ANNUAL REPORT · 2026</span>
+          <h2 class="report__title">인생 진행률 계산 근거</h2>
+          <p class="report__meta t-num">예시 · 1994.05.12생 · 2026.10.05 기준 · 기대수명 83.5세</p>
+        </header>
 
-        <h3>2023년 만 나이 통일법</h3>
-        <p>2023년 6월 28일부터 개정 민법과 행정기본법이 시행되면서, 법령·계약·공문서에 나오는 나이는 특별한 규정이 없으면 만 나이로 계산해요. 다만 술·담배 구매, 병역, 초등학교 입학처럼 법에서 따로 "연 나이"를 쓰도록 정한 경우는 예외예요.</p>
+        <figure class="report__fig">
+          <div class="kpis">
+            <div><b class="t-num">38.8<small>%</small></b><span>진행률</span></div>
+            <div><b class="t-num">11,835</b><span>살아온 날</span></div>
+            <div><b class="t-num">1,685</b><span>지금 칸 / 4,342</span></div>
+          </div>
+          <figcaption><b>FIG. 1</b> 진행률 = (살아온 날 − 1) ÷ (83.5 × 365.2425일) = 11,834 ÷ 30,497.7 = 38.8%</figcaption>
+        </figure>
 
-        <h3>연 나이와 세는 나이는 뭐가 달라요?</h3>
-        <ul>
-          <li><strong>만 나이</strong>: 생일 기준. 법적 기본 나이예요.</li>
-          <li><strong>연 나이</strong>: 올해 연도 − 태어난 연도. 생일과 상관없이 1월 1일에 함께 한 살 먹어요. 청소년보호법, 병역법 등에서 써요.</li>
-          <li><strong>세는 나이</strong>: 태어나자마자 1살, 1월 1일마다 한 살. 일상에서 쓰던 "한국 나이"로, 연 나이 + 1이에요.</li>
-        </ul>
+        <figure class="report__fig">
+          <figcaption><b>TABLE 1</b> 그리드 단위별 칸 수</figcaption>
+          <table class="data">
+            <thead><tr><th scope="col">단위</th><th scope="col">한 줄</th><th scope="col">전체</th><th scope="col">예시 지금</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">주</th><td>1년 · 52칸</td><td>4,342</td><td>1,685번째</td></tr>
+              <tr><th scope="row">월</th><td>2년 · 24칸</td><td>1,002</td><td>389번째</td></tr>
+              <tr><th scope="row">년</th><td>10년 · 10칸</td><td>84</td><td>33번째</td></tr>
+            </tbody>
+          </table>
+        </figure>
 
-        <h3>2월 29일생은 언제 나이를 먹어요?</h3>
-        <p>윤년이 아닌 해에는 2월 29일이 없어요. 이 계산기는 민법의 기간 계산 방식을 따라, 평년에는 <strong>3월 1일</strong>에 만 나이가 한 살 늘어나는 것으로 계산해요. 생일 파티는 2월 28일에 해도 괜찮아요.</p>
+        <figure class="report__fig">
+          <figcaption><b>TABLE 2</b> 남은 것 세기 · 2026.10.05 → 2077.11.10</figcaption>
+          <table class="data">
+            <tbody>
+              <tr><th scope="row">남은 크리스마스</th><td>51번</td><td class="data__how">12월 25일 개수</td></tr>
+              <tr><th scope="row">남은 주말</th><td>2,666번</td><td class="data__how">남은 토요일 수</td></tr>
+              <tr><th scope="row">남은 봄</th><td>51번</td><td class="data__how">5월 31일이 남은 해</td></tr>
+              <tr><th scope="row">지구 공전</th><td>32.4바퀴</td><td class="data__how">11,834 ÷ 365.256</td></tr>
+            </tbody>
+          </table>
+        </figure>
 
-        <h3>살아온 날과 10000일 계산</h3>
-        <p>이 계산기는 태어난 날을 <strong>1일째</strong>로 세요. 그래서 10000일째는 생일에 9,999일을 더한 날이고, 보통 만 27세 4개월 무렵이에요. 태어난 날을 0일로 세는 방식이라면 하루 늦어져요. 20000일째는 만 54세 9개월 무렵이에요.</p>
+        <figure class="report__fig">
+          <figcaption><b>TABLE 3</b> 이정표 날짜 · 태어난 날 = 1일째</figcaption>
+          <table class="data">
+            <tbody>
+              <tr><th scope="row">1,000일째</th><td>1997.02.04</td><td class="data__how">생일 + 999일</td></tr>
+              <tr><th scope="row">10,000일째</th><td>2021.09.26</td><td class="data__how">만 27세 4개월</td></tr>
+              <tr><th scope="row">10억 초</th><td>2026.01.18</td><td class="data__how">약 31.7년</td></tr>
+              <tr><th scope="row">인생의 절반</th><td>2036.02.10</td><td class="data__how">83.5세 ÷ 2</td></tr>
+              <tr><th scope="row">20,000일째</th><td>2049.02.11</td><td class="data__how">만 54세 9개월</td></tr>
+            </tbody>
+          </table>
+        </figure>
 
-        <h3>인생 그리드는 어떻게 그려요?</h3>
-        <p>한 줄이 1년, 한 칸이 일주일이에요(1년 52칸). 평균 기대수명 약 83.5세(통계청 2023년 생명표)를 기본으로 하면 약 4,300칸이 돼요. 기대수명은 평균일 뿐이라 개인의 수명을 예측하지 않아요. 남은 크리스마스·주말·봄 같은 숫자도 이 가정으로 낸 근사치예요.</p>
-
-        <h3>자주 묻는 질문</h3>
-        <details>
-          <summary>만 나이 계산할 때 기준일을 바꿀 수 있나요?</summary>
-          <p>네. "기준일 바꾸기"에서 날짜를 고르면 그날 기준의 만 나이, 연 나이, 살아온 날을 계산해요. 계약일이나 시험일 기준 나이를 확인할 때 써보세요.</p>
-        </details>
-        <details>
-          <summary>띠는 어떻게 정해요?</summary>
-          <p>양력 출생 연도로 띠를 보여줘요. 띠는 원래 음력 설이나 입춘을 기준으로 바뀌어서, 1월~2월 초에 태어났다면 앞 해의 띠일 수 있어요.</p>
-        </details>
-        <details>
-          <summary>심장 박동 횟수는 정확한가요?</summary>
-          <p>아니요. 분당 70회로 가정한 대략적인 숫자예요. 잠든 시간도 하루 8시간을 가정했어요. 재미로 보는 근사치예요.</p>
-        </details>
-        <details>
-          <summary>생년월일은 어디에 저장돼요?</summary>
-          <p>이 기기의 브라우저에만 저장돼서 다시 들어오면 바로 보여줘요. 서버로 보내지 않고, 공유 링크에도 생년월일은 들어가지 않아요.</p>
-        </details>
+        <section class="notes" aria-label="주석">
+          <h3 class="notes__title t-num">NOTES</h3>
+          <details>
+            <summary><sup>1</sup> 기대수명 83.5세는 어디서 왔어요?</summary>
+            <p>통계청 2023년 생명표 기대수명이에요. 평균일 뿐 예측이 아니에요. 02번 그래프 옆 −/+로 0.5세씩 바꿀 수 있어요.</p>
+          </details>
+          <details>
+            <summary><sup>2</sup> 버킷리스트는 그리드 어디에 찍혀요?</summary>
+            <p>목표 나이 줄의 첫 칸이에요. 주 단위로 만 40세면 41번째 줄 첫 칸(2,081번째 칸)에 테두리가 생겨요.</p>
+          </details>
+          <details>
+            <summary><sup>3</sup> 친구에게 보내면 생일도 같이 가요?</summary>
+            <p>아니요. 링크에는 진행률 숫자(예: 38.8)만 담겨요. 생년월일은 이 기기 브라우저에만 저장돼요.</p>
+          </details>
+          <details>
+            <summary><sup>4</sup> 심장 박동 수는 정확해요?</summary>
+            <p>분당 70회로 가정한 대략치예요. 32년이면 약 11.9억 번. 재미로 보는 숫자예요.</p>
+          </details>
+        </section>
       </article>
 
-      <nav id="more"></nav>
+      <nav id="more" aria-label="다른 도구"></nav>
       <footer class="site-footer">기대수명·통계는 평균에 기반한 근사치예요 · 인생 진행률</footer>
     </main>
     <script type="module" src="app.js"></script>

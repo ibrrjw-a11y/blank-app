@@ -10,10 +10,12 @@ import {
   todayKey,
   showView,
   renderMoreSites,
+  renderCrumb,
   createCanvas,
   roundRect,
   wrapText,
   CANVAS_FONT,
+  prefersReducedMotion,
 } from "../shared/kit.js";
 import { prepare, interpret, matchText, cleanSel, isComplete, KEYS, opt, pillar } from "./engine.js";
 import { startIntro } from "./intro.js";
@@ -703,7 +705,17 @@ function startPicker({ reset = false } = {}) {
 }
 
 function bind() {
-  $("#start").addEventListener("click", () => startPicker());
+  // 부적 버튼: 도장이 쾅 찍힌 뒤 4칸 입력으로
+  $("#start").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    if (b.classList.contains("is-sealed")) return;
+    haptic(16);
+    b.classList.add("is-sealed");
+    setTimeout(() => {
+      b.classList.remove("is-sealed");
+      startPicker();
+    }, prefersReducedMotion() ? 0 : 380);
+  });
   $("#introDiary").addEventListener("click", () => {
     renderDiary();
     go("diary");
@@ -796,7 +808,8 @@ function getParamsSel() {
 
 /* ---------- 시작 ---------- */
 async function init() {
-  renderMoreSites($("#more"), "dream-saju");
+  renderCrumb($("#crumb"));
+  renderMoreSites($("#more"));
   const q = new URLSearchParams(location.search);
   const deep = KEYS.some((k) => q.get(k));
   if (!deep) state.intro = startIntro($("#intro"));

@@ -1802,3 +1802,269 @@ body::before {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.08); }
 }
+
+/* =========================================================
+ * 2차 개편 (§8): 상단 경로 · 세로 붓글씨 캡션 · 부적 버튼 · 한지 해몽책 본문
+ * ========================================================= */
+.crumb {
+  height: 32px;
+  font: var(--label-03);
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+}
+.crumb a { color: var(--color-text-secondary); padding: var(--sp-8) 0; }
+.crumb a:last-child { color: var(--brand); }
+.crumb > span { color: var(--art-rule); }
+.intro { min-height: calc(100dvh - 56px - 32px); }
+
+/* 장면은 한지 오른쪽 한 줄을 비워 두고, 그 줄에 세로 캡션을 쓴다 */
+.scene { right: 46px; }
+.vcap {
+  position: absolute;
+  top: calc(var(--sp-40) + var(--sp-16));
+  right: var(--sp-6);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 36px;
+  margin: 0;
+  padding-left: var(--sp-6);
+  border-left: 1px solid color-mix(in srgb, var(--art-ink) 22%, transparent);
+  font: 400 25px/1.12 var(--font-display);
+  color: var(--art-ink);
+  pointer-events: none;
+}
+.vcap__ch { display: block; }
+.vcap__sp { display: block; height: 10px; }
+.vcap__no {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-top: var(--sp-10);
+  border-radius: var(--r-4);
+  background: var(--art-seal);
+  color: var(--art-paper);
+  font: 400 14px/1 var(--font-display);
+  filter: url(#ink-rough);
+}
+
+/* ---------- 시작 버튼: 부적 종이 + 붉은 도장 ---------- */
+.intro__cta { gap: var(--sp-4); }
+.talisman {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 1fr 64px;
+  align-items: center;
+  gap: var(--sp-10);
+  width: 100%;
+  min-height: 76px;
+  padding: var(--sp-8) var(--sp-12) var(--sp-8) var(--sp-10);
+  border: 0;
+  background-color: var(--art-talisman);
+  background-image: var(--art-fiber);
+  color: var(--art-ink);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 4px var(--art-talisman), inset 0 0 0 6px var(--art-seal), inset 0 0 0 9px var(--art-talisman), inset 0 0 0 10px var(--art-seal), var(--shadow-m);
+  transform: rotate(-0.8deg);
+  transition: transform 460ms var(--spring);
+  -webkit-tap-highlight-color: transparent;
+}
+.talisman:active { transform: rotate(-0.8deg) scale(0.97, 0.93) translateY(2px); transition-duration: 70ms; }
+.talisman:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; }
+.talisman__head {
+  justify-self: center;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 22px;
+  padding: var(--sp-4) 0;
+  border-top: 1.5px solid var(--art-seal);
+  border-bottom: 1.5px solid var(--art-seal);
+  font: 400 16px/18px var(--font-display);
+  color: var(--art-seal);
+  word-break: break-all;
+  text-align: center;
+}
+.talisman__label { font: 400 26px/32px var(--font-display); letter-spacing: 0.02em; white-space: nowrap; }
+.talisman__seal {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+  align-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-4);
+  background: var(--art-seal);
+  color: var(--art-talisman);
+  font: 400 20px/22px var(--font-display);
+  filter: url(#ink-rough);
+  transform: rotate(-6deg);
+  box-shadow: inset 0 0 0 3px var(--art-seal), inset 0 0 0 4.5px var(--art-talisman);
+}
+/* 첫 화면에서 도장이 가끔 다시 찍힌다 (누를 곳 신호) */
+.intro .talisman__seal { animation: seal-hint 4.4s var(--spring) 1.2s infinite; }
+@keyframes seal-hint {
+  0%, 70% { transform: rotate(-6deg); }
+  76% { transform: translateY(-10px) scale(1.18) rotate(4deg); }
+  84% { transform: scale(0.9, 0.94) rotate(-8deg); }
+  92%, 100% { transform: rotate(-6deg); }
+}
+.talisman.is-sealed .talisman__seal { animation: seal-slam 360ms cubic-bezier(0.7, 0, 0.9, 0.3) both; }
+.talisman.is-sealed { animation: ds-thud 380ms var(--spring); }
+@keyframes seal-slam {
+  0% { transform: translateY(-24px) scale(1.6) rotate(10deg); }
+  80% { transform: scale(0.88, 0.92) rotate(-8deg); }
+  100% { transform: rotate(-6deg); }
+}
+.brush-link {
+  align-self: flex-start;
+  min-height: var(--tap-min);
+  padding: 0 var(--sp-2);
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font: var(--label-01);
+  font-family: var(--font-display);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  cursor: pointer;
+}
+
+/* ---------- 한지 해몽책 (SEO 본문 · 해몽 사전 페이지) ---------- */
+.book {
+  position: relative;
+  margin: var(--sp-32) 0 var(--sp-16);
+  padding: var(--sp-24) var(--sp-16) var(--sp-24);
+  border-radius: var(--r-4);
+  background-color: var(--art-paper);
+  background-image: var(--art-fiber);
+  color: var(--art-ink);
+  /* 광곽: 굵은 바깥 선 + 가는 안쪽 선 */
+  box-shadow: inset 0 0 0 6px var(--art-paper), inset 0 0 0 8px var(--art-ink), inset 0 0 0 11px var(--art-paper), inset 0 0 0 12px var(--art-ink), var(--shadow-l);
+}
+.seo.book { padding-top: var(--sp-24); margin-top: var(--sp-48); }
+.book a { color: var(--art-seal); }
+.book__vol {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-8);
+  padding: var(--sp-4) var(--sp-4) var(--sp-8);
+  border-bottom: 1px solid var(--art-ink);
+  font: var(--label-03);
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  color: var(--art-ink-wash);
+}
+.book__vol a { color: var(--art-ink-wash); }
+.book .book__title,
+.seo.book .book__title { margin: var(--sp-12) var(--sp-4) var(--sp-4); font: var(--title-01); font-family: var(--font-display); letter-spacing: -0.01em; color: var(--art-ink); }
+.book__sec { padding: var(--sp-20) var(--sp-4) var(--sp-4); }
+.book__sec + .book__sec { border-top: 1px dashed color-mix(in srgb, var(--art-ink) 30%, transparent); }
+.book h3,
+.seo.book h3,
+.book .book__sec > h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-12);
+  font: var(--title-04);
+  font-family: var(--font-display);
+  color: var(--art-ink);
+}
+.bk {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-4);
+  background: var(--art-seal);
+  color: var(--art-paper);
+  font: 400 13px/1 var(--font-display);
+  letter-spacing: 0.04em;
+  filter: url(#ink-rough);
+  transform: rotate(-3deg);
+}
+.book p,
+.seo.book p { color: var(--art-ink); font: var(--body-03); margin: 0 0 var(--sp-8); }
+.book__note { font: var(--caption-01) !important; color: var(--art-ink-wash) !important; margin-top: var(--sp-8) !important; }
+.book .ptable { margin-top: var(--sp-4); color: var(--art-ink); }
+.book .ptable th,
+.book .ptable td { border-bottom: 1px solid color-mix(in srgb, var(--art-ink) 18%, transparent); padding: var(--sp-8) var(--sp-6); vertical-align: top; }
+.book .ptable thead th { font: var(--label-03); color: var(--art-ink-wash); border-bottom: 1.5px solid var(--art-ink); }
+.book .ptable tbody th { font: var(--label-02); font-family: var(--font-display); text-align: left; white-space: nowrap; }
+.book .ptable td:last-child { color: var(--art-seal); }
+.book .ptable--pillars td:last-child { color: var(--art-ink); font-family: inherit; white-space: normal; text-align: left; }
+.book .ptable a { color: var(--art-ink); }
+.ptable .num,
+.ptable td.num { font-family: var(--font-mono); font-size: 12px; text-align: right; white-space: nowrap; }
+.ptable .is-sum th,
+.ptable .is-sum td { border-top: 1.5px solid var(--art-ink); border-bottom: 0; font-weight: 700; }
+.ptable .pos { color: var(--art-seal); }
+.ptable .neg { color: var(--art-blue); }
+.ptable td small { display: block; font: var(--caption-01); color: var(--art-ink-wash); }
+.ex-pick { display: inline-flex; align-items: center; gap: var(--sp-4); }
+.ex-result {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+  margin-top: var(--sp-12);
+  padding: var(--sp-12);
+  border: 1px solid color-mix(in srgb, var(--art-ink) 25%, transparent);
+  border-radius: var(--r-4);
+}
+.ex-result .seal-big {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 2.5px solid var(--art-seal);
+  border-radius: var(--r-4);
+  color: var(--art-seal);
+  font: 400 15px/18px var(--font-display);
+  text-align: center;
+  filter: url(#ink-rough);
+  transform: rotate(-6deg);
+}
+.ex-result .seal-big.is-soft { border-color: var(--art-blue); color: var(--art-blue); }
+.ex-result p { margin: 0 !important; font: var(--body-03) !important; }
+.book .dream-links a { border-color: color-mix(in srgb, var(--art-ink) 35%, transparent); color: var(--art-ink); border-radius: var(--r-4); }
+.book .badge { background: transparent; border: 1px solid var(--art-ink); color: var(--art-ink); border-radius: var(--r-4); font-family: var(--font-display); }
+.book__faq details,
+.book .sym-faq details { padding: var(--sp-12) 0; border-bottom: 1px solid color-mix(in srgb, var(--art-ink) 18%, transparent); }
+.book summary { display: flex; gap: var(--sp-8); align-items: baseline; min-height: 28px; font: var(--body-03-strong); color: var(--art-ink); cursor: pointer; list-style: none; }
+.book summary::-webkit-details-marker { display: none; }
+.book summary::before { content: "問"; flex: none; font: 400 15px/1 var(--font-display); color: var(--art-seal); }
+.book details p { position: relative; margin: var(--sp-8) 0 0 !important; padding-left: var(--sp-24); color: var(--art-ink) !important; }
+.book details p::before { content: "答"; position: absolute; left: 0; top: 0; font: 400 15px/22px var(--font-display); color: var(--art-ink-wash); }
+.book .variant { border-bottom: 1px dashed color-mix(in srgb, var(--art-ink) 25%, transparent); }
+.book .variant h3 { justify-content: space-between; margin-bottom: var(--sp-6); font: var(--body-02-strong); font-family: var(--font-display); }
+.book .variant p { color: var(--art-ink) !important; }
+.book .variant a { color: var(--art-seal); }
+.book .mini-seal { filter: url(#ink-rough); }
+.book .inkdot::before { background: var(--art-ink); border-color: var(--art-ink); }
+.book .sym-hero { padding: var(--sp-16) 0 var(--sp-8); }
+.book .sym-kicker { color: var(--art-seal); border-right-color: color-mix(in srgb, var(--art-ink) 30%, transparent); }
+.book .sym-hero h1 { color: var(--art-ink); font-family: var(--font-display); }
+.book .sym-lead { color: var(--art-ink); font: var(--body-03); }
+
+/* 해몽 사전 페이지 CTA: 부적 탭 + 붓 메모 */
+.cta-tab { display: flex; flex-direction: column; gap: var(--sp-8); margin: var(--sp-16) 0 var(--sp-8); }
+.cta-tab p { margin: 0 !important; font: var(--label-02) !important; font-family: var(--font-display) !important; color: var(--art-ink-wash) !important; }
+.cta-tab .talisman { box-shadow: inset 0 0 0 4px var(--art-talisman), inset 0 0 0 6px var(--art-seal), inset 0 0 0 9px var(--art-talisman), inset 0 0 0 10px var(--art-seal), var(--shadow-s); }
+.cta-tab .talisman__label { font-size: 21px; line-height: 26px; white-space: normal; }
+.page-crumb { padding-top: var(--sp-8); }
+
+@media (prefers-reduced-motion: reduce) {
+  .intro .talisman__seal { animation: none; }
+}

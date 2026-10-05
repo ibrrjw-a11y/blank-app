@@ -766,7 +766,7 @@ main.app { overflow-x: clip; }
 }
 .doc__head { text-align: center; padding-bottom: var(--sp-12); margin-bottom: var(--sp-8); border-bottom: 2px dotted var(--art-rule); }
 .seo .doc__store { margin: 0; font: 700 17px/24px var(--font-kr); letter-spacing: 0.02em; color: var(--art-ink); }
-.doc__meta { margin: var(--sp-4) 0 0; font: 500 11px/16px var(--font-num); color: var(--art-ink-2); }
+.seo .doc__meta { margin: var(--sp-4) 0 0; font: 500 11px/16px var(--font-num); color: var(--art-ink-2); }
 .doc-table { width: 100%; border-collapse: collapse; }
 .doc-table th { padding: var(--sp-6) 0; text-align: left; font: 400 14px/20px var(--font-kr); color: var(--art-ink); }
 .doc-table th small { display: block; font: 500 11px/14px var(--font-num); color: var(--art-ink-2); }

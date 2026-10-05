@@ -94,7 +94,7 @@ function pulse(el, cls) {
 function readChallenge() {
   const raw = getParam("c");
   if (!raw) return null;
-  const d = decodeState(raw);
+  const d = decodeState(raw.replace(/\/$/, ""));
   if (!d || typeof d !== "object") return null;
   const ms = Math.round(Number(d.t) * 10);
   if (!Number.isFinite(ms) || ms < 3000 || ms > 999000) return null;
@@ -346,10 +346,10 @@ function onTap(e) {
   const k = e.target.closest(".key");
   if (!k) return;
   e.preventDefault();
-  press(+k.dataset.i, e.timeStamp);
+  press(+k.dataset.i);
 }
 
-function press(i, stamp) {
+function press(i) {
   if (G.phase !== "run" || G.paused) return;
   const now = performance.now();
   const k = G.keys[i];
@@ -376,7 +376,10 @@ function press(i, stamp) {
   G.next++;
   if (G.next > 50) return finish(now);
   G.nextSeg.set(String(G.next));
-  if (G.next === 26) $("#hint").textContent = "이제 26부터 50까지";
+  if (G.next === 26) {
+    $("#hint").textContent = "이제 26부터 50까지";
+    pulse($("#hint"), "is-pop");
+  }
 }
 
 function endGame() {
