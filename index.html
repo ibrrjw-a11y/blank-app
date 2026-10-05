@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>놀이터 - 테스트·추첨·계산기를 조금 다르게</title>
+    <meta name="description" content="룰렛, 사주, 꿈해몽, MBTI, 월급 계산기, 이름궁합까지. 익숙한 테스트와 도구를 친구와 같이 즐기는 방식으로 바꿨어요." />
+    <meta name="theme-color" content="#0a0c10" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="놀이터 - 테스트·추첨·계산기를 조금 다르게" />
+    <meta property="og:description" content="익숙한 테스트와 도구를 친구와 같이 즐기는 방식으로 바꿨어요." />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://example.com/" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎡</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="shared/components.css" />
+    <style>
+      :root {
+        --brand: #8b7bff;
+        --brand-pressed: #7564f0;
+        --brand-soft: #241f45;
+        --brand-on: #fff;
+      }
+      .hub-hero {
+        position: relative;
+        padding: var(--sp-48) 0 var(--sp-32);
+        overflow: hidden;
+      }
+      .hub-orbit {
+        position: relative;
+        height: 260px;
+        margin-bottom: var(--sp-24);
+      }
+      .hub-orbit__item {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 52px;
+        height: 52px;
+        margin: -26px 0 0 -26px;
+        display: grid;
+        place-items: center;
+        font-size: 26px;
+        border-radius: var(--r-16);
+        background: var(--color-surface-raised);
+        box-shadow: var(--shadow-m);
+        animation: hub-orbit 18s linear infinite;
+        animation-delay: calc(var(--i) * -18s / var(--n));
+      }
+      .hub-orbit__core {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 96px;
+        height: 96px;
+        margin: -48px 0 0 -48px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #b7adff, var(--brand) 55%, #3b2fb8);
+        box-shadow: 0 0 60px rgba(139, 123, 255, 0.55);
+        animation: hub-pulse 3s ease-in-out infinite;
+      }
+      @keyframes hub-orbit {
+        from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+        to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+      }
+      @keyframes hub-pulse {
+        50% { transform: scale(1.08); }
+      }
+      .hub-list {
+        display: grid;
+        gap: var(--sp-8);
+        padding-bottom: var(--sp-48);
+      }
+      .hub-item {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-16);
+        padding: var(--sp-16);
+        border-radius: var(--r-16);
+        background: var(--color-surface);
+        text-decoration: none;
+        transition: transform var(--dur-fast);
+      }
+      .hub-item:active { transform: scale(0.98); }
+      .hub-item__emoji {
+        flex: none;
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        font-size: 24px;
+        border-radius: var(--r-12);
+        background: var(--color-surface-raised);
+      }
+      .hub-item__kw { color: var(--color-text-tertiary); }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <section class="hub-hero">
+        <div class="hub-orbit" id="orbit" aria-hidden="true"><div class="hub-orbit__core"></div></div>
+        <h1 class="t-display-02 t-center" style="margin: 0">놀이터</h1>
+        <p class="t-body-01 t-secondary t-center" style="margin: 8px 0 0">
+          익숙한 테스트·추첨·계산기를<br />친구랑 같이 노는 방식으로 바꿨어요
+        </p>
+      </section>
+      <section class="hub-list" id="list"></section>
+    </main>
+    <script type="module">
+      import { SITES } from "./shared/sites.js";
+      const orbit = document.getElementById("orbit");
+      SITES.forEach((s, i) => {
+        const el = document.createElement("div");
+        el.className = "hub-orbit__item";
+        el.style.setProperty("--i", i);
+        el.style.setProperty("--n", SITES.length);
+        el.textContent = s.emoji;
+        orbit.appendChild(el);
+      });
+      document.getElementById("list").innerHTML = SITES.map(
+        (s) => `<a class="hub-item" href="${s.slug}/">
+          <span class="hub-item__emoji" aria-hidden="true">${s.emoji}</span>
+          <span class="stack gap-4 grow">
+            <span class="t-title-04">${s.name}</span>
+            <span class="t-body-03 t-secondary">${s.desc}</span>
+            <span class="t-caption-01 hub-item__kw">${s.keyword}</span>
+          </span>
+        </a>`
+      ).join("");
+    </script>
+  </body>
+</html>

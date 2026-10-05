@@ -1,0 +1,157 @@
+/*
+ * 공통 디자인 토큰
+ * 원칙: 값은 여기서만 정의하고, 화면/컴포넌트는 역할(role) 토큰만 골라 쓴다.
+ *  - Color: 색상값이 아니라 역할(Primary / Background / Surface / Text / Border / Danger)
+ *  - Text: Display / Title / Body / Label / Caption
+ *  - Spacing: 4 / 8 / 12 / 16 / 24 / 32 (+ 보조 2·6·10·20·40·48·64)
+ *  - Radius: 0 / 4 / 6 / 8 / 12 / 16 / 24 / Full
+ *  - Shadow: Small / Medium / Large 3단계
+ * 사이트별 차이는 --brand-* 4개만 덮어써서 만든다.
+ */
+
+:root {
+  /* ---------- Primitive (직접 쓰지 말 것) ---------- */
+  --gray-0: #ffffff;
+  --gray-50: #f7f8fa;
+  --gray-100: #f0f2f5;
+  --gray-200: #e3e6eb;
+  --gray-300: #cdd2da;
+  --gray-400: #a3aab6;
+  --gray-500: #7b8494;
+  --gray-600: #5a6372;
+  --gray-700: #3d4451;
+  --gray-800: #262b35;
+  --gray-850: #1b1f27;
+  --gray-900: #12151b;
+  --gray-950: #0a0c10;
+  --red-500: #f0445a;
+  --red-600: #d62f45;
+  --green-500: #1fbf75;
+  --amber-500: #ffb020;
+
+  /* ---------- Brand (사이트마다 이 4개만 덮어쓴다) ---------- */
+  --brand: #5b5bf6;
+  --brand-pressed: #4545d9;
+  --brand-soft: #ececfe;
+  --brand-on: #ffffff;
+
+  /* ---------- Semantic Color ---------- */
+  --color-primary: var(--brand);
+  --color-primary-pressed: var(--brand-pressed);
+  --color-primary-soft: var(--brand-soft);
+  --color-on-primary: var(--brand-on);
+
+  --color-bg: var(--gray-50);
+  --color-surface: var(--gray-0);
+  --color-surface-raised: var(--gray-0);
+  --color-surface-sunken: var(--gray-100);
+
+  --color-text: var(--gray-900);
+  --color-text-secondary: var(--gray-600);
+  --color-text-tertiary: var(--gray-400);
+  --color-text-disabled: var(--gray-300);
+
+  --color-border: var(--gray-200);
+  --color-border-strong: var(--gray-300);
+
+  --color-danger: var(--red-500);
+  --color-danger-pressed: var(--red-600);
+  --color-success: var(--green-500);
+  --color-warning: var(--amber-500);
+
+  --color-scrim: rgba(10, 12, 16, 0.56);
+
+  /* ---------- Typography ---------- */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Roboto Mono", ui-monospace, Menlo, monospace;
+
+  --display-01: 800 44px/56px var(--font-sans);
+  --display-02: 800 36px/46px var(--font-sans);
+  --title-01: 700 28px/38px var(--font-sans);
+  --title-02: 700 24px/34px var(--font-sans);
+  --title-03: 700 20px/30px var(--font-sans);
+  --title-04: 700 18px/28px var(--font-sans);
+  --body-01: 400 17px/28px var(--font-sans);
+  --body-01-strong: 600 17px/28px var(--font-sans);
+  --body-02: 400 16px/26px var(--font-sans);
+  --body-02-strong: 600 16px/26px var(--font-sans);
+  --body-03: 400 14px/22px var(--font-sans);
+  --body-03-strong: 600 14px/22px var(--font-sans);
+  --label-01: 600 16px/22px var(--font-sans);
+  --label-02: 600 14px/20px var(--font-sans);
+  --label-03: 600 12px/16px var(--font-sans);
+  --caption-01: 400 12px/18px var(--font-sans);
+
+  /* ---------- Spacing ---------- */
+  --sp-0: 0;
+  --sp-2: 2px;
+  --sp-4: 4px;
+  --sp-6: 6px;
+  --sp-8: 8px;
+  --sp-10: 10px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-20: 20px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+  --sp-40: 40px;
+  --sp-48: 48px;
+  --sp-64: 64px;
+
+  /* ---------- Radius ---------- */
+  --r-0: 0;
+  --r-4: 4px;
+  --r-6: 6px;
+  --r-8: 8px;
+  --r-12: 12px;
+  --r-16: 16px;
+  --r-24: 24px;
+  --r-full: 999px;
+
+  /* ---------- Shadow (중요도에 따라 3단계만) ---------- */
+  --shadow-s: 0 1px 2px rgba(18, 21, 27, 0.06), 0 1px 3px rgba(18, 21, 27, 0.08);
+  --shadow-m: 0 4px 12px rgba(18, 21, 27, 0.08), 0 2px 4px rgba(18, 21, 27, 0.06);
+  --shadow-l: 0 16px 40px rgba(18, 21, 27, 0.14), 0 4px 12px rgba(18, 21, 27, 0.08);
+
+  /* ---------- Motion ---------- */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --dur-xslow: 600ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.3, 0, 0, 1.2);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ---------- Layout ---------- */
+  --app-max: 480px;
+  --gutter: 16px;
+  --tap-min: 48px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: light;
+}
+
+/* 어두운 테마: 사이트가 <html data-theme="dark"> 로 선택 */
+:root[data-theme="dark"] {
+  --color-bg: var(--gray-950);
+  --color-surface: var(--gray-900);
+  --color-surface-raised: var(--gray-850);
+  --color-surface-sunken: #07080b;
+
+  --color-text: #f3f5f8;
+  --color-text-secondary: var(--gray-400);
+  --color-text-tertiary: var(--gray-500);
+  --color-text-disabled: var(--gray-700);
+
+  --color-border: var(--gray-800);
+  --color-border-strong: var(--gray-700);
+
+  --color-scrim: rgba(0, 0, 0, 0.64);
+
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-m: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-l: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  color-scheme: dark;
+}
