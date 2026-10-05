@@ -1,6 +1,6 @@
 // 게임 하나 = 페이지 하나. /ddanjit/<게임>/index.html 이 이 모듈로 자기 게임을 띄운다.
 // 문제·기록·스트릭은 core.js 의 같은 저장소를 써서 허브(/ddanjit/)의 램프와 이어진다.
-import { $, $$, renderCrumb, renderMoreSites, share, shareImage, openSheet, haptic, prefersReducedMotion } from "../shared/kit.js";
+import { $, $$, renderMoreSites, share, shareImage, openSheet, haptic, prefersReducedMotion } from "../shared/kit.js";
 import { DAY, loadDay, saveDay, getStats, recordResult, msToNextPuzzle, fmtCountdown, drawShareCard, confetti, esc } from "./core.js";
 import { scene, splitHeadline, coinOp } from "./scenes.js";
 import zoom from "./games/zoom.js";
@@ -170,7 +170,6 @@ export function bootGame(g) {
   }
 
   /* ---------- 시작 ---------- */
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
   splitHeadline();
   coinOp($("#start"), () => {

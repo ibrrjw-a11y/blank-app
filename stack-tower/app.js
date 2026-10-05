@@ -10,7 +10,6 @@ import {
   urlWith,
   getParam,
   showView,
-  renderCrumb,
   renderMoreSites,
   todayKey,
   prefersReducedMotion,
@@ -330,7 +329,6 @@ function onVisibility() {
 }
 
 function init() {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
   renderChallenge();
   kineticHero();

@@ -92,6 +92,17 @@ function gradeTable() {
           <thead><tr><th scope="col">등급</th><th scope="col">점수</th><th scope="col">뜻</th></tr></thead>
           <tbody>${g.map((x, i) => `<tr><th scope="row">${x.moon} ${esc(x.name)}</th><td class="num">${range(i)}</td><td>${esc(x.sub)}</td></tr>`).join("")}</tbody></table>`;
 }
+/* ---------- 문답: 산통에서 뽑는 제비 (FAQ, details 유지) ---------- */
+const LOT_NO = ["一", "二", "三", "四", "五", "六", "七", "八"];
+const lotFaq = (faq) =>
+  faq
+    .map(
+      (f, i) => `<details class="lot">
+          <summary><span class="lot__no" aria-hidden="true">第${LOT_NO[i] || i + 1}</span><span class="lot__q">${esc(f.q)}</span><span class="lot__pull" aria-hidden="true"></span></summary>
+          <div class="lot__paper"><span class="lot__ans" aria-hidden="true">答</span><p>${esc(f.a)}</p></div>
+        </details>`
+    )
+    .join("\n          ");
 const ctaTab = (text, href, label) => `<div class="cta-tab"><p>${text}</p>
           <a class="talisman" href="${href}"><span class="talisman__head" aria-hidden="true">勅令</span><span class="talisman__label">${label}</span><span class="talisman__seal" aria-hidden="true"><span>解</span><span>夢</span></span></a></div>`;
 
@@ -154,7 +165,6 @@ function shell({ title, description, keywords, canonical, body, ld, depth }) {
   <body>
     ${INK_DEFS}
     <main class="app">
-      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="${up}"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <a class="btn btn--ghost btn--sm" href="${up}">4칸으로 꿈 풀기</a>
@@ -164,10 +174,12 @@ ${body}
       <footer class="site-footer">재미로 보는 해몽이에요. 전통 해몽 속설을 바탕으로 풀었고, 실제 일을 예언하지 않아요.</footer>
     </main>
     <script type="module">
-      import { renderCrumb, renderMoreSites } from "${up}../shared/kit.js";
-      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 경로·추천을 단다
-      renderCrumb(document.getElementById("crumb"), "dream-saju");
-      renderMoreSites(document.getElementById("more"), "dream-saju");
+      import { renderMoreSites } from "${up}../shared/kit.js";
+      import { dressTalismans } from "${up}more.js";
+      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 추천을 단다
+      const more = document.getElementById("more");
+      renderMoreSites(more, "dream-saju");
+      dressTalismans(more);
     </script>
   </body>
 </html>
@@ -348,8 +360,8 @@ function buildPage({ key, o }) {
         }
 
         <section class="book__sec book__faq">
-          <h2><span class="bk">문답</span>${esc(kw)} 문답</h2>
-          ${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}
+          <h2><span class="bk">籤</span>${esc(kw)} 문답 제비</h2>
+          ${lotFaq(faq)}
         </section>
 
         ${rel ? `<section class="book__sec"><h2><span class="bk">이웃</span>함께 찾는 꿈해몽</h2><ul class="dream-links">${rel}</ul></section>` : ""}

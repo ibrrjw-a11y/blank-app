@@ -2,7 +2,7 @@
 // 방식: 한 명씩 뽑기(이름 캡슐, 비복원) / 당첨·꽝(금색 캡슐 N개, 폰 돌려 각자 뽑기)
 import {
   $, $$, createStore, toast, haptic, share, shareImage, encodeState, decodeState, urlWith, getParam, copyText,
-  showView, renderMoreSites, renderCrumb, createCanvas, CANVAS_FONT, todayKey, openSheet, prefersReducedMotion, sleep,
+  showView, renderMoreSites, createCanvas, CANVAS_FONT, todayKey, openSheet, prefersReducedMotion, sleep,
 } from "../shared/kit.js";
 import { createMachine, readArt } from "./machine.js";
 import { startIntro } from "./intro.js";
@@ -799,7 +799,16 @@ function drawCard() {
 }
 
 /* ---------- 시작 ---------- */
-renderCrumb($("#crumb"));
 renderMoreSites($("#more"));
+// 하단 다른 놀이: 문방구 앞 "옆 기계도 있어요" 골판지 안내판 + 미니 뽑기 기계 세 대
+(() => {
+  const more = $("#more");
+  const title = more?.querySelector(".more-sites__title");
+  if (!title) return;
+  title.innerHTML = '옆 기계도 있어요 <span aria-hidden="true">→</span>';
+  more.querySelectorAll(".more-sites__item").forEach((a, k) => {
+    a.insertAdjacentHTML("afterbegin", `<span class="mini-gacha" aria-hidden="true" style="--k:${k}"><i></i></span>`);
+  });
+})();
 renderSetup();
 enterIntro();

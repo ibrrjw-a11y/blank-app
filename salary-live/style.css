@@ -627,30 +627,11 @@ main.app { overflow-x: clip; }
 }
 
 /* =========================================================
- * 2차 개편: 상단 경로, POS 발행 키, 계산 근거 영수증
+ * 2차 개편: POS 발행 키, 계산 근거 영수증
  * ========================================================= */
 
-/* 상단 경로: 영수증 머리의 POS 경로 줄 */
-.crumb {
-  gap: var(--sp-8);
-  min-height: 40px;
-  font: 500 12px/16px var(--font-num);
-  color: var(--art-ink-2);
-  letter-spacing: 0.02em;
-}
-.crumb a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 0;
-  color: var(--art-ink);
-  text-decoration: underline dotted var(--art-rule);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 4px;
-}
-.crumb::before { content: "POS"; padding: var(--sp-2) var(--sp-6); border: 1px solid var(--art-ink-2); border-radius: var(--r-4); font-size: 10px; line-height: 12px; letter-spacing: 0.1em; }
-/* 경로 줄이 생긴 만큼 인트로 높이를 줄여 시작 키가 첫 화면에 남게 */
-.intro { min-height: calc(100dvh - 40px); padding-top: 0; }
+/* 영수증은 화면 맨 위에서 바로 출력돼 나온다 */
+.intro { padding-top: 0; }
 .masthead h1.masthead__store { font: 700 22px/30px var(--font-kr); }
 
 /* 시작 버튼: POS 단말기의 '발행' 키 */
@@ -781,25 +762,140 @@ main.app { overflow-x: clip; }
 .doc .table-wrap { margin: 0; background: transparent; }
 .doc .seo-table th,
 .doc .seo-table td { padding-left: var(--sp-4); padding-right: var(--sp-4); }
-.doc--terms details { padding: 0; border-bottom: 1px dashed var(--art-rule); }
-.doc--terms summary {
+/* 자주 묻는 질문: POS 도움말 키. 키를 누르면 답이 감열지로 찍혀 나온다 */
+.fkeys { display: flex; flex-direction: column; gap: var(--sp-8); padding-top: var(--sp-4); }
+.fkey summary {
   display: flex;
   align-items: center;
-  min-height: var(--tap-min);
+  gap: var(--sp-12);
+  min-height: 52px;
+  list-style: none;
+  cursor: pointer;
   font: 600 14px/20px var(--font-kr);
   color: var(--art-ink);
-  list-style: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
-.doc--terms summary::-webkit-details-marker { display: none; }
-.doc--terms summary::after { content: "+"; margin-left: auto; padding-left: var(--sp-8); font: 700 16px/1 var(--font-num); color: var(--art-ink-2); }
-.doc--terms details[open] summary::after { content: "−"; }
-.seo .doc--terms p { margin: 0 0 var(--sp-12); font: 400 13px/20px var(--font-kr); color: var(--art-ink-2); }
+.fkey summary::-webkit-details-marker { display: none; }
+.fkey kbd {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 44px;
+  border-radius: var(--r-4);
+  background: var(--art-housing);
+  color: var(--art-slip);
+  font: 700 15px/1 var(--font-num);
+  box-shadow: inset 0 -5px 0 var(--art-ink), inset 0 1px 0 var(--art-housing-2);
+  transition: transform 380ms var(--spring), box-shadow 120ms, background var(--dur-fast);
+}
+.fkey summary:active kbd { transform: translateY(3px) scale(0.97, 0.92); box-shadow: inset 0 -2px 0 var(--art-ink); transition-duration: 70ms; }
+.fkey[open] kbd { background: var(--brand); color: var(--brand-on); box-shadow: inset 0 -5px 0 var(--brand-pressed); }
+.fkey summary span { flex: 1; min-width: 0; }
+.seo .fkey__out {
+  position: relative;
+  margin: var(--sp-2) 0 var(--sp-8) var(--sp-24);
+  padding: var(--sp-10) var(--sp-12) var(--sp-16) var(--sp-12);
+  background: var(--art-paper);
+  font: 500 13px/20px var(--font-kr);
+  color: var(--art-ink);
+  -webkit-mask: var(--tear);
+  mask: var(--tear);
+  border-top: 3px solid var(--art-ink);
+}
+.fkey[open] .fkey__out { animation: fkey-print 520ms steps(8) both; }
+@keyframes fkey-print {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
 
-/* 하단 추천: 찢어낸 영수증 조각 */
-.more-sites__title { font: 700 13px/18px var(--font-num); letter-spacing: 0.06em; color: var(--art-ink-2); padding-bottom: var(--sp-8); border-bottom: 1px dashed var(--art-rule); }
-.more-sites__item { border-radius: 0; background: var(--art-slip); box-shadow: none; padding-bottom: var(--sp-24); -webkit-mask: var(--tear); mask: var(--tear); }
-.more-sites__name { font-family: var(--font-kr); color: var(--art-ink); }
-.more-sites__cat { border-radius: var(--r-4); border-style: dashed; border-color: var(--art-rule); font-family: var(--font-kr); background: var(--art-slip); }
+/* 하단 추천: 영수증 끝에 인쇄된 절취 쿠폰 */
+.more-sites { padding-top: var(--sp-16); }
+.more-sites__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-12);
+  padding: 0;
+  opacity: 1;
+  font: 700 15px/20px var(--font-kr);
+  color: var(--art-ink);
+}
+.more-sites__title small { margin-left: auto; font: 500 11px/14px var(--font-num); color: var(--art-ink-2); }
+.cpn-cut {
+  display: inline-flex;
+  align-items: center;
+  font: 700 18px/1 var(--font-num);
+  color: var(--art-ink-2);
+  transform: rotate(-90deg);
+}
+.more-sites__title::after { display: none; }
+.more-sites { position: relative; }
+.more-sites::before {
+  content: "- - - - - - - - - - 여기를 잘라 쓰세요 - - - - - - - - - -";
+  display: block;
+  overflow: hidden;
+  margin-bottom: var(--sp-12);
+  white-space: nowrap;
+  text-align: center;
+  font: 500 11px/14px var(--font-num);
+  letter-spacing: 0.06em;
+  color: var(--art-ink-2);
+}
+.more-sites__grid { gap: var(--sp-10); counter-reset: cpn; }
+.more-sites__item {
+  --notch: radial-gradient(circle at 76px 0, transparent 9px, #000 9.5px) top / 100% 51% no-repeat,
+    radial-gradient(circle at 76px 100%, transparent 9px, #000 9.5px) bottom / 100% 51% no-repeat;
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: var(--sp-12);
+  row-gap: var(--sp-2);
+  min-height: 76px;
+  padding: var(--sp-12) var(--sp-12) var(--sp-12) 0;
+  border: 0;
+  border-radius: var(--r-4);
+  background: var(--art-slip);
+  color: var(--art-ink);
+  text-decoration: none;
+  -webkit-mask: var(--notch);
+  mask: var(--notch);
+  transition: transform 380ms var(--spring);
+  counter-increment: cpn;
+}
+.more-sites__item:nth-child(2) { rotate: -0.6deg; }
+.more-sites__item:nth-child(3) { rotate: 0.5deg; }
+.more-sites__item:active { transform: translateX(6px) rotate(1.2deg); transition-duration: 80ms; }
+.cpn__stub {
+  grid-row: 1 / 3;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  margin: calc(var(--sp-12) * -1) 0;
+  border-right: 2px dashed var(--art-rule);
+}
+.cpn__stub b { font: 700 26px/1 var(--font-num); color: var(--color-primary); letter-spacing: -0.04em; }
+.cpn__stub b small { font: 700 12px/1 var(--font-kr); margin-left: 1px; }
+.cpn__stub i { font: 500 9px/12px var(--font-num); font-style: normal; color: var(--art-ink-2); letter-spacing: 0.02em; }
+.more-sites__name { grid-column: 2; align-self: end; font: 700 16px/22px var(--font-kr); letter-spacing: -0.02em; color: var(--art-ink); }
+.more-sites__desc { grid-column: 2; align-self: start; opacity: 1; font: 500 12px/18px var(--font-num); color: var(--art-ink-2); }
+.cpn__use {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  padding: var(--sp-6) var(--sp-8);
+  border: 1.5px solid var(--art-ink);
+  border-radius: var(--r-4);
+  font: 700 12px/1 var(--font-num);
+  color: var(--art-ink);
+  white-space: nowrap;
+}
+.more-sites__item:active .cpn__use { background: var(--brand); border-color: var(--brand); color: var(--brand-on); }
 
 /* 인트로 캡션: 제목 + 회색 부제 대신, 영수증 하단 각주 줄 */
 .intro__caption p { margin-top: var(--sp-6); padding-top: var(--sp-6); border-top: 1px dashed var(--art-rule); font: 500 13px/20px var(--font-num); color: var(--art-ink-2); }

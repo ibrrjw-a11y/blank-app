@@ -10,7 +10,7 @@
     />
     <meta name="keywords" content="연봉 실수령액 계산기, 2026 실수령액, 월급 실수령액, 연봉 실수령액 표, 실수령액 계산, 4대보험 요율, 근로소득세 계산, 세후 월급" />
     <link rel="canonical" href="https://example.com/salary-live/net-pay/" />
-    <meta name="theme-color" content="#ebe7dc" />
+    <meta name="theme-color" content="#d7dbd5" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:title" content="2026 연봉 실수령액 계산기 - 급여 영수증으로 보는 공제 내역" />
@@ -21,7 +21,7 @@
     <link rel="icon" href="../icon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=IBM+Plex+Mono:wght@500;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../../shared/components.css" />
     <link rel="stylesheet" href="../style.css" />
@@ -74,23 +74,28 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
-
       <!-- 1) 짧은 인트로 + 바로 쓰는 계산기 -->
       <section class="np-top" aria-labelledby="npTitle">
-        <header class="masthead masthead--np">
-          <h1 class="masthead__store" id="npTitle">연봉 실수령액 계산기</h1>
-          <p class="masthead__sub">NET PAY · 2026 4대보험·근로소득세 반영</p>
-          <p class="masthead__pos"><span id="posTime">2026-01-01 (목)</span><span>POS 02</span></p>
-        </header>
+        <div class="sheet-form np-sheet">
+          <header class="form-head">
+            <div class="form-head__l">
+              <p class="form-head__no">서식 NP-26 · 급여명세서 <span id="posTime">2026.01.01</span></p>
+              <h1 class="form-head__title" id="npTitle">연봉 실수령액 계산기</h1>
+            </div>
+            <span class="form-head__seal" aria-hidden="true">2026<br />요율</span>
+          </header>
 
-        <div class="np-display" aria-live="polite">
-          <div class="np-display__row">
-            <span class="np-display__label" id="dispLabel">월 실수령액</span>
-            <span class="np-display__tag" id="dispTag">예시</span>
+          <div class="ledger" id="ledger" aria-live="polite">
+            <p class="ledger__basis" id="dispSub">연봉 4,000만 원 · 비과세 20만 · 부양가족 1명</p>
+            <div class="ledger__gross"><span>지급 · 월 급여(세전)</span><b id="lgGross">3,333,333</b></div>
+            <ol class="ledger__rows" id="lgRows"></ol>
+            <div class="ledger__bar" aria-hidden="true"><span class="ledger__net" id="lgNetBar"></span><span class="ledger__cut" id="lgCutBar"></span></div>
+            <div class="ledger__total">
+              <span class="ledger__k">차인지급액<small>= 월 실수령</small></span>
+              <b class="ledger__v" id="lgNet">2,924,363</b>
+              <span class="ledger__tag" id="dispTag">예시</span>
+            </div>
           </div>
-          <div class="np-display__num"><span class="housing__cur">₩</span><span class="odo odo--np" id="npOdo"></span></div>
-          <p class="np-display__sub" id="dispSub">연봉 4,000만 원 · 비과세 20만 · 부양가족 1명</p>
         </div>
 
         <div class="slip stack gap-12 np-form">
@@ -109,7 +114,7 @@
           <div class="quick row wrap gap-8" id="payQuick"></div>
 
           <details class="opts" id="opts">
-            <summary><span>비과세 · 부양가족 · 자녀</span><b id="optsSum">20만 · 1명 · 0명</b></summary>
+            <summary><span>공제 조건</span><b id="optsSum">비과세 20만 · 가족 1 · 자녀 0</b></summary>
             <div class="stack gap-12 opts__body">
               <label class="field">
                 <span class="field__label">월 비과세액 (식대 등)</span>
@@ -141,16 +146,17 @@
           </details>
         </div>
 
-        <button class="pos-key" id="printBtn">
-          <span class="pos-key__cap">발행</span>
-          <span class="pos-key__body"><b>급여 영수증 뽑기</b><small id="printSub">공제 내역 9줄 · 월 기준</small></span>
+        <button class="seal-btn" id="printBtn">
+          <span class="seal-btn__seal" aria-hidden="true">지급<br />확인</span>
+          <span class="seal-btn__body"><b>급여명세서 뽑기</b><small id="printSub">공제 내역 9줄 · 월 기준</small></span>
+          <span class="seal-btn__arrow" aria-hidden="true">↓</span>
         </button>
       </section>
 
       <!-- 2) 급여 영수증 -->
-      <section class="np-receipt" id="receiptWrap" aria-label="급여 영수증">
+      <section class="np-receipt" id="receiptWrap" aria-label="급여명세서">
         <div class="slip receipt result-card" id="resultCard">
-          <p class="receipt__store m0">급여 영수증 (예상)</p>
+          <p class="receipt__store m0">급여명세서 (예상) · 근로자 보관용</p>
           <p class="receipt__meta m0" id="receiptMeta">2026 요율 · 월 기준 · 근사치</p>
           <hr class="rule" />
           <p class="t-label-02 m0 receipt__k">월 실수령액</p>
@@ -169,7 +175,7 @@
         </div>
 
         <a class="coupon" href="../" id="toLive">
-          <span class="coupon__k">LIVE · 쿠폰</span>
+          <span class="coupon__k">참조 · 실시간 월급 카운터</span>
           <span class="coupon__t">이 월급, 실시간으로 쌓이는 거 보기 <span aria-hidden="true">→</span></span>
           <span class="coupon__s" id="liveSub">09:00~18:00 근무면 1초에 4.7원씩 올라가요</span>
         </a>
@@ -277,35 +283,36 @@
           <p class="doc__foot">국민연금 기준소득월액 상한 637만 원 · 하한 40만 원. 과세 급여 700만 원이어도 연금은 302,570원까지만 떼요.</p>
         </section>
 
-        <section class="doc doc--terms">
+        <section class="doc doc--inq" aria-labelledby="inqTitle">
           <header class="doc__head">
-            <h2 class="doc__store">영수증 약관</h2>
-            <p class="doc__meta">자주 묻는 질문</p>
+            <h2 class="doc__store" id="inqTitle">급여 문의 회신철</h2>
+            <p class="doc__meta">자주 들어오는 문의 5건 · 줄을 누르면 회신이 펼쳐져요</p>
           </header>
-          <details>
-            <summary>제1조 명세서랑 몇 만 원 달라요</summary>
-            <p>회사는 매달 간이세액표로 소득세를 떼고 2월 연말정산에서 차액을 정산해요. 이 계산기는 1년 치 세금을 12로 나눈 값이라 차이가 날 수 있어요.</p>
+          <div class="inq__cols" aria-hidden="true"><span>번호</span><span>문의 내용</span><span>처리</span></div>
+          <details class="inq">
+            <summary><span class="inq__no">No.01</span><span class="inq__q">명세서랑 몇 만 원 달라요</span><span class="inq__st">회신</span></summary>
+            <div class="inq__a"><span class="inq__seal" aria-hidden="true">담당</span><p>회사는 매달 간이세액표로 소득세를 떼고 2월 연말정산에서 차액을 정산해요. 이 계산기는 1년 치 세금을 12로 나눈 값이라 차이가 날 수 있어요.</p></div>
           </details>
-          <details>
-            <summary>제2조 비과세엔 뭘 넣어요?</summary>
-            <p>보통 식대 20만 원. 자가운전보조금(월 20만), 6세 이하 보육수당(월 20만)을 따로 받으면 더해서 넣어요. 예) 식대 + 보육수당 = 40.</p>
+          <details class="inq">
+            <summary><span class="inq__no">No.02</span><span class="inq__q">비과세엔 뭘 넣어요?</span><span class="inq__st">회신</span></summary>
+            <div class="inq__a"><span class="inq__seal" aria-hidden="true">담당</span><p>보통 식대 20만 원. 자가운전보조금(월 20만), 6세 이하 보육수당(월 20만)을 따로 받으면 더해서 넣어요. 예) 식대 + 보육수당 = 40.</p></div>
           </details>
-          <details>
-            <summary>제3조 부양가족은 어떻게 세요?</summary>
-            <p>본인 포함, 연말정산 기본공제 대상 수예요. 소득 없는 배우자, 20세 이하 자녀, 60세 이상 부모님. 1명당 연 150만 원 공제돼요.</p>
+          <details class="inq">
+            <summary><span class="inq__no">No.03</span><span class="inq__q">부양가족은 어떻게 세요?</span><span class="inq__st">회신</span></summary>
+            <div class="inq__a"><span class="inq__seal" aria-hidden="true">담당</span><p>본인 포함, 연말정산 기본공제 대상 수예요. 소득 없는 배우자, 20세 이하 자녀, 60세 이상 부모님. 1명당 연 150만 원 공제돼요.</p></div>
           </details>
-          <details>
-            <summary>제4조 자녀세액공제는 얼마예요?</summary>
-            <p>8~20세 자녀 1명 연 25만 원, 2명 55만 원, 3명부터 1명당 40만 원씩 더해요. 연봉 5,000만 원, 부양가족 3명에 자녀 2명을 넣으면 월 소득세가 158,480원 → 112,640원으로 줄어요.</p>
+          <details class="inq">
+            <summary><span class="inq__no">No.04</span><span class="inq__q">자녀세액공제는 얼마예요?</span><span class="inq__st">회신</span></summary>
+            <div class="inq__a"><span class="inq__seal" aria-hidden="true">담당</span><p>8~20세 자녀 1명 연 25만 원, 2명 55만 원, 3명부터 1명당 40만 원씩 더해요. 연봉 5,000만 원, 부양가족 3명에 자녀 2명을 넣으면 월 소득세가 158,480원 → 112,640원으로 줄어요.</p></div>
           </details>
-          <details>
-            <summary>제5조 입력한 연봉은 어디 저장돼요?</summary>
-            <p>이 기기 브라우저에만 저장돼요. 실시간 월급 카운터가 같은 값을 불러와 써요. 링크 보내기를 누를 때만 금액이 링크에 담겨요.</p>
+          <details class="inq">
+            <summary><span class="inq__no">No.05</span><span class="inq__q">입력한 연봉은 어디 저장돼요?</span><span class="inq__st">회신</span></summary>
+            <div class="inq__a"><span class="inq__seal" aria-hidden="true">담당</span><p>이 기기 브라우저에만 저장돼요. 실시간 월급 카운터가 같은 값을 불러와 써요. 링크 보내기를 누를 때만 금액이 링크에 담겨요.</p></div>
           </details>
         </section>
       </article>
 
-      <nav id="more" aria-label="다른 도구"></nav>
+      <nav id="more" aria-label="동봉 서류"></nav>
       <footer class="site-footer">세금·보험료는 2026년 기준 근사치예요. 정확한 금액은 급여 명세서를 확인해 주세요.</footer>
     </main>
     <script type="module" src="app.js"></script>

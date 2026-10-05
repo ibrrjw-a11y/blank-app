@@ -16,7 +16,6 @@ import {
   showView,
   openSheet,
   renderMoreSites,
-  renderCrumb,
   createCanvas,
   roundRect,
   CANVAS_FONT,
@@ -1060,11 +1059,29 @@ $("#installBtn").addEventListener("click", async () => {
 if (matchMedia("(display-mode: standalone)").matches) $("#installTip").hidden = true;
 
 /* =========================================================
+ * 영수증 하단 쿠폰: 다른 도구 3개를 절취 쿠폰으로 찍는다
+ * ========================================================= */
+function renderCoupons(el) {
+  renderMoreSites(el);
+  if (!el) return;
+  const title = el.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `<span class="cpn-cut" aria-hidden="true">✂</span>다음 방문 쿠폰 <small>3매 · 유효기간 없음</small>`;
+  const n = new Date();
+  el.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    const no = `${String(n.getMonth() + 1).padStart(2, "0")}${String(n.getDate()).padStart(2, "0")}-${i + 1}`;
+    a.insertAdjacentHTML(
+      "afterbegin",
+      `<span class="cpn__stub" aria-hidden="true"><b>0<small>원</small></b><i>No.${no}</i></span>`
+    );
+    a.insertAdjacentHTML("beforeend", `<span class="cpn__use" aria-hidden="true">사용 ↵</span>`);
+  });
+}
+
+/* =========================================================
  * 시작
  * ========================================================= */
 function init() {
-  renderCrumb($("#crumb"));
-  renderMoreSites($("#more"));
+  renderCoupons($("#more"));
   bindSteppers();
   bindSetup();
   bindMeet();

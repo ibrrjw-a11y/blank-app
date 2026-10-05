@@ -44,13 +44,12 @@ body {
   min-height: 44px;
 }
 
-.slate .crumb {
-  font: var(--label-03);
-  color: var(--color-text-tertiary);
-}
-.slate .crumb a {
-  color: var(--color-text-secondary);
-  padding: var(--sp-10) 0;
+.slate__tape {
+  padding: var(--sp-2) var(--sp-8);
+  border-left: 3px solid var(--art-yellow);
+  color: var(--art-cream);
+  font: 400 14px/20px var(--font-display);
+  letter-spacing: 0.02em;
 }
 
 .onair {
@@ -907,47 +906,169 @@ body {
 .cs-list li {
   margin-bottom: var(--sp-6);
 }
-.cuesheet details {
-  margin-top: var(--sp-8);
-  padding: var(--sp-12) var(--sp-12);
-  background: #fff;
-  border: 2px solid var(--art-ink);
-  border-radius: var(--r-4);
-  box-shadow: 3px 3px 0 var(--art-ink);
+/* 큐카드 Q&A: MC가 손에 드는 하드보드 큐카드. 접힌 상태는 질문만, 펼치면 뒷면 답이 내려와요 */
+.cuesheet {
+  counter-reset: cue;
 }
-.cuesheet details:nth-of-type(odd) {
-  transform: rotate(-0.6deg);
+.cuesheet details {
+  position: relative;
+  counter-increment: cue;
+  margin: var(--sp-16) var(--sp-4) 0;
+  background-color: #fffdf6;
+  border-radius: var(--r-6);
+  box-shadow: 0 1px 0 rgba(22, 22, 22, 0.25), 0 6px 0 -2px #e8dcc0, 0 6px 0 -1px rgba(22, 22, 22, 0.2);
+  transform: rotate(var(--cue-tilt, -0.8deg));
+}
+.cuesheet details:nth-of-type(even) {
+  --cue-tilt: 0.7deg;
+}
+/* 카드 위 빨간 머리줄 + 구멍 두 개 */
+.cuesheet details::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  border-radius: var(--r-6) var(--r-6) 0 0;
+  background: var(--art-red);
 }
 .cuesheet summary {
+  position: relative;
+  display: block;
+  min-height: 48px;
+  padding: var(--sp-24) var(--sp-16) var(--sp-8);
   list-style: none;
   color: var(--art-ink);
+  font: 400 19px/28px var(--font-display);
+  cursor: pointer;
 }
 .cuesheet summary::-webkit-details-marker {
   display: none;
 }
 .cuesheet summary::before {
-  content: "Q.";
-  margin-right: var(--sp-6);
+  content: "CUE " counter(cue, decimal-leading-zero);
+  position: absolute;
+  top: var(--sp-8);
+  left: var(--sp-16);
   color: var(--art-red);
-  font-family: var(--font-display);
+  font: 700 10px/14px var(--font-mono);
+  letter-spacing: 0.14em;
+}
+/* 넘기기 귀퉁이 */
+.cuesheet summary::after {
+  content: "넘기기 ↷";
+  position: absolute;
+  top: var(--sp-6);
+  right: var(--sp-12);
+  color: rgba(22, 22, 22, 0.45);
+  font: 700 11px/16px var(--font-sans);
+}
+.cuesheet details[open] summary::after {
+  content: "접기 ↶";
 }
 .cuesheet details p {
-  margin: var(--sp-8) 0 0;
+  position: relative;
+  margin: 0;
+  padding: var(--sp-12) var(--sp-16) var(--sp-16) var(--sp-48);
+  border-top: 2px dashed rgba(22, 22, 22, 0.25);
+  color: var(--art-ink);
+  font: var(--body-03);
 }
 .cuesheet details p::before {
-  content: "A. ";
-  font-weight: 800;
-  color: var(--art-blue);
+  content: "MC";
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-12);
+  padding: 0 var(--sp-4);
+  background: var(--art-ink);
+  color: var(--art-yellow);
+  font: 400 12px/20px var(--font-display);
+}
+.cuesheet details[open] p {
+  animation: rl-cue-flip 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: top;
 }
 
-/* 하단 추천 */
-.more-sites__item {
-  background: var(--art-wall);
-  border: 2px solid #2c2c2e;
-  box-shadow: none;
+/* ---------- 하단: 다음 주 예고 (예능 엔딩 예고 자막) ---------- */
+#more.more-sites {
+  margin-top: var(--sp-48);
+  padding: var(--sp-20) var(--sp-16) var(--sp-24);
+  background: var(--art-ink);
+  border-radius: var(--r-4);
+  box-shadow: 0 0 0 3px #2c2c2e, inset 0 0 0 1px #000;
+  background-image: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+}
+#more .more-sites__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-16);
+  color: var(--art-cream);
+  font: 400 26px/1 var(--font-display);
+  opacity: 1;
+  transform: rotate(-2deg);
+}
+#more .nx-tag {
+  padding: var(--sp-4) var(--sp-8);
+  background: var(--art-red);
+  color: #fff;
+  font: 800 12px/14px var(--font-sans);
+  letter-spacing: 0.16em;
+}
+#more .more-sites__grid {
+  gap: var(--sp-12);
+}
+#more .more-sites__item {
+  position: relative;
+  min-height: 64px;
+  padding: var(--sp-10) var(--sp-16) var(--sp-10) var(--sp-16);
+  border: 3px solid var(--art-ink);
+  border-radius: 0;
+  background: var(--art-yellow);
+  color: var(--art-ink);
+  box-shadow: 4px 4px 0 var(--art-red);
+  transform: rotate(-1.2deg);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+#more .more-sites__item:nth-child(2) {
+  background: var(--art-cream);
+  box-shadow: 4px 4px 0 var(--art-blue);
+  transform: rotate(1deg);
+  margin-left: var(--sp-16);
+}
+#more .more-sites__item:nth-child(3) {
+  box-shadow: 4px 4px 0 #15b26b;
+  transform: rotate(-0.6deg);
+}
+#more .more-sites__item:active {
+  transform: translate(3px, 3px) rotate(0deg);
+  box-shadow: 1px 1px 0 var(--art-ink);
+}
+#more .more-sites__item::before {
+  content: attr(data-ep);
+  position: absolute;
+  top: -10px;
+  right: var(--sp-12);
+  padding: 0 var(--sp-6);
+  background: var(--art-ink);
+  color: var(--art-yellow);
+  font: 400 12px/20px var(--font-display);
+}
+#more .more-sites__name {
+  font: 400 22px/28px var(--font-display);
+  color: var(--art-ink);
+}
+#more .more-sites__desc {
+  font: 700 13px/18px var(--font-sans);
+  opacity: 0.75;
 }
 
 /* ---------- Keyframes ---------- */
+@keyframes rl-cue-flip {
+  0% { transform: rotateX(-70deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
 @keyframes rl-blink {
   50% { opacity: 0.2; }
 }

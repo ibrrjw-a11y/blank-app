@@ -18,11 +18,13 @@ export function cabinet(stage, id) {
   if (!cab) {
     stage.innerHTML = `<div class="cab">
       <div class="cab__marquee"><span class="cab__tag"></span><span class="cab__day">#${DAY}</span></div>
-      <div class="cab__screen"><div class="cab__content"></div><div class="cab__scan"></div></div>
+      <div class="cab__screen"><div class="cab__content"></div><div class="cab__scan"></div><i class="cab__decal" aria-hidden="true"></i></div>
       <div class="cab__panel"><i class="cab__stick"></i><span class="cab__sticker"><b class="pix">HOW TO</b><span class="cab__how"></span></span><i class="cab__btn"></i><i class="cab__btn cab__btn--2"></i></div>
     </div>`;
     cab = stage.querySelector(".cab");
   }
+  // 기계마다 캐비닛 색·데칼이 다르다 (허브에서는 장면이 바뀔 때마다 옷을 갈아입는다)
+  GAME_IDS.forEach((g) => cab.classList.toggle(`cab--${g}`, g === id));
   const L = LABELS[id];
   if (L) {
     cab.querySelector(".cab__tag").textContent = `GAME ${L.no} · ${L.tag}`;

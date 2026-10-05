@@ -12,7 +12,6 @@ import {
   showView,
   openSheet,
   renderMoreSites,
-  renderCrumb,
   prefersReducedMotion,
   downloadBlob,
 } from "../shared/kit.js";
@@ -512,7 +511,6 @@ function openShare(rec) {
 
 /* ---------- 이벤트 ---------- */
 function init() {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
   renderChallengeBanner($("#challengeIntro"));
   renderChallengeBanner($("#challengeSetup"));

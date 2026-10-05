@@ -10,7 +10,7 @@
     <meta property="og:url" content="https://example.com/ddanjit/price/" />
     <meta property="og:title" content="그때 그 가격 - 옛날 물가 맞히기" />
     <meta property="og:description" content="1980년 짜장면 한 그릇은 얼마였을까? 금액을 적으면 업·다운 힌트를 줘요. 정답과 10% 이내면 성공. 기회 5번, 매일 0시 새 문제가 나오는 옛날 물가 퀴즈." />
-    <meta name="theme-color" content="#0e0d0b" />
+    <meta name="theme-color" content="#17110a" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:site_name" content="딴짓 오락실" />
@@ -18,10 +18,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang:wght@700&family=IBM+Plex+Mono:wght@500&family=Press+Start+2P&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../../shared/components.css" />
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="machine.css" />
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -99,25 +100,30 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
 
-      <!-- 1) 첫 화면: 이 게임 장면만 캐비닛에서 짧게 반복 -->
-      <section class="intro intro--game" id="intro" data-view="intro">
-        <header class="marquee">
-          <span class="marquee__lamp" aria-hidden="true"></span>
-          <span class="marquee__name">딴짓 오락실</span>
-          <span class="marquee__coin" aria-hidden="true">GAME 3/4</span>
+      <!-- 1) 첫 화면: 3번 기계. 금색 금전등록기 캐비닛, 헤드라인은 기계에서 뽑혀 나온 영수증 -->
+      <section class="intro intro--game pr" id="intro" data-view="intro">
+        <header class="pflags" aria-hidden="true">
+          <span class="pflags__row"><i>₩</i><i>3</i><i>5</i><i>0</i></span>
+          <span class="pflags__plate">No.3<br />딴짓 오락실</span>
         </header>
-        <h1 class="kinetic" aria-label="그때 그 가격, 옛날 물가 맞히기">
-          <span class="kinetic__line" data-split>그때 그 가격</span>
-          <span class="kinetic__line kinetic__line--accent" data-split>옛날 물가 맞히기</span>
+        <div class="prig">
+          <div class="intro__stage" aria-hidden="true"></div>
+        </div>
+        <h1 class="preceipt" aria-label="그때 그 가격, 옛날 물가 맞히기">
+          <span class="preceipt__paper">
+            <span class="preceipt__head" aria-hidden="true"><span>** 딴짓상회 **</span><span>1980.05.21</span></span>
+            <span class="preceipt__big" data-split>그때 그 가격</span>
+            <span class="preceipt__line" aria-hidden="true"><span>짜장면 1</span><i></i><span>???원</span></span>
+            <span class="preceipt__line" aria-hidden="true"><span>버스 요금 1</span><i></i><span>???원</span></span>
+            <span class="preceipt__sum"><span data-split>옛날 물가 맞히기</span></span>
+          </span>
         </h1>
-        <div class="intro__stage" aria-hidden="true"></div>
         <div class="intro__cta">
           <button class="coin-op" id="start" type="button">
-            <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
+            <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">₩500<br />COIN</span></span>
             <span class="coin-op__label"><b id="startLabel">가격 맞히기 시작</b><span class="pix" aria-hidden="true">5 TRIES · ±10% OK</span></span>
-            <span class="coin-op__btn" aria-hidden="true"><i></i></span>
+            <span class="coin-op__btn" aria-hidden="true"><i>합계</i></span>
           </button>
         </div>
       </section>
@@ -128,7 +134,7 @@
       <!-- 3) SEO 본문: 게임 설명서 -->
       <article class="seo manual" aria-labelledby="man-h">
         <header class="manual__head">
-          <span class="manual__tag pix">HOW TO PLAY</span>
+          <span class="manual__tag pix">MACHINE 03 · REGISTER</span>
           <h2 id="man-h">그때 그 가격 설명서</h2>
           <dl class="manual__spec">
             <div><dt>기회</dt><dd>5번</dd></div>
@@ -169,23 +175,26 @@
         </table>
         <p class="manual__ex">결과 화면에서 "그때 → 요즘" 가격과 몇 배 올랐는지 보여줘요. 짜장면은 350원 → 요즘 대략 7,500원.</p>
 
-        <h2 class="manual__qa">Q&amp;A</h2>
-        <details>
-          <summary>가격은 어디서 나온 값인가요?</summary>
-          <p>널리 알려진 대략적인 당시 평균가예요. 지역·가게마다 차이가 있어요. 최저시급처럼 공식 고시값이 있는 문제는 정확한 값을 써요.</p>
-        </details>
-        <details>
-          <summary>쉼표는 직접 찍어야 하나요?</summary>
-          <p>아니요. 숫자만 치면 1,000처럼 쉼표가 자동으로 붙어요.</p>
-        </details>
-        <details>
-          <summary>예시 문제가 또 나오나요?</summary>
-          <p>네. 1980년 짜장면도 문제 43개 중 하나라서 언젠가 나와요.</p>
-        </details>
-        <details>
-          <summary>기록은 어디에 남나요?</summary>
-          <p>이 브라우저에만 남아요.</p>
-        </details>
+        <section class="pfaq" aria-labelledby="pfaq-h">
+          <h2 class="pfaq__title" id="pfaq-h"><span>영수증 뒷면</span><small>손님 문의 안내</small></h2>
+          <details class="pfaq__item">
+            <summary><span class="pfaq__no">※01</span><span class="pfaq__q">가격은 어디서 나온 값인가요?</span></summary>
+            <p>널리 알려진 대략적인 당시 평균가예요. 지역·가게마다 차이가 있어요. 최저시급처럼 공식 고시값이 있는 문제는 정확한 값을 써요.</p>
+          </details>
+          <details class="pfaq__item">
+            <summary><span class="pfaq__no">※02</span><span class="pfaq__q">쉼표는 직접 찍어야 하나요?</span></summary>
+            <p>아니요. 숫자만 치면 1,000처럼 쉼표가 자동으로 붙어요.</p>
+          </details>
+          <details class="pfaq__item">
+            <summary><span class="pfaq__no">※03</span><span class="pfaq__q">예시 문제가 또 나오나요?</span></summary>
+            <p>네. 1980년 짜장면도 문제 43개 중 하나라서 언젠가 나와요.</p>
+          </details>
+          <details class="pfaq__item">
+            <summary><span class="pfaq__no">※04</span><span class="pfaq__q">기록은 어디에 남나요?</span></summary>
+            <p>이 브라우저에만 남아요.</p>
+          </details>
+          <p class="pfaq__foot" aria-hidden="true">* 교환·환불 대신 내일 0시 새 문제 *</p>
+        </section>
         <p class="manual__ex">다른 게임: <a href="../zoom/">줌아웃 퀴즈</a> · <a href="../town/">오늘의 동네</a> · <a href="../timeline/">추억 연대기</a> · <a href="../">4개 한 번에 보기</a></p>
       </article>
 
@@ -196,7 +205,9 @@
     <script type="module">
       import { bootGame } from "../play.js";
       import game from "../games/price.js";
+      import { machine } from "./machine.js";
       bootGame(game);
+      machine();
     </script>
   </body>
 </html>

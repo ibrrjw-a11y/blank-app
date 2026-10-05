@@ -60,9 +60,6 @@ body.is-playing .seo,
 body.is-playing #more,
 body.is-playing .site-footer { display: none; }
 
-.crumb { padding-top: var(--sp-12); font: var(--label-03); }
-.crumb a { color: var(--art-burn); font-family: var(--font-display); font-weight: 800; }
-
 /* ============ 나무 타일 (판, 데모, 예시 공용) ============ */
 .tray {
   --gap: 10px;

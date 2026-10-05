@@ -1,0 +1,358 @@
+/* 1번 기계 · 줌아웃 퀴즈
+ * 청록 돋보기 캐비닛. 마키: 글자가 점점 작아지는 ZOOM OUT 라이트박스 간판.
+ * 헤드라인: 흐릿하게 확대된 글자가 줌아웃되며 자리 잡고, 둘째 줄 위로 돋보기가 지나간다. */
+:root {
+  --brand: #4fd8c8;
+  --brand-pressed: #1f9488;
+  --brand-soft: #0f302d;
+  --brand-on: #04201d;
+
+  --art-cabinet: #06201e;
+  --art-bezel: #0d3532;
+  --art-bezel-edge: #1d5c56;
+  --art-crt: #041312;
+  --art-cream: #e9fbf6;
+  --zm-glass: #bff5ee;
+  --zm-paper: #e6f6f2;
+}
+
+body { background-color: var(--art-cabinet); }
+
+/* ---------- 마키: 라이트박스 간판 ---------- */
+.zsign {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  height: 64px;
+  margin-top: var(--sp-12);
+  padding: 0 var(--sp-12) var(--sp-8);
+  border-radius: var(--r-6);
+  background:
+    radial-gradient(circle, var(--art-cabinet) 0 2px, transparent 2.5px) 0 100% / 14px 8px repeat-x,
+    var(--brand);
+  color: var(--brand-on);
+  box-shadow: inset 0 0 0 3px var(--art-cabinet), 0 0 0 2px var(--brand-pressed);
+  overflow: hidden;
+}
+.zsign__word { display: flex; align-items: baseline; gap: 1px; font-family: var(--art-pixel); line-height: 1; }
+.zsign__word i {
+  font-style: normal;
+  display: inline-block;
+  transform-origin: 50% 100%;
+  animation: zm-letter 4200ms var(--spring) infinite;
+}
+.zsign__word b { width: 10px; }
+/* 글자마다 크기가 한 단계씩 줄어든다: 6.7배 → 1.3배 */
+.zsign__word i:nth-child(1) { font-size: 34px; animation-delay: 0ms; }
+.zsign__word i:nth-child(2) { font-size: 28px; animation-delay: 60ms; }
+.zsign__word i:nth-child(3) { font-size: 23px; animation-delay: 120ms; }
+.zsign__word i:nth-child(4) { font-size: 19px; animation-delay: 180ms; }
+.zsign__word i:nth-child(6) { font-size: 15px; animation-delay: 240ms; }
+.zsign__word i:nth-child(7) { font-size: 12px; animation-delay: 300ms; }
+.zsign__word i:nth-child(8) { font-size: 10px; animation-delay: 360ms; }
+.zsign__plate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font: var(--label-03);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.zsign__plate b { font-family: var(--art-pixel); font-size: 14px; font-weight: 400; }
+
+/* ---------- 헤드라인 ---------- */
+.ztitle {
+  margin: var(--sp-16) 0 var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+.ztitle__big {
+  font: var(--display-01);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 54px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--art-cream);
+}
+.ztitle__big .ch {
+  display: inline-block;
+  animation: zm-type 900ms var(--snap) both;
+  animation-delay: calc(var(--i) * 70ms + 100ms);
+}
+.ztitle .sp { display: inline-block; width: 0.26em; }
+.ztitle__lens {
+  position: relative;
+  display: inline-block;
+  padding: var(--sp-4) 0;
+  font: var(--title-01);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--brand);
+}
+.ztitle__lens .ch {
+  display: inline-block;
+  transform-origin: 50% 70%;
+  animation: zm-type 700ms var(--snap) both;
+  animation-delay: calc(var(--i) * 40ms + 300ms);
+}
+.ztitle__glass {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
+  border-radius: var(--r-full);
+  border: 4px solid var(--art-cream);
+  background: color-mix(in srgb, var(--zm-glass) 10%, transparent);
+  box-shadow: 0 0 0 2px var(--art-cabinet);
+  transform: translate(0, -50%);
+  pointer-events: none;
+}
+.ztitle__glass::after {
+  content: "";
+  position: absolute;
+  right: -16px;
+  bottom: -14px;
+  width: 22px;
+  height: 7px;
+  border-radius: var(--r-full);
+  background: var(--art-cream);
+  box-shadow: 0 0 0 2px var(--art-cabinet);
+  transform: rotate(45deg);
+}
+
+/* ---------- 캐비닛 + 돋보기 소품 ---------- */
+.zrig {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-8);
+}
+.zrig .intro__stage { min-height: 360px; overflow: visible; }
+.zrig .cab { border-width: 3px; }
+/* 캐비닛 옆면: 동심원 렌즈 무늬 */
+.zrig .cab__panel {
+  background: repeating-radial-gradient(circle at 100% 50%, transparent 0 7px, color-mix(in srgb, var(--brand) 18%, transparent) 7px 9px);
+  border-radius: 0 0 var(--r-12) var(--r-12);
+}
+.zrig .cab__sticker { border-radius: var(--r-full); padding: var(--sp-4) var(--sp-12); background: var(--art-cream); transform: rotate(0); }
+.zrig .cab__sticker .pix { color: var(--brand-pressed); }
+.zrig .cab__stick { background: var(--art-cream); }
+.zrig .cab__btn--2 { background: var(--art-cream); box-shadow: 0 4px 0 var(--brand-pressed); }
+
+.zprop {
+  position: absolute;
+  right: -10px;
+  top: -100px;
+  width: 100px;
+  height: 100px;
+  overflow: visible;
+  transform-origin: 90% 92%;
+  animation: zm-swing 3600ms var(--spring) infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+.zprop__handle { stroke: var(--art-cream); stroke-width: 14; stroke-linecap: round; }
+.zprop__glass { fill: color-mix(in srgb, var(--zm-glass) 14%, transparent); }
+.zprop__ring { fill: none; stroke: var(--brand); stroke-width: 8; }
+.zprop__shine { fill: none; stroke: var(--art-cream); stroke-width: 4; stroke-linecap: round; opacity: 0.8; }
+
+/* ---------- 시작 버튼: 노란 캡 대신 렌즈 캡 ---------- */
+.zm .coin-op { border-color: var(--brand-pressed); background-color: var(--art-bezel); margin-top: var(--sp-8); }
+.zm .coin-op__slot { background: var(--brand); box-shadow: inset 0 -4px 0 var(--brand-pressed), 0 0 0 3px var(--art-cabinet); }
+.zm .coin-op__door .pix { color: var(--brand); }
+.zm .coin-op__btn i {
+  background: radial-gradient(circle at 50% 50%, transparent 0 9px, var(--brand-on) 9px 11px, transparent 11px), radial-gradient(circle at 38% 34%, var(--art-cream) 0 22%, var(--brand) 60%);
+}
+
+/* ---------- 설명서: 연한 청록 종이 ---------- */
+.manual { background: var(--zm-paper); box-shadow: 0 var(--sp-6) 0 var(--brand-pressed); }
+.manual__tag { background: var(--brand-pressed); }
+.manual__steps li::before { background: var(--brand); box-shadow: 0 3px 0 var(--brand-pressed); }
+.manual__table tr.is-win td,
+.manual__table tr.is-win th { background: color-mix(in srgb, var(--brand) 30%, transparent); }
+
+/* ---------- 문답: 돋보기로 다시 읽는 메모 ---------- */
+.zfaq { margin-top: var(--sp-32); padding-top: var(--sp-16); border-top: 3px solid var(--art-cabinet); }
+.seo .zfaq__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-12);
+  font: var(--title-03);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--art-cabinet);
+}
+.zfaq__title .pix { padding: var(--sp-4) var(--sp-6); border-radius: var(--r-4); background: var(--art-cabinet); color: var(--brand); font-size: 8px; }
+.manual .zfaq__item { border: 0; padding: 0; margin: 0 0 var(--sp-8); }
+.seo.manual .zfaq__item summary {
+  display: grid;
+  grid-template-columns: 48px 1fr 32px;
+  align-items: center;
+  gap: var(--sp-8);
+  min-height: 52px;
+  padding: var(--sp-4) var(--sp-8) var(--sp-4) var(--sp-4);
+  border: 2px solid var(--art-cabinet);
+  border-radius: var(--r-full);
+  font: var(--label-01);
+  color: var(--art-cabinet);
+  list-style: none;
+  cursor: pointer;
+}
+.zfaq__item summary::-webkit-details-marker { display: none; }
+.manual .zfaq__item summary::before,
+.manual .zfaq__item summary::after,
+.manual .zfaq__item p::before { content: none; display: none; }
+.zfaq__mag {
+  display: grid;
+  place-items: center;
+  height: 40px;
+  border-radius: var(--r-full);
+  background: var(--art-cabinet);
+  color: var(--brand);
+  font-family: var(--art-pixel);
+  font-size: 8px;
+}
+.zfaq__q { word-break: keep-all; }
+/* 작은 돋보기 아이콘: 펼치면 렌즈가 커진다 */
+.zfaq__loupe {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--art-cabinet);
+  border-radius: var(--r-full);
+  transition: transform var(--dur-slow) var(--spring);
+}
+.zfaq__loupe::after {
+  content: "";
+  position: absolute;
+  right: -8px;
+  bottom: -6px;
+  width: 9px;
+  height: 3px;
+  background: var(--art-cabinet);
+  transform: rotate(45deg);
+}
+.zfaq__item[open] .zfaq__loupe { transform: scale(1.35); background: color-mix(in srgb, var(--brand) 45%, transparent); }
+.seo.manual .zfaq__item[open] summary { background: var(--art-cabinet); color: var(--art-cream); }
+.zfaq__item[open] .zfaq__mag { background: var(--brand); color: var(--brand-on); }
+.zfaq__item[open] .zfaq__loupe { border-color: var(--brand); }
+.zfaq__item[open] .zfaq__loupe::after { background: var(--brand); }
+.seo.manual .zfaq__item p {
+  display: block;
+  position: relative;
+  margin: var(--sp-8) var(--sp-8) var(--sp-12) var(--sp-24);
+  padding: var(--sp-12) var(--sp-12);
+  font: var(--body-02);
+  color: var(--art-cabinet);
+  --c: var(--brand-pressed);
+  background:
+    linear-gradient(var(--c) 0 0) left top / 14px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) left top / 3px 14px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 14px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 3px 14px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 14px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 3px 14px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 14px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 3px 14px no-repeat;
+  animation: zm-answer 420ms var(--spring) both;
+}
+
+/* ---------- 옆 기계: 뷰파인더 프레임 3칸 ---------- */
+.more-sites { padding-top: var(--sp-40); color: var(--art-cream); }
+.more-sites__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin-bottom: var(--sp-12);
+  font: var(--title-04);
+  font-family: var(--font-display);
+  font-weight: 400;
+  opacity: 1;
+}
+.more-sites__title .pix { padding: var(--sp-4) var(--sp-6); border-radius: var(--r-4); background: var(--brand); color: var(--brand-on); font-size: 8px; }
+.more-sites__grid { counter-reset: lens; gap: var(--sp-10); }
+.more-sites__item {
+  --c: var(--brand);
+  counter-increment: lens;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-12);
+  min-height: 72px;
+  padding: var(--sp-12) var(--sp-16);
+  border: 0;
+  border-radius: var(--r-12);
+  background:
+    linear-gradient(var(--c) 0 0) left top / 18px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) left top / 3px 18px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 18px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 3px 18px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 18px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 3px 18px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 18px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 3px 18px no-repeat,
+    var(--art-bezel);
+  transition: transform var(--dur-fast) var(--spring);
+}
+.more-sites__item:active { transform: scale(0.97); }
+.more-sites__item::after {
+  content: counter(lens, decimal-leading-zero);
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-full);
+  border: 4px solid var(--brand);
+  font-family: var(--art-pixel);
+  font-size: 9px;
+  color: var(--brand);
+}
+.more-sites__name { font: var(--title-04); font-family: var(--font-display); font-weight: 400; color: var(--art-cream); }
+.more-sites__desc { color: var(--brand); opacity: 1; }
+
+/* ---------- 키프레임 ---------- */
+/* 마키 글자: 크게 부풀었다가 툭 줄어 자리 잡음 */
+@keyframes zm-letter {
+  0%, 62%, 100% { transform: none; }
+  68% { transform: scale(1.35, 1.2); }
+  76% { transform: scale(0.88, 0.94); }
+  84% { transform: scale(1.04); }
+}
+/* 헤드라인 글자: 흐릿하게 크게 확대된 상태에서 줌아웃 */
+@keyframes zm-type {
+  0% { transform: scale(3.4); filter: blur(6px); opacity: 0; }
+  35% { transform: scale(3.6); filter: blur(5px); opacity: 0.6; }
+  75% { transform: scale(0.9); filter: blur(0); opacity: 1; }
+  100% { transform: none; filter: none; opacity: 1; }
+}
+@keyframes zm-swing {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-10deg) translate(-6px, 4px); }
+  34% { transform: rotate(5deg); }
+  44% { transform: rotate(-2deg); }
+  56% { transform: none; }
+}
+@keyframes zm-answer {
+  0% { transform: scale(1.25); opacity: 0; filter: blur(3px); }
+  100% { transform: none; opacity: 1; filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zsign__word i,
+  .ztitle .ch,
+  .zprop,
+  .seo.manual .zfaq__item p {
+  display: block; animation: none; }
+}

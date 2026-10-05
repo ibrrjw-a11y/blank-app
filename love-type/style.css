@@ -56,19 +56,6 @@ body::before {
 .lt-water path { fill: none; stroke: var(--art-ink-soft); stroke-width: 1; }
 .lt-art--sil .lt-body { fill: var(--art-ink); stroke: none; opacity: 0.16; }
 
-/* ---------- 상단 경로 ---------- */
-.lt .crumb {
-  height: 40px;
-  font: italic 400 14px/1 var(--art-latin);
-  color: var(--art-ink-soft);
-}
-
-.lt .crumb a {
-  color: var(--art-ink);
-  font-family: var(--font-display);
-  font-style: normal;
-}
-
 /* ---------- 도감 종이 ---------- */
 .lt-page,
 .lt-intro {
@@ -150,8 +137,8 @@ body::before {
 }
 
 .lt-plate__leaf {
-  width: 86%;
-  max-width: 300px;
+  width: 96%;
+  max-width: 340px;
   transform-origin: 0 50%;
 }
 
@@ -162,6 +149,82 @@ body::before {
 }
 
 .lt-plate__leaf.is-in { animation: lt-turn 700ms var(--art-spring) both; }
+
+/* 판화 여백: 그림 번호와 축척 막대 (장 넘기는 사이에도 판이 비지 않게) */
+.lt-plate__fig {
+  position: absolute;
+  right: var(--sp-8);
+  top: var(--sp-6);
+  max-width: 60%;
+  font: italic 400 12px/1.2 var(--art-latin);
+  color: var(--art-ink-soft);
+  text-align: right;
+}
+
+.lt-plate__scale {
+  position: absolute;
+  left: var(--sp-12);
+  bottom: var(--sp-12);
+  display: grid;
+  grid-template-columns: repeat(4, 16px);
+  grid-template-rows: 5px auto;
+  column-gap: 0;
+  font: 400 9px/1 var(--art-latin);
+  color: var(--art-ink-soft);
+}
+
+.lt-plate__scale i {
+  border: 0.5px solid var(--art-ink);
+}
+
+.lt-plate__scale i:nth-child(odd) { background: var(--art-ink); }
+.lt-plate__scale span { grid-row: 2; margin-top: 3px; }
+.lt-plate__scale span:last-child { grid-column: 4; justify-self: end; white-space: nowrap; }
+
+/* 판 왼쪽 위 습성 눈금: 세 습성이 어느 쪽인지 점이 튀어 간다 */
+.lt-plate__axes {
+  position: absolute;
+  left: var(--sp-8);
+  top: 34px;
+  display: grid;
+  gap: var(--sp-4);
+}
+
+.lt-axis {
+  display: grid;
+  grid-template-columns: 2.4em 10px 46px 10px;
+  align-items: center;
+  gap: var(--sp-4);
+  font: 400 11px/1 var(--art-latin);
+  color: var(--art-ink-soft);
+}
+
+.lt-axis small { font: 400 10px/1 var(--font-display); }
+.lt-axis b { font-weight: 400; text-align: center; transition: color var(--dur-fast) var(--ease-standard); }
+.lt-axis b:nth-of-type(1) { color: var(--art-rust); }
+.lt-axis.is-b b:nth-of-type(1) { color: var(--art-ink-soft); }
+.lt-axis.is-b b:nth-of-type(2) { color: var(--art-rust); }
+
+.lt-axis i {
+  position: relative;
+  height: 1px;
+  background: var(--art-ink);
+}
+
+.lt-axis em {
+  position: absolute;
+  left: 0;
+  top: -4px;
+  width: 9px;
+  height: 9px;
+  border-radius: var(--r-full);
+  background: var(--art-rust);
+  transition: left 520ms var(--art-spring);
+}
+
+.lt-axis.is-b em { left: calc(100% - 9px); }
+.lt-axis:nth-child(2) em { transition-delay: 80ms; }
+.lt-axis:nth-child(3) em { transition-delay: 160ms; }
 
 /* 표본 꼬리표 */
 .lt-tag {
@@ -381,7 +444,7 @@ body::before {
 
 /* ---------- 관찰 일지 (문항) ---------- */
 .lt-quiz .lt-page {
-  min-height: calc(100dvh - 72px);
+  min-height: calc(100dvh - var(--sp-32));
   margin-top: 0;
 }
 
@@ -933,15 +996,157 @@ body::before {
 
 .lt-table--species td:first-child { font: 400 13px var(--art-latin); }
 
-.lt-doc details { border-bottom: 1px solid var(--art-ink-soft); }
-.lt-doc summary { font: 400 16px/1.5 var(--font-display); color: var(--art-ink); }
-.lt-doc details p { margin: var(--sp-6) 0 0; font: var(--body-03); color: var(--art-ink); }
+/* ---------- 채집자 주석 (FAQ) ----------
+ * 옛 도감의 각주: 주석 기호 + 질문 + 점선 리더 + 쪽수. 펼치면 작은 활자의 각주가 내려온다. */
+.lt-notes {
+  margin-top: var(--sp-32);
+  padding-top: var(--sp-8);
+  border-top: 0.5px solid var(--art-ink);
+  box-shadow: 0 -3px 0 -2px var(--art-ink);
+}
 
-/* 하단 추천 */
-.lt .more-sites__title { font: 400 19px/1.3 var(--font-display); }
-.lt .more-sites__item { border-radius: var(--r-0); background: var(--art-paper); border: 1px solid var(--art-ink-soft); box-shadow: none; }
-.lt .more-sites__name { font: 400 15px/1.3 var(--font-display); }
-.lt .more-sites__cat { border-radius: var(--r-0); }
+.lt-doc .lt-notes h3 { margin-top: var(--sp-12); }
+
+.lt-doc .lt-notes__lede {
+  margin: 0 0 var(--sp-8);
+  font: italic 400 14px/1.5 var(--font-display);
+  color: var(--art-ink-soft);
+}
+
+.lt-doc details.lt-fn {
+  padding: 0;
+  border: 0;
+}
+
+.lt-fn summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-6);
+  min-height: var(--tap-min);
+  padding: var(--sp-12) 0 var(--sp-6);
+  list-style: none;
+  cursor: pointer;
+}
+
+.lt-fn summary::-webkit-details-marker { display: none; }
+
+.lt-fn__mark {
+  flex: none;
+  width: 1.1em;
+  font: 400 20px/1 var(--art-latin);
+  color: var(--art-rust);
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+
+.lt-fn[open] .lt-fn__mark { transform: scale(1.35) rotate(-8deg); }
+
+.lt-fn__q {
+  flex: 0 1 auto;
+  font: 400 17px/1.4 var(--font-display);
+  color: var(--art-ink);
+}
+
+/* 점선 리더 + 쪽수 */
+.lt-fn__page {
+  flex: 1 0 3.2em;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  font: italic 400 13px/1 var(--art-latin);
+  color: var(--art-ink-soft);
+  white-space: nowrap;
+}
+
+.lt-fn__page::before {
+  content: "";
+  flex: 1 1 auto;
+  border-bottom: 1.5px dotted var(--art-ink-soft);
+}
+
+.lt-doc .lt-fn p {
+  margin: 0 0 var(--sp-8) calc(1.1em + var(--sp-6));
+  padding: var(--sp-8) 0 var(--sp-8) var(--sp-12);
+  border-left: 0.5px solid var(--art-ink);
+  font: 400 13px/1.7 var(--font-display);
+  color: var(--art-ink);
+  transform-origin: 0 0;
+  animation: lt-fn-drop 420ms var(--art-spring) both;
+}
+
+.lt-fn p i { font-family: var(--art-latin); }
+
+@keyframes lt-fn-drop {
+  0% { opacity: 0; transform: translateY(-8px) scaleY(0.6); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ---------- 관련 도감 (다른 도구) ----------
+ * 같은 서가의 다른 도감 3권: 왼쪽으로 튀어나온 천 색인 탭 + 금박 권 번호 */
+.lt .more-sites {
+  margin-top: var(--sp-40);
+  padding-left: 0;
+}
+
+.lt .more-sites__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-8);
+  margin: 0 0 var(--sp-12);
+  padding-bottom: var(--sp-6);
+  border-bottom: 3px double var(--art-ink);
+  font: 400 22px/1.2 var(--font-display);
+  opacity: 1;
+  color: var(--art-ink);
+}
+
+.lt .more-sites__title i { font: italic 400 14px/1 var(--art-latin); color: var(--art-ink-soft); }
+
+.lt .more-sites__grid { gap: var(--sp-8); }
+
+.lt .more-sites__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  grid-template-areas: "tab name" "tab desc";
+  column-gap: var(--sp-12);
+  align-items: center;
+  min-height: 64px;
+  padding: var(--sp-10) var(--sp-16) var(--sp-10) 0;
+  border: 1px solid var(--art-ink-soft);
+  border-left: 0;
+  background: var(--art-foxing), var(--art-paper);
+  color: var(--art-ink);
+  text-decoration: none;
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+
+.lt .more-sites__item:nth-child(2) { margin-left: var(--sp-12); }
+.lt .more-sites__item:nth-child(3) { margin-left: var(--sp-24); }
+.lt .more-sites__item:active { transform: translateX(8px); transition-duration: 80ms; }
+
+/* 천 색인 탭: 가장자리가 둥근 손잡이 */
+.lt-idx__tab {
+  grid-area: tab;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: calc(var(--sp-10) * -1) 0;
+  border-radius: var(--r-8) 0 0 var(--r-8);
+  background: var(--brand);
+  color: var(--art-gold);
+  font: 400 19px/1 var(--art-latin);
+  box-shadow: inset -6px 0 0 color-mix(in srgb, var(--art-ink) 25%, transparent);
+}
+
+.lt-idx__tab small { font: italic 400 10px/1.2 var(--art-latin); color: var(--brand-on); }
+.lt .more-sites__item:nth-child(2) .lt-idx__tab { background: var(--art-rust); }
+.lt .more-sites__item:nth-child(3) .lt-idx__tab { background: var(--art-ink); }
+
+.lt .more-sites__name { grid-area: name; font: 400 18px/1.3 var(--font-display); }
+.lt .more-sites__desc { grid-area: desc; font: italic 400 13px/1.4 var(--font-display); opacity: 1; color: var(--art-ink-soft); }
+
 .lt .site-footer { color: var(--art-ink-soft); }
 
 /* ---------- 키프레임 ---------- */

@@ -46,16 +46,8 @@ body {
   gap: var(--sp-8);
   min-height: 48px;
 }
-.ledge .crumb {
-  font: 400 15px/20px var(--font-display);
-  color: var(--art-chalk-faint);
-}
-.ledge .crumb a {
-  color: var(--art-chalk-dim);
-  padding: var(--sp-12) 0;
-}
 .duty {
-  margin: 0;
+  margin: 0 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -1015,59 +1007,145 @@ body {
   font: var(--body-03);
   color: var(--art-chalk);
 }
-.notice details {
-  margin-top: var(--sp-12);
-  padding: var(--sp-12) var(--sp-12);
-  background: var(--art-paper);
-  color: var(--art-ink);
-  border: 0;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-  position: relative;
+/* 칠판 문제풀이 Q&A: 선생님이 칠판에 낸 문제, 펼치면 노란 분필로 답과 채점 동그라미 */
+.notice {
+  counter-reset: quiz;
+  border-bottom: 0 !important;
+  padding-bottom: var(--sp-32);
 }
-.notice details:nth-of-type(odd) { transform: rotate(-0.6deg); }
-.notice details:nth-of-type(even) { transform: rotate(0.5deg); }
-.notice details::before {
-  content: "";
-  position: absolute;
-  top: -6px;
-  right: 18px;
-  width: 14px;
-  height: 14px;
-  border-radius: var(--r-full);
-  background: var(--art-magnet);
-  box-shadow: inset 0 -3px 0 var(--art-magnet-dark);
+.notice details {
+  counter-increment: quiz;
+  position: relative;
+  margin: 0;
+  border-bottom: 2px dashed var(--art-chalk-faint);
 }
 .notice summary {
-  color: var(--art-ink);
-  font: 700 18px/24px var(--font-display);
+  position: relative;
+  display: block;
+  min-height: 56px;
+  padding: var(--sp-12) var(--sp-64) var(--sp-12) var(--sp-40);
+  color: var(--art-chalk);
+  font: 700 20px/26px var(--font-display);
   list-style: none;
-  padding-right: var(--sp-24);
+  cursor: pointer;
 }
 .notice summary::-webkit-details-marker {
   display: none;
 }
 .notice summary::before {
-  content: "Q. ";
-  color: var(--art-magnet-dark);
+  content: counter(quiz) ".";
+  position: absolute;
+  left: var(--sp-4);
+  top: var(--sp-12);
+  color: var(--art-pink);
+  font: 700 24px/26px var(--font-display);
+}
+/* 시험지처럼 비워 둔 답 칸, 펼치면 채점 동그라미 */
+.notice summary::after {
+  content: "(  )";
+  position: absolute;
+  right: var(--sp-4);
+  top: var(--sp-12);
+  color: var(--art-chalk-dim);
+  font: 700 20px/26px var(--font-display);
+  letter-spacing: 0.1em;
+}
+.notice details[open] summary::after {
+  content: "";
+  top: var(--sp-8);
+  right: var(--sp-8);
+  width: 40px;
+  height: 34px;
+  border: 3px solid var(--art-pink);
+  border-radius: 50% 46% 52% 44%;
+  transform: rotate(-12deg);
+  animation: ld-circle 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 .notice details p {
-  margin: var(--sp-8) 0 0;
-  font: var(--body-03);
-  color: var(--art-ink);
+  position: relative;
+  margin: 0 0 var(--sp-16);
+  padding-left: var(--sp-40);
+  color: var(--art-yellow);
+  font: 400 21px/27px var(--art-pen);
+}
+.notice details p::before {
+  content: "답)";
+  position: absolute;
+  left: var(--sp-4);
+  color: var(--art-yellow);
+  font: 700 18px/27px var(--font-display);
+}
+.notice details[open] p {
+  animation: ld-write 700ms steps(14, end) both;
 }
 
-/* 하단 추천 */
-.more-sites__item {
+/* ---------- 하단: 칠판 오른쪽 아래 구석 메모 ---------- */
+#more.more-sites {
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 0 var(--gutter) calc(var(--sp-40) + var(--safe-bottom));
   background: var(--art-board);
-  box-shadow: none;
-  border: 1px dashed var(--art-chalk-faint);
+  background-image: var(--art-dust);
+  border-bottom: 8px solid var(--art-frame);
+  color: var(--art-chalk);
 }
-.more-sites__name {
-  font-family: var(--font-display);
-  font-size: 17px;
+@media (min-width: 481px) {
+  #more.more-sites { margin-left: 0; margin-right: 0; border: 8px solid var(--art-frame); border-top: 0; }
+}
+#more .more-sites__title {
+  display: inline-block;
+  margin: 0 0 var(--sp-4) 22%;
+  padding: var(--sp-4) var(--sp-20);
+  border: 2px solid var(--art-pink);
+  border-radius: 46% 54% 44% 56% / 60% 50% 50% 40%;
+  color: var(--art-pink);
+  font: 700 20px/26px var(--font-display);
+  opacity: 1;
+  transform: rotate(-3deg);
+}
+#more .more-sites__grid {
+  margin-left: 18%;
+  padding: var(--sp-8) var(--sp-12) var(--sp-4);
+  border-left: 2px solid var(--art-chalk-faint);
+  border-bottom: 2px solid var(--art-chalk-faint);
+  border-radius: 0 0 0 var(--r-12);
+}
+#more .more-sites__item {
+  position: relative;
+  min-height: 52px;
+  padding: var(--sp-6) 0 var(--sp-6) var(--sp-24);
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--art-chalk);
+}
+#more .more-sites__item::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  top: var(--sp-6);
+  color: var(--art-yellow);
+  font: 700 20px/26px var(--font-display);
+}
+#more .more-sites__item:active {
+  transform: translateX(3px);
+}
+#more .more-sites__name {
+  font: 700 21px/26px var(--font-display);
+  text-decoration: underline wavy var(--art-chalk-faint);
+  text-underline-offset: 4px;
+  margin-bottom: var(--sp-6);
+}
+#more .more-sites__desc {
+  font: 400 18px/22px var(--art-pen);
+  color: var(--art-chalk-dim);
+  opacity: 1;
 }
 
 /* ---------- Keyframes ---------- */
+@keyframes ld-circle {
+  0% { clip-path: inset(0 100% 0 0); transform: rotate(-40deg) scale(1.3); }
+  100% { clip-path: inset(0 0 0 0); transform: rotate(-12deg); }
+}
 @keyframes ld-write {
   from { clip-path: inset(0 100% 0 0); }
   to { clip-path: inset(0 0 0 0); }

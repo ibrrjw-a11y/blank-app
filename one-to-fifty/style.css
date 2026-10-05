@@ -41,24 +41,11 @@ body {
 
 body.is-playing .seo,
 body.is-playing #more,
-body.is-playing .site-footer,
-body.is-playing #crumb {
+body.is-playing .site-footer {
   display: none;
 }
 body.is-playing {
   overscroll-behavior: none;
-}
-
-/* 상단 경로: 각인된 작은 명판 */
-.crumb {
-  padding-top: var(--sp-12);
-  color: var(--art-engrave-2);
-  font: var(--label-03);
-  letter-spacing: 0.04em;
-}
-.crumb a {
-  color: var(--art-engrave);
-  text-shadow: 0 1px 0 var(--art-steel-hi);
 }
 
 /* ============ 금속 판 공통 ============ */

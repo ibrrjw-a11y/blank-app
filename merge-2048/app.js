@@ -10,7 +10,6 @@ import {
   urlWith,
   getParam,
   showView,
-  renderCrumb,
   renderMoreSites,
   todayKey,
   prefersReducedMotion,
@@ -480,7 +479,6 @@ function pressTile(btn, fn) {
 }
 
 function init() {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
   renderChallenge();
   kineticHero();

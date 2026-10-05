@@ -47,11 +47,6 @@ body {
 
 .m0 { margin: 0; }
 
-/* ---------- 상단 경로: 금색 인쇄 ---------- */
-.crumb { height: var(--sp-32); }
-.crumb a { color: var(--art-gold); font: 600 12px/16px var(--font-display); letter-spacing: 0.06em; }
-.crumb span { color: var(--art-felt-line); }
-
 .gold-label {
   margin: 0;
   font: 800 14px/1.2 var(--font-display);
@@ -61,7 +56,7 @@ body {
 
 /* ---------- 펠트 테이블 (첫 화면) ---------- */
 .intro {
-  min-height: calc(100dvh - var(--sp-32));
+  min-height: 100dvh;
   padding: var(--sp-4) 0 calc(var(--sp-16) + var(--safe-bottom));
 }
 
@@ -142,6 +137,7 @@ body {
 
 .felt__cards {
   position: relative;
+  flex: 1 1 auto;
   width: 100%;
   min-height: 340px;
 }
@@ -913,15 +909,151 @@ body {
   color: var(--art-cream) !important;
 }
 
-.house details { border-bottom-color: var(--art-felt-line); }
-.house summary { color: var(--art-gold); font: 800 15px/1.4 var(--font-display); }
-.house details p { color: var(--art-cream); }
+/* 하우스 룰 카드 Q&A: 질문마다 트럼프 카드 한 장. 귀퉁이 숫자·무늬, 펼치면 딜러 답이 카드 아래쪽에 인쇄돼 있다 */
+.house {
+  counter-reset: rule;
+}
+.house details {
+  --suit: "♠";
+  --suit-c: var(--art-ink);
+  position: relative;
+  counter-increment: rule;
+  margin: 0 0 var(--sp-12);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-12);
+  background: var(--art-card);
+  color: var(--art-ink);
+  box-shadow: 0 0 0 1px var(--art-card-line), 0 4px 0 rgba(0, 0, 0, 0.25), var(--shadow-m);
+  transform: rotate(var(--tilt, -0.8deg));
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+.house details:nth-of-type(4n + 2) { --suit: "♥"; --suit-c: var(--art-red); --tilt: 0.9deg; }
+.house details:nth-of-type(4n + 3) { --suit: "♦"; --suit-c: var(--art-red); --tilt: -0.4deg; }
+.house details:nth-of-type(4n + 4) { --suit: "♣"; --tilt: 0.5deg; }
+.house details[open] { transform: rotate(0deg) translateY(-2px); }
+.house summary {
+  position: relative;
+  display: block;
+  min-height: 72px;
+  padding: var(--sp-16) var(--sp-48) var(--sp-16) 58px;
+  list-style: none;
+  color: var(--art-ink);
+  font: 800 17px/1.4 var(--font-display);
+  cursor: pointer;
+}
+.house summary::-webkit-details-marker { display: none; }
+/* 왼쪽 위 인덱스: 숫자 + 무늬 */
+.house summary::before {
+  content: counter(rule) "\A" var(--suit);
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-10);
+  white-space: pre;
+  text-align: center;
+  color: var(--suit-c);
+  font: 800 18px/1 var(--font-display);
+}
+/* 오른쪽 아래 뒤집힌 인덱스 = 펼침 표시 */
+.house summary::after {
+  content: var(--suit);
+  position: absolute;
+  right: var(--sp-12);
+  bottom: var(--sp-8);
+  color: var(--suit-c);
+  font: 800 22px/1 var(--font-display);
+  transform: rotate(180deg);
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+.house details[open] summary::after { transform: rotate(0deg) scale(1.2); }
+.house details p {
+  position: relative;
+  margin: 0 var(--sp-12) var(--sp-12) 58px;
+  padding: var(--sp-10) 0 var(--sp-4);
+  border-top: 1px solid var(--art-card-line);
+  color: var(--art-ink) !important;
+  font: var(--body-03);
+}
+.house details p::before {
+  content: "DEALER";
+  display: block;
+  margin-bottom: var(--sp-4);
+  color: var(--art-red);
+  font: 800 10px/1 var(--font-display);
+  letter-spacing: 0.24em;
+}
+.house details[open] p { animation: deal-in 420ms var(--art-spring) both; }
+@keyframes deal-in {
+  0% { transform: translateY(calc(var(--sp-12) * -1)) rotateX(60deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
 
-.more-sites__title { color: var(--art-gold); font-family: var(--font-display); }
-.more-sites__item { border-radius: var(--r-8); background: rgba(0, 0, 0, 0.28); box-shadow: none; }
-.more-sites__name { color: var(--art-cream); }
-.more-sites__desc { color: var(--art-felt-line); }
-.more-sites__cat { border-color: var(--art-felt-line); color: var(--art-cream); }
+/* ---------- 하단: 딜러 옆 아크릴 하우스 카드 ("옆 테이블") ---------- */
+#more.more-sites {
+  position: relative;
+  margin: var(--sp-48) var(--sp-8) 0;
+  padding: var(--sp-20) var(--sp-16) var(--sp-16);
+  border-radius: var(--r-8);
+  background: #121212;
+  box-shadow: 0 0 0 2px var(--art-gold), 0 0 0 6px #121212, 0 0 0 7px var(--art-felt-line), 0 18px 0 -6px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+#more.more-sites::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  width: 46%;
+  height: 12px;
+  border-radius: 0 0 var(--r-8) var(--r-8);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.12));
+  transform: translateX(-50%);
+}
+#more .more-sites__title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-6);
+  margin: 0 0 var(--sp-12);
+  color: var(--art-cream);
+  font: 800 19px/1.2 var(--font-display);
+  opacity: 1;
+}
+#more .hc-kicker {
+  color: var(--art-gold);
+  font: 800 11px/1 var(--font-display);
+  letter-spacing: 0.4em;
+}
+#more .more-sites__grid { gap: 0; }
+#more .more-sites__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-12);
+  align-items: center;
+  min-height: 60px;
+  padding: var(--sp-10) var(--sp-4);
+  border: 0;
+  border-top: 1px dashed rgba(227, 179, 65, 0.35);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  text-align: left;
+}
+#more .more-sites__item::before {
+  content: attr(data-table);
+  grid-row: 1 / 3;
+  padding: var(--sp-4) var(--sp-6);
+  border: 1px solid var(--art-gold);
+  border-radius: var(--r-4);
+  color: var(--art-gold);
+  font: 800 10px/1.2 var(--font-display);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+#more .more-sites__item:active { background: rgba(227, 179, 65, 0.12); }
+#more .more-sites__name { color: var(--art-cream); font: 800 17px/1.3 var(--font-display); }
+#more .more-sites__desc { color: rgba(243, 234, 210, 0.62); font: var(--caption-01); opacity: 1; }
 .site-footer { color: var(--art-felt-line); }
 
 /* 펠트에 인쇄된 자리 */

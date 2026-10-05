@@ -12,7 +12,6 @@ import {
   decodeState,
   urlWith,
   getParam,
-  renderCrumb,
   renderMoreSites,
   createCanvas,
   CANVAS_FONT,
@@ -21,7 +20,6 @@ import {
   todayKey,
 } from "../../shared/kit.js";
 import { calcNet, perSecond, salaryTable } from "../calc.js";
-import { Odometer } from "../odometer.js";
 
 const store = createStore("salary-live");
 const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -42,7 +40,6 @@ const manLabel = (man) => (man >= 10000 && man % 10000 === 0 ? `${man / 10000}�
 
 const payInput = $("#pay");
 const nontaxInput = $("#nontax");
-const odo = new Odometer($("#npOdo"), { minDigits: 7, dur: 380 });
 
 /* ---------- 입력 ---------- */
 function setMode(mode) {
@@ -55,16 +52,74 @@ function setMode(mode) {
   $("#payLabel").textContent = mode === "annual" ? "세전 연봉 (비과세 포함)" : "세전 월급 (비과세 포함)";
   payInput.placeholder = mode === "annual" ? "예: 4,000" : "예: 300";
   const quick = mode === "annual" ? [3000, 4000, 5000, 6000, 8000] : [250, 300, 350, 400, 500];
-  $("#payQuick").innerHTML = quick.map((q) => `<button class="chip" data-q="${q}">${comma(q)}만</button>`).join("");
+  $("#payQuick").innerHTML = quick.map((q) => `<button class="chip" data-q="${q}" aria-label="${comma(q)}만 원">${comma(q)}</button>`).join("");
 }
 
-function setDisplay(net, { label, tag, mine }) {
-  $("#npOdo").classList.toggle("is-long", String(Math.round(net)).length >= 8);
-  odo.set(net);
+/* ---------- 첫 화면 명세서: 지급액에서 공제가 한 줄씩 찍히고 실수령이 남는다 ---------- */
+let lastShown = null;
+let countRaf = 0;
+function ledgerRows(r) {
+  return [
+    ["국민연금", r.pension],
+    ["건강보험", r.health],
+    ["장기요양", r.care],
+    ["고용보험", r.employ],
+    ["근로소득세", r.incomeTax],
+    ["지방소득세", r.localTax],
+  ];
+}
+function countTo(el, from, to, ms) {
+  cancelAnimationFrame(countRaf);
+  if (prefersReducedMotion() || ms <= 0) {
+    el.textContent = comma(to);
+    return;
+  }
+  const t0 = performance.now();
+  const tick = (now) => {
+    const t = Math.min(1, (now - t0) / ms);
+    const e = 1 - Math.pow(1 - t, 4);
+    el.textContent = comma(from + (to - from) * e);
+    if (t < 1) countRaf = requestAnimationFrame(tick);
+    else {
+      el.classList.remove("is-pop");
+      void el.offsetWidth;
+      el.classList.add("is-pop");
+    }
+  };
+  countRaf = requestAnimationFrame(tick);
+}
+function setLedger(r, { label, tag, mine, print = true }) {
+  const key = `${r.monthlyGross}|${r.monthlyNet}|${label}|${tag}`;
   $("#dispSub").textContent = label;
   const t = $("#dispTag");
   t.textContent = tag;
   t.classList.toggle("is-mine", !!mine);
+  if (key === lastShown) return;
+  lastShown = key;
+  const ledger = $("#ledger");
+  $("#lgGross").textContent = comma(r.monthlyGross);
+  $("#lgRows").innerHTML = ledgerRows(r)
+    .map(([k, v], i) => `<li style="--i:${i}"><span>${k}</span><i></i><b>−${comma(v)}</b></li>`)
+    .join("");
+  const netPct = Math.max(0, Math.min(100, (r.monthlyNet / r.monthlyGross) * 100));
+  const net = $("#lgNetBar");
+  const cut = $("#lgCutBar");
+  if (print && !prefersReducedMotion()) {
+    ledger.classList.remove("is-print");
+    net.style.width = "100%";
+    cut.style.width = "0%";
+    void ledger.offsetWidth;
+    ledger.classList.add("is-print");
+    setTimeout(() => {
+      net.style.width = `${netPct}%`;
+      cut.style.width = `${100 - netPct}%`;
+    }, 180);
+    countTo($("#lgNet"), r.monthlyGross, r.monthlyNet, 620);
+  } else {
+    net.style.width = `${netPct}%`;
+    cut.style.width = `${100 - netPct}%`;
+    countTo($("#lgNet"), r.monthlyNet, r.monthlyNet, 0);
+  }
 }
 
 function breakdownRows(r) {
@@ -95,7 +150,7 @@ function update({ save = true } = {}) {
     : settings.pay
       ? `${settings.mode === "annual" ? "연봉" : "월급"} ${fmt.wonKo(settings.pay * 10000)}`
       : "만 원 단위로 입력해요";
-  $("#optsSum").textContent = `${settings.nontax}만 · ${settings.dependents}명 · ${settings.children}명`;
+  $("#optsSum").textContent = `비과세 ${settings.nontax}만 · 가족 ${settings.dependents} · 자녀 ${settings.children}`;
 
   // 입력이 없으면 연봉 4,000만 원 예시로 영수증을 채운다
   const shown = annual && !tooBig ? annual : 40_000_000;
@@ -111,7 +166,7 @@ function update({ save = true } = {}) {
 
   if (!demo || !isExample) {
     demo = false;
-    setDisplay(result.monthlyNet, { label: `${payLabel} · ${basis}`, tag: fromLink ? "받은 링크" : isExample ? "예시" : "내 금액", mine: !isExample });
+    setLedger(result, { label: `${payLabel} · ${basis}`, tag: fromLink ? "받은 링크" : isExample ? "예시" : "내 금액", mine: !isExample });
   }
 
   const big = $("#netMonthly");
@@ -227,7 +282,7 @@ function drawReceipt() {
   const W = 540;
   const H = 760;
   const { canvas, ctx } = createCanvas(W, H, 2);
-  const bg = css("--art-housing", "#1c1c1a");
+  const bg = css("--art-paper", "#d7dbd5");
   const paper = css("--art-slip", "#fdfcf7");
   const ink = css("--art-ink", "#161615");
   const sub = css("--art-ink-2", "#6a675f");
@@ -271,7 +326,7 @@ function drawReceipt() {
   };
   const r = result;
   let y = py + 50;
-  text("급여 영수증 (예상)", W / 2, y, { size: 24, weight: 800, align: "center" });
+  text("급여명세서 (예상)", W / 2, y, { size: 24, weight: 800, align: "center" });
   y += 24;
   text($("#receiptMeta").textContent, W / 2, y, { size: 12, color: sub, align: "center" });
   y += 18;
@@ -294,13 +349,13 @@ function drawReceipt() {
   rows.forEach(([k, v]) => {
     y += 30;
     text(k, L, y, { size: 16 });
-    text(v, R, y, { size: 16, weight: 700, align: "right", mono: true });
+    text(v, R, y, { size: 16, weight: 700, align: "right", mono: true, color: v.startsWith("−") ? brand : ink });
   });
   y += 20;
   dash(y);
   y += 40;
   text("월 실수령액", L, y, { size: 17, weight: 700 });
-  text(won(r.monthlyNet), R, y, { size: 28, weight: 700, color: brand, align: "right", mono: true });
+  text(won(r.monthlyNet), R, y, { size: 28, weight: 700, color: ink, align: "right", mono: true });
   y += 28;
   text(`연 ${fmt.wonKo(r.annualNet)}`, R, y, { size: 13, color: sub, align: "right" });
   y += 22;
@@ -312,31 +367,33 @@ function drawReceipt() {
     if (rand() > 0.35) ctx.fillRect(bx, y, w, 40);
     bx += w + 1 + Math.floor(rand() * 2);
   }
-  text("2026 요율 근사치 · 연봉 실수령액 계산기", W / 2, H - 22, { size: 13, color: css("--art-wheel-shade", sub), align: "center" });
+  text("2026 요율 근사치 · 연봉 실수령액 계산기", W / 2, H - 22, { size: 13, color: ink, align: "center" });
   return canvas;
 }
 
-/* ---------- 짧은 인트로: 표시창 숫자가 예시 연봉을 훑고 내 금액에서 멈춘다 ---------- */
+/* ---------- 짧은 인트로: 예시 연봉 3개가 명세서로 찍히고 4,000만 원에서 멈춘다 ---------- */
 function introRoll() {
-  odo.set(0, { instant: true });
-  const run = (list, i = 0) => {
-    if (!demo || i >= list.length) return;
-    const [man, last] = list[i];
-    const r = calcNet({ annual: man * 10000 });
-    setDisplay(r.monthlyNet, { label: `연봉 ${manLabel(man)} 원 · 비과세 20만 · 부양가족 1명`, tag: last ? "예시" : "계산 중" });
-    setTimeout(() => run(list, i + 1), 520);
-  };
   if (!demo) {
-    setTimeout(() => update({ save: false }), prefersReducedMotion() ? 0 : 260);
+    update({ save: false });
     return;
   }
-  if (prefersReducedMotion()) return update({ save: false });
-  setTimeout(() => run([[3000], [6000], [4000, true]]), 300);
+  const show = (man, last) => {
+    const r = calcNet({ annual: man * 10000 });
+    setLedger(r, { label: `연봉 ${manLabel(man)} 원 · 비과세 20만 · 부양가족 1명`, tag: last ? "예시" : "계산 중" });
+  };
+  if (prefersReducedMotion()) return show(4000, true);
+  const list = [[3000], [6000], [4000, true]];
+  const run = (i = 0) => {
+    if (!demo || i >= list.length) return;
+    show(...list[i]);
+    setTimeout(() => run(i + 1), 1500);
+  };
+  run();
 }
 
 function posClock() {
   const n = new Date();
-  $("#posTime").textContent = `${n.getFullYear()}-${pad2(n.getMonth() + 1)}-${pad2(n.getDate())} (${DAY_NAMES[n.getDay()]})`;
+  $("#posTime").textContent = `${n.getFullYear()}.${pad2(n.getMonth() + 1)}.${pad2(n.getDate())}`;
 }
 
 function renderSeoTable() {
@@ -348,9 +405,19 @@ function renderSeoTable() {
     .join("");
 }
 
+/* ---------- 하단: 명세서 봉투에 같이 든 "동봉 서류" ---------- */
+function renderEnclosures(el) {
+  renderMoreSites(el);
+  if (!el) return;
+  const title = el.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `동봉 서류 <small>3부 · 필요한 것만 꺼내 보세요</small>`;
+  el.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    a.insertAdjacentHTML("afterbegin", `<span class="encl__box" aria-hidden="true"></span><span class="encl__no" aria-hidden="true">별지 제${i + 1}호</span>`);
+  });
+}
+
 function init() {
-  renderCrumb($("#crumb"));
-  renderMoreSites($("#more"));
+  renderEnclosures($("#more"));
   renderSeoTable();
   posClock();
 

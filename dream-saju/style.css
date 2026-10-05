@@ -1748,16 +1748,6 @@ body::before {
   color: var(--color-text-secondary);
 }
 
-.crumbs {
-  padding-top: var(--sp-8);
-  font: var(--caption-01);
-  color: var(--color-text-tertiary);
-}
-
-.crumbs a {
-  color: var(--color-text-secondary);
-}
-
 .dict-group h2 {
   margin: 0 0 var(--sp-12);
   font: var(--title-02);
@@ -1804,19 +1794,8 @@ body::before {
 }
 
 /* =========================================================
- * 2차 개편 (§8): 상단 경로 · 세로 붓글씨 캡션 · 부적 버튼 · 한지 해몽책 본문
+ * 2차 개편 (§8): 세로 붓글씨 캡션 · 부적 버튼 · 한지 해몽책 본문
  * ========================================================= */
-.crumb {
-  height: 32px;
-  font: var(--label-03);
-  font-family: var(--font-display);
-  letter-spacing: 0.08em;
-  color: var(--color-text-tertiary);
-}
-.crumb a { color: var(--color-text-secondary); padding: var(--sp-8) 0; }
-.crumb a:last-child { color: var(--brand); }
-.crumb > span { color: var(--art-rule); }
-.intro { min-height: calc(100dvh - 56px - 32px); }
 
 /* 장면은 한지 오른쪽 한 줄을 비워 두고, 그 줄에 세로 캡션을 쓴다 */
 .scene { right: 46px; }
@@ -2040,13 +2019,6 @@ body::before {
 .ex-result p { margin: 0 !important; font: var(--body-03) !important; }
 .book .dream-links a { border-color: color-mix(in srgb, var(--art-ink) 35%, transparent); color: var(--art-ink); border-radius: var(--r-4); }
 .book .badge { background: transparent; border: 1px solid var(--art-ink); color: var(--art-ink); border-radius: var(--r-4); font-family: var(--font-display); }
-.book__faq details,
-.book .sym-faq details { padding: var(--sp-12) 0; border-bottom: 1px solid color-mix(in srgb, var(--art-ink) 18%, transparent); }
-.book summary { display: flex; gap: var(--sp-8); align-items: baseline; min-height: 28px; font: var(--body-03-strong); color: var(--art-ink); cursor: pointer; list-style: none; }
-.book summary::-webkit-details-marker { display: none; }
-.book summary::before { content: "問"; flex: none; font: 400 15px/1 var(--font-display); color: var(--art-seal); }
-.book details p { position: relative; margin: var(--sp-8) 0 0 !important; padding-left: var(--sp-24); color: var(--art-ink) !important; }
-.book details p::before { content: "答"; position: absolute; left: 0; top: 0; font: 400 15px/22px var(--font-display); color: var(--art-ink-wash); }
 .book .variant { border-bottom: 1px dashed color-mix(in srgb, var(--art-ink) 25%, transparent); }
 .book .variant h3 { justify-content: space-between; margin-bottom: var(--sp-6); font: var(--body-02-strong); font-family: var(--font-display); }
 .book .variant p { color: var(--art-ink) !important; }
@@ -2063,10 +2035,10 @@ body::before {
 .cta-tab p { margin: 0 !important; font: var(--label-02) !important; font-family: var(--font-display) !important; color: var(--art-ink-wash) !important; }
 .cta-tab .talisman { box-shadow: inset 0 0 0 4px var(--art-talisman), inset 0 0 0 6px var(--art-seal), inset 0 0 0 9px var(--art-talisman), inset 0 0 0 10px var(--art-seal), var(--shadow-s); }
 .cta-tab .talisman__label { font-size: 21px; line-height: 26px; white-space: normal; }
-.page-crumb { padding-top: var(--sp-8); }
 
 @media (prefers-reduced-motion: reduce) {
   .intro .talisman__seal { animation: none; }
+  .lot[open] .lot__paper, .lot summary, .fu .more-sites__item { animation: none !important; transition: none !important; }
 }
 .book .ptable tbody th { color: var(--art-ink); }
 .book .ptable--ex thead th:last-child,
@@ -2077,3 +2049,195 @@ body::before {
 .book .ptable--mood tbody th small { display: block; margin-top: var(--sp-2); font-family: var(--font-sans); font-weight: 400; }
 .book .ptable--grade td:last-child { white-space: normal; text-align: left; color: var(--art-ink); font: var(--caption-01); font-family: var(--font-sans); }
 .book .ptable--grade td.num { text-align: left; }
+
+/* =========================================================
+ * 3차 개편 (§9): 문답 제비 · 함께 보는 풀이 부적
+ * ========================================================= */
+
+/* ---------- 문답 제비 (FAQ): 산통에서 뽑는 점대 + 펼쳐지는 점괘 종이 ---------- */
+.book__faq .book__note { margin: calc(var(--sp-4) * -1) 0 var(--sp-12) !important; }
+.book .lot { position: relative; margin: 0 0 var(--sp-10); padding: 0; border: 0; }
+.book .lot:nth-of-type(odd) summary { transform: rotate(-0.6deg); }
+.book .lot:nth-of-type(even) summary { transform: rotate(0.5deg) translateX(var(--sp-6)); }
+.book .lot summary {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr 18px;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0;
+  border-radius: var(--r-4) var(--r-full) var(--r-full) var(--r-4);
+  background: var(--art-paper-deep);
+  background-image: repeating-linear-gradient(90deg, transparent 0 13px, color-mix(in srgb, var(--art-ink) 7%, transparent) 13px 14px);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--art-ink) 22%, transparent), var(--shadow-s);
+  color: var(--art-ink);
+  cursor: pointer;
+  list-style: none;
+  transition: transform 380ms var(--spring);
+}
+.book .lot summary::-webkit-details-marker { display: none; }
+.book .lot summary:active { transform: translateX(var(--sp-16)) scaleY(0.94); transition-duration: 90ms; }
+.book .lot[open] summary { transform: translateX(var(--sp-10)); }
+/* 점대 머리: 붉게 칠한 번호 */
+.lot__no {
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-4) 0 0 var(--r-4);
+  background: var(--art-seal);
+  color: var(--art-paper);
+  font: 400 15px/1 var(--font-display);
+  letter-spacing: 0.02em;
+}
+.lot__q { padding: var(--sp-10) var(--sp-8) var(--sp-10) var(--sp-12); font: var(--body-03-strong); font-family: var(--font-display); color: var(--art-ink); }
+/* 점대 끝: 둥글게 깎은 나무 + 뽑힌 표시 */
+.lot__pull { width: 8px; height: 8px; margin-right: var(--sp-10); border-radius: var(--r-full); border: 1.5px solid var(--art-ink-wash); }
+.lot[open] .lot__pull { background: var(--art-seal); border-color: var(--art-seal); }
+/* 점괘 종이: 위에서 아래로 펼쳐진다 */
+.book .lot__paper {
+  position: relative;
+  margin: calc(var(--sp-2) * -1) var(--sp-16) var(--sp-12) var(--sp-24);
+  padding: var(--sp-16) var(--sp-16) var(--sp-12) var(--sp-48);
+  background: var(--art-paper);
+  background-image: var(--art-fiber);
+  border: 1px solid color-mix(in srgb, var(--art-ink) 30%, transparent);
+  border-top: 0;
+  box-shadow: var(--shadow-s);
+  transform-origin: top;
+}
+.book .lot[open] .lot__paper { animation: lot-unfold 520ms var(--spring) both; }
+@keyframes lot-unfold {
+  0% { clip-path: inset(0 0 100% 0); transform: scaleY(0.6); }
+  60% { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); transform: none; }
+}
+.lot__ans {
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-12);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid var(--art-seal);
+  border-radius: var(--r-4);
+  color: var(--art-seal);
+  font: 400 15px/1 var(--font-display);
+  transform: rotate(-6deg);
+  filter: url(#ink-rough);
+}
+.book .lot__paper p { margin: 0 !important; color: var(--art-ink) !important; }
+
+/* ---------- 함께 보는 풀이 (다른 도구 링크): 줄에 꽂아 둔 부적 세 장 ---------- */
+.more-sites.fu {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 36px;
+  gap: var(--sp-8);
+  margin-top: var(--sp-24);
+  padding: var(--sp-24) 0 calc(var(--sp-32) + var(--safe-bottom));
+}
+/* 부적을 거는 금줄 */
+.fu::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--sp-4) * -1);
+  right: 44px;
+  top: calc(var(--sp-24) + var(--sp-6));
+  height: 3px;
+  border-radius: var(--r-full);
+  background: repeating-linear-gradient(90deg, var(--art-paper-deep) 0 6px, var(--art-ink-wash) 6px 8px);
+  transform: rotate(-1deg);
+}
+.fu .more-sites__title {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  gap: var(--sp-4);
+  margin: 0;
+  padding-left: var(--sp-6);
+  border-left: 1px solid var(--art-rule);
+  flex-direction: column;
+  writing-mode: vertical-rl;
+  opacity: 1;
+}
+.fu__t { font: 400 17px/1.2 var(--font-display); letter-spacing: 0.18em; color: var(--brand); }
+.fu .more-sites__grid {
+  grid-column: 1;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-10);
+  direction: rtl;
+}
+.fu .more-sites__item {
+  position: relative;
+  direction: ltr;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: var(--sp-6);
+  min-height: 236px;
+  padding: var(--sp-24) var(--sp-8) var(--sp-48);
+  border: 0;
+  border-radius: var(--r-0);
+  background: var(--art-talisman);
+  /* 붉은 겹테두리 + 왼쪽 위 접힌 귀 */
+  box-shadow: inset 0 0 0 4px var(--art-talisman), inset 0 0 0 5px var(--art-seal), inset 0 0 0 7px var(--art-talisman), inset 0 0 0 8px var(--art-seal), var(--shadow-m);
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px);
+  color: var(--art-ink);
+  transform-origin: 50% 0;
+  transition: transform 420ms var(--spring);
+}
+.fu .more-sites__item:nth-child(1) { transform: rotate(-2.5deg); }
+.fu .more-sites__item:nth-child(2) { transform: rotate(1.5deg) translateY(var(--sp-6)); }
+.fu .more-sites__item:nth-child(3) { transform: rotate(-1deg) translateY(var(--sp-2)); }
+.fu .more-sites__item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(135deg, transparent 50%, var(--art-paper-deep) 50%);
+}
+.fu .more-sites__item:active { transform: rotate(0deg) translateY(var(--sp-12)) scaleY(1.03); transition-duration: 110ms; }
+.fu__pin {
+  position: absolute;
+  top: var(--sp-6);
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: var(--r-full);
+  background: var(--art-ink-soft);
+  box-shadow: 0 1px 0 var(--art-paper);
+}
+.fu .more-sites__name,
+.fu .more-sites__desc { writing-mode: vertical-rl; text-orientation: upright; }
+.fu .more-sites__name { font: 400 20px/1.15 var(--font-display); letter-spacing: 0.06em; color: var(--art-seal); }
+.fu .more-sites__desc { font: 400 12px/1.25 var(--font-sans); letter-spacing: 0.02em; color: var(--art-ink-wash); opacity: 1; max-height: 176px; }
+.fu__seal {
+  position: absolute;
+  left: 50%;
+  bottom: var(--sp-12);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -14px;
+  border-radius: var(--r-4);
+  background: var(--art-seal);
+  color: var(--art-talisman);
+  font: 400 15px/1 var(--font-display);
+  transform: rotate(-8deg);
+  filter: url(#ink-rough);
+}
+/* 화면에 들어오면 한 장씩 위에서 풀려 내려와 흔들리다 멈춘다 */
+.fu:not(.is-in) .more-sites__item { clip-path: polygon(14px 0, 100% 0, 100% 0, 0 0, 0 0); }
+.fu.is-in .more-sites__item { animation: fu-drop 900ms var(--spring) calc(var(--i) * 140ms) backwards; }
+@keyframes fu-drop {
+  0% { clip-path: polygon(14px 0, 100% 0, 100% 0, 0 0, 0 0); transform: rotate(0deg) scaleY(0.4); }
+  45% { clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px); transform: rotate(6deg) scaleY(1.05); }
+  70% { transform: rotate(-3deg); }
+}

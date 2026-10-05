@@ -10,7 +10,7 @@
     <meta property="og:url" content="https://example.com/ddanjit/zoom/" />
     <meta property="og:title" content="줌아웃 퀴즈 - 확대된 그림, 뭔지 맞혀봐요" />
     <meta property="og:description" content="아주 크게 확대한 그림에서 시작해 틀릴 때마다 한 칸씩 줌아웃되는 그림 맞추기 퀴즈. 기회 6번, 매일 0시 새 문제. 설치 없이 3분이면 끝나요." />
-    <meta name="theme-color" content="#0e0d0b" />
+    <meta name="theme-color" content="#06201e" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:site_name" content="딴짓 오락실" />
@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../../shared/components.css" />
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="machine.css" />
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -99,20 +100,26 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
 
-      <!-- 1) 첫 화면: 이 게임 장면만 캐비닛에서 짧게 반복 -->
-      <section class="intro intro--game" id="intro" data-view="intro">
-        <header class="marquee">
-          <span class="marquee__lamp" aria-hidden="true"></span>
-          <span class="marquee__name">딴짓 오락실</span>
-          <span class="marquee__coin" aria-hidden="true">GAME 1/4</span>
+      <!-- 1) 첫 화면: 1번 기계. 청록 돋보기 캐비닛에서 그림이 줌아웃된다 -->
+      <section class="intro intro--game zm" id="intro" data-view="intro">
+        <header class="zsign" aria-hidden="true">
+          <span class="zsign__word"><i>Z</i><i>O</i><i>O</i><i>M</i><b></b><i>O</i><i>U</i><i>T</i></span>
+          <span class="zsign__plate"><b>01</b>딴짓 오락실</span>
         </header>
-        <h1 class="kinetic" aria-label="줌아웃 퀴즈, 확대된 그림 맞히기">
-          <span class="kinetic__line" data-split>줌아웃 퀴즈</span>
-          <span class="kinetic__line kinetic__line--accent" data-split>확대된 그림 맞히기</span>
+        <h1 class="ztitle" aria-label="줌아웃 퀴즈, 확대된 그림 맞히기">
+          <span class="ztitle__big" data-split>줌아웃 퀴즈</span>
+          <span class="ztitle__lens"><span data-split>확대된 그림 맞히기</span><i class="ztitle__glass" aria-hidden="true"></i></span>
         </h1>
-        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="zrig">
+          <div class="intro__stage" aria-hidden="true"></div>
+          <svg class="zprop" viewBox="0 0 120 120" aria-hidden="true">
+            <path class="zprop__handle" d="M78 80 L108 110" />
+            <circle class="zprop__glass" cx="52" cy="52" r="34" />
+            <path class="zprop__shine" d="M32 40 A24 24 0 0 1 46 26" />
+            <circle class="zprop__ring" cx="52" cy="52" r="34" />
+          </svg>
+        </div>
         <div class="intro__cta">
           <button class="coin-op" id="start" type="button">
             <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
@@ -128,7 +135,7 @@
       <!-- 3) SEO 본문: 게임 설명서 -->
       <article class="seo manual" aria-labelledby="man-h">
         <header class="manual__head">
-          <span class="manual__tag pix">HOW TO PLAY</span>
+          <span class="manual__tag pix">MACHINE 01 · LENS</span>
           <h2 id="man-h">줌아웃 퀴즈 설명서</h2>
           <dl class="manual__spec">
             <div><dt>기회</dt><dd>6번</dd></div>
@@ -178,23 +185,25 @@
           </tbody>
         </table>
 
-        <h2 class="manual__qa">Q&amp;A</h2>
-        <details>
-          <summary>문제는 언제 바뀌나요?</summary>
-          <p>매일 0시(한국 시간)에 바뀌어요. 같은 날엔 누구나 같은 그림을 풀어요.</p>
-        </details>
-        <details>
-          <summary>보기 힌트를 쓰면 손해인가요?</summary>
-          <p>점수는 똑같이 "몇 번 만에 맞혔나"로 남아요. 결과 화면에 보기 힌트를 썼다는 표시만 붙어요.</p>
-        </details>
-        <details>
-          <summary>그림은 어디서 오나요?</summary>
-          <p>기기에 깔린 이모지 글꼴을 크게 그려서 써요. 그래서 아이폰과 갤럭시에서 그림 모양이 조금 달라요.</p>
-        </details>
-        <details>
-          <summary>기록은 어디에 남나요?</summary>
-          <p>이 브라우저에만 남아요. 플레이 수, 성공률, 연속 성공, 시도 분포를 나만 봐요.</p>
-        </details>
+        <section class="zfaq" aria-labelledby="zfaq-h">
+          <h2 class="zfaq__title" id="zfaq-h"><span class="pix">LOUPE</span>확대해서 다시 읽기</h2>
+          <details class="zfaq__item">
+            <summary><span class="zfaq__mag">×6.7</span><span class="zfaq__q">문제는 언제 바뀌나요?</span><i class="zfaq__loupe" aria-hidden="true"></i></summary>
+            <p>매일 0시(한국 시간)에 바뀌어요. 같은 날엔 누구나 같은 그림을 풀어요.</p>
+          </details>
+          <details class="zfaq__item">
+            <summary><span class="zfaq__mag">×4.5</span><span class="zfaq__q">보기 힌트를 쓰면 손해인가요?</span><i class="zfaq__loupe" aria-hidden="true"></i></summary>
+            <p>점수는 똑같이 "몇 번 만에 맞혔나"로 남아요. 결과 화면에 보기 힌트를 썼다는 표시만 붙어요.</p>
+          </details>
+          <details class="zfaq__item">
+            <summary><span class="zfaq__mag">×3.2</span><span class="zfaq__q">그림은 어디서 오나요?</span><i class="zfaq__loupe" aria-hidden="true"></i></summary>
+            <p>기기에 깔린 이모지 글꼴을 크게 그려서 써요. 그래서 아이폰과 갤럭시에서 그림 모양이 조금 달라요.</p>
+          </details>
+          <details class="zfaq__item">
+            <summary><span class="zfaq__mag">×2.3</span><span class="zfaq__q">기록은 어디에 남나요?</span><i class="zfaq__loupe" aria-hidden="true"></i></summary>
+            <p>이 브라우저에만 남아요. 플레이 수, 성공률, 연속 성공, 시도 분포를 나만 봐요.</p>
+          </details>
+        </section>
         <p class="manual__ex">다른 게임: <a href="../town/">오늘의 동네</a> · <a href="../price/">그때 그 가격</a> · <a href="../timeline/">추억 연대기</a> · <a href="../">4개 한 번에 보기</a></p>
       </article>
 
@@ -205,7 +214,9 @@
     <script type="module">
       import { bootGame } from "../play.js";
       import game from "../games/zoom.js";
+      import { machine } from "./machine.js";
       bootGame(game);
+      machine();
     </script>
   </body>
 </html>

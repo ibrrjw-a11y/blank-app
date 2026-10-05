@@ -1,4 +1,4 @@
-import { $, $$, haptic, toast, renderCrumb, renderMoreSites, CANVAS_FONT, wrapText, prefersReducedMotion } from "../shared/kit.js";
+import { $, $$, haptic, toast, renderMoreSites, CANVAS_FONT, wrapText, prefersReducedMotion } from "../shared/kit.js";
 import { createQuiz, tally, createResultKit, swapView, loopScenes, wait, esc, josa, fmtDate, tok, rotated } from "../test-kit/engine.js";
 import { QUESTIONS, AREAS, TIERS, tierOf } from "./data.js";
 
@@ -133,10 +133,10 @@ function startIntro() {
     if (signal.aborted) return;
     $(`#iOpts [data-k="${d.pick}"]`).classList.add("is-checked");
     const opt = q.options[d.pick];
-    $("#iLog").insertAdjacentHTML(
-      "beforeend",
-      `<tr class="is-new"><td>${String(d.qi + 1).padStart(2, "0")}</td><td>${AREAS[q.a]}</td><td>${CIRCLED[d.pick]} ${esc(opt.t)}</td><td>${opt.s.k}점</td></tr>`
-    );
+    const filled = `<tr class="is-new"><td>${String(d.qi + 1).padStart(2, "0")}</td><td>${AREAS[q.a]}</td><td>${CIRCLED[d.pick]} ${esc(opt.t)}</td><td>${opt.s.k}점</td></tr>`;
+    const blank = $("#iLog tr.is-blank");
+    if (blank) blank.outerHTML = filled;
+    else $("#iLog").insertAdjacentHTML("beforeend", filled);
     setOdo($("#iOdo"), d.score);
     bar.style.setProperty("--p", d.score);
     await wait(450, signal);
@@ -149,7 +149,11 @@ function startIntro() {
       stage.dataset.scene = String(i + 1);
       if (i === 0) {
         clearSign(sign);
-        $("#iLog").innerHTML = "";
+        // 빈 처리 칸을 미리 그어 두고 하나씩 채운다 (빈 표가 휑하지 않게)
+        $("#iLog").innerHTML = Array.from(
+          { length: 6 },
+          (_, k) => `<tr class="is-blank"><td>${String(k + 1).padStart(2, "0")}</td><td></td><td>미처리</td><td>-</td></tr>`
+        ).join("");
         setOdo($("#iOdo"), 0);
         bar.style.setProperty("--p", 0);
       }
@@ -600,7 +604,6 @@ function route() {
   goIntro();
 }
 
-renderCrumb($("#crumb"));
 $("#start").onclick = (e) => pressStamp(e.currentTarget, startQuiz);
 $("#quizBack").onclick = () => quiz.back();
 $("#lastResult").onclick = () => {
@@ -616,3 +619,23 @@ window.addEventListener("popstate", () => {
 });
 route();
 renderMoreSites($("#more"));
+dressRelatedDocs($("#more"));
+
+// 하단 다른 도구: 공문 끝에 붙는 "관련 문서" 칸
+function dressRelatedDocs(nav) {
+  if (!nav) return;
+  const title = nav.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `<span>관련 문서</span><small>참조 3건 · 열람 가능</small>`;
+  nav.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    const no = document.createElement("span");
+    no.className = "kd-ref__no";
+    no.setAttribute("aria-hidden", "true");
+    no.textContent = `참조 ${i + 1}`;
+    const go = document.createElement("span");
+    go.className = "kd-ref__go";
+    go.setAttribute("aria-hidden", "true");
+    go.textContent = "열람";
+    a.prepend(no);
+    a.append(go);
+  });
+}

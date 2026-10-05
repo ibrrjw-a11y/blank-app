@@ -1276,27 +1276,8 @@ body::before {
  * 2차 개편: 상단 경로 · 티켓 CTA · 캡션 메모 · 진(zine) 본문
  * ========================================================= */
 .om .intro {
-  min-height: calc(100dvh - 40px);
+  min-height: 100dvh;
 }
-
-/* 상단 경로: 마스킹 테이프 라벨 */
-.om .crumb {
-  position: relative;
-  z-index: 2;
-  height: 40px;
-  gap: var(--sp-8);
-}
-
-.om .crumb a {
-  padding: var(--sp-2) var(--sp-8);
-  background: var(--art-tape);
-  color: var(--art-ink);
-  font: 400 18px/1.2 var(--art-hand);
-  transform: rotate(-2deg);
-}
-
-.om .crumb a + a { transform: rotate(1.5deg); }
-.om .crumb span { color: var(--art-ink-soft); }
 
 /* 캡션: 회색 부제 대신 테이프 위 손글씨 메모 */
 .om .intro__caption p {
@@ -1649,47 +1630,194 @@ body::before {
   font: 400 14px/1.6 var(--art-latin);
 }
 
-.om-qa details {
-  border-bottom: 1.5px dashed var(--art-ink-soft);
+
+/* ---------- 독자 엽서함 (FAQ) ----------
+ * 독자가 보낸 손글씨 엽서. 누르면 뒷면에 편집부 답장이 타자기 글씨로 붙는다. */
+.om-zine .om-mailbag__note {
+  margin: 0 0 var(--sp-16);
+  font: 400 19px/1.35 var(--art-hand);
+  color: var(--art-ink-soft);
 }
 
-.om-zine.seo summary {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-8);
+.om-zine.seo details.om-card {
+  position: relative;
+  margin: 0 0 var(--sp-16);
+  padding: 0;
+  border: 0;
+  background: var(--art-white);
+  box-shadow: 0 0 0 1.5px var(--art-ink), var(--shadow-s);
+  transform: rotate(-0.9deg);
+}
+
+.om-zine.seo details.om-card:nth-of-type(even) { transform: rotate(0.8deg); margin-left: var(--sp-10); }
+.om-zine.seo details.om-card:nth-of-type(3n) { transform: rotate(-0.3deg); margin-right: var(--sp-8); }
+
+.om-zine.seo .om-card summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "from stamp" "q stamp" "flip flip";
+  column-gap: var(--sp-12);
   min-height: var(--tap-min);
-  font: 400 16px/1.4 var(--font-display);
-  color: var(--art-ink);
+  padding: var(--sp-12) var(--sp-12) var(--sp-8) var(--sp-16);
   list-style: none;
+  cursor: pointer;
+  /* 엽서 밑줄 */
+  background: repeating-linear-gradient(transparent 0 27px, color-mix(in srgb, var(--art-ink) 18%, transparent) 27px 28px);
+  background-position: 0 var(--sp-24);
 }
 
-.om-qa summary::-webkit-details-marker { display: none; }
+.om-card summary::-webkit-details-marker { display: none; }
 
-.om-q {
-  flex: none;
+.om-card__from {
+  grid-area: from;
+  font: 400 11px/1.6 var(--art-latin);
+  letter-spacing: 0.06em;
+  color: var(--art-ink-soft);
+}
+
+.om-card__q {
+  grid-area: q;
+  font: 400 24px/28px var(--art-hand);
+  color: var(--art-ink);
+}
+
+/* 우표: 톱니 테두리 + 소인 */
+.om-card__stamp {
+  grid-area: stamp;
+  align-self: start;
+  position: relative;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 30px;
+  width: 44px;
+  height: 52px;
+  background: var(--brand);
+  color: var(--art-ink);
+  font: 400 18px/1 var(--art-latin);
+  outline: 3px dotted var(--art-white);
+  outline-offset: -2px;
+  transform: rotate(4deg);
+}
+
+.om-card:nth-of-type(even) .om-card__stamp { background: var(--art-kraft); transform: rotate(-5deg); }
+.om-card:nth-of-type(3n) .om-card__stamp { background: var(--art-note); }
+
+.om-card__stamp::after {
+  content: "";
+  position: absolute;
+  left: -26px;
+  top: 22px;
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid color-mix(in srgb, var(--art-ink) 55%, transparent);
+  border-radius: var(--r-full);
+  box-shadow: inset 0 0 0 5px transparent, inset 0 0 0 6px color-mix(in srgb, var(--art-ink) 35%, transparent);
+}
+
+.om-card__flip {
+  grid-area: flip;
+  justify-self: end;
+  margin-top: var(--sp-4);
+  font: 400 17px/1.2 var(--art-hand);
+  color: var(--brand-pressed);
+}
+
+.om-card__flip::before { content: "뒤집어서 답장 보기 ↷"; }
+.om-card[open] .om-card__flip::before { content: "다시 접기 ↶"; }
+
+.om-zine.seo .om-card p {
+  position: relative;
+  margin: 0;
+  padding: var(--sp-16) var(--sp-16) var(--sp-16);
+  border-top: 1.5px dashed var(--art-ink-soft);
+  background: var(--art-paper-2);
+  font: 400 14px/1.6 var(--art-serif);
+  color: var(--art-ink);
+  animation: om-flip-in var(--dur-slow) var(--art-spring);
+}
+
+.om-card p b {
+  display: inline-block;
+  margin: 0 var(--sp-8) 0 0;
+  padding: 0 var(--sp-6);
   background: var(--art-ink);
   color: var(--art-paper);
-  font: 400 16px/1 var(--art-latin);
+  font: 400 12px/1.7 var(--font-display);
+  transform: rotate(-3deg);
+}
+
+@keyframes om-flip-in {
+  0% { transform: rotateX(-70deg); transform-origin: top; opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+
+/* ---------- 다음 호 예고 (다른 도구) ----------
+ * 뒷표지 하단, 오려붙인 예고 쪽지 3장 */
+.om .more-sites {
+  position: relative;
+  margin-top: var(--sp-48);
+  padding-top: var(--sp-24);
+  border-top: 2px dashed var(--art-ink);
+}
+
+.om .more-sites::before {
+  content: "✂";
+  position: absolute;
+  top: -14px;
+  left: var(--sp-16);
+  padding: 0 var(--sp-4);
+  background: var(--art-paper);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--art-ink);
+}
+
+.om .more-sites__title {
+  display: flex;
+  gap: var(--sp-4);
+  margin: 0 0 var(--sp-20);
+  font: 400 26px/1.2 var(--font-display);
+  opacity: 1;
+  color: var(--art-ink);
+}
+
+.om .more-sites__grid { gap: var(--sp-16); }
+
+.om .more-sites__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "no name" "no desc";
+  column-gap: var(--sp-12);
+  align-items: center;
+  min-height: 64px;
+  padding: var(--sp-12) var(--sp-16) var(--sp-12) var(--sp-12);
+  border: 0;
+  background: var(--art-white);
+  color: var(--art-ink);
+  text-decoration: none;
+  /* 가위로 대충 자른 가장자리 */
+  clip-path: polygon(0 4%, 3% 0, 40% 3%, 72% 0, 100% 2%, 99% 50%, 100% 97%, 64% 100%, 30% 97%, 2% 100%, 0 60%);
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+
+.om .more-sites__item:nth-child(1) { transform: rotate(-1.4deg); margin-right: var(--sp-24); }
+.om .more-sites__item:nth-child(2) { transform: rotate(1.2deg); margin-left: var(--sp-24); background: var(--art-note); }
+.om .more-sites__item:nth-child(3) { transform: rotate(-0.6deg); margin-right: var(--sp-12); background: var(--art-kraft); }
+.om .more-sites__item:active { transform: rotate(0) scale(0.96); transition-duration: 60ms; }
+
+.om-next__no {
+  grid-area: no;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  background: var(--art-ink);
+  color: var(--art-paper);
+  font: 400 13px/1 var(--art-latin);
   transform: rotate(-6deg);
 }
 
-.om-qa details:nth-of-type(even) .om-q { background: var(--brand); color: var(--art-ink); transform: rotate(5deg); }
+.om .more-sites__item:nth-child(2) .om-next__no { background: var(--brand); color: var(--art-ink); transform: rotate(5deg); }
 
-.om-zine details p {
-  margin: 0 0 var(--sp-12) 36px;
-  padding: var(--sp-8) var(--sp-10);
-  background: var(--art-paper);
-  font: var(--body-03);
-  color: var(--art-ink);
-}
-
-/* 하단 추천도 오려 붙인 종이처럼 */
-.om .more-sites__title { font: 400 20px/1.2 var(--font-display); }
-.om .more-sites__item { border-radius: var(--r-4); border: 2px solid var(--art-ink); box-shadow: none; background: var(--art-white); }
-.om .more-sites__item:nth-child(odd) { transform: rotate(-0.8deg); }
-.om .more-sites__item:nth-child(even) { transform: rotate(0.6deg); }
-.om .more-sites__cat { border-radius: var(--r-4); border: 2px solid var(--art-ink); }
+.om .more-sites__name { grid-area: name; font: 400 20px/1.2 var(--font-display); }
+.om .more-sites__desc { grid-area: desc; font: 400 18px/1.25 var(--art-hand); opacity: 1; color: var(--art-ink-soft); }

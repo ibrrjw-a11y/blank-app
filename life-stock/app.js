@@ -16,7 +16,6 @@ import {
   showView,
   openSheet,
   renderMoreSites,
-  renderCrumb,
   createCanvas,
   roundRect,
   wrapText,
@@ -1232,9 +1231,44 @@ function renderSeo() {
   }
 }
 
+// 하단 다른 도구 링크 → 단말기 '관련 종목' 관심종목 창
+function dressWatchlist(el) {
+  if (!el) return;
+  el.classList.add("wl");
+  el.setAttribute("aria-label", "관련 종목");
+  const title = el.querySelector(".more-sites__title");
+  if (title) {
+    title.innerHTML = `<span class="fn"><b>WL</b>Watchlist</span><span class="wl__t">관련 종목<i class="wl__cur" aria-hidden="true"></i></span>`;
+    title.insertAdjacentHTML(
+      "afterend",
+      `<div class="wl__head" aria-hidden="true"><span>코드</span><span>종목 · 개요</span><span>이동</span></div>`
+    );
+  }
+  $$(".more-sites__item", el).forEach((a, i) => {
+    const body = document.createElement("span");
+    body.className = "wl__body";
+    body.append(...a.querySelectorAll(".more-sites__name, .more-sites__desc"));
+    a.prepend(Object.assign(document.createElement("span"), { className: "wl__code", textContent: `R${String(i + 1).padStart(2, "0")}` }));
+    a.append(body);
+    a.insertAdjacentHTML("beforeend", `<span class="wl__go" aria-hidden="true">GO</span>`);
+    a.style.setProperty("--i", i);
+  });
+  if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
+    el.classList.add("is-in");
+    return;
+  }
+  const io = new IntersectionObserver((ents) => {
+    if (ents.some((e) => e.isIntersecting)) {
+      el.classList.add("is-in");
+      io.disconnect();
+    }
+  }, { threshold: 0.3 });
+  io.observe(el);
+}
+
 function init() {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
+  dressWatchlist($("#more"));
   renderSeo();
   initForm();
 

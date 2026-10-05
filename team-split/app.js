@@ -1,7 +1,7 @@
 // 팀 나누기 — 카드 딜러 테이블
 import {
   $, $$, createStore, toast, haptic, share, shareImage, encodeState, decodeState, urlWith, getParam, copyText,
-  showView, renderMoreSites, renderCrumb, createCanvas, CANVAS_FONT, todayKey, openSheet, prefersReducedMotion, sleep,
+  showView, renderMoreSites, createCanvas, CANVAS_FONT, todayKey, openSheet, prefersReducedMotion, sleep,
 } from "../shared/kit.js";
 import { makeTeams, dealOrder, teamSizes, teamsFromPer, shuffleArr } from "./deal.js";
 import { createTable, cardEl, layoutPiles, pileHead, SUITS, teamName } from "./table.js";
@@ -589,7 +589,14 @@ function drawCard(res) {
 }
 
 /* ---------- 시작 ---------- */
-renderCrumb($("#crumb"));
 renderMoreSites($("#more"));
+// 하단 다른 놀이: 딜러 옆에 세워 둔 아크릴 하우스 카드 ("옆 테이블")
+(() => {
+  const more = $("#more");
+  const title = more?.querySelector(".more-sites__title");
+  if (!title) return;
+  title.innerHTML = '<span class="hc-kicker">HOUSE CARD</span>옆 테이블도 열려 있어요';
+  more.querySelectorAll(".more-sites__item").forEach((a, k) => a.setAttribute("data-table", `TABLE ${k + 2}`));
+})();
 renderSetup();
 enterIntro();

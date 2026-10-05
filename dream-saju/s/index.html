@@ -27,7 +27,6 @@
   <body>
     <svg class="ink-defs" aria-hidden="true" focusable="false"><filter id="ink-rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
     <main class="app">
-      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="../"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <a class="btn btn--ghost btn--sm" href="../">4칸으로 꿈 풀기</a>
@@ -51,10 +50,12 @@
       <footer class="site-footer">재미로 보는 해몽이에요. 전통 해몽 속설을 바탕으로 풀었고, 실제 일을 예언하지 않아요.</footer>
     </main>
     <script type="module">
-      import { renderCrumb, renderMoreSites } from "../../shared/kit.js";
-      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 경로·추천을 단다
-      renderCrumb(document.getElementById("crumb"), "dream-saju");
-      renderMoreSites(document.getElementById("more"), "dream-saju");
+      import { renderMoreSites } from "../../shared/kit.js";
+      import { dressTalismans } from "../more.js";
+      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 추천을 단다
+      const more = document.getElementById("more");
+      renderMoreSites(more, "dream-saju");
+      dressTalismans(more);
     </script>
   </body>
 </html>

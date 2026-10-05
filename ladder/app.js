@@ -10,7 +10,6 @@ import {
   urlWith,
   getParam,
   showView,
-  renderCrumb,
   renderMoreSites,
   createCanvas,
   CANVAS_FONT,
@@ -43,9 +42,12 @@ const rnd = () => {
   document.querySelectorAll(".duty__date").forEach((el) => (el.textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${days[d.getDay()]}요일`));
 })();
 
-renderCrumb($("#crumb"));
-renderCrumb($("#crumb2"));
 renderMoreSites($("#more"));
+// 하단 다른 놀이: 칠판 오른쪽 아래 구석에 분필로 적어 둔 메모
+(() => {
+  const title = $("#more .more-sites__title");
+  if (title) title.textContent = "쉬는 시간에 할 것";
+})();
 
 /* ---------- 설정 ---------- */
 function sanitize(s) {

@@ -61,8 +61,6 @@
   </head>
   <body>
     <main class="app te">
-      <nav id="crumb"></nav>
-
       <!-- 1) 첫 화면: 운동회 포스터 × 문예부 포스터 -->
       <section class="tk-intro te-intro" data-view="intro">
         <h1 class="te-title">
@@ -158,22 +156,47 @@
           </tbody>
         </table>
 
-        <h3>참가자 문의</h3>
-        <details>
-          <summary>남자인데 에겐이 나왔어요. 이상한 건가요?</summary>
-          <p>아니요. 성별과 상관없이 누구나 둘을 섞어 갖고 있어요. 성별은 결과 이름(테토남, 에겐녀 등)에만 쓰고 점수 계산엔 쓰지 않아요.</p>
+        <h3>이의 신청 · 심판 판정</h3>
+        <p class="te-note te-note--desk">본부석에 자주 들어오는 이의 4건. 번호표를 누르면 심판 판정이 나와요.</p>
+        <details class="te-protest">
+          <summary>
+            <span class="te-protest__bib" aria-hidden="true"><small>이의</small>01</span>
+            <span class="te-protest__q">남자인데 에겐이 나왔어요. 이상한 건가요?</span>
+          </summary>
+          <div class="te-protest__call">
+            <span class="te-protest__card" aria-hidden="true">정상 판정</span>
+            <p>아니요. 성별과 상관없이 누구나 둘을 섞어 갖고 있어요. 성별은 결과 이름(테토남, 에겐녀 등)에만 쓰고 점수 계산엔 쓰지 않아요.</p>
+          </div>
         </details>
-        <details>
-          <summary>친구랑 비교는 어떻게 해요?</summary>
-          <p>결과 화면에서 링크를 보내면 친구가 내 결과를 보고 바로 출전할 수 있어요. 친구가 끝내면 두 사람 깃발이 한 줄 위에 나란히 꽂혀요. 친구 결과 링크를 내가 열어도 똑같이 비교돼요.</p>
+        <details class="te-protest">
+          <summary>
+            <span class="te-protest__bib" aria-hidden="true"><small>이의</small>02</span>
+            <span class="te-protest__q">친구랑 비교는 어떻게 해요?</span>
+          </summary>
+          <div class="te-protest__call">
+            <span class="te-protest__card" aria-hidden="true">안내</span>
+            <p>결과 화면에서 링크를 보내면 친구가 내 결과를 보고 바로 출전할 수 있어요. 친구가 끝내면 두 사람 깃발이 한 줄 위에 나란히 꽂혀요. 친구 결과 링크를 내가 열어도 똑같이 비교돼요.</p>
+          </div>
         </details>
-        <details>
-          <summary>다시 하면 결과가 바뀌나요?</summary>
-          <p>답을 바꾸면 바뀌어요. 지난 결과는 이 기기에만 "역대 전적"으로 남아서, 지난번과 얼마나 달라졌는지 볼 수 있어요.</p>
+        <details class="te-protest">
+          <summary>
+            <span class="te-protest__bib" aria-hidden="true"><small>이의</small>03</span>
+            <span class="te-protest__q">다시 하면 결과가 바뀌나요?</span>
+          </summary>
+          <div class="te-protest__call">
+            <span class="te-protest__card" aria-hidden="true">재경기 허용</span>
+            <p>답을 바꾸면 바뀌어요. 지난 결과는 이 기기에만 "역대 전적"으로 남아서, 지난번과 얼마나 달라졌는지 볼 수 있어요.</p>
+          </div>
         </details>
-        <details>
-          <summary>제 답이 어딘가에 저장되나요?</summary>
-          <p>서버로 보내지 않아요. 기록은 지금 쓰는 브라우저에만 남고, 결과 링크 안에는 답 번호만 담겨요.</p>
+        <details class="te-protest">
+          <summary>
+            <span class="te-protest__bib" aria-hidden="true"><small>이의</small>04</span>
+            <span class="te-protest__q">제 답이 어딘가에 저장되나요?</span>
+          </summary>
+          <div class="te-protest__call">
+            <span class="te-protest__card" aria-hidden="true">안내</span>
+            <p>서버로 보내지 않아요. 기록은 지금 쓰는 브라우저에만 남고, 결과 링크 안에는 답 번호만 담겨요.</p>
+          </div>
         </details>
         <p class="te-note">재미로 보는 테스트예요. 성격 진단이나 심리 검사가 아니에요.</p>
       </article>

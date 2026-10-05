@@ -66,8 +66,6 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
-
       <!-- 1) 첫 화면: 모션그래픽 -->
       <section class="intro" id="intro" data-view="intro">
         <header class="diary-head">
@@ -252,22 +250,23 @@
         </ul>
 
         <section class="diary__qa" aria-label="자주 묻는 질문">
-          <h3 class="diary__h"><span class="mark">쪽지 Q&amp;A</span></h3>
-          <details>
-            <summary>Q. 영어 이름이나 이모지도 돼요?</summary>
-            <p>한글만 세요. 1:1에서 "지수A"는 지수만 계산하고, 한글이 하나도 없는 이름은 넣을 수 없어요.</p>
+          <h3 class="diary__h"><span class="mark">수업 시간에 받은 쪽지</span></h3>
+          <p class="diary__memo qa-memo">접힌 쪽지를 펴면 밑에 답장을 적어 뒀어요.</p>
+          <details class="note">
+            <summary><span class="note__no" aria-hidden="true">쪽지 1</span><span class="note__q">영어 이름이나 이모지도 돼요?</span><span class="note__fold" aria-hidden="true"></span></summary>
+            <div class="note__re"><span class="note__tag" aria-hidden="true">답장</span><p>한글만 세요. 1:1에서 "지수A"는 지수만 계산하고, 한글이 하나도 없는 이름은 넣을 수 없어요.</p></div>
           </details>
-          <details>
-            <summary>Q. 성까지 넣어야 해요?</summary>
-            <p>둘 다 돼요. 민수→지영 97%, 김민수→이지영 75%처럼 달라지니 한 방 안에서는 맞춰 주세요.</p>
+          <details class="note">
+            <summary><span class="note__no" aria-hidden="true">쪽지 2</span><span class="note__q">성까지 넣어야 해요?</span><span class="note__fold" aria-hidden="true"></span></summary>
+            <div class="note__re"><span class="note__tag" aria-hidden="true">답장</span><p>둘 다 돼요. 민수→지영 97%, 김민수→이지영 75%처럼 달라지니 한 방 안에서는 맞춰 주세요.</p></div>
           </details>
-          <details>
-            <summary>Q. 100%는 왜 안 나와요?</summary>
-            <p>마지막에 두 자리만 남아서 최대 99%예요. "0 0"이 남으면 0%예요.</p>
+          <details class="note">
+            <summary><span class="note__no" aria-hidden="true">쪽지 3</span><span class="note__q">100%는 왜 안 나와요?</span><span class="note__fold" aria-hidden="true"></span></summary>
+            <div class="note__re"><span class="note__tag" aria-hidden="true">답장</span><p>마지막에 두 자리만 남아서 최대 99%예요. "0 0"이 남으면 0%예요.</p></div>
           </details>
-          <details>
-            <summary>Q. 결과가 너무 낮게 나왔어요</summary>
-            <p>도윤→하늘 15%, 하늘→도윤 37%처럼 획수 놀이라 그래요. 실제 사이와는 상관없는 재미용이에요.</p>
+          <details class="note">
+            <summary><span class="note__no" aria-hidden="true">쪽지 4</span><span class="note__q">결과가 너무 낮게 나왔어요</span><span class="note__fold" aria-hidden="true"></span></summary>
+            <div class="note__re"><span class="note__tag" aria-hidden="true">답장</span><p>도윤→하늘 15%, 하늘→도윤 37%처럼 획수 놀이라 그래요. 실제 사이와는 상관없는 재미용이에요.</p></div>
           </details>
         </section>
       </article>

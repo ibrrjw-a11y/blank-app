@@ -77,8 +77,6 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
-
       <!-- 1) 첫 화면: 모션그래픽 -->
       <section class="intro" id="intro" data-view="intro">
         <div class="shared-banner" id="sharedBanner" hidden></div>
@@ -349,35 +347,37 @@
           <p class="doc__foot">루팡률 = 47분 ÷ 480분 = 9.8%. 회의 시간은 따로 적고 루팡에는 넣지 않아요.</p>
         </section>
 
-        <section class="doc doc--terms">
+        <section class="doc doc--keys" aria-labelledby="keysTitle">
           <header class="doc__head">
-            <h2 class="doc__store">이용 약관</h2>
-            <p class="doc__meta">자주 묻는 질문 · 영수증 뒷면</p>
+            <h2 class="doc__store" id="keysTitle">POS 도움말 키</h2>
+            <p class="doc__meta">자주 묻는 질문 · 키를 누르면 답이 출력돼요</p>
           </header>
-          <details>
-            <summary>제1조 점심시간에도 돈이 올라가요?</summary>
-            <p>아니요. 점심은 무급 휴게시간이라 카운터가 멈춰요. 12:00~13:00 사이엔 숫자가 그대로예요.</p>
-          </details>
-          <details>
-            <summary>제2조 쉬는 날엔 뭐가 보여요?</summary>
-            <p>이번 달 1일부터 어제까지 근무일 × 하루 실수령으로 낸 누적 금액이에요. 공휴일은 빼지 않은 근사치예요.</p>
-          </details>
-          <details>
-            <summary>제3조 월급날이 주말이면요?</summary>
-            <p>직전 금요일로 당겨서 D-day를 세요. 25일이 일요일이면 23일(금)이에요.</p>
-          </details>
-          <details>
-            <summary>제4조 야간 근무도 되나요?</summary>
-            <p>아직은 퇴근 시간이 출근보다 늦은 근무만 돼요. 22:00~07:00 같은 근무는 다음 업데이트에서 지원할게요.</p>
-          </details>
-          <details>
-            <summary>제5조 내 연봉이 어딘가에 저장되나요?</summary>
-            <p>이 기기 브라우저에만 저장돼요. 공유 링크에는 루팡 시간과 금액만 담기고 연봉은 들어가지 않아요.</p>
-          </details>
+          <div class="fkeys">
+            <details class="fkey">
+              <summary><kbd>F1</kbd><span>점심시간에도 돈이 올라가요?</span></summary>
+              <p class="fkey__out">아니요. 점심은 무급 휴게시간이라 카운터가 멈춰요. 12:00~13:00 사이엔 숫자가 그대로예요.</p>
+            </details>
+            <details class="fkey">
+              <summary><kbd>F2</kbd><span>쉬는 날엔 뭐가 보여요?</span></summary>
+              <p class="fkey__out">이번 달 1일부터 어제까지 근무일 × 하루 실수령으로 낸 누적 금액이에요. 공휴일은 빼지 않은 근사치예요.</p>
+            </details>
+            <details class="fkey">
+              <summary><kbd>F3</kbd><span>월급날이 주말이면요?</span></summary>
+              <p class="fkey__out">직전 금요일로 당겨서 D-day를 세요. 25일이 일요일이면 23일(금)이에요.</p>
+            </details>
+            <details class="fkey">
+              <summary><kbd>F4</kbd><span>야간 근무도 되나요?</span></summary>
+              <p class="fkey__out">아직은 퇴근 시간이 출근보다 늦은 근무만 돼요. 22:00~07:00 같은 근무는 다음 업데이트에서 지원할게요.</p>
+            </details>
+            <details class="fkey">
+              <summary><kbd>F5</kbd><span>내 연봉이 어딘가에 저장되나요?</span></summary>
+              <p class="fkey__out">이 기기 브라우저에만 저장돼요. 공유 링크에는 루팡 시간과 금액만 담기고 연봉은 들어가지 않아요.</p>
+            </details>
+          </div>
         </section>
       </article>
 
-      <nav id="more" aria-label="다른 도구"></nav>
+      <nav id="more" aria-label="다른 도구 쿠폰"></nav>
       <footer class="site-footer">세금·보험료는 2026년 기준 근사치예요. 정확한 금액은 급여 명세서를 확인해 주세요.</footer>
     </main>
 

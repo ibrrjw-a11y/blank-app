@@ -27,8 +27,14 @@ export function startIntro(root) {
   };
 
   function measure() {
-    L = layoutPiles(box.clientWidth, 3, 3, { step: 26, maxCard: 100 });
-    box.style.height = `${L.height}px`;
+    // 펠트에 남는 세로 공간만큼 더미 간격을 벌려서 테이블을 꽉 채운다
+    box.style.height = "";
+    const base = layoutPiles(box.clientWidth, 3, 3, { step: 26, maxCard: 100 });
+    const extra = Math.max(0, box.clientHeight - base.height);
+    const step = Math.round(26 + Math.min(30, extra / 2));
+    const fit = layoutPiles(box.clientWidth, 3, 3, { step, maxCard: 100 });
+    L = layoutPiles(box.clientWidth, 3, 3, { step, maxCard: 100, top: Math.max(0, Math.round((box.clientHeight - fit.height) / 2)) });
+    box.style.height = `${Math.max(L.height, box.clientHeight)}px`;
     // 펠트에 인쇄된 자리 (덱 자리 + 팀 자리)
     box.querySelectorAll(".spot").forEach((el) => el.remove());
     const spot = (x, y, w, h, label) => {
@@ -66,9 +72,28 @@ export function startIntro(root) {
       setStep(2);
       return new Promise(() => {});
     }
-    await wait(250);
+    await wait(200);
+    // 이름 카드를 펠트 위에 부채꼴로 펼쳐 보여 준 뒤 덮어서 모은다
+    const W = box.clientWidth;
+    const fanStep = (W - L.cardW) / (cards.length - 1);
+    const fanY = L.piles[0].y + L.step;
+    await Promise.all(
+      cards.map((c, k) => {
+        const off = k - (cards.length - 1) / 2;
+        c.style.zIndex = 10 + k;
+        setTimeout(() => table.flip(c, true), 60 + k * 50);
+        return table.move(c, { x: k * fanStep, y: fanY + off * off * 3, r: off * 7 }, { dur: 460, delay: k * 50, arc: 30, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" });
+      })
+    );
+    await wait(650);
+    await Promise.all(
+      cards.map((c, k) => {
+        setTimeout(() => table.flip(c, false), k * 35);
+        return table.move(c, { x: L.deck.x, y: L.deck.y - k * 0.6, r: 0 }, { dur: 380, delay: k * 35, arc: 24 });
+      })
+    );
     const deck = cards.slice();
-    await table.riffle(deck, L.deck, { width: L.cardW, times: 2 });
+    await table.riffle(deck, L.deck, { width: L.cardW * 1.9, times: 2 });
     await wait(150);
     // 딜 순서는 이름 순서 그대로 (0팀, 1팀, 2팀, 0팀 …)
     setStep(1);

@@ -1224,36 +1224,12 @@ body {
 .res__badge.is-win { background: var(--brand); color: var(--brand-on); }
 
 /* ==========================================================
- * 2차 개편: 경로 · 캐비닛 설명 스티커 · 동전 투입 시작 버튼 · 게임 설명서
+ * 2차 개편: 캐비닛 설명 스티커 · 동전 투입 시작 버튼 · 게임 설명서
  * ========================================================== */
 
-/* ---------- 상단 경로: 캐비닛 위 크레딧 표시줄 ---------- */
-.crumb {
-  min-height: 44px;
-  gap: var(--sp-8);
-  font: var(--label-03);
-  color: var(--art-bezel-edge);
-}
-.crumb a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0;
-  color: var(--color-text-secondary);
-  letter-spacing: 0.02em;
-}
-.crumb a:first-child::before {
-  content: "◀";
-  margin-right: var(--sp-6);
-  font-size: 9px;
-  color: var(--art-red);
-}
-.crumb a:last-child { color: var(--brand); }
-.crumb a:active { transform: translateY(1px); }
-
-/* 경로 한 줄만큼 첫 화면 높이를 줄여 시작 버튼이 첫 화면 안에 들어오게 */
+/* 첫 화면은 화면 높이를 꽉 채운다 */
 .intro {
-  min-height: calc(100dvh - 44px);
+  min-height: 100dvh;
   padding-top: 0;
 }
 
@@ -1598,4 +1574,108 @@ body {
   .coin-op__coin,
   .coin-op__btn i,
   .coin-op__door .pix { animation: none; }
+}
+
+/* ==========================================================
+ * 3차 개편: 기계마다 다른 캐비닛
+ * 캐비닛 몸통 색과 화면 데칼만 여기서 정한다(허브 장면 순환에서도 쓰임).
+ * 마키 간판·헤드라인·소품·하단 블록은 각 게임 폴더의 machine.css 가 맡는다.
+ * ========================================================== */
+.cab { transition: background-color 420ms var(--snap), border-color 420ms var(--snap); }
+.cab--zoom { --cab-body: #0e4a46; --cab-edge: #1d7c74; --cab-ink: #a9eee4; --cab-deco: #5fe0d2; }
+.cab--town { --cab-body: #1a4a2b; --cab-edge: #2f7a49; --cab-ink: #d3efc4; --cab-deco: #f3ecd0; }
+.cab--price { --cab-body: #7d5a1c; --cab-edge: #c99a3d; --cab-ink: #fff0c4; --cab-deco: #f1c75a; }
+.cab--timeline { --cab-body: #33204f; --cab-edge: #5b3b8a; --cab-ink: #e6d6ff; --cab-deco: #ff8a3d; }
+.cab[class*="cab--"] {
+  background-color: var(--cab-body);
+  border-color: var(--cab-edge);
+  box-shadow: 0 var(--sp-6) 0 color-mix(in srgb, var(--cab-body) 55%, black), 0 var(--sp-8) 0 var(--cab-edge);
+}
+.cab[class*="cab--"] .cab__marquee,
+.cab[class*="cab--"] .cab__tag { color: var(--cab-ink); }
+.cab[class*="cab--"] .cab__day { color: var(--cab-deco); }
+
+/* 화면 위 데칼: 기계마다 하나 */
+.cab__decal {
+  position: absolute;
+  inset: var(--sp-6);
+  pointer-events: none;
+  display: none;
+  z-index: 3;
+}
+/* 줌: 뷰파인더 모서리 + 가운데 조준점 */
+.cab--zoom .cab__decal {
+  --c: var(--cab-deco);
+  display: block;
+  background:
+    linear-gradient(var(--c) 0 0) left top / 22px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) left top / 3px 22px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 22px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 3px 22px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 22px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 3px 22px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 22px 3px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 3px 22px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 60%, transparent) 0 0) center / 14px 2px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--c) 60%, transparent) 0 0) center / 2px 14px no-repeat;
+  animation: zm-frame 3600ms var(--spring) infinite;
+}
+@keyframes zm-frame {
+  0%, 30% { inset: var(--sp-6); }
+  36% { inset: var(--sp-24); }
+  44%, 100% { inset: var(--sp-6); }
+}
+/* 동네: 옛 지도 테두리 눈금 */
+.cab--town .cab__decal {
+  display: block;
+  inset: 0;
+  border: 5px solid transparent;
+  border-image: repeating-linear-gradient(90deg, var(--cab-deco) 0 14px, #10301b 14px 28px) 5;
+  border-radius: inherit;
+  opacity: 0.9;
+}
+/* 가격: 금테 이중 액자 */
+.cab--price .cab__decal {
+  display: block;
+  inset: var(--sp-4);
+  border-radius: var(--r-16) / var(--r-12);
+  box-shadow: inset 0 0 0 2px var(--cab-deco), inset 0 0 0 6px transparent, inset 0 0 0 7px color-mix(in srgb, var(--cab-deco) 55%, transparent);
+}
+/* 연대기: 비디오 OSD + 트래킹 노이즈 띠 */
+.cab--timeline .cab__decal {
+  display: block;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.cab--timeline .cab__decal::before {
+  content: "▶ PLAY";
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-10);
+  font-family: var(--art-pixel);
+  font-size: 10px;
+  color: #e9f6ff;
+  text-shadow: 2px 0 0 rgba(255, 60, 120, 0.7), -2px 0 0 rgba(60, 200, 255, 0.7);
+  animation: dj-blink 1.6s steps(2, jump-none) infinite;
+}
+.cab--timeline .cab__decal::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18px;
+  top: -20px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0 3px, transparent 3px 7px, rgba(255, 255, 255, 0.08) 7px 9px, transparent 9px 16px);
+  filter: blur(0.4px);
+  animation: tl-track 2600ms cubic-bezier(0.5, 0, 0.3, 1) infinite;
+}
+@keyframes tl-track {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(520px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cab__decal,
+  .cab__decal::before,
+  .cab__decal::after { animation: none !important; }
 }

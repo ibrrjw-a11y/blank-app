@@ -14,7 +14,6 @@ import {
   showView,
   openSheet,
   renderMoreSites,
-  renderCrumb,
   createCanvas,
   roundRect,
   CANVAS_FONT,
@@ -952,9 +951,33 @@ function bindResult() {
   });
 }
 
+// 하단 다른 도구 링크 → 다이어리 '다음 장'에 붙여 둔 포스트잇
+function dressStickies(el) {
+  if (!el) return;
+  el.classList.add("next-page");
+  const title = el.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `<span class="mark">다음 장</span>에 붙여 둔 메모`;
+  $$(".more-sites__item", el).forEach((a, i) => {
+    a.style.setProperty("--i", i);
+    a.insertAdjacentHTML("afterbegin", `<span class="next-page__tape" aria-hidden="true"></span>`);
+    a.insertAdjacentHTML("beforeend", `<span class="next-page__go" aria-hidden="true">넘겨 보기 →</span>`);
+  });
+  if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
+    el.classList.add("is-in");
+    return;
+  }
+  const io = new IntersectionObserver((ents) => {
+    if (ents.some((e) => e.isIntersecting)) {
+      el.classList.add("is-in");
+      io.disconnect();
+    }
+  }, { threshold: 0.3 });
+  io.observe(el);
+}
+
 function init() {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
+  dressStickies($("#more"));
   bindInput();
   bindRooms();
   bindResult();

@@ -3,10 +3,10 @@
  * 색·서체·모양은 각 테스트 style.css 가 장르에 맞게 정한다.
  */
 
-/* 상단 경로가 있어도 첫 화면이 한 화면 안에 들어오게 */
+/* 첫 화면이 딱 한 화면을 채우게 (위에 따로 붙는 띠 없음) */
 .tk-intro {
   position: relative;
-  min-height: calc(100dvh - 40px);
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   padding: 0 0 calc(var(--sp-16) + var(--safe-bottom));

@@ -1,0 +1,376 @@
+/* 2번 기계 · 오늘의 동네
+ * 초록 지도·나침반 캐비닛. 마키: 등고선 지도 띠. 헤드라인: 캐비닛 아래에 걸린 도로 이정표.
+ * 소품: 캐비닛 모서리의 나침반(바늘이 돌다 멈춤). 데칼: 옛 지도 테두리 눈금. */
+:root {
+  --brand: #7fd86a;
+  --brand-pressed: #3d9a3a;
+  --brand-soft: #142d17;
+  --brand-on: #08200b;
+
+  --font-display: "Do Hyeon", "Black Han Sans", "Jua", var(--font-sans);
+
+  --art-cabinet: #0b1a10;
+  --art-bezel: #12301c;
+  --art-bezel-edge: #26573a;
+  --art-crt: #07140c;
+  --art-cream: #f4efd6;
+  --tw-sign: #0a7a46;
+  --tw-sign-edge: #f7f7f2;
+  --tw-paper: #efe9cf;
+  --tw-contour: #b9b087;
+}
+
+body { background-color: var(--art-cabinet); }
+
+/* ---------- 마키: 등고선 지도 띠 ---------- */
+.tmap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+  height: 52px;
+  margin-top: var(--sp-12);
+  padding: 0 var(--sp-12);
+  border-radius: var(--r-4);
+  color: var(--art-cabinet);
+  background:
+    repeating-radial-gradient(ellipse at 18% 120%, transparent 0 9px, var(--tw-contour) 9px 10px),
+    repeating-radial-gradient(ellipse at 88% -30%, transparent 0 11px, var(--tw-contour) 11px 12px),
+    var(--tw-paper);
+  box-shadow: inset 0 0 0 2px var(--art-cabinet), 0 4px 0 var(--brand-pressed);
+}
+.tmap__n {
+  display: grid;
+  justify-items: center;
+  font-family: var(--art-pixel);
+  font-size: 9px;
+  line-height: 1;
+}
+.tmap__n i {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 16px solid var(--color-danger);
+  transform-origin: 50% 80%;
+  animation: tw-needle 3400ms var(--spring) infinite;
+}
+.tmap__name {
+  padding: var(--sp-2) var(--sp-10);
+  border-radius: var(--r-4);
+  background: var(--tw-sign);
+  color: var(--tw-sign-edge);
+  box-shadow: inset 0 0 0 2px var(--tw-sign), inset 0 0 0 4px var(--tw-sign-edge);
+  font-family: var(--art-pixel);
+  font-size: 14px;
+  line-height: 30px;
+}
+.tmap__grid { margin-left: auto; font: var(--label-03); font-weight: 700; text-align: right; word-break: keep-all; }
+
+/* ---------- 캐비닛 + 나침반 ---------- */
+.trig {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-20);
+}
+.trig .intro__stage { min-height: 330px; overflow: visible; }
+.trig .cab { border-width: 3px; border-radius: var(--r-8); }
+.trig .cab__screen { border-radius: var(--r-6); }
+/* 캐비닛 조작판: 등고선 */
+.trig .cab__panel {
+  padding-bottom: var(--sp-48);
+  background: repeating-radial-gradient(ellipse at 30% 140%, transparent 0 8px, color-mix(in srgb, var(--brand) 16%, transparent) 8px 9px);
+}
+.trig .cab__sticker { background: var(--tw-paper); transform: rotate(1deg); border-radius: var(--r-2, 2px); }
+.trig .cab__sticker .pix { color: var(--tw-sign); }
+.trig .cab__stick { background: var(--tw-paper); }
+.trig .cab__btn--2 { background: var(--tw-sign-edge); box-shadow: 0 4px 0 var(--brand-pressed); }
+.tprop {
+  position: absolute;
+  right: -8px;
+  top: -30px;
+  width: 92px;
+  height: 92px;
+  z-index: 4;
+  overflow: visible;
+  animation: tw-bob 3400ms var(--spring) infinite;
+}
+.tprop__rim { fill: var(--brand-pressed); stroke: var(--art-cabinet); stroke-width: 3; }
+.tprop__face { fill: var(--tw-paper); }
+.tprop__ticks path { stroke: var(--art-cabinet); stroke-width: 3; }
+.tprop__n { fill: var(--tw-paper); font-family: var(--art-pixel); font-size: 10px; text-anchor: middle; }
+.tprop__needle { transform-origin: 50px 50px; animation: tw-compass 3400ms infinite; }
+.tprop__north { fill: var(--color-danger); }
+.tprop__south { fill: var(--art-cabinet); }
+.tprop__needle circle { fill: var(--brand-pressed); }
+
+/* ---------- 헤드라인: 캐비닛 아래쪽에 걸린 이정표 ---------- */
+.tsign {
+  position: relative;
+  z-index: 5;
+  margin: calc(var(--sp-40) * -1) var(--sp-8) 0;
+  perspective: 600px;
+}
+.tsign__board {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-12) var(--sp-16) var(--sp-12);
+  border-radius: var(--r-8);
+  background: var(--tw-sign);
+  color: var(--tw-sign-edge);
+  box-shadow: inset 0 0 0 3px var(--tw-sign), inset 0 0 0 6px var(--tw-sign-edge), 0 var(--sp-6) 0 var(--art-cabinet);
+  transform-origin: 50% 0;
+  transform: rotate(-1.5deg);
+  animation: tw-hang 1100ms var(--spring) both;
+}
+.tsign__big {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 46px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.tsign__big .ch,
+.tsign__sub .ch {
+  display: inline-block;
+  animation: tw-stamp 520ms var(--spring) both;
+  animation-delay: calc(var(--i) * 55ms + 420ms);
+}
+.tsign .sp { display: inline-block; width: 0.26em; }
+.tsign__sub {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  font: var(--title-03);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--tw-sign-edge);
+}
+.tsign__arrow {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  fill: var(--tw-sign-edge);
+  animation: tw-arrow 1600ms var(--spring) 600ms both;
+}
+
+/* ---------- 시작 버튼: 나침반 캡 ---------- */
+.tw .intro__cta { margin-top: var(--sp-20); }
+.tw .coin-op { border-color: var(--art-bezel-edge); }
+.tw .coin-op__slot { background: var(--tw-sign); box-shadow: inset 0 -4px 0 var(--art-bezel), 0 0 0 3px var(--art-cabinet); }
+.tw .coin-op__door .pix { color: var(--brand); }
+.tw .coin-op__btn i { background: conic-gradient(from -45deg, var(--brand) 0 25%, var(--tw-paper) 0 50%, var(--brand) 0 75%, var(--tw-paper) 0); }
+.tw .coin-op__btn i::before {
+  content: "N";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--art-pixel);
+  font-size: 12px;
+  color: var(--art-cabinet);
+}
+
+/* ---------- 설명서: 지도 종이 ---------- */
+.manual {
+  background:
+    repeating-radial-gradient(ellipse at 110% -10%, transparent 0 22px, color-mix(in srgb, var(--tw-contour) 35%, transparent) 22px 23px),
+    var(--tw-paper);
+  box-shadow: 0 var(--sp-6) 0 var(--tw-sign);
+}
+.manual a { color: var(--tw-sign); }
+.manual__tag { background: var(--tw-sign); }
+.manual__steps li::before { background: var(--tw-sign); color: var(--tw-sign-edge); box-shadow: 0 3px 0 var(--art-cabinet); }
+
+/* ---------- 문답: 길 안내소 — 노선 번호판 + 점선 경로 ---------- */
+.tfaq { margin-top: var(--sp-32); padding-top: var(--sp-16); border-top: 3px solid var(--art-cabinet); }
+.seo .tfaq__title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  margin: 0 0 var(--sp-12);
+  font: var(--title-03);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--art-cabinet);
+}
+.tfaq__booth {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-4);
+  background: var(--tw-sign);
+  color: var(--tw-sign-edge);
+  font: 800 18px/1 Georgia, serif;
+  font-style: italic;
+}
+.tfaq__route { position: relative; margin: 0; padding: 0; list-style: none; }
+/* 문답을 잇는 점선 길 */
+.tfaq__route::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 24px;
+  bottom: 24px;
+  border-left: 4px dashed var(--tw-sign);
+}
+.manual .tfaq__item { position: relative; border: 0; padding: 0; }
+.seo.manual .tfaq__item summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
+  min-height: 56px;
+  font: var(--label-01);
+  color: var(--art-cabinet);
+  list-style: none;
+  cursor: pointer;
+}
+.tfaq__item summary::-webkit-details-marker { display: none; }
+.manual .tfaq__item summary::before,
+.manual .tfaq__item summary::after,
+.manual .tfaq__item p::before { content: none; display: none; }
+/* 국도 번호판 모양 방패 */
+.tfaq__shield {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: var(--tw-sign-edge);
+  clip-path: path("M3 4 H43 V24 C43 36 33 42 23 46 C13 42 3 36 3 24 Z");
+  font: 800 20px/1 var(--font-sans);
+  color: var(--tw-sign);
+  transition: transform var(--dur-slow) var(--spring);
+}
+.tfaq__shield::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: var(--tw-sign);
+  clip-path: path("M3 3 H37 V21 C37 31 29 36 20 40 C11 36 3 31 3 21 Z");
+  z-index: -1;
+}
+.tfaq__shield { isolation: isolate; color: var(--tw-sign-edge); }
+.tfaq__item[open] .tfaq__shield { transform: scale(1.12) rotate(-6deg); }
+.tfaq__q { word-break: keep-all; border-bottom: 2px solid transparent; }
+.tfaq__item[open] .tfaq__q { border-bottom-color: var(--tw-sign); }
+.seo.manual .tfaq__item p {
+  display: block;
+  margin: 0 0 var(--sp-12) 58px;
+  padding: var(--sp-8) var(--sp-12);
+  border-radius: var(--r-4);
+  background: var(--tw-sign-edge);
+  box-shadow: 0 0 0 2px var(--art-cabinet);
+  font: var(--body-03);
+  color: var(--art-cabinet);
+  transform-origin: 0 0;
+  animation: tw-unfold 460ms var(--spring) both;
+}
+
+/* ---------- 옆 기계: 도로 이정표 3장 ---------- */
+.more-sites { padding-top: var(--sp-40); color: var(--tw-sign-edge); }
+.more-sites__title { font: var(--title-04); font-family: var(--font-display); font-weight: 400; opacity: 1; color: var(--brand); }
+.more-sites__grid { gap: var(--sp-8); }
+.more-sites__item {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  grid-template-rows: auto auto;
+  column-gap: var(--sp-12);
+  align-items: center;
+  min-height: 64px;
+  padding: var(--sp-12) var(--sp-16);
+  border: 0;
+  border-radius: var(--r-6);
+  background: var(--tw-sign);
+  box-shadow: inset 0 0 0 3px var(--tw-sign), inset 0 0 0 5px var(--tw-sign-edge), 0 4px 0 var(--art-bezel);
+  transition: transform var(--dur-fast) var(--spring);
+}
+.more-sites__item:active { transform: translateY(3px); }
+.more-sites__item::after {
+  content: "";
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 32px;
+  height: 32px;
+  justify-self: end;
+  background: var(--tw-sign-edge);
+  clip-path: polygon(50% 0, 92% 46%, 64% 46%, 64% 100%, 36% 100%, 36% 46%, 8% 46%);
+}
+.more-sites__item:nth-child(1)::after { transform: rotate(-45deg); }
+.more-sites__item:nth-child(3)::after { transform: rotate(45deg); }
+.more-sites__name { font: var(--title-04); font-family: var(--font-display); font-weight: 400; color: var(--tw-sign-edge); }
+.more-sites__desc { color: var(--tw-sign-edge); opacity: 0.85; }
+
+/* ---------- 키프레임 ---------- */
+@keyframes tw-hang {
+  0% { transform: rotateX(-95deg) rotate(0); }
+  55% { transform: rotateX(18deg) rotate(-3deg); }
+  75% { transform: rotateX(-6deg) rotate(-1deg); }
+  100% { transform: rotate(-1.5deg); }
+}
+@keyframes tw-stamp {
+  0% { transform: scale(1.8); opacity: 0; }
+  55% { transform: scale(0.88, 1.08); opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes tw-arrow {
+  0% { transform: rotate(-200deg) scale(0.4); }
+  70% { transform: rotate(58deg) scale(1.1); }
+  100% { transform: rotate(45deg); }
+}
+@keyframes tw-compass {
+  0% { transform: rotate(-120deg); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  30% { transform: rotate(250deg); animation-timing-function: var(--spring); }
+  45% { transform: rotate(205deg); }
+  55% { transform: rotate(228deg); }
+  62%, 100% { transform: rotate(220deg); }
+}
+@keyframes tw-needle {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-30deg); }
+  32% { transform: rotate(18deg); }
+  44% { transform: rotate(-6deg); }
+  54% { transform: none; }
+}
+@keyframes tw-bob {
+  0%, 100% { transform: rotate(8deg); }
+  50% { transform: rotate(-4deg) translateY(-3px); }
+}
+@keyframes tw-unfold {
+  0% { transform: scaleY(0.2) skewX(-8deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tmap__n i,
+  .tprop,
+  .tprop__needle,
+  .tsign__board,
+  .tsign .ch,
+  .tsign__arrow,
+  .seo.manual .tfaq__item p { animation: none; }
+  .tsign__arrow { transform: rotate(45deg); }
+}
+
+/* 화면 안 장면: 세로로 긴 이 캐비닛에 맞게 지도를 크게, 판독기는 아래 한 줄로 */
+.trig .sc-town {
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: var(--sp-8);
+  padding: var(--sp-24) var(--sp-16) var(--sp-16);
+}
+.trig .sc-town__map { width: 100%; height: 100%; max-height: none; }
+.trig .sc-town__dots { fill: color-mix(in srgb, var(--brand) 45%, var(--art-crt)); }
+.trig .sc-town__panel {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  grid-template-rows: auto auto auto;
+  column-gap: var(--sp-12);
+  row-gap: var(--sp-4);
+  align-items: center;
+}
+.trig .sc-town__arrow { grid-row: 1 / span 3; }
+.trig .sc-town__km { font-size: 30px; line-height: 1.1; }

@@ -1,7 +1,7 @@
 // 어디가? — 다같이 고르는 메뉴·장소 월드컵
 import {
   $, $$, createStore, toast, haptic, share, shareImage, encodeState, decodeState, urlWith, getParam, todayKey,
-  showView, openSheet, renderCrumb, renderMoreSites, createCanvas, roundRect, wrapText, CANVAS_FONT, prefersReducedMotion, sleep,
+  showView, openSheet, renderMoreSites, createCanvas, roundRect, wrapText, CANVAS_FONT, prefersReducedMotion, sleep,
 } from "../shared/kit.js";
 import { STATIONS, REGIONS, MENU_TAGS, DATE_TAGS, PRICE_LABEL } from "./data.js";
 import { catalogAdapter, getNearbyPlaces, getWeather, findMenuNearby, mapLinks, loadConfig } from "./adapters.js";
@@ -1838,9 +1838,34 @@ document.addEventListener("keydown", (e) => {
   else if (id === "guestName") guestStart();
 });
 
+/* ---------- 하단 다른 도구 링크 → 역 '갈아타는 곳' 환승 안내판 ---------- */
+function dressTransfer(el) {
+  if (!el) return;
+  el.classList.add("xfer");
+  const title = el.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `<span class="xfer__icon" aria-hidden="true"></span><span class="xfer__ko">갈아타는 곳</span><span class="xfer__en" aria-hidden="true">Transfer</span>`;
+  $$(".more-sites__item", el).forEach((a, i) => {
+    const name = a.querySelector(".more-sites__name")?.textContent.trim() || "";
+    a.style.setProperty("--i", i);
+    a.insertAdjacentHTML("afterbegin", `<span class="xfer__badge" aria-hidden="true">${name.slice(0, 1)}</span>`);
+    a.insertAdjacentHTML("beforeend", `<span class="xfer__go" aria-hidden="true"></span>`);
+  });
+  if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
+    el.classList.add("is-in");
+    return;
+  }
+  const io = new IntersectionObserver((ents) => {
+    if (ents.some((e) => e.isIntersecting)) {
+      el.classList.add("is-in");
+      io.disconnect();
+    }
+  }, { threshold: 0.3 });
+  io.observe(el);
+}
+
 /* ---------- 시작 ---------- */
-renderCrumb($("#crumb"));
 renderMoreSites($("#more"));
+dressTransfer($("#more"));
 loadConfig().then((c) => {
   S.kakao = !!c.kakaoJsKey;
 });

@@ -56,13 +56,9 @@ body.is-playing {
 }
 body.is-playing .seo,
 body.is-playing #more,
-body.is-playing .site-footer,
-body.is-playing #crumb {
+body.is-playing .site-footer {
   display: none;
 }
-
-.crumb { padding-top: var(--sp-12); font: var(--label-03); }
-.crumb a { color: var(--brand); }
 
 /* ============ 첫 화면 ============ */
 .intro {

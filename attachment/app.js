@@ -1,4 +1,4 @@
-import { $, $$, haptic, toast, renderCrumb, renderMoreSites, CANVAS_FONT, wrapText, prefersReducedMotion } from "../shared/kit.js";
+import { $, $$, haptic, toast, renderMoreSites, CANVAS_FONT, wrapText, prefersReducedMotion } from "../shared/kit.js";
 import { createQuiz, tally, springValue, createResultKit, swapView, loopScenes, wait, esc, josa, fmtDate, tok } from "../test-kit/engine.js";
 import { QUESTIONS, SCALE, AXES, TYPES, typeOf, pairNote } from "./data.js";
 
@@ -651,7 +651,6 @@ function route() {
   goIntro();
 }
 
-renderCrumb($("#crumb"));
 $("#start").onclick = (e) => tickThen(e.currentTarget, startQuiz);
 $("#quizBack").onclick = () => quiz.back();
 $("#lastResult").onclick = () => {
@@ -667,3 +666,23 @@ window.addEventListener("popstate", () => {
 });
 route();
 renderMoreSites($("#more"));
+dressHandout($("#more"));
+
+// 하단 다른 도구: 상담실에서 나눠 주는 "함께 읽을 자료" 복사본
+function dressHandout(nav) {
+  if (!nav) return;
+  const title = nav.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `함께 읽을 자료 <small>복사본 · 가져가셔도 돼요</small>`;
+  nav.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    const no = document.createElement("span");
+    no.className = "at-ref__no";
+    no.setAttribute("aria-hidden", "true");
+    no.textContent = `자료 ${i + 1}`;
+    const go = document.createElement("span");
+    go.className = "at-ref__go";
+    go.setAttribute("aria-hidden", "true");
+    go.textContent = "→";
+    a.prepend(no);
+    a.append(go);
+  });
+}

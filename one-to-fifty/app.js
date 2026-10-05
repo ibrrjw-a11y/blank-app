@@ -10,7 +10,6 @@ import {
   urlWith,
   getParam,
   showView,
-  renderCrumb,
   renderMoreSites,
   shuffle,
   todayKey,
@@ -668,7 +667,6 @@ function resume() {
 
 /* ---------- 시작 ---------- */
 function init() {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
   renderChallenge();
   kineticHero();

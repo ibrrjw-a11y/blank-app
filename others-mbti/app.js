@@ -15,7 +15,6 @@ import {
   runIntro,
   showView,
   renderMoreSites,
-  renderCrumb,
   createCanvas,
 
   wrapText,
@@ -1304,7 +1303,24 @@ function route() {
   goIntro();
 }
 
-renderCrumb($("#crumb"));
 bind();
 route();
 renderMoreSites($("#more"));
+dressNextIssue($("#more"));
+
+// 하단 다른 도구: 진 뒷표지의 "다음 호 예고" 오려붙이기
+function dressNextIssue(nav) {
+  if (!nav) return;
+  const title = nav.querySelector(".more-sites__title");
+  if (title) {
+    title.innerHTML = `<span class="om-cut om-cut--ink">다음</span><span class="om-cut om-cut--brand">호</span><span class="om-cut om-cut--paper">예고</span>`;
+    title.setAttribute("aria-label", "다음 호 예고");
+  }
+  nav.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    const no = document.createElement("span");
+    no.className = "om-next__no";
+    no.setAttribute("aria-hidden", "true");
+    no.textContent = `No.0${i + 4}`;
+    a.prepend(no);
+  });
+}

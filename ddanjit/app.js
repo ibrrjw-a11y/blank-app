@@ -1,5 +1,5 @@
 // 딴짓 오락실 허브: 오늘의 게임 4개 묶음. 각 게임은 자기 페이지(/ddanjit/<게임>/)에서 돈다.
-import { $, $$, runIntro, renderCrumb, renderMoreSites, share, prefersReducedMotion } from "../shared/kit.js";
+import { $, $$, runIntro, renderMoreSites, share, prefersReducedMotion } from "../shared/kit.js";
 import { DAY, DATE, overallStreak, msToNextPuzzle, fmtCountdown, esc } from "./core.js";
 import { scene, splitChars, splitHeadline, coinOp, GAME_IDS } from "./scenes.js";
 import { GAMES, statusOf } from "./play.js";
@@ -130,7 +130,6 @@ setInterval(() => {
 
 /* ---------- 시작 ---------- */
 if (!redirectOldHash()) {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
   window.addEventListener("hashchange", route);
 

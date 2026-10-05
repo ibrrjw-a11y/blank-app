@@ -61,8 +61,6 @@
   </head>
   <body>
     <main class="app kd">
-      <nav id="crumb"></nav>
-
       <!-- 1) 첫 화면: 결재판 위 기안문 -->
       <section class="tk-intro kd-intro" data-view="intro">
         <div class="kd-folder">
@@ -163,28 +161,32 @@
           <p class="kd-doc__note">※ 부문별(회사·친구·가족) 지수도 따로 계산해 판정서에 적어 드려요. 예: 회사 80 · 친구 30 · 가족 50이면 "회사에서 특히 꼰대력이 높음".</p>
 
           <h2>라. 질의 회신</h2>
-          <details>
-            <summary>질의) 꼰대 지수가 높으면 나쁜 사람인가요?</summary>
-            <p>회신) 아니요. 걱정과 경험에서 나온 말이 많아요. 다만 듣는 사람에게는 지적으로 들릴 수 있으니 판정서의 개선 권고를 참고해 주세요.</p>
-          </details>
-          <details>
-            <summary>질의) 젊꼰은 몇 점부터인가요?</summary>
-            <p>회신) 40~59점이 3단계 「젊꼰 경보」예요. 겉으로는 쿨한데 속으로 '그래도 이건 아니지'가 자주 떠오르는 구간이에요.</p>
-          </details>
-          <details>
-            <summary>질의) 친구랑 비교할 수 있나요?</summary>
-            <p>회신) 판정서를 친구에게 발송하면 친구가 내 판정서를 보고 바로 결재를 올릴 수 있어요. 끝나면 두 판정서를 나란히 놓은 합동 결재표가 나와요.</p>
-          </details>
-          <details>
-            <summary>질의) 기록은 어디에 남나요?</summary>
-            <p>회신) 서버에 보내지 않아요. 지금 쓰는 브라우저의 "문서 대장"에만 남아서 지난번 지수와 비교할 수 있어요.</p>
-          </details>
+          <div class="kd-qrbook">
+            <p class="kd-qrbook__head" aria-hidden="true"><span>번호</span><span>질의 요지</span><span>처리</span></p>
+            <details class="kd-qr">
+              <summary><span class="kd-qr__no">1</span><span class="kd-qr__q">꼰대 지수가 높으면 나쁜 사람인가요?</span><span class="kd-qr__st" aria-hidden="true"></span></summary>
+              <div class="kd-qr__a"><span class="kd-qr__lab">회신</span><p>아니요. 걱정과 경험에서 나온 말이 많아요. 다만 듣는 사람에게는 지적으로 들릴 수 있으니 판정서의 개선 권고를 참고해 주세요.</p></div>
+            </details>
+            <details class="kd-qr">
+              <summary><span class="kd-qr__no">2</span><span class="kd-qr__q">젊꼰은 몇 점부터인가요?</span><span class="kd-qr__st" aria-hidden="true"></span></summary>
+              <div class="kd-qr__a"><span class="kd-qr__lab">회신</span><p>40~59점이 3단계 「젊꼰 경보」예요. 겉으로는 쿨한데 속으로 '그래도 이건 아니지'가 자주 떠오르는 구간이에요.</p></div>
+            </details>
+            <details class="kd-qr">
+              <summary><span class="kd-qr__no">3</span><span class="kd-qr__q">친구랑 비교할 수 있나요?</span><span class="kd-qr__st" aria-hidden="true"></span></summary>
+              <div class="kd-qr__a"><span class="kd-qr__lab">회신</span><p>판정서를 친구에게 발송하면 친구가 내 판정서를 보고 바로 결재를 올릴 수 있어요. 끝나면 두 판정서를 나란히 놓은 합동 결재표가 나와요.</p></div>
+            </details>
+            <details class="kd-qr">
+              <summary><span class="kd-qr__no">4</span><span class="kd-qr__q">기록은 어디에 남나요?</span><span class="kd-qr__st" aria-hidden="true"></span></summary>
+              <div class="kd-qr__a"><span class="kd-qr__lab">회신</span><p>서버에 보내지 않아요. 지금 쓰는 브라우저의 "문서 대장"에만 남아서 지난번 지수와 비교할 수 있어요.</p></div>
+            </details>
+          </div>
+          <h2>마. 관련 문서</h2>
+          <nav id="more" aria-label="관련 문서"></nav>
           <p class="kd-doc__end">붙임 &nbsp;없음. &nbsp;끝.</p>
           <p class="kd-doc__note">재미로 보는 테스트예요. 인사 평가나 성격 진단에 쓸 수 없어요.</p>
         </div>
       </article>
 
-      <nav id="more"></nav>
       <footer class="site-footer">재미로 보는 테스트예요. 판정서는 어떤 효력도 없어요.</footer>
     </main>
     <script type="module" src="app.js"></script>

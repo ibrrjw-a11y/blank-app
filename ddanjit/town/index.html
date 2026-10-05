@@ -10,7 +10,7 @@
     <meta property="og:url" content="https://example.com/ddanjit/town/" />
     <meta property="og:title" content="오늘의 동네 - 전국 시군구 맞추기" />
     <meta property="og:description" content="전국 226개 시·군·구 중 오늘의 동네 하나를 맞히는 지역 맞추기 게임. 틀리면 정답까지 거리(km)·방향·가까움(%)을 알려줘요. 기회 6번, 매일 0시 새 문제." />
-    <meta name="theme-color" content="#0e0d0b" />
+    <meta name="theme-color" content="#0b1a10" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ko_KR" />
     <meta property="og:site_name" content="딴짓 오락실" />
@@ -18,10 +18,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Press+Start+2P&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../../shared/components.css" />
     <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="machine.css" />
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -99,20 +100,30 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
 
-      <!-- 1) 첫 화면: 이 게임 장면만 캐비닛에서 짧게 반복 -->
-      <section class="intro intro--game" id="intro" data-view="intro">
-        <header class="marquee">
-          <span class="marquee__lamp" aria-hidden="true"></span>
-          <span class="marquee__name">딴짓 오락실</span>
-          <span class="marquee__coin" aria-hidden="true">GAME 2/4</span>
+      <!-- 1) 첫 화면: 2번 기계. 초록 지도·나침반 캐비닛, 헤드라인은 도로 표지판 -->
+      <section class="intro intro--game tw" id="intro" data-view="intro">
+        <header class="tmap" aria-hidden="true">
+          <span class="tmap__n"><i></i>N</span>
+          <span class="tmap__name">TOWN</span>
+          <span class="tmap__grid">2번 기계 · 딴짓 오락실</span>
         </header>
-        <h1 class="kinetic" aria-label="오늘의 동네, 거리·방향으로 추리">
-          <span class="kinetic__line" data-split>오늘의 동네</span>
-          <span class="kinetic__line kinetic__line--accent" data-split>거리·방향으로 추리</span>
+        <div class="trig">
+          <div class="intro__stage" aria-hidden="true"></div>
+          <svg class="tprop" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="tprop__rim" cx="50" cy="50" r="46" />
+            <circle class="tprop__face" cx="50" cy="50" r="38" />
+            <g class="tprop__ticks"><path d="M50 14 V22 M50 78 V86 M14 50 H22 M78 50 H86" /></g>
+            <text class="tprop__n" x="50" y="11">N</text>
+            <g class="tprop__needle"><path class="tprop__north" d="M50 50 L44 50 L50 20 L56 50 Z" /><path class="tprop__south" d="M50 50 L56 50 L50 80 L44 50 Z" /><circle cx="50" cy="50" r="4" /></g>
+          </svg>
+        </div>
+        <h1 class="tsign" aria-label="오늘의 동네, 거리·방향으로 추리">
+          <span class="tsign__board">
+            <span class="tsign__big" data-split>오늘의 동네</span>
+            <span class="tsign__sub"><svg class="tsign__arrow" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4 L38 22 H29 V44 H19 V22 H10 Z" /></svg><span data-split>거리·방향으로 추리</span></span>
+          </span>
         </h1>
-        <div class="intro__stage" aria-hidden="true"></div>
         <div class="intro__cta">
           <button class="coin-op" id="start" type="button">
             <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
@@ -128,7 +139,7 @@
       <!-- 3) SEO 본문: 게임 설명서 -->
       <article class="seo manual" aria-labelledby="man-h">
         <header class="manual__head">
-          <span class="manual__tag pix">HOW TO PLAY</span>
+          <span class="manual__tag pix">MACHINE 02 · MAP</span>
           <h2 id="man-h">오늘의 동네 설명서</h2>
           <dl class="manual__spec">
             <div><dt>기회</dt><dd>6번</dd></div>
@@ -167,23 +178,35 @@
           </tbody>
         </table>
 
-        <h2 class="manual__qa">Q&amp;A</h2>
-        <details>
-          <summary>거리는 어떻게 재나요?</summary>
-          <p>각 시·군·구의 대략적인 중심(또는 청사) 좌표 사이 직선거리예요. 몇 km 정도 오차가 있을 수 있어요.</p>
-        </details>
-        <details>
-          <summary>"동구"처럼 이름이 겹치면요?</summary>
-          <p>목록에 시·도 이름이 같이 나와요. 대구 동구, 부산 동구처럼 골라서 넣으면 돼요.</p>
-        </details>
-        <details>
-          <summary>세종시도 나오나요?</summary>
-          <p>네. 세종특별자치시는 하나의 동네로 들어 있어요.</p>
-        </details>
-        <details>
-          <summary>기록은 어디에 남나요?</summary>
-          <p>이 브라우저에만 남아요. 서버로 보내지 않아요.</p>
-        </details>
+        <section class="tfaq" aria-labelledby="tfaq-h">
+          <h2 class="tfaq__title" id="tfaq-h"><span class="tfaq__booth">i</span>길 안내소에 물어본 것</h2>
+          <ol class="tfaq__route">
+            <li>
+              <details class="tfaq__item">
+                <summary><span class="tfaq__shield">1</span><span class="tfaq__q">거리는 어떻게 재나요?</span></summary>
+                <p>각 시·군·구의 대략적인 중심(또는 청사) 좌표 사이 직선거리예요. 몇 km 정도 오차가 있을 수 있어요.</p>
+              </details>
+            </li>
+            <li>
+              <details class="tfaq__item">
+                <summary><span class="tfaq__shield">2</span><span class="tfaq__q">"동구"처럼 이름이 겹치면요?</span></summary>
+                <p>목록에 시·도 이름이 같이 나와요. 대구 동구, 부산 동구처럼 골라서 넣으면 돼요.</p>
+              </details>
+            </li>
+            <li>
+              <details class="tfaq__item">
+                <summary><span class="tfaq__shield">3</span><span class="tfaq__q">세종시도 나오나요?</span></summary>
+                <p>네. 세종특별자치시는 하나의 동네로 들어 있어요.</p>
+              </details>
+            </li>
+            <li>
+              <details class="tfaq__item">
+                <summary><span class="tfaq__shield">4</span><span class="tfaq__q">기록은 어디에 남나요?</span></summary>
+                <p>이 브라우저에만 남아요. 서버로 보내지 않아요.</p>
+              </details>
+            </li>
+          </ol>
+        </section>
         <p class="manual__ex">다른 게임: <a href="../zoom/">줌아웃 퀴즈</a> · <a href="../price/">그때 그 가격</a> · <a href="../timeline/">추억 연대기</a> · <a href="../">4개 한 번에 보기</a></p>
       </article>
 
@@ -194,7 +217,9 @@
     <script type="module">
       import { bootGame } from "../play.js";
       import game from "../games/town.js";
+      import { machine } from "./machine.js";
       bootGame(game);
+      machine();
     </script>
   </body>
 </html>

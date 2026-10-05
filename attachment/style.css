@@ -40,20 +40,6 @@ body {
   position: relative;
 }
 
-/* ---------- 상단 경로: 타자기 글씨 ---------- */
-.at .crumb {
-  height: 40px;
-  font: 400 13px/1 var(--art-typed);
-  color: var(--art-lead-soft);
-}
-
-.at .crumb a {
-  color: var(--art-lead);
-  text-decoration: underline;
-  text-decoration-color: var(--art-rule);
-  text-underline-offset: 4px;
-}
-
 /* ---------- 클립보드 ---------- */
 .at-board {
   position: relative;
@@ -160,6 +146,12 @@ body {
   flex-direction: column;
   gap: var(--sp-8);
   padding: var(--sp-10) 0 var(--sp-8);
+}
+
+/* 첫 화면: 남는 세로 공간은 지도 위아래로 나눠 갖는다 */
+.at-stage .at-mapbox {
+  flex: 1 1 auto;
+  align-content: center;
 }
 
 .at-sec {
@@ -447,7 +439,7 @@ body {
 }
 
 .at-quiz .at-board {
-  min-height: calc(100dvh - 56px);
+  min-height: calc(100dvh - var(--sp-16));
 }
 
 .at-quizbar {
@@ -1075,25 +1067,95 @@ body {
 .at-grid4__cell span { font: 700 11px/1.4 var(--art-typed); }
 .at-grid4__cell em { font: 400 12px/1.5 var(--art-typed); font-style: normal; color: var(--art-lead-soft); }
 
-.at-doc details {
-  border-bottom: 1px dashed var(--art-lead-soft);
+/* ---------- 자주 나온 질문: 상담 축어록 ----------
+ * 상담 기록처럼 줄 번호 + 화자(내담자/상담자) + 발화. 내담자 줄을 누르면 상담자 줄이 타이핑되듯 이어진다. */
+.at-doc .at-turn__head {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--art-lead);
+  border-bottom: 1px solid var(--art-lead);
+  font: 400 11px/1.6 var(--art-typed);
+  color: var(--art-lead-soft);
 }
 
-.at-doc summary {
+.at-doc details.at-turn {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dotted var(--art-lead-soft);
+}
+
+.at-turn summary,
+.at-doc .at-turn p {
+  display: grid;
+  grid-template-columns: 22px 46px 1fr;
+  align-items: baseline;
+  gap: var(--sp-6);
+  margin: 0;
+  padding: var(--sp-12) 0;
+}
+
+.at-turn summary {
+  min-height: var(--tap-min);
+  list-style: none;
+  cursor: pointer;
+}
+
+.at-turn summary::-webkit-details-marker { display: none; }
+
+.at-turn__ln {
+  font: 400 10px/1.6 var(--art-typed);
+  color: var(--art-margin);
+  text-align: right;
+}
+
+.at-turn__who {
+  font: 700 12px/1.6 var(--art-typed);
+  color: var(--art-lead-soft);
+}
+
+.at-turn__say {
   font: 700 14px/1.6 var(--art-typed);
   color: var(--art-lead);
 }
 
-.at-doc summary::before { content: "Q. "; color: var(--brand); }
-.at-doc summary::marker { content: ""; }
-
-.at-doc details p {
-  margin: var(--sp-6) 0 0;
-  font: 400 13px/1.7 var(--art-typed);
-  color: var(--art-lead);
+/* 아직 응답을 안 펼친 줄: 연필로 "응답 →" 메모 */
+.at-turn summary .at-turn__say::after {
+  content: " 응답 보기 ↓";
+  margin-left: var(--sp-4);
+  font: 700 15px/1 var(--font-display);
+  color: var(--brand);
+  white-space: nowrap;
 }
 
-.at-doc details p::before { content: "A. "; font-weight: 700; }
+.at-turn[open] summary .at-turn__say::after { content: ""; }
+
+.at-doc .at-turn p {
+  padding-top: 0;
+  background: linear-gradient(90deg, transparent 72px, color-mix(in srgb, var(--art-note) 45%, transparent) 72px);
+}
+
+.at-turn p .at-turn__who { color: var(--brand); }
+
+.at-turn p .at-turn__say {
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.75;
+  clip-path: inset(0 0 0 0);
+  animation: at-type-in 700ms steps(14, end) both;
+}
+
+@keyframes at-type-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.at-doc .at-turn__foot {
+  margin: var(--sp-8) 0 0;
+  font: 400 11px/1.6 var(--art-typed);
+  color: var(--art-lead-soft);
+}
 
 .at-doc__stamp {
   display: inline-block;
@@ -1105,11 +1167,97 @@ body {
   transform: rotate(-2deg);
 }
 
-/* 하단 추천 */
-.at .more-sites__title { font: 700 16px/1.3 var(--art-typed); }
-.at .more-sites__item { border-radius: var(--r-0); background: var(--art-paper); box-shadow: var(--shadow-s); }
-.at .more-sites__name { font: 700 13px/1.3 var(--art-typed); }
-.at .more-sites__cat { border-radius: var(--r-4); font-family: var(--art-typed); }
+/* ---------- 함께 읽을 자료 (다른 도구) ----------
+ * 상담실 책상 위 복사본 한 장: 회색 토너 얼룩, 왼쪽 위 스테이플, 점선 리더가 있는 자료 목록 */
+.at .more-sites {
+  position: relative;
+  margin: var(--sp-48) var(--sp-8) var(--sp-24);
+  padding: var(--sp-20) var(--sp-16) var(--sp-16);
+  background:
+    radial-gradient(ellipse at 96% 4%, color-mix(in srgb, var(--art-lead) 14%, transparent), transparent 38%),
+    linear-gradient(90deg, color-mix(in srgb, var(--art-lead) 10%, transparent), transparent 6%, transparent 94%, color-mix(in srgb, var(--art-lead) 8%, transparent)),
+    color-mix(in srgb, var(--art-lead) 4%, var(--art-paper));
+  box-shadow: var(--shadow-s);
+  color: var(--art-lead);
+  transform: rotate(-0.8deg);
+}
+
+/* 스테이플 */
+.at .more-sites::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  width: 26px;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: linear-gradient(180deg, var(--art-metal), var(--art-metal-dark));
+  transform: rotate(-35deg);
+}
+
+.at .more-sites__title {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 var(--sp-8) var(--sp-24);
+  padding-bottom: var(--sp-8);
+  border-bottom: 2px solid var(--art-lead);
+  font: 700 18px/1.3 var(--art-typed);
+  opacity: 1;
+  letter-spacing: -0.03em;
+}
+
+.at .more-sites__title small {
+  font: 400 11px/1.4 var(--art-typed);
+  color: var(--art-lead-soft);
+}
+
+.at .more-sites__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: "no name go" "no desc go";
+  column-gap: var(--sp-10);
+  align-items: baseline;
+  min-height: 56px;
+  padding: var(--sp-10) 0;
+  border-top: 0;
+  border-bottom: 1px dotted var(--art-lead-soft);
+  color: var(--art-lead);
+  text-decoration: none;
+}
+
+.at-ref__no {
+  grid-area: no;
+  font: 400 11px/1.6 var(--art-typed);
+  color: var(--art-lead-soft);
+}
+
+.at .more-sites__name {
+  grid-area: name;
+  font: 700 15px/1.4 var(--art-typed);
+  text-decoration: underline;
+  text-decoration-color: var(--art-rule);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.at .more-sites__desc { grid-area: desc; font: 400 12px/1.5 var(--art-typed); opacity: 1; color: var(--art-lead-soft); }
+
+.at-ref__go {
+  grid-area: go;
+  align-self: center;
+  font: 700 22px/1 var(--font-display);
+  color: var(--brand);
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+
+.at .more-sites__item:active .at-ref__go { transform: translateX(6px); transition-duration: 60ms; }
+
+/* 연필로 동그라미 친 첫 자료 */
+.at .more-sites__item:first-child .more-sites__name {
+  text-decoration-color: var(--art-pencil);
+  text-decoration-thickness: 5px;
+}
+
 .at .site-footer { font-family: var(--art-typed); }
 
 /* ---------- 키프레임 ---------- */

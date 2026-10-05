@@ -109,7 +109,7 @@ body { background: var(--color-bg); }
 }
 
 /* ---------- 인트로 ---------- */
-.intro { min-height: calc(100dvh - 56px - 44px); padding-top: var(--sp-8); }
+.intro { min-height: calc(100dvh - 56px); padding-top: var(--sp-8); }
 /* 무대는 남는 세로 공간을 모두 차지하고, 카드는 JS가 그 크기에 맞춰 확대·축소한다 */
 .intro__stage { flex: 1 1 0; min-height: 280px; }
 .intro__caption { text-align: left; min-height: 96px; }
@@ -1084,37 +1084,8 @@ body { background: var(--color-bg); }
 .wi[data-scene="4"] .wi-linelabel { visibility: hidden; }
 
 /* ==========================================================
- * 2차 개편: 경로(노선 표시) · 승차권 시작 버튼 · 노선 안내도 SEO 본문
+ * 2차 개편: 승차권 시작 버튼 · 노선 안내도 SEO 본문
  * ========================================================== */
-
-/* ---------- 상단 경로: 역 두 개를 잇는 노선 ---------- */
-.crumb { min-height: 44px; gap: 0; font: var(--label-03); }
-.crumb a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-6);
-  min-height: 44px;
-  padding: 0;
-  color: var(--color-text-secondary);
-}
-.crumb a::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: var(--r-full);
-  background: var(--color-surface);
-  box-shadow: inset 0 0 0 2.5px var(--color-primary);
-}
-.crumb a:last-child { color: var(--color-text); font-weight: 700; }
-.crumb a:last-child::before { background: var(--color-primary); }
-.crumb > span {
-  width: 20px;
-  height: 3px;
-  margin: 0 var(--sp-6);
-  border-radius: var(--r-full);
-  background: var(--color-primary);
-  font-size: 0;
-}
 
 /* 캡션 아랫줄: 회색 부제 대신 안내방송 자막 */
 .intro__caption p {
@@ -1306,43 +1277,148 @@ body { background: var(--color-bg); }
 .guide__mid .lb { width: 24px; height: 24px; margin-right: var(--sp-6); vertical-align: -4px; }
 .seo.guide .guide__note { margin: var(--sp-8) 0 0; font: var(--body-03); color: var(--color-text); }
 
-/* FAQ: 역 안내 게시판 */
-.qboard {
-  margin-top: var(--sp-40);
-  border-radius: var(--r-12);
+@media (prefers-reduced-motion: reduce) {
+  .ticket__gate i { animation: none; }
+  .exit[open] .exit__a, .exit[open] .exit__no, .xfer .more-sites__item, .xfer__badge, .xfer__go::before { animation: none !important; }
+}
+
+/* ==========================================================
+ * 3차 개편 (§9): 출구 안내판 FAQ · 갈아타는 곳 환승 안내판
+ * ========================================================== */
+
+/* ---------- 나가는 곳 (FAQ): 노란 출구 번호판 ---------- */
+.exits { margin-top: var(--sp-40); }
+.seo.guide .exits__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 var(--sp-8);
+  padding: var(--sp-12) var(--sp-16);
+  border-radius: var(--r-8) var(--r-8) 0 0;
   background: var(--art-board);
+  color: var(--brand-on);
+  font: var(--title-04);
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+.exits__en { font: var(--label-02); font-family: var(--font-num); font-weight: 700; color: var(--art-led); letter-spacing: 0.04em; }
+.seo.guide .exit { margin: 0 0 var(--sp-6); padding: 0; border: 0; }
+.seo.guide .exit summary {
+  display: grid;
+  grid-template-columns: 44px 1fr 32px;
+  align-items: center;
+  gap: var(--sp-12);
+  min-height: 56px;
+  padding: var(--sp-6) var(--sp-12) var(--sp-6) var(--sp-6);
+  border-radius: var(--r-4);
+  background: var(--art-led);
+  color: var(--art-board);
+  font: var(--label-01);
+  font-family: var(--font-display);
+  font-weight: 800;
+  list-style: none;
+  cursor: pointer;
+  transition: transform 300ms var(--ease-back);
+}
+.exit summary::-webkit-details-marker { display: none; }
+.seo.guide .exit summary:active { transform: scale(0.97, 0.93); transition-duration: 60ms; }
+/* 출구 번호: 검은 네모에 노란 숫자 */
+.exit__no {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-4);
+  background: var(--art-board);
+  color: var(--art-led);
+  font: 800 26px/1 var(--font-num);
+}
+.exit[open] .exit__no { animation: exit-pop 460ms var(--ease-back); }
+@keyframes exit-pop { 0% { transform: scale(1); } 30% { transform: scale(1.18, 0.82); } 60% { transform: scale(0.94, 1.08); } 100% { transform: none; } }
+/* 화살표: 닫힘은 →, 열림은 ↓ 로 꺾인다 */
+.exit__arrow { position: relative; width: 28px; height: 28px; transition: transform 380ms var(--ease-spring); }
+.exit__arrow::before { content: ""; position: absolute; left: 3px; right: 9px; top: 12px; height: 4px; background: var(--art-board); }
+.exit__arrow::after { content: ""; position: absolute; right: 4px; top: 6px; width: 12px; height: 12px; border: solid var(--art-board); border-width: 4px 4px 0 0; transform: rotate(45deg); }
+.exit[open] .exit__arrow { transform: rotate(90deg); }
+.exit__a {
+  margin: 0 0 var(--sp-6) 25px;
+  padding: var(--sp-12) var(--sp-16) var(--sp-12) var(--sp-20);
+  border-left: 4px solid var(--art-board);
+  background: var(--art-paper);
+}
+.exit[open] .exit__a { animation: exit-down 420ms var(--ease-back) both; }
+@keyframes exit-down { from { clip-path: inset(0 0 100% 0); transform: translateY(-8px); } to { clip-path: inset(0 0 0 0); transform: none; } }
+.exit__to { display: block; margin-bottom: var(--sp-4); font: var(--label-03); font-weight: 800; color: var(--color-primary); }
+.seo.guide .exit__a p { margin: 0; font: var(--body-03); color: var(--color-text); }
+
+/* ---------- 갈아타는 곳 (다른 도구 링크): 환승 안내판 ---------- */
+.more-sites.xfer {
+  margin-top: var(--sp-40);
+  padding: 0;
+  border-radius: var(--r-12);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border), var(--shadow-s);
   overflow: hidden;
 }
-.seo.guide .board__head {
+.xfer .more-sites__title {
   display: flex;
   align-items: center;
   gap: var(--sp-8);
   margin: 0;
   padding: var(--sp-12) var(--sp-16);
-  border-bottom: 1px solid var(--art-board-line);
-  font: var(--title-04);
-  font-family: var(--font-display);
-  font-weight: 800;
-  color: var(--art-led);
-}
-.board__dot { width: 8px; height: 8px; border-radius: var(--r-full); background: var(--art-sb); animation: wtg-blink 1.2s steps(2, jump-none) infinite; }
-@keyframes wtg-blink { 50% { opacity: 0.2; } }
-.qboard details { padding: 0 var(--sp-16); border-bottom: 1px solid var(--art-board-line); }
-.qboard details:last-child { border-bottom: 0; }
-.seo.guide .qboard summary {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-10);
-  min-height: 52px;
-  font: var(--label-01);
+  background: var(--art-board);
   color: var(--brand-on);
-  list-style: none;
+  opacity: 1;
 }
-.qboard summary::-webkit-details-marker { display: none; }
-.qboard summary::before { content: "공지"; flex: none; padding: var(--sp-2) var(--sp-6); border-radius: var(--r-4); background: var(--art-led); color: var(--art-board); font: var(--label-03); font-weight: 800; }
-.qboard summary::after { content: "+"; margin-left: auto; color: var(--art-led); font: var(--title-04); }
-.qboard details[open] summary::after { content: "−"; }
-.seo.guide .qboard p { margin: 0 0 var(--sp-12); font: var(--body-03); color: color-mix(in srgb, var(--brand-on) 85%, transparent); }
-@media (prefers-reduced-motion: reduce) {
-  .ticket__gate i, .board__dot { animation: none; }
+.xfer__icon { position: relative; width: 28px; height: 20px; }
+.xfer__icon::before,
+.xfer__icon::after { content: ""; position: absolute; left: 0; right: 0; height: 4px; border-radius: var(--r-full); }
+.xfer__icon::before { top: 3px; background: var(--art-l3); }
+.xfer__icon::after { bottom: 3px; background: var(--art-l4); }
+.xfer__ko { font: var(--title-04); font-family: var(--font-display); font-weight: 900; }
+.xfer__en { margin-left: auto; font: var(--label-02); font-family: var(--font-num); font-weight: 700; color: var(--art-led); }
+.xfer .more-sites__item {
+  --line: var(--art-l3);
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr 44px;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: var(--sp-12);
+  min-height: 72px;
+  padding: var(--sp-12) var(--sp-16);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text);
+  transition: background var(--dur-fast);
 }
+.xfer .more-sites__item:first-of-type { border-top: 0; }
+.xfer .more-sites__item:nth-child(2) { --line: var(--art-l4); }
+.xfer .more-sites__item:nth-child(3) { --line: var(--art-l8); }
+.xfer .more-sites__item:active { background: var(--color-surface-sunken); }
+.xfer__badge {
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-full);
+  background: var(--line);
+  color: var(--brand-on);
+  font: 800 17px/1 var(--font-display);
+  transition: transform 360ms var(--ease-back);
+}
+.xfer .more-sites__item:active .xfer__badge { transform: scale(1.15, 0.85); transition-duration: 60ms; }
+.xfer .more-sites__name { grid-column: 2; font: var(--body-02-strong); font-family: var(--font-display); font-weight: 800; }
+.xfer .more-sites__desc { grid-column: 2; font: var(--caption-01); color: var(--color-text-secondary); opacity: 1; }
+/* 노선색 화살표: 굵은 선 + 꺾쇠 */
+.xfer__go { grid-column: 3; grid-row: 1 / 3; position: relative; height: 24px; }
+.xfer__go::before { content: ""; position: absolute; left: 0; right: 8px; top: 9px; height: 6px; border-radius: var(--r-full); background: var(--line); transform-origin: left; }
+.xfer__go::after { content: ""; position: absolute; right: 2px; top: 3px; width: 13px; height: 13px; border: solid var(--line); border-width: 6px 6px 0 0; transform: rotate(45deg); }
+/* 화면에 들어오면 노선이 그어지고 배지가 핀처럼 튄다 */
+.xfer:not(.is-in) .xfer__badge { transform: scale(0); }
+.xfer:not(.is-in) .xfer__go::before { transform: scaleX(0); }
+.xfer.is-in .xfer__badge { animation: xfer-pin 560ms var(--ease-back) calc(var(--i) * 120ms) backwards; }
+.xfer.is-in .xfer__go::before { animation: xfer-line 520ms cubic-bezier(0.7, 0, 0.2, 1) calc(var(--i) * 120ms + 160ms) backwards; }
+@keyframes xfer-pin { 0% { transform: translateY(-14px) scale(0.2); } 55% { transform: translateY(2px) scale(1.15, 0.85); } 80% { transform: scale(0.96, 1.05); } 100% { transform: none; } }
+@keyframes xfer-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.xfer + .site-footer { padding-top: var(--sp-16); }

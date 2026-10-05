@@ -31,20 +31,6 @@ body {
   background: color-mix(in srgb, var(--art-folder) 8%, var(--art-paper));
 }
 
-/* ---------- 상단 경로: 문서 분류 칸 ---------- */
-.kd .crumb {
-  height: 40px;
-  font: 700 12px/1 var(--art-gothic);
-  color: var(--art-ink-soft);
-}
-
-.kd .crumb a {
-  color: var(--art-ink);
-  padding: var(--sp-4) var(--sp-6);
-  border: 1px solid var(--art-rule);
-  background: var(--art-paper);
-}
-
 /* ---------- 결재판 ---------- */
 .kd-intro {
   padding-top: var(--sp-4);
@@ -316,6 +302,8 @@ body {
 .kd-log th:nth-child(1), .kd-log td:nth-child(1) { width: 3em; font-family: var(--art-mono); }
 .kd-log th:nth-child(2), .kd-log td:nth-child(2) { width: 3em; }
 .kd-log th:nth-child(4), .kd-log td:nth-child(4) { width: 3em; text-align: right; font-family: var(--art-mono); color: var(--brand); }
+.kd-log tr.is-blank td { color: var(--art-rule); }
+.kd-log tr.is-blank td:nth-child(4) { color: var(--art-rule); }
 .kd-log tr.is-new { animation: kd-flip 480ms var(--art-spring) both; }
 
 .kd-meter {
@@ -532,7 +520,7 @@ body {
 
 /* ---------- 상황 조사서 ---------- */
 .kd-quiz .kd-sheet {
-  min-height: calc(100dvh - 56px);
+  min-height: calc(100dvh - var(--sp-16));
   display: flex;
   flex-direction: column;
   padding: var(--sp-12);
@@ -974,17 +962,170 @@ body {
 
 .kd-doc .kd-doc__note { margin: var(--sp-8) 0 0; font: 400 12px/1.6 var(--art-gothic); color: var(--art-ink-soft); }
 
-.kd-doc details { border-bottom: 1px solid var(--art-rule); }
-.kd-doc summary { font: 700 14px/1.6 var(--art-gothic); color: var(--art-ink); }
-.kd-doc details p { margin: var(--sp-6) 0 0; font: 400 14px/1.7 var(--font-display); color: var(--art-ink); }
-
 .kd-doc .kd-doc__end { margin-top: var(--sp-20); font: 400 13px/1.6 var(--art-gothic); }
 
-/* 하단 추천 */
-.kd .more-sites__title { font: 800 17px/1.3 var(--font-display); }
-.kd .more-sites__item { border-radius: var(--r-0); border: 1px solid var(--art-ink); box-shadow: none; background: var(--art-paper); }
-.kd .more-sites__name { font: 700 14px/1.3 var(--art-gothic); }
-.kd .more-sites__cat { border-radius: var(--r-0); border-color: var(--art-ink); font-family: var(--art-gothic); }
+/* ---------- 질의 회신 대장 (FAQ) ----------
+ * 민원 질의회신 양식: 번호 칸 | 질의 요지 | 처리 상태. 펼치면 회신 칸이 붙고 "회신" 도장이 찍힌다. */
+.kd-qrbook {
+  border: 1.5px solid var(--art-ink);
+  font-family: var(--art-gothic);
+}
+
+.kd-doc .kd-qrbook__head {
+  display: grid;
+  grid-template-columns: 2.6em 1fr 4.6em;
+  margin: 0;
+  background: var(--art-cell);
+  border-bottom: 1.5px solid var(--art-ink);
+  font: 700 12px/1 var(--art-gothic);
+  color: var(--art-ink);
+}
+
+.kd-qrbook__head span { padding: var(--sp-8) var(--sp-6); text-align: center; }
+.kd-qrbook__head span + span { border-left: 1px solid var(--art-ink); }
+
+.kd-doc details.kd-qr { border: 0; padding: 0; }
+.kd-doc details.kd-qr + details.kd-qr { border-top: 1px solid var(--art-rule); }
+
+.kd-qr summary {
+  display: grid;
+  grid-template-columns: 2.6em 1fr 4.6em;
+  align-items: stretch;
+  min-height: 52px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.kd-qr summary::-webkit-details-marker { display: none; }
+
+.kd-qr summary > span { display: flex; align-items: center; padding: var(--sp-8) var(--sp-6); }
+.kd-qr summary > span + span { border-left: 1px solid var(--art-ink); }
+
+.kd-qr__no { justify-content: center; font: 500 13px/1 var(--art-mono); background: var(--art-cell); }
+.kd-qr__q { font: 700 14px/1.5 var(--art-gothic); color: var(--art-ink); }
+
+.kd-qr__st {
+  justify-content: center;
+  font: 700 11px/1.2 var(--art-gothic);
+  color: var(--art-ink-soft);
+  text-align: center;
+}
+
+.kd-qr__st::before { content: "회신 완료\A▼ 열람"; white-space: pre; }
+.kd-qr[open] .kd-qr__st::before { content: "회신 완료\A▲ 닫기"; color: var(--brand); }
+
+.kd-qr__a {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.6em 1fr;
+  border-top: 1px dashed var(--art-ink);
+}
+
+.kd-qr__lab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.3em;
+  background: var(--art-cell);
+  border-right: 1px solid var(--art-ink);
+  font: 700 12px/1 var(--art-gothic);
+}
+
+.kd-doc .kd-qr__a p {
+  margin: 0;
+  padding: var(--sp-10) 64px var(--sp-12) var(--sp-10);
+  font: 400 14px/1.7 var(--font-display);
+  color: var(--art-ink);
+}
+
+/* 회신 도장 */
+.kd-qr__a::after {
+  content: "회신";
+  position: absolute;
+  right: var(--sp-10);
+  bottom: var(--sp-10);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--brand);
+  border-radius: var(--r-full);
+  font: 800 13px/1 var(--art-gothic);
+  color: var(--brand);
+  opacity: 0.85;
+  animation: kd-slam 420ms var(--art-slam) 120ms both;
+  --r: -12deg;
+}
+
+/* ---------- 관련 문서 칸 (다른 도구) ----------
+ * 공문 본문 안 "마. 관련 문서" 표 칸: 참조 번호 | 문서명·요지 | 열람 */
+.kd .more-sites {
+  padding: 0;
+  border: 1.5px solid var(--art-ink);
+}
+
+.kd .more-sites__title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0;
+  padding: var(--sp-8) var(--sp-10);
+  background: var(--art-cell);
+  border-bottom: 1.5px solid var(--art-ink);
+  font: 700 13px/1.3 var(--art-gothic);
+  opacity: 1;
+  color: var(--art-ink);
+}
+
+.kd .more-sites__title small { font: 400 11px/1 var(--art-mono); color: var(--art-ink-soft); }
+
+.kd .more-sites__item {
+  display: grid;
+  grid-template-columns: 3.6em 1fr auto;
+  grid-template-areas: "no name go" "no desc go";
+  align-items: center;
+  column-gap: var(--sp-10);
+  min-height: 60px;
+  padding: var(--sp-8) var(--sp-10) var(--sp-8) 0;
+  border-top: 0;
+  border-bottom: 1px solid var(--art-rule);
+  color: var(--art-ink);
+  text-decoration: none;
+}
+
+.kd .more-sites__item:last-child { border-bottom: 0; }
+
+.kd-ref__no {
+  grid-area: no;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: calc(var(--sp-8) * -1) 0;
+  border-right: 1px solid var(--art-ink);
+  background: var(--art-cell);
+  font: 500 11px/1 var(--art-mono);
+}
+
+.kd .more-sites__name { grid-area: name; font: 800 15px/1.4 var(--font-display); }
+.kd .more-sites__desc { grid-area: desc; font: 400 12px/1.4 var(--art-gothic); opacity: 1; color: var(--art-ink-soft); }
+
+.kd-ref__go {
+  grid-area: go;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1.5px solid var(--brand);
+  border-radius: var(--r-full);
+  font: 800 12px/1 var(--art-gothic);
+  color: var(--brand);
+  transform: rotate(-8deg);
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+
+.kd .more-sites__item:active .kd-ref__go { transform: rotate(4deg) scale(0.88); transition-duration: 60ms; }
 
 /* ---------- 키프레임 ---------- */
 @keyframes kd-slam {

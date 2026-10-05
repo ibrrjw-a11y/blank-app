@@ -70,7 +70,6 @@
   </head>
   <body>
     <main class="app">
-      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="./" data-act="home"><span class="brand-mark" aria-hidden="true"></span>&nbsp;어디가?</a>
         <button class="btn btn--ghost btn--sm" data-act="report">점심 기록</button>
@@ -191,27 +190,27 @@
           </table>
         </div>
 
-        <section class="qboard" aria-labelledby="board-h">
-          <h2 class="qboard__head" id="board-h"><span class="qboard__dot" aria-hidden="true"></span>역 안내 게시판</h2>
-          <details>
-            <summary>앱을 설치해야 하나요?</summary>
-            <p>아니요. 브라우저에서 바로 써요. 친구도 링크만 받으면 가입 없이 참여해요.</p>
+        <section class="exits" aria-labelledby="exits-h">
+          <h2 class="exits__head" id="exits-h"><span class="exits__ko">나가는 곳 · 자주 묻는 것</span><span class="exits__en" aria-hidden="true">Exit</span></h2>
+          <details class="exit">
+            <summary><span class="exit__no" aria-hidden="true">1</span><span class="exit__q">앱을 설치해야 하나요?</span><span class="exit__arrow" aria-hidden="true"></span></summary>
+            <div class="exit__a"><span class="exit__to" aria-hidden="true">1번 출구 안내</span><p>아니요. 브라우저에서 바로 써요. 친구도 링크만 받으면 가입 없이 참여해요.</p></div>
           </details>
-          <details>
-            <summary>위치 정보가 저장되나요?</summary>
-            <p>'내 위치'는 브라우저 안에서 계산에만 써요. 가게·날씨를 불러올 때 좌표를 OpenStreetMap·Open-Meteo(설정된 경우 카카오)에 요청 값으로만 보내요. 이 기기에 남는 건 팀 저장 때 고른 회사 위치뿐이에요.</p>
+          <details class="exit">
+            <summary><span class="exit__no" aria-hidden="true">2</span><span class="exit__q">위치 정보가 저장되나요?</span><span class="exit__arrow" aria-hidden="true"></span></summary>
+            <div class="exit__a"><span class="exit__to" aria-hidden="true">2번 출구 안내</span><p>'내 위치'는 브라우저 안에서 계산에만 써요. 가게·날씨를 불러올 때 좌표를 OpenStreetMap·Open-Meteo(설정된 경우 카카오)에 요청 값으로만 보내요. 이 기기에 남는 건 팀 저장 때 고른 회사 위치뿐이에요.</p></div>
           </details>
-          <details>
-            <summary>실제 가게 정보는 어디서 오나요?</summary>
-            <p>OpenStreetMap(Overpass API)의 음식점·카페 이름과 위치예요. 카카오 키가 설정돼 있으면 카카오 장소 검색을 먼저 써요. 못 불러오면 내장 메뉴 분류로 바뀌어요. 영업시간·가격·평점은 지도 앱에서 확인해요.</p>
+          <details class="exit">
+            <summary><span class="exit__no" aria-hidden="true">3</span><span class="exit__q">실제 가게 정보는 어디서 오나요?</span><span class="exit__arrow" aria-hidden="true"></span></summary>
+            <div class="exit__a"><span class="exit__to" aria-hidden="true">3번 출구 안내</span><p>OpenStreetMap(Overpass API)의 음식점·카페 이름과 위치예요. 카카오 키가 설정돼 있으면 카카오 장소 검색을 먼저 써요. 못 불러오면 내장 메뉴 분류로 바뀌어요. 영업시간·가격·평점은 지도 앱에서 확인해요.</p></div>
           </details>
-          <details>
-            <summary>한 폰으로 여러 명이 투표하면요?</summary>
-            <p>대결마다 각자 고른 쪽을 +1 해요. 다 누르면 과반이 올라가고, 동점이면 동전 던지기예요. 인원이 많으면 '링크로 각자'가 편해요.</p>
+          <details class="exit">
+            <summary><span class="exit__no" aria-hidden="true">4</span><span class="exit__q">한 폰으로 여러 명이 투표하면요?</span><span class="exit__arrow" aria-hidden="true"></span></summary>
+            <div class="exit__a"><span class="exit__to" aria-hidden="true">4번 출구 안내</span><p>대결마다 각자 고른 쪽을 +1 해요. 다 누르면 과반이 올라가고, 동점이면 동전 던지기예요. 인원이 많으면 '링크로 각자'가 편해요.</p></div>
           </details>
-          <details>
-            <summary>링크 답장은 어디에 모이나요?</summary>
-            <p>서버 없이 링크로만 오가요. 친구가 보낸 '결과 보내기' 링크를 방장이 열면 방장 기기 브라우저에 쌓여요.</p>
+          <details class="exit">
+            <summary><span class="exit__no" aria-hidden="true">5</span><span class="exit__q">링크 답장은 어디에 모이나요?</span><span class="exit__arrow" aria-hidden="true"></span></summary>
+            <div class="exit__a"><span class="exit__to" aria-hidden="true">5번 출구 안내</span><p>서버 없이 링크로만 오가요. 친구가 보낸 '결과 보내기' 링크를 방장이 열면 방장 기기 브라우저에 쌓여요.</p></div>
           </details>
         </section>
       </article>

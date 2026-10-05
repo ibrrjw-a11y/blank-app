@@ -28,7 +28,6 @@
   <body>
     <svg class="ink-defs" aria-hidden="true" focusable="false"><filter id="ink-rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" /><feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" /></filter></svg>
     <main class="app">
-      <nav id="crumb"></nav>
       <header class="topbar">
         <a class="topbar__brand" href="../../"><span aria-hidden="true">🌙</span> 꿈 사주</a>
         <a class="btn btn--ghost btn--sm" href="../../">4칸으로 꿈 풀기</a>
@@ -82,8 +81,19 @@
         
 
         <section class="book__sec book__faq">
-          <h2><span class="bk">문답</span>강아지 꿈 문답</h2>
-          <details><summary>강아지 꿈은 길몽인가요, 흉몽인가요?</summary><p>상황에 따라 풀이가 갈리는 꿈이에요. 순하게 따르는 개는 좋은 인연이나 도와줄 사람이 나타난다는 뜻이고, 사납게 짖거나 무는 개는 가까운 사람과의 오해나 말다툼을 조심하라는 신호로 풀어요.</p></details><details><summary>강아지 꿈을 꾸면 로또를 사야 하나요?</summary><p>강아지 꿈의 재물 기운은 크지 않은 편이라고 풀어요. 꿈 사주에서는 4칸 조합과 날짜로 ‘꿈 기운 번호’ 6개를 재미로 뽑아 드리지만, 어떤 번호든 당첨 확률은 똑같아요.</p></details><details><summary>강아지 꿈에서 꿈속 기분이 왜 중요한가요?</summary><p>전통 해몽에서는 꿈속 기분을 크게 봐요. 꿈 사주 풀이 기준으로 같은 강아지 꿈라도 기뻤다면 길몽, 무서웠다면 주의몽으로 등급이 달라져요.</p></details>
+          <h2><span class="bk">籤</span>강아지 꿈 문답 제비</h2>
+          <details class="lot">
+          <summary><span class="lot__no" aria-hidden="true">第一</span><span class="lot__q">강아지 꿈은 길몽인가요, 흉몽인가요?</span><span class="lot__pull" aria-hidden="true"></span></summary>
+          <div class="lot__paper"><span class="lot__ans" aria-hidden="true">答</span><p>상황에 따라 풀이가 갈리는 꿈이에요. 순하게 따르는 개는 좋은 인연이나 도와줄 사람이 나타난다는 뜻이고, 사납게 짖거나 무는 개는 가까운 사람과의 오해나 말다툼을 조심하라는 신호로 풀어요.</p></div>
+        </details>
+          <details class="lot">
+          <summary><span class="lot__no" aria-hidden="true">第二</span><span class="lot__q">강아지 꿈을 꾸면 로또를 사야 하나요?</span><span class="lot__pull" aria-hidden="true"></span></summary>
+          <div class="lot__paper"><span class="lot__ans" aria-hidden="true">答</span><p>강아지 꿈의 재물 기운은 크지 않은 편이라고 풀어요. 꿈 사주에서는 4칸 조합과 날짜로 ‘꿈 기운 번호’ 6개를 재미로 뽑아 드리지만, 어떤 번호든 당첨 확률은 똑같아요.</p></div>
+        </details>
+          <details class="lot">
+          <summary><span class="lot__no" aria-hidden="true">第三</span><span class="lot__q">강아지 꿈에서 꿈속 기분이 왜 중요한가요?</span><span class="lot__pull" aria-hidden="true"></span></summary>
+          <div class="lot__paper"><span class="lot__ans" aria-hidden="true">答</span><p>전통 해몽에서는 꿈속 기분을 크게 봐요. 꿈 사주 풀이 기준으로 같은 강아지 꿈라도 기뻤다면 길몽, 무서웠다면 주의몽으로 등급이 달라져요.</p></div>
+        </details>
         </section>
 
         <section class="book__sec"><h2><span class="bk">이웃</span>함께 찾는 꿈해몽</h2><ul class="dream-links"><li><a href="../bitten/"><span aria-hidden="true">🩹</span> 물리는 꿈 해몽</a></li><li><a href="../chased/"><span aria-hidden="true">🏃</span> 쫓기는 꿈 해몽</a></li><li><a href="../coming-in/"><span aria-hidden="true">🚪</span> 들어오는 꿈 해몽</a></li></ul></section>
@@ -96,10 +106,12 @@
       <footer class="site-footer">재미로 보는 해몽이에요. 전통 해몽 속설을 바탕으로 풀었고, 실제 일을 예언하지 않아요.</footer>
     </main>
     <script type="module">
-      import { renderCrumb, renderMoreSites } from "../../../shared/kit.js";
-      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 경로·추천을 단다
-      renderCrumb(document.getElementById("crumb"), "dream-saju");
-      renderMoreSites(document.getElementById("more"), "dream-saju");
+      import { renderMoreSites } from "../../../shared/kit.js";
+      import { dressTalismans } from "../../more.js";
+      // 사전 페이지는 TOOLS 에 따로 없으니 꿈 사주 도구 경로로 추천을 단다
+      const more = document.getElementById("more");
+      renderMoreSites(more, "dream-saju");
+      dressTalismans(more);
     </script>
   </body>
 </html>

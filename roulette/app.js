@@ -10,7 +10,6 @@ import {
   urlWith,
   getParam,
   showView,
-  renderCrumb,
   renderMoreSites,
   createCanvas,
   CANVAS_FONT,
@@ -68,9 +67,15 @@ const active = () => state.items.filter((it) => !it.out);
 const save = () => store.set("current", state);
 
 /* ---------- 화면 ---------- */
-renderCrumb($("#crumb"));
-renderCrumb($("#crumb2"));
 renderMoreSites($("#more"));
+// 하단 다른 놀이: 예능 엔딩의 "다음 주 예고" 자막 카드로
+(() => {
+  const more = $("#more");
+  const title = more?.querySelector(".more-sites__title");
+  if (!title) return;
+  title.innerHTML = '<span class="nx-tag">NEXT</span>다음 주 예고';
+  more.querySelectorAll(".more-sites__item").forEach((a, k) => a.setAttribute("data-ep", `예고 ${k + 1}`));
+})();
 
 const wheelCanvas = $("#wheel");
 let view = null;

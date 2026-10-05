@@ -504,7 +504,7 @@ main.app { overflow-x: clip; }
 .diary-head__weather { font: 700 17px/22px var(--font-hand); color: var(--art-pen); }
 .diary-head__title { display: flex; align-items: center; gap: var(--sp-8); margin: var(--sp-6) 0 0; font: 700 40px/46px var(--font-hand); color: var(--art-ink); letter-spacing: -0.02em; }
 .diary-head__title .pixel-heart { animation: beat 1100ms var(--spring) infinite; }
-.diary-head__sub { margin: 0; font: 700 17px/22px var(--font-hand); color: var(--color-text-secondary); }
+.diary-head__sub { margin: 0; font: 700 17px/22px var(--font-hand); color: var(--art-pen); rotate: -1.2deg; transform-origin: 0 50%; }
 
 /* ---------- 인트로 장면 크기 키우기 ---------- */
 .i-names { font-size: 50px; line-height: 56px; gap: var(--sp-16); }
@@ -575,19 +575,10 @@ main.app { overflow-x: clip; }
 .net-node text { font-size: 22px; }
 
 /* =========================================================
- * 2차 개편: 상단 경로, 스티커 버튼, 형광펜 탭, 다이어리 본문
+ * 2차 개편: 스티커 버튼, 형광펜 탭, 다이어리 본문
  * ========================================================= */
 
-/* 상단 경로: 다이어리 귀퉁이 손글씨 메모 */
-.crumb {
-  gap: var(--sp-6);
-  min-height: 40px;
-  padding-left: var(--sp-8);
-  font: 700 16px/20px var(--font-hand);
-  color: var(--color-text-tertiary);
-}
-.crumb a { display: inline-flex; align-items: center; min-height: 40px; padding: 0; color: var(--art-pen); text-decoration: underline wavy var(--art-margin); text-underline-offset: 4px; }
-.intro { min-height: calc(100dvh - 40px); padding-top: 0; }
+.intro { padding-top: var(--sp-8); }
 
 /* 시작 버튼: 테이프로 붙인 스티커 */
 .sticker-btn {
@@ -742,20 +733,6 @@ main.app { overflow-x: clip; }
 .diary__todo li::before { content: ""; position: absolute; left: var(--sp-4); top: 9px; width: 16px; height: 16px; border: 2px solid var(--art-ink); border-radius: var(--r-4); }
 .diary__todo li::after { content: ""; position: absolute; left: 9px; top: 6px; width: 7px; height: 13px; border: solid var(--color-primary); border-width: 0 3px 3px 0; rotate: 40deg; }
 
-.diary__qa details { padding: 0; border-bottom: 1px dashed var(--art-grid); }
-.diary__qa summary { display: flex; align-items: center; min-height: var(--tap-min); font: 700 19px/24px var(--font-hand); color: var(--art-pen); list-style: none; cursor: pointer; }
-.diary__qa summary::-webkit-details-marker { display: none; }
-.diary__qa summary::after { content: "♥"; margin-left: auto; padding-left: var(--sp-8); color: var(--art-margin); font-size: 14px; }
-.diary__qa details[open] summary::after { color: var(--color-primary); }
-.seo .diary__qa p { margin: 0 0 var(--sp-12); padding-left: var(--sp-12); font: 700 17px/24px var(--font-hand); color: var(--art-ink); }
-
-/* 하단 추천: 테이프 붙인 메모지 */
-.more-sites__title { font: 700 22px/28px var(--font-hand); }
-.more-sites__item { position: relative; border-radius: var(--r-4); }
-.more-sites__item:nth-child(odd) { rotate: -0.8deg; }
-.more-sites__item:nth-child(even) { rotate: 0.7deg; }
-.more-sites__name { font: 700 19px/22px var(--font-hand); }
-.more-sites__cat { border-radius: var(--r-4); border-width: 2px; border-color: var(--art-ink); font: 700 17px/20px var(--font-hand); background: var(--color-surface); }
 .intro .intro__cta { gap: var(--sp-4); margin-top: var(--sp-12); }
 .intro .hl-tab { margin-top: var(--sp-4); }
 .intro .sticker-btn { min-height: 74px; }
@@ -763,3 +740,135 @@ main.app { overflow-x: clip; }
 /* 인트로 캡션: 제목 + 회색 부제 대신, 공책 여백에 펜으로 적은 메모 */
 .intro__caption p { position: relative; margin-top: var(--sp-2); padding-left: var(--sp-20); font: 700 18px/24px var(--font-hand); color: var(--art-pen); rotate: -0.6deg; }
 .intro__caption p::before { content: "✎"; position: absolute; left: 0; top: 0; color: var(--color-primary); }
+
+/* =========================================================
+ * 3차 개편 (§9): 수업 시간 쪽지 FAQ · 다음 장 포스트잇
+ * ========================================================= */
+
+/* ---------- 쪽지 Q&A: 접힌 공책 쪽지 + 분홍 펜 답장 ---------- */
+.seo .qa-memo { margin: 0 0 var(--sp-16); }
+.diary__qa .note { position: relative; margin: 0 0 var(--sp-16); padding: 0; border: 0; }
+.diary__qa .note:nth-of-type(odd) { rotate: -1deg; }
+.diary__qa .note:nth-of-type(even) { rotate: 0.8deg; margin-left: var(--sp-12); }
+.diary__qa .note summary {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-height: 64px;
+  padding: var(--sp-10) var(--sp-48) var(--sp-10) var(--sp-16);
+  background-color: var(--color-surface);
+  background-image: repeating-linear-gradient(transparent 0 23px, var(--art-grid) 23px 24px);
+  background-position: 0 6px;
+  border: 1px solid var(--art-grid);
+  box-shadow: var(--shadow-s);
+  clip-path: polygon(0 0, calc(100% - 28px) 0, 100% 28px, 100% 100%, 0 100%);
+  list-style: none;
+  cursor: pointer;
+  transition: transform 360ms var(--spring), box-shadow 200ms;
+}
+.diary__qa .note summary::-webkit-details-marker { display: none; }
+.diary__qa .note summary:active { transform: scale(0.97) rotate(-1.5deg); }
+.note__no { font: 400 12px/16px var(--font-pixel); color: var(--color-primary); letter-spacing: 0.04em; }
+.note__q { font: 700 20px/24px var(--font-hand); color: var(--art-pen); }
+/* 접힌 귀퉁이: 누르면 펴진다 */
+.note__fold {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(225deg, transparent 50%, var(--art-margin) 50%, var(--brand-soft) 100%);
+  transform-origin: 100% 0;
+  transition: transform 420ms var(--spring);
+}
+.note[open] .note__fold { transform: scale(0); }
+.note[open] summary { clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 0 100%); }
+/* 답장: 같은 쪽지 아래칸에 분홍 펜으로 */
+.note__re {
+  position: relative;
+  margin: 0 var(--sp-8);
+  padding: var(--sp-12) var(--sp-16) var(--sp-12) var(--sp-16);
+  background-color: var(--color-surface);
+  background-image: repeating-linear-gradient(transparent 0 23px, var(--art-grid) 23px 24px);
+  border: 1px solid var(--art-grid);
+  border-top: 2px dashed var(--art-margin);
+  box-shadow: var(--shadow-s);
+  transform-origin: top;
+}
+.note[open] .note__re { animation: note-unfold 520ms var(--spring) both; }
+@keyframes note-unfold {
+  0% { transform: perspective(600px) rotateX(-88deg); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+.note__tag {
+  display: inline-block;
+  margin-bottom: var(--sp-4);
+  padding: 0 var(--sp-6);
+  background: var(--art-hl);
+  font: 400 12px/18px var(--font-pixel);
+  color: var(--art-ink);
+  rotate: -2deg;
+}
+.seo .note__re p { margin: 0; padding: 0; font: 700 18px/24px var(--font-hand); color: var(--color-primary); }
+
+/* ---------- 다음 장에 붙여 둔 메모 (다른 도구 링크): 포스트잇 세 장 ---------- */
+.more-sites.next-page { position: relative; padding-top: var(--sp-40); }
+.next-page .more-sites__title { margin: 0 0 var(--sp-16); font: 700 24px/28px var(--font-hand); color: var(--art-ink); opacity: 1; rotate: -1.5deg; }
+.next-page .more-sites__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-16) var(--sp-12); }
+.next-page .more-sites__item {
+  --note: var(--art-tape);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-height: 132px;
+  padding: var(--sp-20) var(--sp-12) var(--sp-12);
+  border: 0;
+  border-radius: var(--r-0);
+  background: var(--note);
+  box-shadow: var(--shadow-m);
+  color: var(--art-ink);
+  rotate: 0deg;
+  transform-origin: 50% 0;
+  transition: transform 380ms var(--spring), box-shadow 200ms;
+}
+.next-page .more-sites__item:nth-child(1) { --note: var(--art-tape); transform: rotate(-3deg); }
+.next-page .more-sites__item:nth-child(2) { --note: var(--brand-soft); transform: rotate(2.5deg) translateY(var(--sp-8)); }
+.next-page .more-sites__item:nth-child(3) { --note: var(--art-grid); grid-column: 1 / -1; width: 72%; min-height: 104px; margin-left: 14%; transform: rotate(-1deg); }
+/* 아래 귀퉁이가 살짝 들린 종이 */
+.next-page .more-sites__item::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(315deg, var(--art-paper) 45%, color-mix(in srgb, var(--art-ink) 18%, var(--note)) 50%, var(--note) 60%);
+}
+.next-page .more-sites__item:active { transform: rotate(0deg) translateY(-4px) scale(1.03); box-shadow: var(--shadow-l); transition-duration: 120ms; }
+.next-page__tape {
+  position: absolute;
+  top: calc(var(--sp-8) * -1);
+  left: 50%;
+  width: 64px;
+  height: 20px;
+  margin-left: -32px;
+  background: color-mix(in srgb, var(--art-paper) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--art-ink) 8%, transparent);
+  rotate: -4deg;
+}
+.next-page .more-sites__name { font: 700 22px/24px var(--font-hand); color: var(--art-ink); }
+.next-page .more-sites__desc { font: 700 16px/20px var(--font-hand); color: var(--art-pen); opacity: 1; }
+.next-page__go { margin-top: auto; font: 400 12px/16px var(--font-pixel); color: var(--color-primary); }
+/* 화면에 들어오면 한 장씩 철썩 붙는다 */
+.next-page:not(.is-in) .more-sites__item { opacity: 0; }
+.next-page.is-in .more-sites__item { animation: sticky-slap 560ms var(--spring) calc(var(--i) * 130ms) backwards; }
+@keyframes sticky-slap {
+  0% { opacity: 0; transform: translateY(-36px) rotate(12deg) scale(1.25); }
+  60% { opacity: 1; transform: translateY(2px) rotate(-2deg) scale(0.97, 1.02); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .note[open] .note__re, .next-page .more-sites__item { animation: none !important; }
+}

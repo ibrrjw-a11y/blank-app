@@ -1,4 +1,4 @@
-import { $, $$, haptic, toast, renderCrumb, renderMoreSites, CANVAS_FONT, wrapText, prefersReducedMotion } from "../shared/kit.js";
+import { $, $$, haptic, toast, renderMoreSites, CANVAS_FONT, wrapText, prefersReducedMotion } from "../shared/kit.js";
 import { createQuiz, tally, createResultKit, swapView, loopScenes, wait, esc, josa, fmtDate, tok, rotated } from "../test-kit/engine.js";
 import { QUESTIONS, AXES, TYPES, typeByKey, typeByCode, relation } from "./data.js";
 import { animalSVG, animalImage, ensureDefs } from "./art.js";
@@ -84,6 +84,11 @@ function buildStage() {
   $("#stage").innerHTML = `
     <div class="lt-plate" id="plate">
       <span class="lt-plate__no">PLATE <b id="pNo">I</b></span>
+      <span class="lt-plate__fig" id="pFig">fig. 1 · 실물 크기의 ⅛</span>
+      <span class="lt-plate__axes" id="pAxes">${[["D", "S", "표현"], ["F", "W", "속도"], ["C", "I", "거리"]]
+        .map(([a, b, k]) => `<span class="lt-axis" data-a="${a}"><small>${k}</small><b>${a}</b><i><em></em></i><b>${b}</b></span>`)
+        .join("")}</span>
+      <span class="lt-plate__scale"><i></i><i></i><i></i><i></i><span>0</span><span>10 cm</span></span>
       <div class="lt-plate__leaf" id="pLeaf"><div class="lt-plate__art" id="pArt"></div></div>
       <div class="lt-tag" id="pTag">
         <span class="lt-tag__hole"></span>
@@ -108,6 +113,9 @@ function setPlate(t) {
   $("#pName").textContent = t.name;
   $("#pLatin").textContent = t.latin;
   $("#pCode").textContent = [...t.code].join(" · ");
+  const fig = $("#pFig");
+  if (fig) fig.textContent = `fig. ${t.plate} · ${t.latin}`;
+  $$("#pAxes .lt-axis").forEach((row) => row.classList.toggle("is-b", !t.code.includes(row.dataset.a)));
 }
 
 function startIntro() {
@@ -121,7 +129,7 @@ function startIntro() {
       leaf.classList.remove("is-in");
       leaf.classList.add("is-out");
       tag.classList.remove("is-in");
-      await wait(300, signal);
+      await wait(190, signal);
       if (signal.aborted) return;
     }
     setPlate(t);
@@ -574,7 +582,6 @@ function route() {
   goIntro();
 }
 
-renderCrumb($("#crumb"));
 $("#start").onclick = (e) => openCover(e.currentTarget, startQuiz);
 $("#openShelf").onclick = () => showShelf();
 $("#quizBack").onclick = () => quiz.back();
@@ -589,3 +596,19 @@ window.addEventListener("popstate", (e) => {
 });
 route();
 renderMoreSites($("#more"));
+dressShelfTabs($("#more"));
+
+// 하단 다른 도구: 같은 서가에 꽂힌 "관련 도감" 색인 탭
+function dressShelfTabs(nav) {
+  if (!nav) return;
+  const title = nav.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `관련 도감 <i>cf. 같은 서가</i>`;
+  const vols = ["III", "IV", "V"];
+  nav.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    const tab = document.createElement("span");
+    tab.className = "lt-idx__tab";
+    tab.setAttribute("aria-hidden", "true");
+    tab.innerHTML = `<small>Vol.</small>${vols[i] || ""}`;
+    a.prepend(tab);
+  });
+}

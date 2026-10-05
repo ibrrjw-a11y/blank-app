@@ -24,6 +24,7 @@ export function placeOverlays(root, m) {
 export function startIntro(root) {
   const canvas = root.querySelector("canvas");
   const tagEl = root.querySelector(".tape");
+  const boardEl = root.closest(".intro")?.querySelector(".mini-board") || document.querySelector(".mini-board");
   const reduced = prefersReducedMotion();
   const m = createMachine(canvas);
   const art = m.art;
@@ -197,6 +198,8 @@ export function startIntro(root) {
     m.draw();
     const ctx = canvas.getContext("2d");
     if (landedAt > 0) drawReveal(ctx, t - Math.max(4.5, landedAt + 0.3));
+    // 쪽지에 당첨 도장이 찍히는 순간, 아래 뽑기판 1칸이 채워진다
+    boardEl?.classList.toggle("is-won", landedAt > 0 && t - Math.max(4.5, landedAt + 0.3) > 1.62);
     if (t > LOOP) reset();
   }
 
@@ -208,6 +211,7 @@ export function startIntro(root) {
     m.draw();
     landedAt = 0.01;
     drawReveal(canvas.getContext("2d"), 2.4);
+    boardEl?.classList.add("is-won");
     setTag(3);
   }
 

@@ -1082,10 +1082,7 @@ body.is-playing .site-footer {
   .stamp { opacity: 0.9; transform: rotate(-12deg); }
 }
 
-/* ============ 2차 개편: 상단 경로 · 측정 개시 버튼 · 측정 절차서 ============ */
-.crumb { padding-top: var(--sp-12); font: var(--label-03); font-family: var(--art-mono); }
-.crumb a { color: var(--art-phosphor); }
-body.is-playing #crumb { display: none; }
+/* ============ 2차 개편: 측정 개시 버튼 · 측정 절차서 ============ */
 
 /* 캡션: 회색 부제 대신 판독창 라벨 */
 .intro__desc {
@@ -1267,5 +1264,5 @@ body.is-playing #crumb { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .arm__guard { animation: none; }
 }
-.intro { min-height: calc(100dvh - 44px); padding-top: var(--sp-4); }
+.intro { min-height: 100dvh; padding-top: var(--sp-4); }
 .intro__desc { font-size: 11px; letter-spacing: -0.01em; }

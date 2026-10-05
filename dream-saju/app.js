@@ -10,7 +10,6 @@ import {
   todayKey,
   showView,
   renderMoreSites,
-  renderCrumb,
   createCanvas,
   roundRect,
   wrapText,
@@ -19,6 +18,7 @@ import {
 } from "../shared/kit.js";
 import { prepare, interpret, matchText, cleanSel, isComplete, KEYS, opt, pillar } from "./engine.js";
 import { startIntro } from "./intro.js";
+import { dressTalismans } from "./more.js";
 
 const store = createStore("dream-saju");
 const SEALS = { daegil: "大吉", gil: "吉", pyeong: "平", juui: "愼", gyeong: "安" };
@@ -808,8 +808,8 @@ function getParamsSel() {
 
 /* ---------- 시작 ---------- */
 async function init() {
-  renderCrumb($("#crumb"));
   renderMoreSites($("#more"));
+  dressTalismans($("#more"));
   const q = new URLSearchParams(location.search);
   const deep = KEYS.some((k) => q.get(k));
   if (!deep) state.intro = startIntro($("#intro"));

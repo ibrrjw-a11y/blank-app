@@ -44,23 +44,6 @@ body {
 
 .m0 { margin: 0; }
 
-/* ---------- 상단 경로: 가격표 스티커 ---------- */
-.crumb {
-  height: var(--sp-32);
-  gap: var(--sp-6);
-}
-
-.crumb a {
-  padding: var(--sp-2) var(--sp-8);
-  border: 1px dashed var(--color-border-strong);
-  border-radius: var(--r-4);
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-  font: var(--label-03);
-}
-
-.crumb a:first-child { border-color: var(--color-primary); color: var(--color-primary); }
-
 /* ---------- 공용: 손글씨 라벨, 테이프 ---------- */
 .pen-label {
   margin: 0;
@@ -105,7 +88,7 @@ body {
 }
 
 .intro {
-  min-height: calc(100dvh - var(--sp-32));
+  min-height: 100dvh;
   padding: var(--sp-4) 0 calc(var(--sp-16) + var(--safe-bottom));
 }
 
@@ -238,6 +221,92 @@ body {
   flex-direction: column;
   gap: var(--sp-8);
   min-height: var(--sp-16);
+}
+
+/* 첫 화면 바닥: 기계 앞에 붙은 뽑기판 종이. 당첨 도장이 찍히면 1칸이 채워진다 */
+.mini-board {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  padding: var(--sp-10) var(--sp-12);
+  background: #fff;
+  box-shadow: var(--shadow-s);
+  transform: rotate(-1deg);
+}
+.mini-board::before {
+  content: "";
+  position: absolute;
+  left: var(--sp-24);
+  top: calc(var(--sp-8) * -1);
+  width: 56px;
+  height: var(--sp-16);
+  background: var(--art-tape);
+  transform: rotate(-6deg);
+}
+.mini-board__label {
+  flex: none;
+  font: 700 20px/1 var(--art-font-pen);
+  color: var(--art-ink);
+}
+.mini-board__cells {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  flex: 1 1 auto;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mini-board__cells li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  height: 40px;
+  padding: 0 var(--sp-6);
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--r-6);
+}
+.mini-board__cells i {
+  font: 400 12px/1 var(--font-display);
+  font-style: normal;
+  color: var(--color-text-tertiary);
+}
+.mini-board__cells b {
+  font: 700 19px/1 var(--art-font-pen);
+  color: var(--art-ink);
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale(1.8) rotate(-8deg);
+}
+.mini-board__cells em {
+  position: absolute;
+  right: calc(var(--sp-6) * -1);
+  top: calc(var(--sp-10) * -1);
+  padding: 0 var(--sp-4);
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+  background: #fff;
+  font: 400 11px/16px var(--font-display);
+  font-style: normal;
+  opacity: 0;
+  transform: rotate(14deg) scale(2);
+}
+.mini-board.is-won li:first-child {
+  border-style: solid;
+  border-color: var(--art-gold);
+  background: var(--art-cream);
+}
+.mini-board.is-won li:first-child b {
+  opacity: 1;
+  transform: none;
+  transition: transform 420ms var(--art-spring), opacity 120ms;
+}
+.mini-board.is-won li:first-child em {
+  opacity: 1;
+  transform: rotate(14deg);
+  transition: transform 360ms var(--art-spring) 200ms, opacity 80ms 200ms;
 }
 
 .intro__invite {
@@ -932,9 +1001,208 @@ body {
 
 .manual__uses b { margin-right: var(--sp-6); color: var(--color-primary); }
 
-.manual details summary { font: 400 16px/1.4 var(--font-display); }
+/* 기계 옆면 스티커 Q&A: 빨간 몸통 판에 붙은 흰 스티커, 펼치면 뒷면 설명이 이어진다 */
+.sticker-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  margin-top: var(--sp-12);
+  padding: var(--sp-24) var(--sp-16);
+  border-radius: var(--r-16);
+  background: var(--color-primary);
+  box-shadow: inset var(--sp-8) 0 0 rgba(255, 255, 255, 0.12), inset calc(var(--sp-8) * -1) 0 0 rgba(0, 0, 0, 0.12), 0 var(--sp-6) 0 var(--color-primary-pressed);
+}
+/* 모서리 나사 */
+.sticker-panel::before,
+.sticker-panel::after {
+  content: "";
+  position: absolute;
+  top: var(--sp-8);
+  width: var(--sp-8);
+  height: var(--sp-8);
+  border-radius: var(--r-full);
+  background: radial-gradient(circle at 35% 35%, #fff, var(--art-chrome-deep));
+}
+.sticker-panel::before { left: var(--sp-10); }
+.sticker-panel::after { right: var(--sp-10); }
+.manual .sticker-panel details {
+  position: relative;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-12);
+  background: #fff;
+  box-shadow: 0 0 0 3px #fff, 0 3px 0 3px rgba(0, 0, 0, 0.18);
+  transform: rotate(var(--st-tilt, -1deg));
+}
+.manual .sticker-panel details:nth-child(even) { --st-tilt: 0.8deg; }
+.manual .sticker-panel details:nth-child(3n) { --st-tilt: -0.4deg; }
+.manual .sticker-panel summary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+  min-height: 56px;
+  padding: var(--sp-10) var(--sp-48) var(--sp-10) var(--sp-12);
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--r-10, 10px);
+  margin: var(--sp-4);
+  list-style: none;
+  color: var(--art-ink);
+  font: 400 17px/1.35 var(--font-display);
+  cursor: pointer;
+}
+.manual .sticker-panel summary::-webkit-details-marker { display: none; }
+/* 질문 앞 캡슐 아이콘 */
+.manual .sticker-panel summary::before {
+  content: "";
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  background: linear-gradient(180deg, var(--cap, var(--art-cap2)) 0 50%, #e9edf2 50% 100%);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.12);
+  transform: rotate(-24deg);
+}
+.manual .sticker-panel details:nth-child(2) summary::before { --cap: var(--art-cap3); }
+.manual .sticker-panel details:nth-child(3) summary::before { --cap: var(--art-cap4); }
+.manual .sticker-panel details:nth-child(4) summary::before { --cap: var(--art-cap5); }
+.manual .sticker-panel details:nth-child(5) summary::before { --cap: var(--art-cap6); }
+/* 떼어 보는 귀퉁이 */
+.manual .sticker-panel summary::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 0 0 var(--r-12) 0;
+  background: linear-gradient(135deg, transparent 50%, #e6e1d6 50%, #fff 72%);
+  box-shadow: -2px -2px 3px rgba(0, 0, 0, 0.12);
+  transition: transform var(--dur-slow) var(--art-spring);
+  transform-origin: 100% 100%;
+}
+.manual .sticker-panel details[open] summary::after {
+  transform: scale(1.5);
+}
+.manual .sticker-panel details p {
+  margin: 0 var(--sp-4) var(--sp-4);
+  padding: var(--sp-10) var(--sp-12) var(--sp-12) 48px;
+  border-radius: 0 0 var(--r-10, 10px) var(--r-10, 10px);
+  background: var(--art-cream);
+  color: var(--art-ink);
+  font: 700 18px/1.35 var(--art-font-pen);
+}
+.manual .sticker-panel details[open] p {
+  animation: peel 380ms var(--art-spring) both;
+  transform-origin: top;
+}
+@keyframes peel {
+  0% { transform: scaleY(0.2) rotate(-2deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
 
-.more-sites__item { border-radius: var(--r-8); }
+/* ---------- 하단: 문방구 앞 "옆 기계도 있어요" 골판지 안내판 ---------- */
+#more.more-sites {
+  margin-top: var(--sp-40);
+  padding: var(--sp-24) 0 calc(var(--sp-32) + var(--safe-bottom));
+}
+#more .more-sites__title {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 var(--sp-20) var(--sp-8);
+  padding: var(--sp-10) var(--sp-16);
+  background: #d9b07a;
+  background-image: repeating-linear-gradient(90deg, rgba(120, 80, 30, 0.08) 0 2px, transparent 2px 7px);
+  color: var(--art-ink);
+  font: 700 26px/1 var(--art-font-pen);
+  opacity: 1;
+  box-shadow: var(--shadow-s);
+  transform: rotate(-2.5deg);
+}
+#more .more-sites__title::before,
+#more .more-sites__title::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--sp-8) * -1);
+  width: 40px;
+  height: var(--sp-16);
+  background: var(--art-tape);
+}
+#more .more-sites__title::before { left: calc(var(--sp-10) * -1); transform: rotate(-30deg); }
+#more .more-sites__title::after { right: calc(var(--sp-10) * -1); transform: rotate(28deg); }
+#more .more-sites__title span { color: var(--color-primary); }
+#more .more-sites__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-8);
+  align-items: start;
+  padding-bottom: var(--sp-8);
+  border-bottom: 3px solid var(--color-border-strong);
+}
+#more .more-sites__item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  color: var(--art-ink);
+  text-align: center;
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+#more .more-sites__item:active { transform: scale(0.95, 0.9); transition-duration: var(--dur-fast); }
+/* 미니 기계: 유리 돔 + 캡슐 */
+.mini-gacha {
+  position: relative;
+  display: block;
+  width: 72%;
+  aspect-ratio: 1;
+  margin: 0 auto -6px;
+  border: 3px solid var(--art-chrome-deep);
+  border-radius: var(--r-full);
+  background:
+    radial-gradient(circle at 30% 70%, var(--art-cap1) 0 11%, transparent 12%),
+    radial-gradient(circle at 55% 76%, var(--art-cap3) 0 11%, transparent 12%),
+    radial-gradient(circle at 76% 64%, var(--art-cap4) 0 11%, transparent 12%),
+    radial-gradient(circle at 44% 52%, var(--art-cap2) 0 11%, transparent 12%),
+    radial-gradient(circle at 68% 42%, var(--art-cap5) 0 11%, transparent 12%),
+    var(--art-glass);
+}
+.mini-gacha i {
+  position: absolute;
+  left: 18%;
+  top: 14%;
+  width: 22%;
+  height: 10%;
+  border-radius: var(--r-full);
+  background: rgba(255, 255, 255, 0.9);
+  transform: rotate(-30deg);
+}
+.mini-gacha[style*="--k:1"] { filter: hue-rotate(80deg); }
+.mini-gacha[style*="--k:2"] { filter: hue-rotate(200deg); }
+#more .more-sites__name {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: var(--sp-8) var(--sp-4);
+  border-radius: var(--r-8) var(--r-8) var(--r-4) var(--r-4);
+  background: var(--color-primary);
+  color: #fff;
+  font: 400 15px/1.2 var(--font-display);
+  word-break: keep-all;
+}
+#more .more-sites__item:nth-child(2) .more-sites__name { background: var(--art-blue); }
+#more .more-sites__item:nth-child(3) .more-sites__name { background: var(--art-gold); color: var(--art-ink); }
+#more .more-sites__desc {
+  padding: var(--sp-6) var(--sp-2) 0;
+  font: 700 15px/1.2 var(--art-font-pen);
+  color: var(--color-text-secondary);
+  opacity: 1;
+  word-break: keep-all;
+}
 
 button.history__item {
   width: 100%;

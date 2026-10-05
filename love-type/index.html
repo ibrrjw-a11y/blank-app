@@ -61,8 +61,6 @@
   </head>
   <body>
     <main class="app lt">
-      <nav id="crumb"></nav>
-
       <!-- 1) 첫 화면: 도감 한 쪽 -->
       <section class="tk-intro lt-intro" data-view="intro">
         <header class="lt-mast">
@@ -151,23 +149,26 @@
         </table>
         <p class="lt-doc__small">천적은 세 습성이 모두 반대인 동물이에요. 예: 리트리버(DFC) ↔ 고양이(SWI).</p>
 
-        <h3>채집자 문답</h3>
-        <details>
-          <summary>학명은 진짜인가요?</summary>
-          <p>아니요. 라틴어 단어를 섞어 재미로 지은 가짜 학명이에요. 예를 들어 수달의 manutenens는 "손을 잡고 있는"이라는 뜻으로 붙였어요.</p>
-        </details>
-        <details>
-          <summary>도감은 어떻게 채워요?</summary>
-          <p>테스트를 할 때마다 나온 동물이 내 도감에 표시돼요. 기분이나 연애 상황에 따라 다른 동물이 나오기도 해요. 친구 결과 링크를 열면 그 동물은 "친구에게서 관찰"로 따로 표시돼요.</p>
-        </details>
-        <details>
-          <summary>친구랑 궁합도 볼 수 있어요?</summary>
-          <p>내 결과 링크를 친구가 열고 테스트를 마치면, 두 표본을 나란히 놓고 같은 종·공생·천적·친척 관계 중 무엇인지 알려 줘요.</p>
-        </details>
-        <details>
-          <summary>제 답은 저장되나요?</summary>
-          <p>서버로 보내지 않아요. 도감 기록은 지금 쓰는 브라우저에만 남아요.</p>
-        </details>
+        <section class="lt-notes" aria-labelledby="ltNotes">
+          <h3 id="ltNotes">채집자 주석</h3>
+          <p class="lt-notes__lede">본문 여백에 독자들이 연필로 물어 온 것들. 주석 기호를 누르면 각주가 펼쳐져요.</p>
+          <details class="lt-fn">
+            <summary><sup class="lt-fn__mark" aria-hidden="true">*</sup><span class="lt-fn__q">학명은 진짜인가요?</span><span class="lt-fn__page" aria-hidden="true">p. 3</span></summary>
+            <p>아니요. 라틴어 단어를 섞어 재미로 지은 가짜 학명이에요. 예를 들어 수달의 <i>manutenens</i>는 "손을 잡고 있는"이라는 뜻으로 붙였어요.</p>
+          </details>
+          <details class="lt-fn">
+            <summary><sup class="lt-fn__mark" aria-hidden="true">†</sup><span class="lt-fn__q">도감은 어떻게 채워요?</span><span class="lt-fn__page" aria-hidden="true">p. 8</span></summary>
+            <p>테스트를 할 때마다 나온 동물이 내 도감에 표시돼요. 기분이나 연애 상황에 따라 다른 동물이 나오기도 해요. 친구 결과 링크를 열면 그 동물은 "친구에게서 관찰"로 따로 표시돼요.</p>
+          </details>
+          <details class="lt-fn">
+            <summary><sup class="lt-fn__mark" aria-hidden="true">‡</sup><span class="lt-fn__q">친구랑 궁합도 볼 수 있어요?</span><span class="lt-fn__page" aria-hidden="true">p. 11</span></summary>
+            <p>내 결과 링크를 친구가 열고 테스트를 마치면, 두 표본을 나란히 놓고 같은 종·공생·천적·친척 관계 중 무엇인지 알려 줘요.</p>
+          </details>
+          <details class="lt-fn">
+            <summary><sup class="lt-fn__mark" aria-hidden="true">§</sup><span class="lt-fn__q">제 답은 저장되나요?</span><span class="lt-fn__page" aria-hidden="true">p. 12</span></summary>
+            <p>서버로 보내지 않아요. 도감 기록은 지금 쓰는 브라우저에만 남아요.</p>
+          </details>
+        </section>
         <p class="lt-doc__small">재미로 보는 테스트예요. 성격 검사나 진단이 아니에요.</p>
       </article>
 

@@ -1,4 +1,4 @@
-import { $, $$, haptic, toast, renderCrumb, renderMoreSites, CANVAS_FONT, prefersReducedMotion } from "../shared/kit.js";
+import { $, $$, haptic, toast, renderMoreSites, CANVAS_FONT, prefersReducedMotion } from "../shared/kit.js";
 import {
   createQuiz,
   tally,
@@ -728,7 +728,6 @@ function route() {
   goIntro();
 }
 
-renderCrumb($("#crumb"));
 bindBibs();
 $("#start").onclick = (e) => startFromIntro(e.currentTarget);
 $("#quizBack").onclick = () => quiz.back();
@@ -745,3 +744,23 @@ window.addEventListener("popstate", () => {
 });
 route();
 renderMoreSites($("#more"));
+dressSchedule($("#more"));
+
+// 하단 다른 도구: 운동장 "다음 경기 일정" 게시판
+function dressSchedule(nav) {
+  if (!nav) return;
+  const title = nav.querySelector(".more-sites__title");
+  if (title) title.innerHTML = `<span>다음 경기 일정</span><small>NEXT EVENTS</small>`;
+  nav.querySelectorAll(".more-sites__item").forEach((a, i) => {
+    const no = document.createElement("span");
+    no.className = "te-next__no";
+    no.setAttribute("aria-hidden", "true");
+    no.innerHTML = `<small>제</small>${15 + i}<small>경기</small>`;
+    const go = document.createElement("span");
+    go.className = "te-next__go";
+    go.setAttribute("aria-hidden", "true");
+    go.textContent = "입장";
+    a.prepend(no);
+    a.append(go);
+  });
+}

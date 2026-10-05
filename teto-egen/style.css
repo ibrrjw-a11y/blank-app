@@ -53,28 +53,6 @@ body::before {
   z-index: 1;
 }
 
-/* ---------- 상단 경로: 포스터 꼭대기 띠 ---------- */
-.te .crumb {
-  position: relative;
-  z-index: 3;
-  height: 40px;
-  margin: 0 calc(var(--gutter) * -1);
-  padding: 0 var(--gutter);
-  background: var(--art-split);
-  font: var(--label-03);
-}
-
-.te .crumb a {
-  color: var(--art-chalk);
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 400;
-}
-
-.te .crumb span {
-  color: var(--art-chalk);
-}
-
 /* ---------- 첫 화면 ---------- */
 .te-intro {
   margin: 0 calc(var(--gutter) * -1);
@@ -610,7 +588,7 @@ body::before {
   margin: 0 calc(var(--gutter) * -1);
   padding: 0 var(--gutter) var(--sp-32);
   background: var(--art-stripes), var(--art-split);
-  min-height: calc(100dvh - 40px);
+  min-height: 100dvh;
 }
 
 .te-quiz__bar {
@@ -1284,28 +1262,6 @@ body::before {
 .te-example__score b { font: 400 34px/1 var(--art-block); font-weight: 400; }
 .te-example__score i { font: 400 28px/1 var(--art-block); font-style: normal; color: var(--art-gold); }
 
-.te-doc details {
-  border-bottom: 1px solid var(--art-ink);
-}
-
-.te-doc summary {
-  font: 400 16px/24px var(--font-display);
-  color: var(--art-ink);
-}
-
-.te-doc summary::marker { color: var(--brand); }
-
-.te-doc details p {
-  margin: var(--sp-8) 0 0;
-  font: var(--body-03);
-  color: var(--art-ink);
-}
-
-/* 하단 추천 */
-.te .more-sites__title { font: 400 20px/1.2 var(--font-display); }
-.te .more-sites__item { border-radius: var(--r-4); border: 2px solid var(--art-ink); box-shadow: none; background: var(--art-chalk); }
-.te .more-sites__name { font: 400 16px/1.2 var(--font-display); }
-.te .more-sites__cat { border-radius: var(--r-4); border: 2px solid var(--art-ink); }
 .te .site-footer { color: var(--art-sepia); }
 
 /* ---------- 키프레임 ---------- */
@@ -1440,3 +1396,176 @@ body::before {
 @keyframes te-blink {
   50% { border-color: transparent; }
 }
+
+/* ---------- 이의 신청 · 심판 판정 (FAQ) ----------
+ * 번호표(배번)를 단 이의 신청서. 펼치면 심판이 판정 카드를 든다. */
+.te-doc .te-note--desk { margin: 0 0 var(--sp-12); }
+
+.te-doc details.te-protest {
+  margin: 0 0 var(--sp-10);
+  border: 2px solid var(--art-ink);
+  background: var(--art-cream);
+}
+
+.te-protest summary {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  align-items: center;
+  gap: var(--sp-12);
+  min-height: 64px;
+  padding: var(--sp-8) var(--sp-12) var(--sp-8) var(--sp-8);
+  list-style: none;
+  cursor: pointer;
+}
+
+.te-protest summary::-webkit-details-marker { display: none; }
+
+/* 운동회 배번: 흰 천 + 네 귀퉁이 옷핀 구멍 */
+.te-protest__bib {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  background: var(--art-chalk);
+  border: 2px solid var(--art-ink);
+  font: 400 24px/1 var(--art-block);
+  color: var(--art-ink);
+  transform: rotate(-3deg);
+  transition: transform var(--dur-slow) var(--art-spring);
+  background-image:
+    radial-gradient(circle at 6px 6px, var(--art-ink) 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 6px) 6px, var(--art-ink) 2px, transparent 2.5px);
+}
+
+.te-protest__bib small { font: 400 11px/1 var(--font-display); color: var(--brand); }
+.te-protest:nth-of-type(even) .te-protest__bib { transform: rotate(2.5deg); background-color: var(--art-gold); }
+.te-protest[open] .te-protest__bib { transform: rotate(0) scale(1.06); }
+
+.te-protest__q {
+  font: 400 17px/1.35 var(--font-display);
+  color: var(--art-ink);
+}
+
+.te-protest__q::after {
+  content: "판정 보기 ▸";
+  display: block;
+  margin-top: var(--sp-2);
+  font: 400 12px/1.4 var(--font-display);
+  color: var(--brand);
+}
+
+.te-protest[open] .te-protest__q::after { content: "판정 접기 ▾"; }
+
+.te-protest__call {
+  position: relative;
+  padding: var(--sp-12) var(--sp-12) var(--sp-12) 78px;
+  background: var(--art-ink);
+  color: var(--art-chalk);
+}
+
+.te-doc .te-protest__call p {
+  margin: 0;
+  font: var(--body-03);
+  color: var(--art-chalk);
+}
+
+/* 심판 카드: 펼치는 순간 들어 올린다 */
+.te-protest__card {
+  position: absolute;
+  left: var(--sp-12);
+  top: var(--sp-12);
+  width: 52px;
+  padding: var(--sp-6) var(--sp-2);
+  background: var(--art-gold);
+  color: var(--art-ink);
+  font: 400 12px/1.2 var(--font-display);
+  text-align: center;
+  word-break: keep-all;
+  transform-origin: 50% 100%;
+  animation: te-card-raise 520ms var(--art-snap) both;
+}
+
+.te-protest:nth-of-type(odd) .te-protest__card { background: var(--brand); color: var(--art-chalk); }
+
+@keyframes te-card-raise {
+  0% { transform: translateY(18px) rotate(-24deg) scale(0.7); opacity: 0; }
+  60% { transform: translateY(-4px) rotate(6deg) scale(1.05); opacity: 1; }
+  100% { transform: rotate(-4deg); }
+}
+
+/* ---------- 다음 경기 일정 (다른 도구) ----------
+ * 운동장 본부석 옆 일정 게시판: 검정 칠판 + 분필 글씨 + 금색 경기 번호 */
+.te .more-sites {
+  margin-top: var(--sp-48);
+  padding: 0 0 var(--sp-48);
+}
+
+.te .more-sites__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0;
+  padding: var(--sp-12) var(--sp-16);
+  background: var(--art-stripes), var(--art-split);
+  border: 3px solid var(--art-ink);
+  border-bottom: 0;
+  opacity: 1;
+  font: 400 24px/1.1 var(--font-display);
+  color: var(--art-chalk);
+}
+
+.te .more-sites__title small {
+  font: 400 12px/1 var(--art-block);
+  letter-spacing: 0.2em;
+  color: var(--art-ink);
+}
+
+.te .more-sites__grid {
+  padding: var(--sp-6) var(--sp-12) var(--sp-12);
+  background: var(--art-ink);
+  border: 3px solid var(--art-ink);
+}
+
+.te .more-sites__item {
+  display: grid;
+  grid-template-columns: 62px 1fr auto;
+  grid-template-areas: "no name go" "no desc go";
+  column-gap: var(--sp-12);
+  align-items: center;
+  min-height: 64px;
+  padding: var(--sp-10) 0;
+  border: 0;
+  border-bottom: 1px dashed color-mix(in srgb, var(--art-chalk) 35%, transparent);
+  color: var(--art-chalk);
+  text-decoration: none;
+}
+
+.te .more-sites__item:last-child { border-bottom: 0; }
+
+.te-next__no {
+  grid-area: no;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1px;
+  font: 400 30px/1 var(--art-block);
+  color: var(--art-gold);
+}
+
+.te-next__no small { font: 400 11px/1 var(--font-display); color: var(--art-chalk); }
+
+.te .more-sites__name { grid-area: name; font: 400 19px/1.2 var(--font-display); }
+.te .more-sites__desc { grid-area: desc; font: var(--caption-01); opacity: 1; color: color-mix(in srgb, var(--art-chalk) 70%, transparent); }
+
+.te-next__go {
+  grid-area: go;
+  padding: var(--sp-6) var(--sp-10);
+  background: var(--brand);
+  font: 400 14px/1 var(--font-display);
+  transform: skewX(-12deg);
+  transition: transform var(--dur-slow) var(--art-spring);
+}
+
+.te .more-sites__item:active .te-next__go { transform: skewX(-12deg) translateX(6px) scale(0.92); transition-duration: 60ms; }
