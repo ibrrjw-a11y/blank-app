@@ -20,6 +20,13 @@
     <meta property="og:image" content="og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
+    <script>
+      // 예전 주소(#zoom, #town, #price, #timeline)는 게임별 페이지로
+      (function () {
+        var h = location.hash.slice(1);
+        if (/^(zoom|town|price|timeline)$/.test(h)) location.replace(h + "/");
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
@@ -55,96 +62,107 @@
   </head>
   <body>
     <main class="app">
+      <nav id="crumb"></nav>
+
       <!-- 1) 첫 화면: 오락실 캐비닛 화면에서 게임이 실제로 돌아가는 모션 -->
       <section class="intro" id="intro" data-view="intro">
         <header class="marquee">
           <span class="marquee__lamp" aria-hidden="true"></span>
           <span class="marquee__name">딴짓 오락실</span>
-          <span class="marquee__coin" aria-hidden="true">INSERT COIN</span>
+          <span class="marquee__coin" aria-hidden="true">4 GAMES</span>
         </header>
         <h1 class="kinetic" aria-label="하루 3분, 혼자 하는 추리 게임">
           <span class="kinetic__line" data-split>하루 3분</span>
           <span class="kinetic__line kinetic__line--accent" data-split>혼자 하는 추리</span>
         </h1>
         <div class="intro__stage" aria-hidden="true"></div>
-        <div class="intro__steps"></div>
-        <div class="intro__caption" aria-live="polite"></div>
+        <div class="intro__steps" aria-hidden="true"></div>
         <div class="intro__cta">
-          <button class="btn btn--primary btn--lg btn--block btn--coin" id="start">오늘의 딴짓 시작</button>
-          <p class="t-caption-01 t-tertiary intro__note">매일 자정 새 문제 · 게임 4개 · 순위표 없이 나만의 기록</p>
+          <button class="coin-op" id="start" type="button">
+            <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
+            <span class="coin-op__label"><b id="startLabel">오늘의 딴짓 시작</b><span class="pix" aria-hidden="true">4 GAMES · 0시 리셋</span></span>
+            <span class="coin-op__btn" aria-hidden="true"><i></i></span>
+          </button>
         </div>
       </section>
 
-      <!-- 2) 오늘의 게임 고르기 -->
+      <!-- 2) 오늘의 게임 고르기 (각 게임은 자기 페이지로 이동) -->
       <section class="hub" id="hub" data-view="hub" hidden></section>
 
-      <!-- 3) 게임 화면 -->
-      <section class="game" id="game" data-view="game" hidden></section>
+      <!-- 3) SEO 본문: 오락실 이용 안내판 -->
+      <article class="seo manual" aria-labelledby="man-h">
+        <header class="manual__head">
+          <span class="manual__tag pix">INSTRUCTION</span>
+          <h2 id="man-h">딴짓 오락실 이용 안내</h2>
+          <dl class="manual__spec">
+            <div><dt>새 문제</dt><dd>매일 0시 (한국 시간)</dd></div>
+            <div><dt>게임 수</dt><dd>4개 · 각 1~3분</dd></div>
+            <div><dt>인원</dt><dd>1인용 · 순위표 없음</dd></div>
+          </dl>
+        </header>
 
-      <!-- 4) SEO 본문 -->
-      <article class="seo">
-        <h2>딴짓 오락실은 어떤 곳인가요?</h2>
-        <p>
-          하루에 한 번, 3분이면 끝나는 <strong>데일리 퀴즈</strong> 오락실이에요. 꼬들·꼬맨틀처럼 매일 같은 문제가 하나씩 나오고, 틀릴 때마다 힌트가 조금씩
-          따뜻해져요. 모르는 사람과 점수를 겨루는 순위표는 없어요. 어제의 나보다 빨리 맞히는 재미, 그리고 친구에게 “이거 해봐” 하고 툭 던지는 재미만 있어요.
-          심심할 때 할만한 게임, 설치 없는 웹게임을 찾고 있다면 지금 바로 오늘의 퀴즈부터 풀어보세요.
+        <h3 class="manual__sec"><span class="pix">01</span>오늘의 게임 4종</h3>
+        <table class="manual__table">
+          <thead><tr><th scope="col">게임</th><th scope="col">맞히는 것</th><th scope="col">기회</th></tr></thead>
+          <tbody>
+            <tr><th scope="row"><a href="zoom/">🔍 줌아웃 퀴즈</a></th><td>크게 확대된 그림이 뭔지</td><td>6번</td></tr>
+            <tr><th scope="row"><a href="town/">🧭 오늘의 동네</a></th><td>시·군·구 226곳 중 하나</td><td>6번</td></tr>
+            <tr><th scope="row"><a href="price/">💸 그때 그 가격</a></th><td>옛날 물가, ±10%면 정답</td><td>5번</td></tr>
+            <tr><th scope="row"><a href="timeline/">📼 추억 연대기</a></th><td>카드 6장의 연도 순서</td><td>6장</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="manual__sec"><span class="pix">02</span>램프 읽는 법</h3>
+        <ul class="manual__lamps">
+          <li><i class="is-win"></i>맞히고 끝냄</li>
+          <li><i class="is-done"></i>못 맞히고 끝냄</li>
+          <li><i class="is-doing"></i>하는 중</li>
+          <li><i></i>아직 안 함</li>
+        </ul>
+        <p class="manual__ex">
+          <b>예)</b> 줌아웃 성공 · 동네 실패 · 가격 하는 중 · 연대기 안 함 →
+          <span class="lamps" role="img" aria-label="램프 4개 중 초록, 회색, 깜빡임, 꺼짐"><i class="is-win"></i><i class="is-done"></i><i class="is-doing"></i><i></i></span> 오늘 2/4
         </p>
 
-        <h2>게임별 규칙</h2>
-        <h3>🔍 줌아웃 – 오늘의 사물 맞히기</h3>
-        <p>
-          그림 하나를 아주 크게 확대한 장면에서 시작해요. 무엇인지 한글로 입력하면 되고, 틀릴 때마다 화면이 한 단계씩 줌아웃돼요. 기회는 6번이에요. 2번 틀리면
-          분류 힌트가, 3번 틀리면 보기 4개 중에서 고를 수 있는 힌트가 열려요. “라면”, “라멘”처럼 자주 쓰는 다른 이름도 정답으로 인정해요.
-        </p>
-        <h3>🧭 오늘의 동네 – 시·군·구 맞히기</h3>
-        <p>
-          전국 시·군·구 중 오늘의 동네 하나를 맞혀요. 아무 동네나 입력하면 정답까지의 거리(km), 8방위 화살표, 가까움(%)을 알려줘요. 6번 안에 맞히면 성공이고, 4번
-          틀리면 어느 시·도인지 알려줘요. 거리는 각 시·군·구의 대략적인 중심 좌표로 계산해서 몇 km 정도 오차가 있을 수 있어요.
-        </p>
-        <h3>💸 그때 그 가격 – 옛날 물가 퀴즈</h3>
-        <p>
-          “1980년 짜장면 한 그릇은 얼마였을까?” 같은 문제에 금액을 적으면 더 비쌌는지, 더 쌌는지 알려줘요. 정답과 10% 이내면 정답이에요. 5번 안에 맞혀 보세요.
-          가격은 널리 알려진 대략적인 당시 평균가이고, 최저시급처럼 공식 값이 있는 문제는 정확한 값을 써요.
-        </p>
-        <h3>📼 추억 연대기 – 추억 퀴즈</h3>
-        <p>
-          과자, 드라마, 노래, 게임, 사건이 적힌 카드를 한 장씩 받아서 시간 순서에 맞는 자리에 끼워 넣어요. 틀리면 실제 연도와 함께 제자리로 옮겨져요. 6장을 다
-          놓으면 맞힌 시대를 바탕으로 “당신은 ○○년대 감성” 결과를 보여줘요.
-        </p>
+        <h3 class="manual__sec"><span class="pix">03</span>출석 계산 예시</h3>
+        <table class="manual__table manual__table--days">
+          <thead><tr><th scope="col">10/1</th><th scope="col">10/2</th><th scope="col">10/3</th><th scope="col">10/4</th><th scope="col">10/5</th></tr></thead>
+          <tbody><tr><td>✓</td><td>✓</td><td>✕</td><td>✓</td><td>✓</td></tr></tbody>
+        </table>
+        <p class="manual__ex">한 게임이라도 끝내면 그날은 출석(✓). 오늘이 10/5면 <b>연속 2일 · 최고 연속 2일 · 딴짓한 날 4일</b>.</p>
 
-        <h2>자주 묻는 질문</h2>
+        <h3 class="manual__sec"><span class="pix">04</span>단톡방에 보내지는 문구</h3>
+        <pre class="manual__ticket">딴짓 오락실 #278 🔍 줌아웃
+🟥🟥🟥🟩 4번 만에 맞힘
+이거 해봐 ㅋㅋ</pre>
+        <p class="manual__ex">정답은 안 들어가요. 친구는 같은 날 같은 문제를 받아요.</p>
+
+        <h2 class="manual__qa">Q&amp;A</h2>
         <details>
-          <summary>문제는 매일 언제 바뀌나요?</summary>
-          <p>매일 자정, 한국 시간(KST) 기준으로 네 게임 모두 새 문제로 바뀌어요. 같은 날에는 누구나 같은 문제를 풀어요. 화면에 다음 문제까지 남은 시간이 보여요.</p>
+          <summary>문제는 언제 바뀌나요?</summary>
+          <p>매일 0시(한국 시간)에 4개 모두 바뀌어요. 허브 화면 오른쪽 위 빨간 숫자가 남은 시간이에요.</p>
         </details>
         <details>
           <summary>기록은 어디에 저장되나요?</summary>
-          <p>
-            지금 쓰는 기기의 브라우저(localStorage)에만 저장돼요. 플레이 수, 성공률, 연속 기록, 시도 분포 모두 나만 보는 숫자예요. 브라우저 데이터를 지우거나
-            다른 기기에서 열면 기록이 처음부터 시작돼요.
-          </p>
+          <p>지금 쓰는 브라우저(localStorage)에만 있어요. 서버로 안 보내요. 브라우저 데이터를 지우거나 다른 기기에서 열면 0부터 시작해요.</p>
         </details>
         <details>
-          <summary>정답은 언제 공개되나요?</summary>
-          <p>게임을 끝내면 맞혔든 못 맞혔든 결과 화면에서 바로 정답을 보여줘요. 친구에게 보내는 공유 문구에는 정답 없이 이모지 결과만 들어가요.</p>
+          <summary>정답은 언제 볼 수 있나요?</summary>
+          <p>게임이 끝나면 맞혔든 못 맞혔든 결과 화면에 바로 나와요.</p>
         </details>
         <details>
-          <summary>순위나 랭킹은 없나요?</summary>
-          <p>일부러 만들지 않았어요. 모르는 사람과 경쟁하지 않고, 혼자 조용히 추리하는 3분을 위한 오락실이에요.</p>
+          <summary>순위표는 없나요?</summary>
+          <p>없어요. 비교 대상은 어제의 내 기록뿐이에요.</p>
         </details>
         <details>
-          <summary>가격이나 연도가 실제와 조금 달라요.</summary>
-          <p>
-            그때 그 가격은 지역·가게마다 차이가 있어서 대략적인 평균가로 보여줘요. 추억 연대기는 연도가 확실한 카드만 넣었어요. 혹시 다른 점을 발견하면
-            알려주세요.
-          </p>
+          <summary>가격·연도가 실제와 조금 달라요.</summary>
+          <p>그때 그 가격은 지역·가게마다 차이가 있어 대략적인 평균가를 써요. 최저시급처럼 공식 값이 있는 문제는 정확한 값이에요. 추억 연대기는 연도가 확실한 카드만 넣었어요.</p>
         </details>
       </article>
 
       <nav id="more"></nav>
       <footer class="site-footer">기록은 이 기기에만 저장돼요 · 가격은 대략적인 평균가예요</footer>
     </main>
-    <aside class="sheet" id="result" role="dialog" aria-label="결과"></aside>
     <script type="module" src="app.js"></script>
   </body>
 </html>

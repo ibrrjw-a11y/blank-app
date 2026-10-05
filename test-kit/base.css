@@ -1,0 +1,64 @@
+/*
+ * 심리테스트 공용 바탕 (동작에 필요한 최소 규칙만).
+ * 색·서체·모양은 각 테스트 style.css 가 장르에 맞게 정한다.
+ */
+
+/* 상단 경로가 있어도 첫 화면이 한 화면 안에 들어오게 */
+.tk-intro {
+  position: relative;
+  min-height: calc(100dvh - 40px);
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 calc(var(--sp-16) + var(--safe-bottom));
+}
+
+.tk-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tk-view {
+  padding-bottom: var(--sp-32);
+}
+
+/* 문항 보기 버튼: 터치 영역 보장, 텍스트 선택 방지 */
+.tk-option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tap-min);
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.tk-option:disabled {
+  cursor: default;
+}
+
+/* 친구 링크 붙여넣기 줄 */
+.tk-paste {
+  display: flex;
+  gap: var(--sp-8);
+}
+
+.tk-paste input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* 가로 넘침 방지 (회전·기울인 장식이 많으므로) */
+.tk-clip {
+  overflow: hidden;
+  overflow: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-stage * {
+    animation-delay: 0ms !important;
+  }
+}

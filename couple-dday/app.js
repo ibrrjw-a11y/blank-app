@@ -19,6 +19,7 @@ import {
   showView,
   openSheet,
   renderMoreSites,
+  renderCrumb,
   createCanvas,
   roundRect,
   wrapText,
@@ -1054,15 +1055,18 @@ const later = (signal, ms, fn) => {
   const id = setTimeout(() => !signal.aborted && fn(), prefersReducedMotion() ? 0 : ms);
   signal.addEventListener("abort", () => clearTimeout(id));
 };
-// 헤드라인을 글자 단위로 쪼개 스프링으로 튀어 오르게
-function kinetic() {
-  const h = $("#intro .intro__caption h2");
-  if (!h || prefersReducedMotion()) return;
+// 장면 캡션: 제목+부제 대신 장면 위에 손글씨로 한 글자씩 써 내려간다
+function scrawl(sc, text, cls = "", delay = 0) {
+  const p = document.createElement("p");
+  p.className = `scrawl ${cls}`;
   let k = 0;
-  h.innerHTML = h.textContent
-    .split(" ")
-    .map((w) => `<span class="kin">${[...w].map((ch) => `<i style="--k:${k++}">${esc(ch)}</i>`).join("")}</span>`)
-    .join(" ");
+  p.innerHTML = text
+    .split("\n")
+    .map((line) => [...line].map((ch) => (ch === " " ? " " : `<i style="--k:${k++}">${esc(ch)}</i>`)).join(""))
+    .join("<br />");
+  p.style.setProperty("--d", `${delay}ms`);
+  sc.appendChild(p);
+  return p;
 }
 const relRect = (el, stage) => {
   const a = el.getBoundingClientRect();
@@ -1071,7 +1075,6 @@ const relRect = (el, stage) => {
 };
 
 function sceneMeet(stage, signal) {
-  kinetic();
   stage.innerHTML = `<div class="sc sc-meet">
     <figure class="pola pola--a drop"><span class="pola__pin"></span><div class="pola__photo"><span class="pola__date">'25 5 12</span></div><figcaption>민수</figcaption></figure>
     <figure class="pola pola--b drop" style="--delay:200ms"><span class="pola__pin"></span><div class="pola__photo"><span class="pola__date">'25 5 12</span></div><figcaption>지은</figcaption></figure>
@@ -1080,6 +1083,7 @@ function sceneMeet(stage, signal) {
     <div class="cal-strip rise-in" style="--delay:750ms"><span>10</span><span>11</span><span class="is-on">12<i>1일</i></span><span>13</span><span>14</span></div>
   </div>`;
   const sc = $(".sc-meet", stage);
+  scrawl(sc, "이어진 그날이\n1일이야", "scrawl--meet", 1500);
   const path = $("path", sc);
   later(signal, 1100, () => {
     const a = relRect($(".pola--a .pola__pin", sc), sc);
@@ -1120,7 +1124,6 @@ function sceneMeet(stage, signal) {
 }
 
 function sceneCount(stage, signal) {
-  kinetic();
   stage.innerHTML = `<div class="sc sc-count">
     <figure class="pola drop"><div class="pola__photo"><p class="big-d t-num"><span class="odo"></span></p><span class="pola__date">'25 8 19</span></div>
       <figcaption><span class="ink-in" style="--delay:1100ms">함께한 2,376시간</span><small>민수 & 지은 · 사귄 날 = 1일</small></figcaption></figure>
@@ -1128,6 +1131,7 @@ function sceneCount(stage, signal) {
     <div class="ticket rise-in" style="--delay:700ms"><small>ADMIT TWO · 함께한</small><b class="t-num">14주 · 2,376시간</b></div>
     <div class="stamp stamp--tilt rise-in" style="--delay:950ms"><small>다음 기념일</small><b>200일</b><small>D-100</small></div>
   </div>`;
+  scrawl($(".sc-count .pola__photo", stage), "오늘 우리, D+며칠?", "scrawl--photo", 600);
   const odo = $(".odo", stage);
   odometer(odo, "D+100", { on: false });
   later(signal, 420, () => odo.classList.add("is-on"));
@@ -1135,7 +1139,6 @@ function sceneCount(stage, signal) {
 }
 
 function sceneQuestion(stage, signal) {
-  kinetic();
   stage.innerHTML = `<div class="sc sc-env">
     <p class="sc-env__q"><small>오늘의 질문</small>우리 여행 1순위 장소는 어디예요?</p>
     <div class="env">
@@ -1149,6 +1152,7 @@ function sceneQuestion(stage, signal) {
     </div>
     <div class="link-slip rise-in" style="--delay:250ms"><code>…/couple-dday/?a=Xk9…</code><span>지은에게 링크로 보냄 →</span></div>
   </div>`;
+  scrawl($(".sc-env", stage), "둘 다 답해야\n열려 ↓", "scrawl--env", 300);
   const env = $(".env", stage);
   const [c1, c2] = $$(".env__checks span", stage);
   later(signal, 650, () => c1.classList.add("is-on"));
@@ -1159,7 +1163,6 @@ function sceneQuestion(stage, signal) {
 }
 
 function sceneCalendar(stage, signal) {
-  kinetic();
   const cells = WD.map((w) => `<span class="is-wd">${w}</span>`);
   for (let i = 0; i < 5; i++) cells.push("<span></span>"); // 2025년 8월 1일은 금요일
   for (let d = 1; d <= 31; d++) {
@@ -1171,7 +1174,7 @@ function sceneCalendar(stage, signal) {
   }
   stage.innerHTML = `<div class="sc sc-cal">
     <div class="cal"><div class="cal__head"><b>8월</b><span>2025 · 우리 달력</span></div><div class="cal__grid">${cells.join("")}</div></div>
-    <span class="cal__note">8월 19일, 우리 100일!</span>
+    <span class="cal__note"></span>
     <div class="link-slip link-slip--ics rise-in" style="--delay:300ms"><code>100일.ics · 저장됨</code><span>하루 전 아침 9시 알림</span></div>
     <div class="stamp"><small>기념일</small><b>100일</b><small>D-day</small></div>
   </div>`;
@@ -1179,6 +1182,7 @@ function sceneCalendar(stage, signal) {
   later(signal, 520, () => {
     const cal = $(".cal", sc);
     const note = $(".cal__note", sc);
+    scrawl(note, "100일은 8.19 (화)\n미리 동그라미!", "scrawl--cal");
     note.style.left = `${cal.offsetLeft + 12}px`;
     note.style.top = `${cal.offsetTop + cal.offsetHeight + 28}px`;
     $(".cal__circle", sc).classList.add("is-on");
@@ -1187,18 +1191,44 @@ function sceneCalendar(stage, signal) {
   later(signal, 250, () => $(".stamp", sc).classList.add("is-on"));
 }
 
+// say 는 화면 읽기 프로그램용 (화면에는 장면 속 손글씨로만 보인다)
 const SCENES = [
-  { title: "사귄 날을 1일로", desc: "둘이 이어진 그날이 D+1, 빨간 실처럼 하루씩 이어져요", duration: 4200, play: sceneMeet },
-  { title: "오늘은 D+며칠?", desc: "날짜·주·시간까지 바로 세어줘요", duration: 3600, play: sceneCount },
-  { title: "둘 다 답해야 열려요", desc: "같은 질문에 각자 답하고, 봉투째 링크로 주고받아요", duration: 4400, play: sceneQuestion },
-  { title: "100일, 미리 동그라미", desc: "다가오는 기념일을 캘린더에 넣어둬요", duration: 3800, play: sceneCalendar },
-];
+  { say: "사귄 날을 1일로 세요", duration: 4200, run: sceneMeet },
+  { say: "오늘이 D+며칠인지 날짜·주·시간까지 세어줘요", duration: 3600, run: sceneCount },
+  { say: "같은 질문에 둘 다 답해야 봉투가 열려요", duration: 4400, run: sceneQuestion },
+  { say: "다가오는 100일을 캘린더에 미리 넣어둬요", duration: 3800, run: sceneCalendar },
+].map((s) => ({
+  duration: s.duration,
+  play(stage, signal) {
+    const say = $("#introSay");
+    if (say) say.textContent = s.say;
+    s.run(stage, signal);
+  },
+}));
 
 /* ---------- 시작 ---------- */
-$("#start").onclick = openSetup;
+// 봉투 버튼: 누르면 소인이 쾅 찍히고 봉투가 눌렸다 튄 뒤 방 만들기로
+$("#start").onclick = () => {
+  const b = $("#start");
+  if (b.classList.contains("is-sent")) return;
+  haptic(18);
+  b.classList.add("is-sent");
+  setTimeout(() => {
+    b.classList.remove("is-sent");
+    openSetup();
+  }, prefersReducedMotion() ? 0 : 380);
+};
 $("#introRoom").onclick = openRoom;
 bindGo();
-renderMoreSites($("#more"), "couple-dday");
+renderCrumb($("#crumb"));
+renderMoreSites($("#more"));
+
+// SEO 계산표: 예시 커플(2025.5.12)의 오늘 D+ 를 실제 날짜로
+{
+  const t = todayKey();
+  const el = $("#lpToday");
+  if (el && t >= "2025-05-12") el.innerHTML = `${dotDate(t).replace(/\.0/g, ".")} 기준으로 이 커플은 <b>D+${fmt.num(dPlus("2025-05-12", t))}</b>예요.`;
+}
 
 function boot() {
   const a = getParam("a");

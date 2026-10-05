@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>연봉 실수령액 계산기 2026 | 월급 실수령액·연봉 실수령액 표</title>
+    <meta
+      name="description"
+      content="2026년 4대보험 요율과 근로소득세로 연봉·월급 실수령액을 바로 계산해요. 연봉 4,000만 원이면 월 2,924,363원. 공제 내역 영수증, 연봉별 실수령액 표(2,400만~1억), 4대보험 요율 표까지."
+    />
+    <meta name="keywords" content="연봉 실수령액 계산기, 2026 실수령액, 월급 실수령액, 연봉 실수령액 표, 실수령액 계산, 4대보험 요율, 근로소득세 계산, 세후 월급" />
+    <link rel="canonical" href="https://example.com/salary-live/net-pay/" />
+    <meta name="theme-color" content="#ebe7dc" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="2026 연봉 실수령액 계산기 - 급여 영수증으로 보는 공제 내역" />
+    <meta property="og:description" content="연봉 넣으면 국민연금·건강보험·소득세 빠진 월 실수령액이 영수증으로 나와요." />
+    <meta property="og:image" content="og.png" />
+    <meta property="og:url" content="https://example.com/salary-live/net-pay/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "연봉 실수령액 계산기 2026",
+        "url": "https://example.com/salary-live/net-pay/",
+        "description": "2026년 4대보험 요율과 근로소득세를 반영한 연봉·월급 실수령액 계산기. 공제 내역과 연봉별 실수령액 표 제공.",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "2026년 연봉 4,000만 원 실수령액은 얼마예요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "비과세 식대 월 20만 원, 부양가족 1명 기준 월 약 2,924,363원이에요. 국민연금 148,810원, 건강보험 112,640원, 장기요양 14,800원, 고용보험 28,200원, 소득세 95,020원, 지방소득세 9,500원이 빠져요."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "계산기 결과와 실제 월급 명세서가 다른 이유는 뭔가요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "회사는 매달 국세청 근로소득 간이세액표로 소득세를 떼고, 다음 해 연말정산에서 정산해요. 이 계산기는 1년 치 세금을 한 번에 계산해 12로 나눈 근사치라 몇 만 원 정도 차이가 날 수 있어요."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "식대 비과세는 얼마까지인가요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "회사에서 받는 식대는 월 20만 원까지 비과세예요. 비과세 금액에는 4대보험료와 소득세가 붙지 않아서 실수령액이 늘어나요."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 짧은 인트로 + 바로 쓰는 계산기 -->
+      <section class="np-top" aria-labelledby="npTitle">
+        <header class="masthead masthead--np">
+          <h1 class="masthead__store" id="npTitle">연봉 실수령액 계산기</h1>
+          <p class="masthead__sub">NET PAY · 2026 4대보험·근로소득세 반영</p>
+          <p class="masthead__pos"><span id="posTime">2026-01-01 (목)</span><span>POS 02</span></p>
+        </header>
+
+        <div class="np-display" aria-live="polite">
+          <div class="np-display__row">
+            <span class="np-display__label" id="dispLabel">월 실수령액</span>
+            <span class="np-display__tag" id="dispTag">예시</span>
+          </div>
+          <div class="np-display__num"><span class="housing__cur">₩</span><span class="odo odo--np" id="npOdo"></span></div>
+          <p class="np-display__sub" id="dispSub">연봉 4,000만 원 · 비과세 20만 · 부양가족 1명</p>
+        </div>
+
+        <div class="slip stack gap-12 np-form">
+          <div class="seg" role="radiogroup" aria-label="입력 방식">
+            <button class="seg__btn is-on" role="radio" aria-checked="true" data-mode="annual">연봉</button>
+            <button class="seg__btn" role="radio" aria-checked="false" data-mode="monthly">월급</button>
+          </div>
+          <label class="field">
+            <span class="field__label" id="payLabel">세전 연봉 (비과세 포함)</span>
+            <div class="input-unit">
+              <input class="input input--money" id="pay" inputmode="numeric" autocomplete="off" placeholder="예: 4,000" />
+              <span class="input-unit__suffix">만 원</span>
+            </div>
+            <span class="field__help" id="payHelp">만 원 단위로 입력해요</span>
+          </label>
+          <div class="quick row wrap gap-8" id="payQuick"></div>
+
+          <details class="opts" id="opts">
+            <summary><span>비과세 · 부양가족 · 자녀</span><b id="optsSum">20만 · 1명 · 0명</b></summary>
+            <div class="stack gap-12 opts__body">
+              <label class="field">
+                <span class="field__label">월 비과세액 (식대 등)</span>
+                <div class="input-unit">
+                  <input class="input" id="nontax" inputmode="numeric" autocomplete="off" value="20" />
+                  <span class="input-unit__suffix">만 원</span>
+                </div>
+                <span class="field__help">식대는 월 20만 원까지 비과세예요</span>
+              </label>
+              <div class="grid-2">
+                <div class="field">
+                  <span class="field__label">부양가족 (본인 포함)</span>
+                  <div class="stepper" data-stepper="dependents" data-min="1" data-max="11">
+                    <button class="btn btn--outline btn--icon" data-step="-1" aria-label="부양가족 줄이기">−</button>
+                    <output class="stepper__val t-title-04 t-num" id="dependents">1</output>
+                    <button class="btn btn--outline btn--icon" data-step="1" aria-label="부양가족 늘리기">+</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <span class="field__label">8~20세 자녀</span>
+                  <div class="stepper" data-stepper="children" data-min="0" data-max="10">
+                    <button class="btn btn--outline btn--icon" data-step="-1" aria-label="자녀 수 줄이기">−</button>
+                    <output class="stepper__val t-title-04 t-num" id="children">0</output>
+                    <button class="btn btn--outline btn--icon" data-step="1" aria-label="자녀 수 늘리기">+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <button class="pos-key" id="printBtn">
+          <span class="pos-key__cap">발행</span>
+          <span class="pos-key__body"><b>급여 영수증 뽑기</b><small id="printSub">공제 내역 9줄 · 월 기준</small></span>
+        </button>
+      </section>
+
+      <!-- 2) 급여 영수증 -->
+      <section class="np-receipt" id="receiptWrap" aria-label="급여 영수증">
+        <div class="slip receipt result-card" id="resultCard">
+          <p class="receipt__store m0">급여 영수증 (예상)</p>
+          <p class="receipt__meta m0" id="receiptMeta">2026 요율 · 월 기준 · 근사치</p>
+          <hr class="rule" />
+          <p class="t-label-02 m0 receipt__k">월 실수령액</p>
+          <p class="result-card__big m0" id="netMonthly">-</p>
+          <p class="receipt__line m0" id="netAnnual">연봉을 입력해 주세요</p>
+          <hr class="rule" />
+          <table class="breakdown" id="breakdown"></table>
+          <p class="receipt__fine m0">
+            실제 원천징수(간이세액표)와 차이가 있을 수 있어요. 장기요양보험은 건강보험료의 13.14%로 근사했어요.
+          </p>
+          <div class="barcode" aria-hidden="true"></div>
+          <div class="row gap-8 receipt__actions">
+            <button class="btn btn--outline grow" id="saveImg">이미지 저장</button>
+            <button class="btn btn--outline grow" id="shareLink">링크 보내기</button>
+          </div>
+        </div>
+
+        <a class="coupon" href="../" id="toLive">
+          <span class="coupon__k">LIVE · 쿠폰</span>
+          <span class="coupon__t">이 월급, 실시간으로 쌓이는 거 보기 <span aria-hidden="true">→</span></span>
+          <span class="coupon__s" id="liveSub">09:00~18:00 근무면 1초에 4.7원씩 올라가요</span>
+        </a>
+      </section>
+
+      <!-- 3) SEO 본문: 급여명세서 + 표 + 약관 -->
+      <article class="seo doc-seo">
+        <section class="doc">
+          <header class="doc__head">
+            <h2 class="doc__store">급여명세서 예시 · 연봉 4,000만 원</h2>
+            <p class="doc__meta">2026 요율 · 비과세 식대 20만 · 부양가족 1명 · 자녀 0명</p>
+          </header>
+          <table class="doc-table">
+            <tbody>
+              <tr><th scope="row">월 급여 <small>40,000,000 ÷ 12</small></th><td>3,333,333</td></tr>
+              <tr class="is-sub"><th scope="row">비과세 식대</th><td>200,000</td></tr>
+              <tr class="is-sub"><th scope="row">과세 급여</th><td>3,133,333</td></tr>
+              <tr><th scope="row">국민연금 <small>3,133,000 × 4.75%</small></th><td>−148,810</td></tr>
+              <tr><th scope="row">건강보험 <small>3,133,333 × 3.595%</small></th><td>−112,640</td></tr>
+              <tr><th scope="row">장기요양보험 <small>112,640 × 13.14%</small></th><td>−14,800</td></tr>
+              <tr><th scope="row">고용보험 <small>3,133,333 × 0.9%</small></th><td>−28,200</td></tr>
+              <tr><th scope="row">근로소득세 <small>연 1,140,290 ÷ 12</small></th><td>−95,020</td></tr>
+              <tr><th scope="row">지방소득세 <small>소득세 × 10%</small></th><td>−9,500</td></tr>
+              <tr class="is-sub"><th scope="row">공제 합계</th><td>−408,970</td></tr>
+              <tr class="is-total"><th scope="row">월 실수령액</th><td>2,924,363원</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="doc">
+          <header class="doc__head">
+            <h2 class="doc__store">근로소득세 계산 메모</h2>
+            <p class="doc__meta">연봉 4,000만 원 · 1년 치를 구해 12로 나눠요</p>
+          </header>
+          <ol class="steps">
+            <li><span>총급여 40,000,000 − 비과세 2,400,000</span><b>37,600,000</b></li>
+            <li><span>근로소득공제 750만 + 2,260만 × 15%</span><b>−10,890,000</b></li>
+            <li><span>인적공제 1명 × 150만</span><b>−1,500,000</b></li>
+            <li><span>국민연금 148,810 × 12</span><b>−1,785,720</b></li>
+            <li><span>건강·장기요양·고용 155,640 × 12</span><b>−1,867,680</b></li>
+            <li class="is-hot"><span>과세표준</span><b>21,556,600</b></li>
+            <li><span>산출세액 21,556,600 × 15% − 126만</span><b>1,973,490</b></li>
+            <li><span>근로소득세액공제 (한도 703,200)</span><b>−703,200</b></li>
+            <li><span>표준세액공제</span><b>−130,000</b></li>
+            <li class="is-hot"><span>연간 근로소득세 → 월 95,020</span><b>1,140,290</b></li>
+          </ol>
+        </section>
+
+        <section class="doc">
+          <header class="doc__head">
+            <h2 class="doc__store">2026 연봉별 실수령액 표</h2>
+            <p class="doc__meta">비과세 20만 · 부양가족 1명 · 자녀 0명 · 단위 원</p>
+          </header>
+          <div class="table-wrap">
+            <table class="seo-table seo-table--num">
+              <thead>
+                <tr><th scope="col">연봉</th><th scope="col">월 실수령</th><th scope="col">월 공제</th><th scope="col">연 실수령</th></tr>
+              </thead>
+              <tbody id="salaryTable">
+                <tr><th scope="row">2,400만</th><td>1,813,490</td><td>186,510</td><td>21,761,880</td></tr>
+                <tr><th scope="row">2,600만</th><td>1,960,277</td><td>206,390</td><td>23,523,324</td></tr>
+                <tr><th scope="row">2,800만</th><td>2,106,993</td><td>226,340</td><td>25,283,916</td></tr>
+                <tr><th scope="row">3,000만</th><td>2,253,610</td><td>246,390</td><td>27,043,320</td></tr>
+                <tr><th scope="row">3,200만</th><td>2,394,817</td><td>271,850</td><td>28,737,804</td></tr>
+                <tr><th scope="row">3,400만</th><td>2,535,953</td><td>297,380</td><td>30,431,436</td></tr>
+                <tr><th scope="row">3,600만</th><td>2,667,750</td><td>332,250</td><td>32,013,000</td></tr>
+                <tr><th scope="row">3,800만</th><td>2,796,087</td><td>370,580</td><td>33,553,044</td></tr>
+                <tr><th scope="row">4,000만</th><td>2,924,363</td><td>408,970</td><td>35,092,356</td></tr>
+                <tr><th scope="row">4,500만</th><td>3,245,120</td><td>504,880</td><td>38,941,440</td></tr>
+                <tr><th scope="row">5,000만</th><td>3,565,697</td><td>600,970</td><td>42,788,364</td></tr>
+                <tr><th scope="row">5,500만</th><td>3,883,223</td><td>700,110</td><td>46,598,676</td></tr>
+                <tr><th scope="row">6,000만</th><td>4,200,750</td><td>799,250</td><td>50,409,000</td></tr>
+                <tr><th scope="row">6,500만</th><td>4,518,327</td><td>898,340</td><td>54,219,924</td></tr>
+                <tr><th scope="row">7,000만</th><td>4,835,883</td><td>997,450</td><td>58,030,596</td></tr>
+                <tr><th scope="row">7,500만</th><td>5,133,240</td><td>1,116,760</td><td>61,598,880</td></tr>
+                <tr><th scope="row">8,000만</th><td>5,418,987</td><td>1,247,680</td><td>65,027,844</td></tr>
+                <tr><th scope="row">8,500만</th><td>5,715,923</td><td>1,367,410</td><td>68,591,076</td></tr>
+                <tr><th scope="row">9,000만</th><td>6,012,850</td><td>1,487,150</td><td>72,154,200</td></tr>
+                <tr><th scope="row">9,500만</th><td>6,309,787</td><td>1,606,880</td><td>75,717,444</td></tr>
+                <tr><th scope="row">1억</th><td>6,606,713</td><td>1,726,620</td><td>79,280,556</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc__foot">월급 300만 원(연 3,600만)이면 월 2,667,750원. 표의 값은 위 계산기와 같은 식으로 냈어요.</p>
+        </section>
+
+        <section class="doc">
+          <header class="doc__head">
+            <h2 class="doc__store">2026 4대보험 요율 표</h2>
+            <p class="doc__meta">근로자 부담분 · 산재보험은 회사가 전액 부담</p>
+          </header>
+          <div class="table-wrap">
+            <table class="seo-table">
+              <thead>
+                <tr><th scope="col">항목</th><th scope="col">전체 요율</th><th scope="col">근로자</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">국민연금</th><td>9.5%</td><td>4.75%</td></tr>
+                <tr><th scope="row">건강보험</th><td>7.19%</td><td>3.595%</td></tr>
+                <tr><th scope="row">장기요양</th><td>건보료 × 약 13.14%</td><td>절반</td></tr>
+                <tr><th scope="row">고용보험</th><td>1.8%</td><td>0.9%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="doc__foot">국민연금 기준소득월액 상한 637만 원 · 하한 40만 원. 과세 급여 700만 원이어도 연금은 302,570원까지만 떼요.</p>
+        </section>
+
+        <section class="doc doc--terms">
+          <header class="doc__head">
+            <h2 class="doc__store">영수증 약관</h2>
+            <p class="doc__meta">자주 묻는 질문</p>
+          </header>
+          <details>
+            <summary>제1조 명세서랑 몇 만 원 달라요</summary>
+            <p>회사는 매달 간이세액표로 소득세를 떼고 2월 연말정산에서 차액을 정산해요. 이 계산기는 1년 치 세금을 12로 나눈 값이라 차이가 날 수 있어요.</p>
+          </details>
+          <details>
+            <summary>제2조 비과세엔 뭘 넣어요?</summary>
+            <p>보통 식대 20만 원. 자가운전보조금(월 20만), 6세 이하 보육수당(월 20만)을 따로 받으면 더해서 넣어요. 예) 식대 + 보육수당 = 40.</p>
+          </details>
+          <details>
+            <summary>제3조 부양가족은 어떻게 세요?</summary>
+            <p>본인 포함, 연말정산 기본공제 대상 수예요. 소득 없는 배우자, 20세 이하 자녀, 60세 이상 부모님. 1명당 연 150만 원 공제돼요.</p>
+          </details>
+          <details>
+            <summary>제4조 자녀세액공제는 얼마예요?</summary>
+            <p>8~20세 자녀 1명 연 25만 원, 2명 55만 원, 3명부터 1명당 40만 원씩 더해요. 연봉 5,000만 원, 부양가족 3명에 자녀 2명을 넣으면 월 소득세가 158,480원 → 112,640원으로 줄어요.</p>
+          </details>
+          <details>
+            <summary>제5조 입력한 연봉은 어디 저장돼요?</summary>
+            <p>이 기기 브라우저에만 저장돼요. 실시간 월급 카운터가 같은 값을 불러와 써요. 링크 보내기를 누를 때만 금액이 링크에 담겨요.</p>
+          </details>
+        </section>
+      </article>
+
+      <nav id="more" aria-label="다른 도구"></nav>
+      <footer class="site-footer">세금·보험료는 2026년 기준 근사치예요. 정확한 금액은 급여 명세서를 확인해 주세요.</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

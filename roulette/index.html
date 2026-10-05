@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>룰렛 돌리기 | 돌림판 만들기 - 핀에 걸려 아슬아슬하게 멈추는 복불복 룰렛</title>
+    <meta
+      name="description"
+      content="룰렛 돌리기 무료 돌림판. 점심 메뉴, 벌칙, 숫자 1~10까지 2~24칸 랜덤 룰렛을 만들고 칸마다 ×1~×5 가중치를 줄 수 있어요. 고무 바늘이 핀에 걸려 한 칸 차이로 멈추는 복불복 룰렛, 당첨 빼고 다시 돌리기와 결과 기록까지."
+    />
+    <meta name="keywords" content="룰렛 돌리기, 돌림판, 룰렛 만들기, 랜덤 룰렛, 복불복, 점심 메뉴 룰렛, 벌칙 룰렛, 숫자 룰렛, 가중치 룰렛" />
+    <link rel="canonical" href="https://example.com/roulette/" />
+    <meta name="theme-color" content="#141414" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/roulette/" />
+    <meta property="og:title" content="룰렛 돌리기 - 한 칸 차이로 갈리는 복불복 돌림판" />
+    <meta property="og:description" content="핀에 걸린 바늘이 넘어갈까, 떨어질까. 점심 메뉴부터 벌칙까지 내 돌림판을 만들어 돌려요." />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎡</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "룰렛 돌리기",
+            "alternateName": ["돌림판", "랜덤 룰렛", "복불복 룰렛"],
+            "url": "https://example.com/roulette/",
+            "description": "2~24칸, 칸마다 ×1~×5 가중치를 주는 무료 룰렛 돌리기. 고무 바늘과 핀 물리로 아슬아슬하게 멈추고, 당첨 빼고 다시 돌리기와 결과 기록을 지원해요.",
+            "applicationCategory": "EntertainmentApplication",
+            "operatingSystem": "Any",
+            "inLanguage": "ko",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "룰렛 칸은 몇 개까지 넣을 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "2칸부터 24칸까지 넣을 수 있어요. 칸 이름은 12자까지예요." } },
+              { "@type": "Question", "name": "가중치를 주면 확률이 어떻게 바뀌나요?", "acceptedAnswer": { "@type": "Answer", "text": "칸 확률은 내 가중치 ÷ 전체 가중치 합이에요. 3칸에 ×1, ×2, ×1을 주면 25%, 50%, 25%가 되고 판 위의 칸 넓이도 같은 비율로 그려져요." } },
+              { "@type": "Question", "name": "한 칸 차이로 멈추는 건 조작인가요?", "acceptedAnswer": { "@type": "Answer", "text": "아니요. 당첨 칸은 돌리기 직전에 가중치 비율대로 뽑고, 판과 핀, 고무 바늘은 물리 계산대로 움직여요. 핀에 걸려 넘어가거나 떨어지는 장면도 그 계산 결과예요." } },
+              { "@type": "Question", "name": "당첨된 칸을 빼고 다시 돌릴 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "받침대의 '당첨 빼기'를 켜면 당첨된 칸이 다음 판에서 빠져요. 발표 순서나 청소 당번 정할 때 좋아요." } }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <!-- 1) 첫 화면: 예능 복불복 세트 -->
+      <section class="intro" id="intro" data-view="intro">
+        <header class="slate">
+          <nav id="crumb"></nav>
+          <span class="onair"><i></i>ON AIR</span>
+        </header>
+        <div class="studio intro__stage" id="introStage">
+          <div class="spots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <h1 class="corner" aria-label="룰렛 돌리기"><span>복불복</span><b>룰렛 돌리기</b></h1>
+          <canvas class="wheel-cv" id="introWheel" aria-hidden="true"></canvas>
+          <div class="jamak-layer" id="introJamak" aria-live="polite"></div>
+          <p class="info-sub" id="introSub" aria-hidden="true"></p>
+          <canvas class="confetti-cv" id="introConfetti" aria-hidden="true"></canvas>
+        </div>
+        <div class="stand">
+          <div class="stand__legs" aria-hidden="true"></div>
+          <div class="stand__plate">
+            <span class="stand__note">칸 2~24개<br />가중치 ×1~×5</span>
+            <button class="lever" id="start" aria-label="룰렛 만들고 돌리기">
+              <span class="lever__base" aria-hidden="true"></span>
+              <span class="lever__cap" data-t="돌려!">돌려!</span>
+            </button>
+            <span class="stand__note stand__note--r">당첨 빼기<br />결과 기록</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) 세트장 -->
+      <section data-view="app" class="show" hidden>
+        <header class="slate">
+          <nav id="crumb2"></nav>
+          <span class="onair"><i></i>ON AIR</span>
+        </header>
+        <div class="studio studio--app" id="stage">
+          <div class="spots" aria-hidden="true"><i></i><i></i><i></i></div>
+          <p class="corner corner--sm" id="boardTitle"><span>복불복</span><b>점심 메뉴</b></p>
+          <span class="replay-bug" id="replayBug" hidden>REPLAY · 0.3배속</span>
+          <canvas class="wheel-cv" id="wheel" aria-label="룰렛 판. 손가락으로 튕겨서 돌릴 수도 있어요"></canvas>
+          <div class="jamak-layer" id="jamak" aria-live="polite"></div>
+          <canvas class="confetti-cv" id="confetti" aria-hidden="true"></canvas>
+        </div>
+        <div class="stand stand--app">
+          <div class="stand__legs" aria-hidden="true"></div>
+          <div class="stand__plate">
+            <span class="stand__note" id="meta">8칸</span>
+            <button class="lever" id="spin" aria-label="룰렛 돌리기">
+              <span class="lever__base" aria-hidden="true"></span>
+              <span class="lever__cap" data-t="돌려!">돌려!</span>
+            </button>
+            <label class="elim">
+              <input type="checkbox" id="elim" />
+              <span class="elim__track" aria-hidden="true"><span></span></span>
+              <span class="elim__label">당첨<br />빼기</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="verdict" id="verdict" hidden>
+          <div class="verdict__card">
+            <p class="verdict__tag" id="vTag">당첨</p>
+            <p class="verdict__name" id="vName"></p>
+            <p class="verdict__near" id="vNear"></p>
+          </div>
+          <div class="verdict__actions">
+            <button class="tbtn tbtn--replay" id="replay"><b>↺</b>한 칸 차이 다시 보기</button>
+            <button class="tbtn" id="saveCard">결과 카드</button>
+            <button class="tbtn" id="shareLink">룰렛 보내기</button>
+          </div>
+        </div>
+
+        <!-- 큐카드: 칸 편집 -->
+        <section class="cue" aria-labelledby="cueTitle">
+          <div class="cue__head">
+            <h2 class="cue__title" id="cueTitle">큐카드</h2>
+            <label class="sr-only" for="titleInput">룰렛 이름</label>
+            <input class="cue__name" id="titleInput" maxlength="14" placeholder="룰렛 이름" />
+            <span class="cue__count t-num" id="count">0/24</span>
+          </div>
+          <ol class="items" id="items"></ol>
+          <form class="add" id="addForm" autocomplete="off">
+            <label class="sr-only" for="addInput">칸 추가</label>
+            <input class="input add__input" id="addInput" maxlength="60" placeholder="칸 추가 (쉼표로 여러 개)" enterkeyhint="done" />
+            <button class="tbtn tbtn--ink" type="submit">추가</button>
+          </form>
+          <p class="cue__label">프리셋</p>
+          <div class="presets" id="presets"></div>
+          <p class="cue__label">저장한 룰렛</p>
+          <div class="presets" id="saved"></div>
+          <div class="cue__foot">
+            <button class="tbtn" id="saveWheel">이 룰렛 저장</button>
+            <button class="tbtn" id="restoreAll" hidden>빠진 칸 되살리기</button>
+          </div>
+        </section>
+
+        <!-- 결과 기록 -->
+        <section class="log" aria-labelledby="logTitle">
+          <div class="log__head">
+            <h2 class="log__title" id="logTitle">녹화 기록</h2>
+            <button class="tbtn tbtn--sm" id="clearLog" hidden>지우기</button>
+          </div>
+          <ol class="log__list" id="log"></ol>
+        </section>
+      </section>
+
+      <!-- SEO 본문: 예능 큐시트 형식 -->
+      <article class="seo cuesheet" id="seo">
+        <header class="cs-head">
+          <span class="cs-stamp">큐시트</span>
+          <h2>룰렛 돌리기 · 돌림판 만들기</h2>
+          <p class="cs-meta">녹화 1회 · 소요 약 10초 · 출연 2~24칸</p>
+        </header>
+
+        <h3 class="cs-h">#1 룰렛 만드는 순서</h3>
+        <table class="cs-table">
+          <thead><tr><th>큐</th><th>할 일</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>칸 넣기</td><td>짜장면, 짬뽕, 볶음밥 (쉼표로 한 번에)</td></tr>
+            <tr><td>2</td><td>가중치</td><td>짬뽕 ×2 → 판에서 2배 넓어짐</td></tr>
+            <tr><td>3</td><td>돌려!</td><td>빨간 버튼 누르기, 또는 판을 손가락으로 튕기기</td></tr>
+            <tr><td>4</td><td>멈춤</td><td>바늘이 핀에 걸리면 줌인, 넘어가거나 떨어짐</td></tr>
+            <tr><td>5</td><td>당첨</td><td>한 칸 차이였으면 0.3배속 다시 보기</td></tr>
+            <tr><td>6</td><td>보내기</td><td>결과 카드 저장, 같은 룰렛 링크 공유</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="cs-h">#2 가중치 확률 계산</h3>
+        <p class="cs-formula">확률 = 내 가중치 ÷ 전체 가중치 합</p>
+        <table class="cs-table cs-table--num">
+          <thead><tr><th>칸</th><th>가중치</th><th>확률</th></tr></thead>
+          <tbody>
+            <tr><td>커피</td><td>×1</td><td>1 ÷ 4 = 25%</td></tr>
+            <tr><td>통과</td><td>×2</td><td>2 ÷ 4 = 50%</td></tr>
+            <tr><td>설거지</td><td>×1</td><td>1 ÷ 4 = 25%</td></tr>
+          </tbody>
+        </table>
+        <table class="cs-table cs-table--num">
+          <thead><tr><th>점심 메뉴</th><th>가중치</th><th>확률</th></tr></thead>
+          <tbody>
+            <tr><td>김치찌개</td><td>×3</td><td>3 ÷ 6 = 50%</td></tr>
+            <tr><td>돈가스</td><td>×1</td><td>약 16.7%</td></tr>
+            <tr><td>쌀국수</td><td>×1</td><td>약 16.7%</td></tr>
+            <tr><td>샐러드</td><td>×1</td><td>약 16.7%</td></tr>
+          </tbody>
+        </table>
+        <p class="cs-note">칸 넓이도 같은 비율로 그려져요. 눈에 보이는 넓이가 곧 확률이에요.</p>
+
+        <h3 class="cs-h">#3 제작진 공지 · 공정성</h3>
+        <ul class="cs-list">
+          <li>당첨 칸은 돌리기 직전에 브라우저 암호 난수로 가중치 비율대로 뽑아요.</li>
+          <li>그 칸 안에 멈추도록 처음 회전 세기만 계산하고, 판·핀·고무 바늘은 마찰과 탄성 계산대로 움직여요.</li>
+          <li>핀에 걸려 기어 넘어가거나 굴러 떨어지는 장면도 계산 결과예요. 넘어갈지 떨어질지는 연출이 아니라 남은 힘으로 갈려요.</li>
+          <li>서버로 보내는 정보는 없어요. 기록과 저장한 룰렛은 이 기기에만 남아요.</li>
+        </ul>
+
+        <h3 class="cs-h">#4 이럴 때 써요</h3>
+        <table class="cs-table">
+          <tbody>
+            <tr><td>점심 메뉴</td><td>메뉴 6~8칸, 어제 먹은 건 ×1, 먹고 싶은 건 ×2</td></tr>
+            <tr><td>벌칙</td><td>통과 칸을 섞어서 복불복으로</td></tr>
+            <tr><td>숫자 1~10</td><td>번호 뽑기, 자리 바꾸기</td></tr>
+            <tr><td>발표 순서</td><td>'당첨 빼기'를 켜고 한 명씩 빠지게</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="cs-h">#5 큐카드 Q&amp;A</h3>
+        <details>
+          <summary>룰렛 칸은 몇 개까지 넣을 수 있나요?</summary>
+          <p>2칸부터 24칸까지예요. 칸 이름은 12자까지 들어가고, 칸이 많으면 글자가 작아져요.</p>
+        </details>
+        <details>
+          <summary>가중치 ×5는 얼마나 잘 나오나요?</summary>
+          <p>다른 칸이 모두 ×1이고 5칸짜리 룰렛이면 5 ÷ 9, 약 56%예요. 칸 옆에 실제 확률이 바로 표시돼요.</p>
+        </details>
+        <details>
+          <summary>한 칸 차이로 멈추는 건 조작 아닌가요?</summary>
+          <p>당첨 칸은 가중치 비율대로만 뽑혀요. 마지막에 핀에 걸리는 장면은 회전이 느려질 때 고무 바늘이 핀을 되미는 힘 때문에 생겨요. 실제 룰렛과 같은 원리예요.</p>
+        </details>
+        <details>
+          <summary>당첨된 칸을 빼고 다시 돌릴 수 있나요?</summary>
+          <p>받침대의 '당첨 빼기'를 켜면 당첨된 칸이 다음 판에서 빠져요. 다 빠지면 '빠진 칸 되살리기'로 처음 상태로 돌아와요.</p>
+        </details>
+        <details>
+          <summary>만든 룰렛을 친구에게 보낼 수 있나요?</summary>
+          <p>'룰렛 보내기'를 누르면 칸 이름과 가중치가 담긴 링크가 만들어져요. 친구가 열면 같은 룰렛이 바로 떠요.</p>
+        </details>
+        <details>
+          <summary>소리가 나나요?</summary>
+          <p>소리는 없어요. 대신 바늘이 핀을 칠 때마다 휴대폰이 짧게 진동하고(지원 기기만), 화면에 틱 표시가 떠요.</p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 도구"></nav>
+      <footer class="site-footer">룰렛 돌리기 · 결과는 가중치 비율대로 무작위예요. 내기는 가볍게!</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

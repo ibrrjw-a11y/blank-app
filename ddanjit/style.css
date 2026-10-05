@@ -188,7 +188,7 @@ body {
   animation: dj-wiggle 3.6s var(--spring) infinite;
 }
 .cab__btn {
-  margin-left: auto;
+  flex: none;
   width: 22px;
   height: 22px;
   border-radius: var(--r-full);
@@ -443,7 +443,6 @@ body {
   transform: scale(1.35);
 }
 .intro__note { text-align: center; margin: var(--sp-4) 0 0; }
-.btn--coin { animation: dj-coin 2.4s var(--spring) 1.4s infinite; }
 
 /* ---------- 허브 ---------- */
 .topbar {
@@ -1223,3 +1222,380 @@ body {
   animation: dj-pop 560ms var(--spring) both;
 }
 .res__badge.is-win { background: var(--brand); color: var(--brand-on); }
+
+/* ==========================================================
+ * 2차 개편: 경로 · 캐비닛 설명 스티커 · 동전 투입 시작 버튼 · 게임 설명서
+ * ========================================================== */
+
+/* ---------- 상단 경로: 캐비닛 위 크레딧 표시줄 ---------- */
+.crumb {
+  min-height: 44px;
+  gap: var(--sp-8);
+  font: var(--label-03);
+  color: var(--art-bezel-edge);
+}
+.crumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+}
+.crumb a:first-child::before {
+  content: "◀";
+  margin-right: var(--sp-6);
+  font-size: 9px;
+  color: var(--art-red);
+}
+.crumb a:last-child { color: var(--brand); }
+.crumb a:active { transform: translateY(1px); }
+
+/* 경로 한 줄만큼 첫 화면 높이를 줄여 시작 버튼이 첫 화면 안에 들어오게 */
+.intro {
+  min-height: calc(100dvh - 44px);
+  padding-top: 0;
+}
+
+/* 캐비닛 조작부에 붙은 설명 스티커 (캡션 대신) */
+.cab__sticker {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-4) var(--sp-8);
+  border-radius: var(--r-4);
+  background: var(--art-cream);
+  color: var(--art-cabinet);
+  font: var(--label-03);
+  transform: rotate(-1.5deg);
+  box-shadow: 0 2px 0 var(--art-cabinet);
+}
+.cab__sticker .pix { flex: none; font-size: 7px; line-height: 10px; color: var(--art-red-deep); }
+.cab__how { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cab__sticker.is-swap { animation: dj-sticker 520ms var(--spring) both; }
+.cab__tag { color: var(--art-cream); }
+
+.intro__steps { margin: var(--sp-12) 0 0; }
+
+/* ---------- 시작 버튼: 동전 투입구 + 둥근 아케이드 버튼이 박힌 조작판 ---------- */
+.intro__cta { margin-top: var(--sp-16); }
+.coin-op {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 1fr 76px;
+  align-items: center;
+  gap: var(--sp-12);
+  width: 100%;
+  min-height: 96px;
+  padding: var(--sp-10) var(--sp-12);
+  border: 2px solid var(--art-bezel-edge);
+  border-radius: var(--r-12);
+  background:
+    radial-gradient(circle at 10px 10px, var(--art-bezel-edge) 0 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 10px) 10px, var(--art-bezel-edge) 0 2.5px, transparent 3px),
+    radial-gradient(circle at 10px calc(100% - 10px), var(--art-bezel-edge) 0 2.5px, transparent 3px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), var(--art-bezel-edge) 0 2.5px, transparent 3px),
+    var(--art-bezel);
+  box-shadow: 0 var(--sp-6) 0 var(--art-cabinet);
+  color: var(--art-cream);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.coin-op:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+
+/* 동전 투입구: 빨간 불 들어온 판 + 세로 틈 */
+.coin-op__door {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+}
+.coin-op__door .pix { font-size: 7px; line-height: 9px; text-align: center; color: var(--art-red); animation: dj-blink 1.2s steps(2, jump-none) infinite; }
+.coin-op__slot {
+  position: relative;
+  width: 40px;
+  height: 48px;
+  border-radius: var(--r-6);
+  background: var(--art-red);
+  box-shadow: inset 0 -4px 0 var(--art-red-deep), 0 0 0 3px var(--art-cabinet);
+  overflow: hidden;
+}
+.coin-op__slot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 6px;
+  height: 26px;
+  margin-left: -3px;
+  border-radius: var(--r-full);
+  background: var(--art-cabinet);
+  z-index: 2;
+}
+.coin-op__coin {
+  position: absolute;
+  left: 50%;
+  top: -22px;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  border-radius: var(--r-full);
+  background: var(--brand);
+  box-shadow: inset 0 0 0 3px var(--brand-pressed);
+  z-index: 3;
+  animation: dj-coin-drop 3.2s var(--anticipate) 1.2s infinite;
+}
+
+.coin-op__label { display: flex; flex-direction: column; gap: var(--sp-6); min-width: 0; }
+.coin-op__label b {
+  font: var(--title-03);
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--art-cream);
+  word-break: keep-all;
+}
+.coin-op__label .pix { font-size: 7px; line-height: 10px; color: var(--brand); }
+
+/* 둥근 아케이드 버튼: 검은 베젤 링 + 노란 캡, 누르면 쑥 들어감 */
+.coin-op__btn {
+  position: relative;
+  justify-self: end;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--r-full);
+  background: var(--art-cabinet);
+  box-shadow: inset 0 0 0 3px var(--art-bezel-edge), 0 2px 0 var(--art-bezel-edge);
+}
+.coin-op__btn i {
+  position: absolute;
+  inset: 8px 8px 14px;
+  border-radius: var(--r-full);
+  background: var(--brand);
+  box-shadow: 0 6px 0 var(--brand-pressed);
+  transition: transform var(--dur-fast) var(--spring), box-shadow var(--dur-fast) var(--spring);
+  animation: dj-btn-idle 3.2s var(--spring) 1.2s infinite;
+}
+.coin-op__btn i::after {
+  content: "";
+  position: absolute;
+  left: 22%;
+  top: 16%;
+  width: 34%;
+  height: 22%;
+  border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--art-cream) 55%, transparent);
+  transform: rotate(-20deg);
+}
+.coin-op:active .coin-op__btn i,
+.coin-op.is-coin .coin-op__btn i {
+  transform: translateY(6px) scale(1.04, 0.94);
+  box-shadow: 0 0 0 var(--brand-pressed);
+  animation: none;
+}
+.coin-op.is-coin .coin-op__coin { animation: dj-coin-in 300ms var(--anticipate) both; }
+.coin-op:active { transform: translateY(2px); box-shadow: 0 var(--sp-4) 0 var(--art-cabinet); }
+
+/* ---------- 게임 페이지 인트로 ---------- */
+.intro--game .kinetic { margin: var(--sp-16) 0 var(--sp-10); }
+.intro--game .kinetic__line--accent { font: var(--title-01); font-family: var(--font-display); }
+.intro--game .intro__stage { min-height: 300px; }
+.intro--game .marquee__coin { font-size: 8px; }
+
+/* ---------- SEO 본문: 캐비닛 옆에 붙은 게임 설명서 ---------- */
+.manual {
+  margin-top: var(--sp-48);
+  padding: var(--sp-20) var(--sp-16) var(--sp-24);
+  border-radius: var(--r-8);
+  background: var(--art-cream);
+  color: var(--art-cabinet);
+  box-shadow: 0 var(--sp-6) 0 var(--art-bezel-edge);
+}
+.manual a { color: var(--art-red-deep); font-weight: 700; text-decoration: none; border-bottom: 2px solid currentColor; }
+.manual__head { padding-bottom: var(--sp-16); border-bottom: 3px solid var(--art-cabinet); }
+.manual__tag {
+  display: inline-block;
+  padding: var(--sp-4) var(--sp-6);
+  border-radius: var(--r-4);
+  background: var(--art-red);
+  color: var(--art-cream);
+  font-size: 8px;
+}
+.seo.manual h2 {
+  margin: var(--sp-8) 0 var(--sp-12);
+  font: var(--title-01);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--art-cabinet);
+}
+.manual__spec { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-6); margin: 0; }
+.manual__spec div { padding: var(--sp-6) var(--sp-8); border: 2px solid var(--art-cabinet); border-radius: var(--r-4); }
+.manual__spec dt { font: var(--caption-01); font-size: 11px; color: color-mix(in srgb, var(--art-cabinet) 60%, transparent); }
+.manual__spec dd { margin: 0; font: var(--label-02); word-break: keep-all; }
+.seo.manual h3.manual__sec {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin: var(--sp-24) 0 var(--sp-10);
+  font: var(--title-04);
+  font-family: var(--font-display);
+  font-weight: 400;
+  color: var(--art-cabinet);
+}
+.manual__sec .pix {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-full);
+  background: var(--art-cabinet);
+  color: var(--brand);
+  font-size: 9px;
+}
+.manual__table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--body-03);
+  color: var(--art-cabinet);
+}
+.manual__table th,
+.manual__table td {
+  padding: var(--sp-8) var(--sp-6);
+  border-bottom: 1px dashed color-mix(in srgb, var(--art-cabinet) 35%, transparent);
+  text-align: left;
+  vertical-align: top;
+  word-break: keep-all;
+}
+.manual__table thead th {
+  font: var(--label-03);
+  color: color-mix(in srgb, var(--art-cabinet) 60%, transparent);
+  border-bottom: 2px solid var(--art-cabinet);
+}
+.manual__table tbody th { font: var(--label-02); white-space: nowrap; }
+.manual__table .num,
+.manual__table td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.manual__table tr.is-win td,
+.manual__table tr.is-win th { background: color-mix(in srgb, var(--color-success) 22%, transparent); }
+.manual__table--days th,
+.manual__table--days td { text-align: center; }
+.seo.manual p,
+.seo.manual li { color: var(--art-cabinet); }
+.manual__ex { margin: var(--sp-8) 0 0; font: var(--body-03); }
+.manual__ex b { font-weight: 700; }
+.manual__ex .lamps { display: inline-flex; vertical-align: middle; margin: 0 var(--sp-4); }
+.manual__ex .lamps i,
+.manual__lamps i {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--r-full);
+  background: var(--art-bezel);
+  box-shadow: inset 0 0 0 2px var(--art-bezel-edge);
+}
+.manual__lamps { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-6) var(--sp-12); margin: 0; padding: 0; list-style: none; }
+.manual__lamps li { display: flex; align-items: center; gap: var(--sp-8); font: var(--label-02); }
+.manual i.is-win { background: var(--color-success); box-shadow: none; }
+.manual i.is-done { background: var(--color-text-tertiary); box-shadow: none; }
+.manual i.is-doing { background: var(--brand); box-shadow: inset 0 0 0 2px var(--brand-pressed); }
+.manual__steps { margin: 0; padding: 0; list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: var(--sp-8); }
+.seo.manual .manual__steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--sp-10);
+  align-items: start;
+  font: var(--body-03);
+}
+.manual__steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-6);
+  background: var(--brand);
+  color: var(--brand-on);
+  box-shadow: 0 3px 0 var(--brand-pressed);
+  font-family: var(--art-pixel);
+  font-size: 10px;
+}
+.manual__steps b { font-weight: 700; }
+.manual__ticket {
+  margin: 0;
+  padding: var(--sp-12);
+  border-radius: var(--r-6);
+  background: var(--art-crt);
+  color: var(--art-cream);
+  font: var(--body-03);
+  font-family: var(--font-sans);
+  white-space: pre-wrap;
+  word-break: keep-all;
+}
+.seo.manual h2.manual__qa {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  margin-top: var(--sp-32);
+  padding-top: var(--sp-16);
+  border-top: 3px solid var(--art-cabinet);
+  font: var(--title-03);
+  font-family: var(--font-display);
+}
+.manual details { border-bottom: 1px dashed color-mix(in srgb, var(--art-cabinet) 35%, transparent); padding: 0; }
+.seo.manual summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  min-height: 48px;
+  font: var(--label-01);
+  color: var(--art-cabinet);
+  list-style: none;
+}
+.manual summary::-webkit-details-marker { display: none; }
+.manual summary::before,
+.manual details p::before {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-4);
+  font-family: var(--art-pixel);
+  font-size: 8px;
+}
+.manual summary::before { content: "Q"; background: var(--art-red); color: var(--art-cream); }
+.manual summary::after { content: "+"; margin-left: auto; font: var(--title-04); }
+.manual details[open] summary::after { content: "−"; }
+.seo.manual details p { display: flex; gap: var(--sp-8); margin: 0 0 var(--sp-12); font: var(--body-03); }
+.manual details p::before { content: "A"; background: var(--art-cabinet); color: var(--brand); }
+
+@keyframes dj-sticker {
+  0% { transform: rotate(-6deg) scale(0.6); opacity: 0; }
+  60% { transform: rotate(1deg) scale(1.06); opacity: 1; }
+  100% { transform: rotate(-1.5deg); }
+}
+/* 동전: 위에서 멈칫(예비동작) → 틈으로 쏙 */
+@keyframes dj-coin-drop {
+  0%, 30% { transform: translateY(0); opacity: 0; }
+  36% { transform: translateY(-4px); opacity: 1; }
+  48% { transform: translateY(30px) scale(0.9, 1.1); opacity: 1; }
+  54%, 100% { transform: translateY(46px) scale(0.6, 1.2); opacity: 0; }
+}
+@keyframes dj-coin-in {
+  0% { transform: translateY(-6px); opacity: 1; }
+  100% { transform: translateY(46px) scale(0.6, 1.2); opacity: 0; }
+}
+/* 동전이 들어간 직후 버튼이 한 번 눌렸다 튀어오름 */
+@keyframes dj-btn-idle {
+  0%, 52%, 100% { transform: none; box-shadow: 0 6px 0 var(--brand-pressed); }
+  56% { transform: translateY(6px) scale(1.06, 0.92); box-shadow: 0 0 0 var(--brand-pressed); }
+  62% { transform: translateY(-2px) scale(0.98, 1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coin-op__coin,
+  .coin-op__btn i,
+  .coin-op__door .pix { animation: none; }
+}

@@ -16,6 +16,7 @@ import {
   showView,
   openSheet,
   renderMoreSites,
+  renderCrumb,
   createCanvas,
   roundRect,
   wrapText,
@@ -194,6 +195,7 @@ function buildDemo(stage) {
       <div class="term__readout" id="demoReadout"></div>
     </div>
     <div class="term__days">${days}</div>
+    <div class="term__flash"><b>속보</b><span class="term__flash-t" id="demoFlash"></span></div>
   </div>`;
 
   // 크로스헤어 위치 (월 인덱스) → SVG 좌표
@@ -226,7 +228,19 @@ function startIntro() {
   }
   const term = () => stage.querySelector(".term");
   const set = (n) => term() && (term().dataset.scene = String(n));
-  const head = () => kinetic(root.querySelector(".intro__caption h2"));
+  // 캡션 = 단말기 하단 속보 줄 (제목+부제 대신 장면 안의 뉴스 플래시)
+  const head = (text, say) => {
+    const f = $("#demoFlash");
+    const sr = $("#introSay");
+    if (sr) sr.textContent = say || text;
+    if (!f) return;
+    f.textContent = text;
+    kinetic(f, { step: 22 });
+    const bar = f.parentElement;
+    bar.classList.remove("is-in");
+    void bar.offsetWidth;
+    bar.classList.add("is-in");
+  };
   const price = (v) => odometer($("#demoPrice"), `${won(v)}원`);
   const clk = setInterval(() => {
     const c = $("#demoClock");
@@ -242,11 +256,10 @@ function startIntro() {
     loop: true,
     scenes: [
       {
-        title: "생일을 넣으면 인생이 상장돼요",
-        desc: "0세 시가 10,000원. 생년월일시로 뽑은 사주 8글자가 평생 주가 차트가 돼요.",
+        
         duration: 3600,
         play(_, signal) {
-          head();
+          head("생일 넣으면 인생 상장 · 0세 시가 10,000원", "생년월일시로 뽑은 사주 8글자가 0세 시가 10,000원짜리 평생 주가 차트가 돼요");
           set(0);
           price(E.START_PRICE);
           flap($("#demoCode"), demo.S.code, { delay: 120 });
@@ -254,11 +267,10 @@ function startIntro() {
         },
       },
       {
-        title: "대운은 추세, 세운은 등락",
-        desc: "10년마다 바뀌는 대운이 큰 흐름을, 해마다 바뀌는 세운이 출렁임을 만들어요.",
+        
         duration: 3600,
         play(_, signal) {
-          head();
+          head("대운 10년 = 추세 · 세운 1년 = 등락", "10년마다 바뀌는 대운이 추세를, 해마다 바뀌는 세운이 등락을 만들어요");
           set(1);
           // 크로스헤어가 0세부터 오늘까지 훑으며 시세를 읽어요
           let last = 0;
@@ -279,11 +291,10 @@ function startIntro() {
         },
       },
       {
-        title: "내 인생 최고가는 언제?",
-        desc: "사상 최고가가 언제 오는지, 가장 크게 쉬어 가는 구간은 어디인지 짚어줘요.",
+        
         duration: 3400,
         play(_, signal) {
-          head();
+          head(`사상 최고가 ${demo.S.months[demo.S.peakIdx].y}년 · 조정 구간 표시`, "사상 최고가가 언제 오는지, 가장 크게 쉬어 가는 구간은 어디인지 짚어줘요");
           set(2);
           const from = demo.nowT;
           const to = demo.S.peakIdx;
@@ -298,11 +309,10 @@ function startIntro() {
         },
       },
       {
-        title: "오늘 시세, 이사 날짜까지",
-        desc: "매일 바뀌는 일진으로 그린 일봉과 손 없는 날·나한테 맞는 길일을 챙겨줘요.",
+        
         duration: 3600,
         play() {
-          head();
+          head("오늘 일봉 공개 · 손 없는 날 표시", "매일 바뀌는 일진으로 그린 일봉과 손 없는 날, 나한테 맞는 길일을 챙겨줘요");
           set(3);
           price(demo.nowP);
         },
@@ -1182,13 +1192,63 @@ function goForm() {
   showView("form");
 }
 
+/* ---------- SEO 투자설명서: 예시 대운표와 이번 달 손 없는 날을 실제 계산으로 ---------- */
+function renderSeo() {
+  try {
+    const S = E.analyze(SAMPLE);
+    const at = (age) => S.price[Math.min(S.price.length - 1, age * 12)];
+    $("#exPillars").textContent = S.pillars.map(E.gzKo).join(" · ");
+    $("#exDm").textContent = `${E.stemKo(S.dm)}${E.EL_KO[S.dmEl]}(${E.STEMS[S.dm]}${E.EL_HANJA[S.dmEl]})`;
+    $("#exStrength").textContent = S.strengthLabel;
+    $("#daeunEx tbody").innerHTML = S.daeun
+      .filter((d) => d.startAge <= 86)
+      .map((d) => {
+        const a = at(d.startAge);
+        const b = at(d.endAge + 1);
+        const c = pct(b, a);
+        return `<tr><th scope="row">${E.gzKo(d.gz)}${d.pre ? "<small>대운 전</small>" : ""}</th><td>${d.startAge}–${d.endAge}</td><td>${d.startYear}–${d.endYear}</td><td>${won(a)} → ${won(b)}</td><td class="${sign(c)}">${arrow(c)}${Math.abs(c).toFixed(1)}%</td></tr>`;
+      })
+      .join("");
+    const pk = S.months[S.peakIdx];
+    $("#daeunNote").textContent = `구간 주가는 대운 첫 달과 다음 대운 첫 달의 종가예요. 사상 최고가 ${pk.y}년 ${pk.m}월(${Math.floor(S.peakIdx / 12)}세) ${won(S.price[S.peakIdx])}원.`;
+  } catch (e) {
+    console.warn(e);
+  }
+  try {
+    const { y, m } = TODAY;
+    const rows = [];
+    for (let d = 1; d <= E.daysInMonth(y, m); d++) {
+      const l = E.lunarOf(y, m, d);
+      if (!E.isSonEomneun(l.day)) continue;
+      const wd = DOW[E.utc(y, m, d).getUTCDay()];
+      rows.push(`<tr${d === TODAY.d ? ' class="is-today"' : ""}><th scope="row">${m}.${d}</th><td>${wd}</td><td>${l.leap ? "윤" : ""}${Math.abs(l.month)}.${l.day}</td></tr>`);
+    }
+    $("#sonTitle").textContent = `${y}년 ${m}월 손 없는 날`;
+    $("#sonMonth tbody").innerHTML = rows.join("");
+    $("#sonNote").textContent = `만세력으로 매일의 음력을 계산했어요. 이번 달은 ${rows.length}일이에요. 음력 작은달(29일)이 끼면 5일, 아니면 보통 6일이에요.`;
+    $("#filingDate").textContent = ymdText(TODAY);
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
 function init() {
-  renderMoreSites($("#more"), "life-stock");
+  renderCrumb($("#crumb"));
+  renderMoreSites($("#more"));
+  renderSeo();
   initForm();
 
-  $("#start").addEventListener("click", () => {
-    if (P) showDash();
-    else goForm();
+  // 매수 주문표: 누르면 '체결' 도장이 찍히고 다음 화면으로
+  $("#start").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    if (b.classList.contains("is-filled")) return;
+    haptic(16);
+    b.classList.add("is-filled");
+    setTimeout(() => {
+      b.classList.remove("is-filled");
+      if (P) showDash();
+      else goForm();
+    }, prefersReducedMotion() ? 0 : 360);
   });
   $("#openCal").addEventListener("click", () => {
     intro?.stop();
@@ -1277,7 +1337,7 @@ function init() {
     const inv = $("#maInvite");
     inv.hidden = false;
     inv.innerHTML = `<b>${esc(incoming.name)}님이 M&amp;A를 제안했어요</b><span>내 주식을 상장하면 두 차트를 겹쳐 합병 시너지를 볼 수 있어요.</span>`;
-    $("#start").textContent = "내 주식 상장하고 합병 보기";
+    $("#startLabel").textContent = "상장하고 합병 보기";
   }
   goIntro();
 }

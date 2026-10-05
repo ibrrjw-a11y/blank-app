@@ -65,15 +65,31 @@
   </head>
   <body>
     <main class="app">
-      <!-- 1) 첫 화면: 모션그래픽 -->
+      <nav id="crumb"></nav>
+      <!-- 1) 첫 화면: 모션그래픽 (캡션은 단말기 속보 줄로) -->
       <section class="intro" id="intro" data-view="intro">
+        <h1 class="sr-only">나 상장하기 · 대운 그래프로 보는 사주 인생 차트</h1>
         <div class="intro__stage" aria-hidden="true"></div>
+        <p class="sr-only" id="introSay" aria-live="polite"></p>
         <div class="intro__steps"></div>
-        <div class="intro__caption" aria-live="polite"></div>
         <div class="ma-invite" id="maInvite" hidden></div>
         <div class="intro__cta">
-          <button class="btn btn--primary btn--lg btn--block" id="start">내 주식 상장하기</button>
-          <button class="btn btn--ghost btn--block" id="openCal" type="button">손 없는 날 달력만 보기 →</button>
+          <!-- 시작 버튼: 호가창이 붙은 매수 주문표 -->
+          <button class="order" id="start" type="button">
+            <span class="order__book" aria-hidden="true">
+              <span class="ob ob--ask"><i>10,050</i><s style="--v:34%"></s></span>
+              <span class="ob ob--ask"><i>10,025</i><s style="--v:58%"></s></span>
+              <span class="ob ob--now"><i>10,000</i></span>
+              <span class="ob ob--bid"><i>9,975</i><s style="--v:82%"></s></span>
+              <span class="ob ob--bid"><i>9,950</i><s style="--v:46%"></s></span>
+            </span>
+            <span class="order__body">
+              <span class="order__meta" aria-hidden="true">신규상장 · 1주 · 시가</span>
+              <span class="order__label" id="startLabel">내 주식 상장하기</span>
+            </span>
+            <span class="order__side" aria-hidden="true"><b>매수</b><small>주문</small></span>
+          </button>
+          <button class="fkey" id="openCal" type="button"><b>CAL</b><span>손 없는 날 달력만 보기</span><i aria-hidden="true">›</i></button>
         </div>
       </section>
 
@@ -225,78 +241,124 @@
         </div>
       </section>
 
-      <!-- 5) SEO 본문 -->
-      <article class="seo" id="seo">
-        <h2>대운 그래프로 보는 내 인생, 나 상장하기</h2>
-        <p>
-          나 상장하기는 생년월일시로 사주 여덟 글자를 뽑고, 10년마다 바뀌는 <strong>대운</strong>과 해마다 바뀌는 <strong>세운</strong>을
-          주식 차트처럼 그려 주는 무료 사주 서비스예요. 0세에 시가 10,000원으로 상장한 내 인생 주식이 언제 오르고 언제 쉬어 가는지
-          인생 그래프로 한눈에 볼 수 있어요.
-        </p>
+      <!-- 5) SEO 본문: 투자설명서(공시) 형식 -->
+      <article class="seo filing" id="seo" aria-labelledby="filingTitle">
+        <header class="filing__cover">
+          <p class="filing__kind"><b>투자설명서</b><span>KRX 인생시장 · 신규상장 요약본</span></p>
+          <h2 id="filingTitle">대운 그래프·사주 인생 차트 투자설명서</h2>
+          <dl class="filing__meta">
+            <div><dt>발행 종목</dt><dd>본인 1주 (생년월일시 기준)</dd></div>
+            <div><dt>상장 시가</dt><dd class="num">10,000원 · 0세</dd></div>
+            <div><dt>산출 근거</dt><dd>사주 8글자 · 대운 · 세운 · 일진</dd></div>
+            <div><dt>공시일</dt><dd class="num" id="filingDate">2026.10.05</dd></div>
+          </dl>
+          <p class="filing__warn"><b>투자위험 고지</b> 이 설명서의 주가는 사주 오행 규칙으로 계산한 가상의 숫자예요. 재미로 보는 콘텐츠예요.</p>
+        </header>
 
-        <h3>사용법</h3>
-        <ol>
-          <li>이름(종목명), 생년월일(양력·음력), 태어난 시간, 성별을 넣어요.</li>
-          <li>상장 세리머니가 끝나면 0~90세 평생 차트가 나와요. 차트를 누른 채 움직이면 나이·연도·주가를 볼 수 있어요.</li>
-          <li>이번 달 일봉에서 오늘의 시세를, 택일 캘린더에서 면접·고백·이사·계약하기 좋은 날을 확인해요.</li>
-          <li>링크를 친구에게 보내면 두 사람의 차트를 겹쳐 보는 M&amp;A 궁합을 볼 수 있어요.</li>
-        </ol>
+        <section class="filing__sec">
+          <h3><span>제1부</span>상장 절차</h3>
+          <ol class="filing__steps">
+            <li>종목명(이름), 생년월일(양력·음력), 태어난 시간, 성별을 적어요.</li>
+            <li>상장 세리머니 뒤 0~90세 평생 차트가 열려요. 차트를 누른 채 움직이면 나이·연도·주가가 나와요.</li>
+            <li>이번 달 일봉으로 오늘 시세를, 택일 캘린더로 면접·이사·계약 날을 봐요.</li>
+            <li>링크를 받은 친구가 상장하면 두 차트를 겹친 M&amp;A 궁합이 나와요.</li>
+          </ol>
+        </section>
 
-        <h3>대운·세운·일진이 뭐예요?</h3>
-        <p>
-          <strong>대운(大運)</strong>은 10년 단위로 바뀌는 큰 운의 흐름이에요. 태어난 달의 기둥(월주)에서 출발해 순서대로 한 칸씩 움직이고,
-          남녀와 태어난 해의 음양에 따라 앞으로 갈지 거꾸로 갈지가 정해져요. 이 사이트에서는 대운을 주가의 <em>추세</em>로 써요.
-        </p>
-        <p>
-          <strong>세운(歲運)</strong>은 그해의 간지예요. 2026년은 병오(丙午)년이죠. 세운은 1년짜리 <em>등락</em>이 되고, 매일 바뀌는
-          <strong>일진(日辰)</strong>은 하루짜리 <em>일봉</em>이 돼요.
-        </p>
+        <section class="filing__sec">
+          <h3><span>제2부</span>대운 예시 · 홍길동</h3>
+          <p class="filing__p">1994.3.15 14:00 양력 · 남성. 원국 <b id="exPillars">갑술 · 정묘 · 경자 · 계미</b>, 일간 <b id="exDm">경금(庚金)</b> · <b id="exStrength">신약</b>.</p>
+          <div class="filing__scroll">
+            <table class="filing__table" id="daeunEx">
+              <caption class="sr-only">홍길동 예시 종목의 대운별 주가</caption>
+              <thead><tr><th scope="col">대운</th><th scope="col">나이</th><th scope="col">기간</th><th scope="col">구간 주가</th><th scope="col">등락</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">정묘<small>대운 전</small></th><td>0–6</td><td>1994–2000</td><td>10,000 → 9,656</td><td class="down">▼3.4%</td></tr>
+                <tr><th scope="row">무진</th><td>7–16</td><td>2001–2010</td><td>9,656 → 20,554</td><td class="up">▲112.9%</td></tr>
+                <tr><th scope="row">기사</th><td>17–26</td><td>2011–2020</td><td>20,554 → 26,537</td><td class="up">▲29.1%</td></tr>
+                <tr><th scope="row">경오</th><td>27–36</td><td>2021–2030</td><td>26,537 → 26,926</td><td class="up">▲1.5%</td></tr>
+                <tr><th scope="row">신미</th><td>37–46</td><td>2031–2040</td><td>26,926 → 44,927</td><td class="up">▲66.9%</td></tr>
+                <tr><th scope="row">임신</th><td>47–56</td><td>2041–2050</td><td>44,927 → 41,586</td><td class="down">▼7.4%</td></tr>
+                <tr><th scope="row">계유</th><td>57–66</td><td>2051–2060</td><td>41,586 → 43,113</td><td class="up">▲3.7%</td></tr>
+                <tr><th scope="row">갑술</th><td>67–76</td><td>2061–2070</td><td>43,113 → 42,856</td><td class="down">▼0.6%</td></tr>
+                <tr><th scope="row">을해</th><td>77–86</td><td>2071–2080</td><td>42,856 → 25,033</td><td class="down">▼41.6%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="filing__note" id="daeunNote">구간 주가는 대운 첫 달과 다음 대운 첫 달의 종가예요. 사상 최고가 2043년 1월(48세) 49,608원.</p>
+        </section>
 
-        <h3>주가는 어떻게 계산하나요?</h3>
-        <p>
-          먼저 사주 8글자의 오행(목·화·토·금·수)을 세고, 나를 뜻하는 일간이 강한지(신강) 약한지(신약)를 봐요. 일간과 같은 오행(비겁)과
-          일간을 돕는 오행(인성)이 절반 이상이면 신강, 아니면 신약이에요. 신약하면 인성·비겁이, 신강하면 식상·재성·관성이 유리한 오행이 돼요.
-          대운·세운·월운에 유리한 오행이 들어오면 주가가 오르고, 불리한 오행이 들어오면 조정을 받아요. 생일로 정해지는 작은 흔들림을 더해
-          자연스럽게 다듬었고, 같은 생년월일시는 언제나 같은 차트가 나와요.
-        </p>
+        <section class="filing__sec">
+          <h3><span>제3부</span>용어와 산식</h3>
+          <table class="filing__table filing__table--terms">
+            <caption class="sr-only">사주 용어와 차트 대응</caption>
+            <thead><tr><th scope="col">사주</th><th scope="col">주기</th><th scope="col">차트에서</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">대운(大運)</th><td>10년</td><td>추세</td></tr>
+              <tr><th scope="row">세운(歲運)</th><td>1년</td><td>등락 · 2026년 병오(丙午)</td></tr>
+              <tr><th scope="row">일진(日辰)</th><td>1일</td><td>일봉</td></tr>
+            </tbody>
+          </table>
+          <ol class="filing__calc">
+            <li>8글자의 오행(목·화·토·금·수) 개수를 세요.</li>
+            <li>일간과 같은 오행(비겁) + 일간을 돕는 오행(인성)이 50% 이상이면 신강, 아래면 신약.</li>
+            <li>신약은 인성·비겁, 신강은 식상·재성·관성이 유리한 오행.</li>
+            <li>대운·세운·월운에 유리한 오행이 들어오면 상승, 불리한 오행이면 조정.</li>
+            <li>같은 생년월일시는 언제나 같은 차트.</li>
+          </ol>
+        </section>
 
-        <h3>손 없는 날 계산법</h3>
-        <p>
-          손 없는 날은 <strong>음력 날짜의 끝자리가 9 또는 0인 날</strong>, 즉 음력 9일·10일·19일·20일·29일·30일이에요. 민간 신앙에서 ‘손’은
-          1·2일엔 동쪽, 3·4일엔 남쪽, 5·6일엔 서쪽, 7·8일엔 북쪽으로 옮겨 다니다가 끝자리 9·0인 날엔 하늘로 올라가 어디에도 없다고 여겼어요.
-          그래서 이사·개업·혼례 날짜로 인기가 많고, 이삿짐센터 예약도 이날 몰려요. 택일 캘린더는 만세력으로 매일의 음력 날짜를 직접 계산해 표시해요.
-        </p>
+        <section class="filing__sec">
+          <h3><span>제4부</span>손 없는 날 규칙</h3>
+          <table class="filing__table filing__table--son">
+            <caption class="sr-only">음력 날짜 끝자리별 손의 방향</caption>
+            <thead><tr><th scope="col">음력 끝자리</th><th scope="col">손 위치</th><th scope="col">이사</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">1 · 2</th><td>동쪽</td><td>동쪽만 피함</td></tr>
+              <tr><th scope="row">3 · 4</th><td>남쪽</td><td>남쪽만 피함</td></tr>
+              <tr><th scope="row">5 · 6</th><td>서쪽</td><td>서쪽만 피함</td></tr>
+              <tr><th scope="row">7 · 8</th><td>북쪽</td><td>북쪽만 피함</td></tr>
+              <tr class="is-son"><th scope="row">9 · 0</th><td>없음(하늘)</td><td>어느 방향이든</td></tr>
+            </tbody>
+          </table>
+          <h4 class="filing__h4" id="sonTitle">2026년 10월 손 없는 날</h4>
+          <table class="filing__table filing__table--days" id="sonMonth">
+            <caption class="sr-only">이번 달 손 없는 날 양력·음력 날짜</caption>
+            <thead><tr><th scope="col">양력</th><th scope="col">요일</th><th scope="col">음력</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">10.9</th><td>금</td><td>8.29</td></tr>
+              <tr><th scope="row">10.18</th><td>일</td><td>9.9</td></tr>
+              <tr><th scope="row">10.19</th><td>월</td><td>9.10</td></tr>
+              <tr><th scope="row">10.28</th><td>수</td><td>9.19</td></tr>
+              <tr><th scope="row">10.29</th><td>목</td><td>9.20</td></tr>
+            </tbody>
+          </table>
+          <p class="filing__note" id="sonNote">만세력으로 매일의 음력을 계산했어요. 이번 달은 5일이에요. 음력 작은달(29일)이 끼면 5일, 아니면 보통 6일이에요.</p>
+        </section>
 
-        <h3>자주 묻는 질문</h3>
-        <details>
-          <summary>태어난 시간을 모르면?</summary>
-          <p>
-            ‘모름’을 고르면 시주를 빼고 연·월·일 6글자로 오행을 계산해요. 대운 시작 나이는 정오 기준으로 잡기 때문에 몇 달 정도 차이가 날 수
-            있어요. 시간을 알면 더 정확해요.
-          </p>
-        </details>
-        <details>
-          <summary>대운은 몇 살부터 시작하나요?</summary>
-          <p>
-            사람마다 달라요. 태어난 날부터 앞뒤로 가장 가까운 절기까지의 날짜 수를 3으로 나눠 대운수를 정해요. 보통 1~10세 사이에 시작하고,
-            그 뒤로 10년마다 바뀌어요. 대운이 시작되기 전에는 월주가 흐름을 맡는다고 보고 차트에 ‘대운 전’으로 표시해요.
-          </p>
-        </details>
-        <details>
-          <summary>손 없는 날이란?</summary>
-          <p>
-            음력 끝자리가 9·0인 날이에요. 손(귀신)이 어느 방향에도 없어서 이사나 개업을 해도 탈이 없다고 믿는 날이죠. 한 달에 보통 6일(작은달은 5일)
-            있어요.
-          </p>
-        </details>
-        <details>
-          <summary>음력 생일도 되나요?</summary>
-          <p>네. 음력을 고르고 윤달이면 ‘윤달이에요’를 체크해 주세요. 양력으로 바꿔서 계산해요.</p>
-        </details>
-        <details>
-          <summary>정말 이대로 될까요?</summary>
-          <p>재미로 보는 콘텐츠예요. 전통 명리 규칙을 아주 단순하게 옮긴 계산이라 투자·인생 결정의 근거로 쓰면 안 돼요.</p>
-        </details>
+        <section class="filing__sec filing__faq">
+          <h3><span>제5부</span>투자자 문답</h3>
+          <details>
+            <summary>태어난 시간을 모르면?</summary>
+            <p>‘모름’을 고르면 시주를 빼고 연·월·일 6글자로 오행을 계산해요. 대운 시작 나이는 정오 기준이라 몇 달 차이가 날 수 있어요.</p>
+          </details>
+          <details>
+            <summary>대운은 몇 살부터 시작하나요?</summary>
+            <p>태어난 날부터 가장 가까운 절기까지의 날짜 수를 3으로 나눠 정해요. 보통 1~10세에 시작하고 10년마다 바뀌어요. 예시의 홍길동은 7세예요. 시작 전 구간은 차트에 ‘대운 전’으로 표시해요.</p>
+          </details>
+          <details>
+            <summary>손 없는 날이란?</summary>
+            <p>음력 끝자리가 9·0인 날(9·10·19·20·29·30일)이에요. 손(귀신)이 어느 방향에도 없다고 여겨 이사·개업 날짜로 많이 골라요.</p>
+          </details>
+          <details>
+            <summary>음력 생일도 되나요?</summary>
+            <p>네. 음력을 고르고, 윤달이면 ‘윤달이에요’를 체크해 주세요. 양력으로 바꿔 계산해요.</p>
+          </details>
+          <details>
+            <summary>정말 이대로 될까요?</summary>
+            <p>재미로 보는 콘텐츠예요. 전통 명리 규칙을 아주 단순하게 옮긴 계산이라 투자·인생 결정의 근거로 쓰면 안 돼요.</p>
+          </details>
+        </section>
       </article>
 
       <nav id="more"></nav>

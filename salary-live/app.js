@@ -16,6 +16,7 @@ import {
   showView,
   openSheet,
   renderMoreSites,
+  renderCrumb,
   createCanvas,
   roundRect,
   CANVAS_FONT,
@@ -32,8 +33,8 @@ import {
   nextPayday,
   daysBetween,
   toMin,
-  salaryTable,
 } from "./calc.js";
+import { Odometer } from "./odometer.js";
 
 const store = createStore("salary-live");
 const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
@@ -94,73 +95,6 @@ function recompute() {
     ? calcNet({ annual, nonTaxMonthly: settings.nontax * 10000, dependents: settings.dependents, children: settings.children })
     : null;
   ps = result ? perSecond(result.monthlyNet, schedule()) : 0;
-}
-
-/* =========================================================
- * 기계식 오도미터: 자리마다 휠이 굴러가고, 스프링으로 살짝 넘쳤다가 멈춘다
- * ========================================================= */
-class Odometer {
-  constructor(el, { minDigits = 1, dur = 420 } = {}) {
-    this.el = el;
-    this.minDigits = minDigits;
-    this.dur = dur;
-    this.wheels = [];
-    this.count = 0;
-  }
-  build(count) {
-    this.count = count;
-    this.el.innerHTML = "";
-    this.wheels = [];
-    for (let i = 0; i < count; i++) {
-      const place = count - 1 - i; // 10의 몇 제곱 자리
-      const w = document.createElement("span");
-      w.className = "odo__wheel";
-      const strip = document.createElement("span");
-      strip.className = "odo__strip";
-      strip.innerHTML = Array.from({ length: 20 }, (_, d) => `<span>${d % 10}</span>`).join("");
-      w.appendChild(strip);
-      this.el.appendChild(w);
-      this.wheels.push({ w, strip, pos: 0, place });
-      if (place > 0 && place % 3 === 0) {
-        const sep = document.createElement("span");
-        sep.className = "odo__sep";
-        sep.textContent = ",";
-        this.el.appendChild(sep);
-      }
-    }
-  }
-  h() {
-    return this.wheels[0]?.w.offsetHeight || 64;
-  }
-  set(value, { instant = false } = {}) {
-    const v = Math.max(0, Math.floor(value));
-    const len = Math.max(this.minDigits, String(v).length);
-    if (len !== this.count) {
-      this.build(len);
-      instant = true;
-    }
-    const H = this.h();
-    const s = String(v).padStart(len, "0");
-    const lead = len - String(v).length;
-    this.wheels.forEach((wh, i) => {
-      const d = Number(s[i]);
-      wh.w.classList.toggle("is-lead", i < lead);
-      const cur = wh.pos % 10;
-      if (d === cur && wh.pos < 10) return;
-      // 굴러가던 중 한 바퀴를 넘긴 상태면 먼저 0~9 구간으로 되돌려 놓는다
-      if (wh.pos >= 10) {
-        wh.strip.style.transition = "none";
-        wh.strip.style.transform = `translateY(${-(wh.pos - 10) * H}px)`;
-        void wh.strip.offsetHeight;
-        wh.pos -= 10;
-      }
-      const target = d >= wh.pos % 10 ? d : d + 10; // 9→0 은 앞으로 굴러서 넘어간다
-      wh.strip.style.transition =
-        instant || prefersReducedMotion() ? "none" : `transform ${this.dur}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
-      wh.strip.style.transform = `translateY(${-target * H}px)`;
-      wh.pos = target;
-    });
-  }
 }
 
 // 캡션 제목을 글자 단위로 쪼개 감열지에 찍히듯 튀어 오르게 (키네틱 타이포)
@@ -396,7 +330,6 @@ function startPosClock() {
  * 설정 화면 (실수령액 계산기)
  * ========================================================= */
 const payInput = $("#pay");
-const nontaxInput = $("#nontax");
 
 function digitsOnly(v) {
   return Number(String(v).replace(/[^\d]/g, "")) || 0;
@@ -420,9 +353,6 @@ function setMode(mode) {
 function fillSetup() {
   setMode(settings.mode);
   payInput.value = settings.pay ? comma(settings.pay) : "";
-  nontaxInput.value = settings.nontax;
-  $("#dependents").textContent = settings.dependents;
-  $("#children").textContent = settings.children;
   $("#start-t").value = settings.start;
   $("#end-t").value = settings.end;
   $("#lunch-t").value = settings.lunchStart;
@@ -431,6 +361,9 @@ function fillSetup() {
     .map((d) => `<option value="${d}">${d === 31 ? "말일" : `매달 ${d}일`}</option>`)
     .join("");
   $("#payday").value = String(settings.payday);
+  const extra = [`비과세 ${settings.nontax}만 원`, `부양가족 ${settings.dependents}명`];
+  if (settings.children) extra.push(`자녀 ${settings.children}명`);
+  $("#setupBasis").textContent = `${extra.join(" · ")} 기준 · 계산기에서 바꾼 값이 그대로 쓰여요`;
   renderDays();
   updateSetup();
 }
@@ -444,26 +377,8 @@ function renderDays() {
     .join("");
 }
 
-function breakdownRows(r) {
-  const row = (label, val, cls = "", note = "") =>
-    `<tr class="${cls}"><th scope="row">${label}${note ? ` <small>${note}</small>` : ""}</th><td>${val}</td></tr>`;
-  return [
-    row("월 급여 (세전)", won(r.monthlyGross)),
-    row("비과세", won(r.nonTax), "is-sub"),
-    row("국민연금", "−" + won(r.pension), "", "4.75%"),
-    row("건강보험", "−" + won(r.health), "", "3.595%"),
-    row("장기요양보험", "−" + won(r.care), "", "근사"),
-    row("고용보험", "−" + won(r.employ), "", "0.9%"),
-    row("근로소득세", "−" + won(r.incomeTax)),
-    row("지방소득세", "−" + won(r.localTax), "", "10%"),
-    row("공제 합계", "−" + won(r.deductions), "is-sub"),
-    row("월 실수령액", won(r.monthlyNet), "is-total"),
-  ].join("");
-}
-
 function updateSetup() {
   settings.pay = digitsOnly(payInput.value) || null;
-  settings.nontax = Math.min(100, digitsOnly(nontaxInput.value));
   settings.start = $("#start-t").value || "09:00";
   settings.end = $("#end-t").value || "18:00";
   settings.lunchStart = $("#lunch-t").value || "12:00";
@@ -480,20 +395,13 @@ function updateSetup() {
       ? `${settings.mode === "annual" ? "연봉" : "월급"} ${fmt.wonKo(settings.pay * 10000)}`
       : "만 원 단위로 입력해요";
 
-  if (result && !tooBig) {
-    const big = $("#netMonthly");
-    if (big.textContent !== won(result.monthlyNet)) {
-      big.textContent = won(result.monthlyNet);
-      big.classList.remove("is-pop");
-      void big.offsetWidth;
-      big.classList.add("is-pop");
-    }
-    $("#netAnnual").textContent = `연 실수령액 ${fmt.wonKo(result.annualNet)} · 세전 시급 ${won(result.hourlyGross)} (월 209시간)`;
-    $("#breakdown").innerHTML = breakdownRows(result);
-  } else {
-    $("#netMonthly").textContent = "-";
-    $("#netAnnual").textContent = "연봉을 입력해 주세요";
-    $("#breakdown").innerHTML = "";
+  const net = $("#setupNet");
+  const netText = result && !tooBig ? won(result.monthlyNet) : "-";
+  if (net.textContent !== netText) {
+    net.textContent = netText;
+    net.classList.remove("is-pop");
+    void net.offsetWidth;
+    net.classList.add("is-pop");
   }
 
   const err = $("#schedErr");
@@ -502,10 +410,15 @@ function updateSetup() {
   else if (!settings.days.length) msg = "근무 요일을 하나 이상 골라 주세요";
   err.hidden = !msg;
   err.textContent = msg;
-  err.closest(".slip")?.classList.toggle("is-error", !!msg);
   err.style.color = msg ? "var(--color-danger)" : "";
 
-  $("#go").disabled = !(result && !tooBig && !msg && result.monthlyNet > 0);
+  const ok = !!(result && !tooBig && !msg && result.monthlyNet > 0);
+  $("#go").disabled = !ok;
+  $("#goSub").textContent = ok
+    ? `1초에 ${ps.toFixed(1)}원 · 하루 ${won(Math.round((ps * dailyWorkSeconds(schedule())) / 10) * 10)}`
+    : msg
+      ? "근무 시간을 확인해 주세요"
+      : "월급을 넣으면 눌러져요";
 }
 
 function bindSetup() {
@@ -531,7 +444,6 @@ function bindSetup() {
     payInput.value = n ? comma(n) : "";
     updateSetup();
   });
-  nontaxInput.addEventListener("input", updateSetup);
   ["#start-t", "#end-t", "#lunch-t", "#lunch-m", "#payday"].forEach((s) => $(s).addEventListener("change", updateSetup));
   $("#days").addEventListener("click", (e) => {
     const b = e.target.closest("[data-day]");
@@ -553,10 +465,9 @@ function bindSetup() {
   });
 }
 
-// 공용 스테퍼
+// 회의 참석자 스테퍼
 function bindSteppers() {
   $$("[data-stepper]").forEach((wrap) => {
-    const key = wrap.dataset.stepper;
     const min = Number(wrap.dataset.min);
     const max = Number(wrap.dataset.max);
     wrap.addEventListener("click", (e) => {
@@ -566,22 +477,9 @@ function bindSteppers() {
       const v = Math.min(max, Math.max(min, Number(out.textContent) + Number(b.dataset.step)));
       out.textContent = v;
       haptic(6);
-      if (key === "people") {
-        meet.people = v;
-        saveMeet();
-        renderMeet();
-      } else {
-        settings[key] = v;
-        if (key === "dependents" && settings.children > v - 1) {
-          settings.children = Math.max(0, v - 1);
-          $("#children").textContent = settings.children;
-        }
-        if (key === "children" && v > settings.dependents - 1) {
-          settings.dependents = v + 1;
-          $("#dependents").textContent = settings.dependents;
-        }
-        updateSetup();
-      }
+      meet.people = v;
+      saveMeet();
+      renderMeet();
     });
   });
 }
@@ -889,11 +787,12 @@ function renderSlow(now, phase, worked, earned, sch) {
 
 function renderSummary() {
   if (!result) return;
+  const sch = schedule();
   const items = [
-    ["월 실수령액", won(result.monthlyNet)],
-    ["연 실수령액", `${comma(Math.round(result.annualNet / 1e4))}만 원`],
-    ["월 공제 합계", won(result.deductions)],
-    ["세전 시급 (209시간)", won(result.hourlyGross)],
+    [`${settings.mode === "annual" ? "세전 연봉" : "세전 월급"}`, `${comma(settings.pay)}만 원`],
+    ["월 실수령액 (근사)", won(result.monthlyNet)],
+    ["하루 근무 (점심 제외)", minText(dailyWorkSeconds(sch))],
+    ["1초에", `${ps.toFixed(2)}원`],
   ];
   $("#sumGrid").innerHTML = items.map(([k, v]) => `<div><span>${k}</span><b>${v}</b></div>`).join("");
 }
@@ -1161,24 +1060,11 @@ $("#installBtn").addEventListener("click", async () => {
 if (matchMedia("(display-mode: standalone)").matches) $("#installTip").hidden = true;
 
 /* =========================================================
- * SEO 표 (calc.js로 다시 계산해 HTML과 같은 값을 보장)
- * ========================================================= */
-function renderSeoTable() {
-  const label = (a) => (a >= 1e8 ? `${a / 1e8}억 원` : `${comma(a / 1e4)}만 원`);
-  $("#salaryTable").innerHTML = salaryTable()
-    .map(
-      (r) =>
-        `<tr><th scope="row">${label(r.annual)}</th><td>${comma(r.monthlyNet)}</td><td>${comma(r.deductions)}</td><td>${comma(r.annualNet)}</td></tr>`
-    )
-    .join("");
-}
-
-/* =========================================================
  * 시작
  * ========================================================= */
 function init() {
-  renderSeoTable();
-  renderMoreSites($("#more"), "salary-live");
+  renderCrumb($("#crumb"));
+  renderMoreSites($("#more"));
   bindSteppers();
   bindSetup();
   bindMeet();

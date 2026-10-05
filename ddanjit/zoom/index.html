@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>그림 맞추기 퀴즈 | 줌아웃 퀴즈 - 확대된 그림 보고 맞히기 | 딴짓 오락실</title>
+    <meta name="description" content="아주 크게 확대한 그림에서 시작해 틀릴 때마다 한 칸씩 줌아웃되는 그림 맞추기 퀴즈. 기회 6번, 매일 0시 새 문제. 설치 없이 3분이면 끝나요." />
+    <meta name="keywords" content="그림 맞추기 퀴즈, 확대 사진 퀴즈, 줌아웃 퀴즈, 사물 맞추기, 이미지 퀴즈, 데일리 퀴즈, 오늘의 퀴즈, 심심할때 하는 게임" />
+    <link rel="canonical" href="https://example.com/ddanjit/zoom/" />
+    <meta property="og:url" content="https://example.com/ddanjit/zoom/" />
+    <meta property="og:title" content="줌아웃 퀴즈 - 확대된 그림, 뭔지 맞혀봐요" />
+    <meta property="og:description" content="아주 크게 확대한 그림에서 시작해 틀릴 때마다 한 칸씩 줌아웃되는 그림 맞추기 퀴즈. 기회 6번, 매일 0시 새 문제. 설치 없이 3분이면 끝나요." />
+    <meta name="theme-color" content="#0e0d0b" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="딴짓 오락실" />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": [
+    "WebApplication",
+    "Game"
+  ],
+  "name": "줌아웃 퀴즈",
+  "alternateName": "확대된 그림 맞추기 데일리 퀴즈",
+  "url": "https://example.com/ddanjit/zoom/",
+  "description": "아주 크게 확대한 그림에서 시작해 틀릴 때마다 한 칸씩 줌아웃되는 그림 맞추기 퀴즈. 기회 6번, 매일 0시 새 문제. 설치 없이 3분이면 끝나요.",
+  "applicationCategory": "GameApplication",
+  "genre": [
+    "퀴즈",
+    "퍼즐"
+  ],
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "value": 1
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "딴짓 오락실",
+    "url": "https://example.com/ddanjit/"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "문제는 언제 바뀌나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "매일 0시(한국 시간)에 바뀌어요. 같은 날엔 누구나 같은 그림을 풀어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "보기 힌트를 쓰면 손해인가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "점수는 똑같이 \"몇 번 만에 맞혔나\"로 남아요. 결과 화면에 보기 힌트를 썼다는 표시만 붙어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "그림은 어디서 오나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "기기에 깔린 이모지 글꼴을 크게 그려서 써요. 그래서 아이폰과 갤럭시에서 그림 모양이 조금 달라요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "기록은 어디에 남나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "이 브라우저에만 남아요. 플레이 수, 성공률, 연속 성공, 시도 분포를 나만 봐요."
+      }
+    }
+  ]
+}
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 이 게임 장면만 캐비닛에서 짧게 반복 -->
+      <section class="intro intro--game" id="intro" data-view="intro">
+        <header class="marquee">
+          <span class="marquee__lamp" aria-hidden="true"></span>
+          <span class="marquee__name">딴짓 오락실</span>
+          <span class="marquee__coin" aria-hidden="true">GAME 1/4</span>
+        </header>
+        <h1 class="kinetic" aria-label="줌아웃 퀴즈, 확대된 그림 맞히기">
+          <span class="kinetic__line" data-split>줌아웃 퀴즈</span>
+          <span class="kinetic__line kinetic__line--accent" data-split>확대된 그림 맞히기</span>
+        </h1>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__cta">
+          <button class="coin-op" id="start" type="button">
+            <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
+            <span class="coin-op__label"><b id="startLabel">오늘의 줌아웃 시작</b><span class="pix" aria-hidden="true">6 TRIES · 1 PLAY/DAY</span></span>
+            <span class="coin-op__btn" aria-hidden="true"><i></i></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2) 게임 화면 -->
+      <section class="game" id="game" data-view="game" hidden></section>
+
+      <!-- 3) SEO 본문: 게임 설명서 -->
+      <article class="seo manual" aria-labelledby="man-h">
+        <header class="manual__head">
+          <span class="manual__tag pix">HOW TO PLAY</span>
+          <h2 id="man-h">줌아웃 퀴즈 설명서</h2>
+          <dl class="manual__spec">
+            <div><dt>기회</dt><dd>6번</dd></div>
+            <div><dt>문제</dt><dd>268개 · 8분류</dd></div>
+            <div><dt>새 문제</dt><dd>매일 0시</dd></div>
+          </dl>
+        </header>
+
+        <h3 class="manual__sec"><span class="pix">01</span>하는 법</h3>
+        <ol class="manual__steps">
+          <li><span>화면에 그림 한 장이 <b>6.7배</b> 확대돼서 나와요.</span></li>
+          <li><span>뭔지 한글로 적고 <b>맞히기</b>.</span></li>
+          <li><span>틀리면 한 칸 줌아웃: 6.7 → 4.5 → 3.2 → 2.3 → 1.7 → 1.3배.</span></li>
+          <li><span>2번 틀리면 <b>분류 힌트</b>, 3번 틀리면 <b>보기 4개</b> 버튼이 열려요.</span></li>
+        </ol>
+
+        <h3 class="manual__sec"><span class="pix">02</span>예시 플레이 (정답 🍜 라면)</h3>
+        <table class="manual__table">
+          <thead><tr><th scope="col">#</th><th scope="col">배율</th><th scope="col">입력</th><th scope="col">결과</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1</th><td class="num">×6.7</td><td>피자</td><td>✕ 한 칸 줌아웃</td></tr>
+            <tr><th scope="row">2</th><td class="num">×4.5</td><td>카레</td><td>✕ 분류 힌트: 음식</td></tr>
+            <tr><th scope="row">3</th><td class="num">×3.2</td><td>우동</td><td>✕ 보기 4개 열림</td></tr>
+            <tr class="is-win"><th scope="row">4</th><td class="num">×2.3</td><td>라멘</td><td>✓ 정답 (다른 이름 인정)</td></tr>
+          </tbody>
+        </table>
+        <p class="manual__ex">공유 결과: <b>🟥🟥🟥🟩 4번 만에 맞힘</b></p>
+
+        <h3 class="manual__sec"><span class="pix">03</span>정답으로 인정되는 것</h3>
+        <table class="manual__table">
+          <thead><tr><th scope="col">입력</th><th scope="col">판정</th><th scope="col">이유</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">라 면</th><td>✓</td><td>띄어쓰기 무시</td></tr>
+            <tr><th scope="row">라면이에요</th><td>✓</td><td>끝의 "이에요·요" 무시</td></tr>
+            <tr><th scope="row">스시</th><td>✓</td><td>초밥의 다른 이름</td></tr>
+            <tr><th scope="row">면</th><td>✕</td><td>너무 넓은 말</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="manual__sec"><span class="pix">04</span>문제 분류</h3>
+        <table class="manual__table">
+          <tbody>
+            <tr><th scope="row">물건</th><td class="num">57</td><th scope="row">음식</th><td class="num">51</td></tr>
+            <tr><th scope="row">동물</th><td class="num">48</td><th scope="row">과일·채소</th><td class="num">29</td></tr>
+            <tr><th scope="row">놀이</th><td class="num">26</td><th scope="row">자연</th><td class="num">22</td></tr>
+            <tr><th scope="row">탈것</th><td class="num">19</td><th scope="row">옷·소품</th><td class="num">16</td></tr>
+          </tbody>
+        </table>
+
+        <h2 class="manual__qa">Q&amp;A</h2>
+        <details>
+          <summary>문제는 언제 바뀌나요?</summary>
+          <p>매일 0시(한국 시간)에 바뀌어요. 같은 날엔 누구나 같은 그림을 풀어요.</p>
+        </details>
+        <details>
+          <summary>보기 힌트를 쓰면 손해인가요?</summary>
+          <p>점수는 똑같이 "몇 번 만에 맞혔나"로 남아요. 결과 화면에 보기 힌트를 썼다는 표시만 붙어요.</p>
+        </details>
+        <details>
+          <summary>그림은 어디서 오나요?</summary>
+          <p>기기에 깔린 이모지 글꼴을 크게 그려서 써요. 그래서 아이폰과 갤럭시에서 그림 모양이 조금 달라요.</p>
+        </details>
+        <details>
+          <summary>기록은 어디에 남나요?</summary>
+          <p>이 브라우저에만 남아요. 플레이 수, 성공률, 연속 성공, 시도 분포를 나만 봐요.</p>
+        </details>
+        <p class="manual__ex">다른 게임: <a href="../town/">오늘의 동네</a> · <a href="../price/">그때 그 가격</a> · <a href="../timeline/">추억 연대기</a> · <a href="../">4개 한 번에 보기</a></p>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">그림은 기기 이모지 글꼴로 그려요 · 기록은 이 기기에만 저장돼요</footer>
+    </main>
+    <aside class="sheet" id="result" role="dialog" aria-label="결과"></aside>
+    <script type="module">
+      import { bootGame } from "../play.js";
+      import game from "../games/zoom.js";
+      bootGame(game);
+    </script>
+  </body>
+</html>

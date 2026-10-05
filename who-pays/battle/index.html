@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>배틀로얄 추첨 | 누가 쏠래? - 좁아지는 링에서 벌칙 정하기</title>
+    <meta name="description" content="친구 이름이 링 위의 구슬이 되어 서로 밀어내요. 링은 22초 동안 점점 좁아지고, 먼저 떨어진 사람이 커피를 쏴요. 아이템으로 돌진·방어. 2~12명 무료 벌칙 추첨." />
+    <meta name="keywords" content="배틀로얄 추첨, 벌칙 정하기, 랜덤 추첨, 커피 내기, 내기 게임, 서바이벌 추첨, 꼴찌 정하기" />
+    <link rel="canonical" href="https://example.com/who-pays/battle/" />
+    <meta name="theme-color" content="#0a0c10" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/who-pays/battle/" />
+    <meta property="og:title" content="배틀로얄 추첨 - 누가 쏠래?" />
+    <meta property="og:description" content="좁아지는 링에서 마지막까지 버텨요. 먼저 떨어지면 커피 쏘기." />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Han+Sans&display=swap" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "누가 쏠래? 배틀로얄 추첨",
+        "url": "https://example.com/who-pays/battle/",
+        "description": "좁아지는 원형 링 위에서 친구 이름 구슬끼리 밀어내고, 먼저 떨어진 사람이 벌칙을 받는 추첨 게임이에요.",
+        "applicationCategory": "EntertainmentApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "한 판은 얼마나 걸려요?", "acceptedAnswer": { "@type": "Answer", "text": "링이 22초 동안 최소 크기까지 줄어들어서 보통 30초 안팎이면 끝나요." } },
+          { "@type": "Question", "name": "끝까지 남은 사람이 벌칙을 받게 할 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "설정에서 당첨 규칙을 '끝까지 남으면 당첨'으로 바꾸면 돼요." } }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <section class="intro" id="intro" data-view="intro">
+        <div class="bc-top">
+          <span class="live-bug"><i></i>LIVE</span>
+          <span class="wordmark">배틀로얄</span>
+          <span class="odo" aria-hidden="true"><span class="odo__col"></span><span class="odo__col"></span><b>:</b><span class="odo__col"></span><span class="odo__col"></span><b>.</b><span class="odo__col"></span></span>
+        </div>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="bc-steps" role="group" aria-label="장면"></div>
+        <div class="intro__caption" aria-live="polite">
+          <h1 class="kinetic" aria-label="배틀로얄 추첨"></h1>
+          <p class="intro__desc lt"></p>
+        </div>
+        <div class="intro__cta">
+          <p class="intro__invite t-label-02" id="invite" hidden></p>
+          <button class="gantry" id="start" type="button">
+            <span class="gantry__lights" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="gantry__plate"><b class="gantry__word" aria-hidden="true">FIGHT</b><span class="gantry__label">명단 짜기</span></span>
+          </button>
+          <div class="intro__links">
+            <p class="alt-modes"></p>
+            <button class="btn btn--ghost btn--sm" id="introLedger" hidden>벌칙 장부</button>
+          </div>
+        </div>
+      </section>
+
+      <div id="views"></div>
+
+      <article class="seo rulebook" id="seo">
+        <p class="bc-kicker">OFFICIAL RULEBOOK · 배틀로얄</p>
+        <h2>배틀로얄 추첨 경기 규정</h2>
+        <p class="rulebook__lead">이름 구슬이 원형 링 위에서 서로 부딪혀 밀어내요. 링은 계속 좁아지고, 가장자리 밖으로 밀려나면 탈락이에요. 커피 내기나 청소 당번을 30초 안에 정할 때 써요.</p>
+
+        <ol class="articles">
+          <li><b>제1조 출전</b><span>2~12명. 시작 자리는 링 위 무작위예요.</span></li>
+          <li><b>제2조 링</b><span>시작 2초 뒤부터 22초 동안 반지름이 170에서 40까지 일정하게 줄어요.</span></li>
+          <li><b>제3조 탈락</b><span>몸 중심이 링 밖으로 나가면 탈락. 화면에 OUT이 찍혀요.</span></li>
+          <li><b>제4조 아이템</b><span>1인 1개 무작위, 1번만. 탈락하면 못 써요.</span></li>
+          <li><b>제5조 판정</b><span>기본은 먼저 떨어진 사람이 당첨. "끝까지 남으면 당첨"으로 바꿀 수 있어요.</span></li>
+        </ol>
+
+        <h3>링 축소표</h3>
+        <div class="spec-wrap">
+          <table class="spec cue">
+            <thead><tr><th scope="col">경과</th><th scope="col">링 반지름</th><th scope="col">상황</th></tr></thead>
+            <tbody>
+              <tr><td>0~2초</td><td class="t-num">170</td><td>출발 신호, 자리 잡기</td></tr>
+              <tr><td>7초</td><td class="t-num">약 140</td><td>첫 몸싸움</td></tr>
+              <tr><td>13초</td><td class="t-num">105</td><td>가장자리에 몰리기 시작</td></tr>
+              <tr><td>18초</td><td class="t-num">약 75</td><td>4명이면 보통 이쯤 첫 탈락</td></tr>
+              <tr><td>24초~</td><td class="t-num">40</td><td>최소 크기. 더 안 줄어요</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>아이템 효과표 (배틀로얄)</h3>
+        <div class="spec-wrap">
+          <table class="spec">
+            <thead><tr><th scope="col">아이템</th><th scope="col">효과</th><th scope="col">지속</th></tr></thead>
+            <tbody>
+              <tr><td>🚀 부스트</td><td>가장 가까운 상대에게 돌진해요</td><td class="t-num">0.5초</td></tr>
+              <tr><td>🍌 바나나</td><td>무작위 상대 1명이 미끄러져 엉뚱한 방향으로 튀어요</td><td class="t-num">1.6초</td></tr>
+              <tr><td>🛡️ 방어막</td><td>바나나를 막아요</td><td class="t-num">3초</td></tr>
+              <tr><td>🧲 자석</td><td>링 가운데로 끌려가요</td><td class="t-num">1.5초</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>중계석 Q&amp;A</h3>
+        <details>
+          <summary>한 판은 얼마나 걸려요?</summary>
+          <p>링이 24초 무렵 가장 작아져서 보통 30초 안팎이면 끝나요. 사람이 많을수록 조금 더 걸려요.</p>
+        </details>
+        <details>
+          <summary>끝까지 남은 사람이 벌칙을 받게 할 수 있나요?</summary>
+          <p>설정의 당첨 규칙에서 "끝까지 남으면 당첨"을 고르면 돼요. 이때는 마지막 2명 싸움에서 슬로모션이 걸려요.</p>
+        </details>
+        <details>
+          <summary>구슬 레이스와 기록이 따로 쌓이나요?</summary>
+          <p>아니에요. 구슬 레이스, 배틀로얄, 통아저씨 결과가 같은 벌칙 장부에 모여요. 저장한 그룹도 세 방식에서 같이 불러와요.</p>
+        </details>
+        <details>
+          <summary>영상으로 남길 수 있나요?</summary>
+          <p>브라우저가 화면 녹화를 지원하면 결과 화면에 "배틀 영상 저장" 버튼이 생겨요.</p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">누가 쏠래? · 결과는 무작위예요. 내기는 가볍게!</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

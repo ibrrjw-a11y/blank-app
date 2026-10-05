@@ -1,0 +1,111 @@
+/* 연봉 실수령액 계산기 — 실시간 월급 카운터와 같은 감열지·POS 장르.
+ * 공통 장르 스타일은 ../style.css, 여기는 이 페이지에만 있는 것. */
+
+.np-top { display: flex; flex-direction: column; gap: var(--sp-12); padding-bottom: var(--sp-16); }
+.masthead--np { padding-bottom: var(--sp-16); }
+.masthead--np .masthead__sub { margin-bottom: var(--sp-6); }
+
+/* POS 고객 표시창: 인트로 모션이 여기서 굴러간다 */
+.np-display {
+  padding: var(--sp-12) var(--sp-16) var(--sp-16);
+  border-radius: var(--r-8);
+  background: var(--art-housing);
+  color: var(--art-slip);
+  box-shadow: var(--shadow-m), inset 0 2px 0 var(--art-housing-2);
+}
+.np-display__row { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-8); }
+.np-display__label { font: 600 13px/18px var(--font-num); color: var(--art-wheel-shade); letter-spacing: 0.02em; }
+.np-display__tag {
+  padding: var(--sp-2) var(--sp-6);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--r-4);
+  color: var(--color-primary);
+  font: 700 11px/14px var(--font-num);
+  letter-spacing: 0.08em;
+}
+.np-display__tag.is-mine { background: var(--color-primary); color: var(--brand-on); }
+.np-display__num { display: flex; align-items: center; gap: var(--sp-8); margin: var(--sp-10) 0 var(--sp-8); min-height: 56px; }
+.odo--np { --h: 54px; --w: 34px; --fs: 38px; }
+.odo--np.is-long { --h: 46px; --w: 28px; --fs: 32px; }
+.np-display__sub { margin: 0; font: 500 12px/18px var(--font-num); color: var(--art-wheel-shade); }
+
+.np-form { padding-bottom: var(--sp-32); }
+.np-form .quick { margin-top: 0; }
+
+/* 접힌 옵션: 영수증 하단 메모 줄 */
+.opts { border-top: 2px dotted var(--art-rule); }
+.opts summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  min-height: var(--tap-min);
+  font: 600 14px/20px var(--font-kr);
+  color: var(--art-ink);
+  cursor: pointer;
+  list-style: none;
+}
+.opts summary::-webkit-details-marker { display: none; }
+.opts summary b { margin-left: auto; font: 700 13px/18px var(--font-num); color: var(--art-ink-2); }
+.opts summary::after { content: "+"; font: 700 18px/1 var(--font-num); color: var(--art-ink-2); width: 16px; text-align: center; }
+.opts[open] summary::after { content: "−"; }
+.opts__body { padding-top: var(--sp-4); }
+
+/* 급여 영수증 */
+.np-receipt { display: flex; flex-direction: column; gap: var(--sp-16); padding: var(--sp-8) 0 var(--sp-16); scroll-margin-top: var(--sp-8); }
+.receipt__k { color: var(--art-ink-2); }
+.receipt__line { font: 500 13px/20px var(--font-num); color: var(--art-ink-2); }
+.receipt__fine { font: 400 12px/18px var(--font-kr); color: var(--art-ink-2); }
+.receipt__actions { margin-top: var(--sp-8); }
+.receipt__actions .btn { background: transparent; border: 1px dashed var(--art-ink-2); font-family: var(--font-kr); }
+.result-card.is-print { animation: paper-out 1100ms steps(14) both; }
+@keyframes paper-out {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(-12px); }
+  to { clip-path: inset(0 0 0 0); transform: none; }
+}
+
+/* 카운터로 가는 절취 쿠폰 */
+.coupon {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-16) var(--sp-16) var(--sp-16) var(--sp-24);
+  border: 2px dashed var(--art-ink-2);
+  border-radius: var(--r-4);
+  background: var(--art-slip);
+  color: var(--art-ink);
+  text-decoration: none;
+  transition: transform 380ms var(--spring);
+}
+.coupon::before {
+  content: "";
+  position: absolute;
+  left: var(--sp-8);
+  top: var(--sp-12);
+  bottom: var(--sp-12);
+  width: 4px;
+  background: var(--color-primary);
+}
+.coupon:active { transform: scale(0.98) rotate(-0.6deg); transition-duration: 80ms; }
+.coupon__k { font: 700 11px/14px var(--font-num); letter-spacing: 0.12em; color: var(--art-ink-2); }
+.coupon__t { font: 700 17px/24px var(--font-kr); letter-spacing: -0.02em; }
+.coupon__t span { color: var(--color-primary); font-family: var(--font-num); }
+.coupon__s { font: 500 12px/18px var(--font-num); color: var(--art-ink-2); }
+
+/* 근로소득세 계산 메모 */
+.steps { margin: 0; padding: 0; list-style: none; counter-reset: st; }
+.steps li {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  gap: var(--sp-8);
+  align-items: baseline;
+  padding: var(--sp-6) 0;
+  border-bottom: 1px dashed var(--art-rule);
+  counter-increment: st;
+}
+.steps li::before { content: counter(st); font: 700 11px/1 var(--font-num); color: var(--art-ink-2); }
+.steps span { font: 400 13px/20px var(--font-kr); color: var(--art-ink); }
+.steps b { font: 700 14px/20px var(--font-num); white-space: nowrap; }
+.steps .is-hot b,
+.steps .is-hot span { color: var(--color-primary); font-weight: 700; }
+.steps li:last-child { border-bottom: 0; }

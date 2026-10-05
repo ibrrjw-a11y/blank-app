@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>지역 맞추기 게임 | 오늘의 동네 - 거리·방향 힌트로 시군구 맞히기 | 딴짓 오락실</title>
+    <meta name="description" content="전국 226개 시·군·구 중 오늘의 동네 하나를 맞히는 지역 맞추기 게임. 틀리면 정답까지 거리(km)·방향·가까움(%)을 알려줘요. 기회 6번, 매일 0시 새 문제." />
+    <meta name="keywords" content="지역 맞추기 게임, 시군구 맞추기, 동네 맞히기, 지도 퀴즈, 지리 퀴즈, 한국 지도 게임, 월들 한국판, 데일리 퀴즈" />
+    <link rel="canonical" href="https://example.com/ddanjit/town/" />
+    <meta property="og:url" content="https://example.com/ddanjit/town/" />
+    <meta property="og:title" content="오늘의 동네 - 전국 시군구 맞추기" />
+    <meta property="og:description" content="전국 226개 시·군·구 중 오늘의 동네 하나를 맞히는 지역 맞추기 게임. 틀리면 정답까지 거리(km)·방향·가까움(%)을 알려줘요. 기회 6번, 매일 0시 새 문제." />
+    <meta name="theme-color" content="#0e0d0b" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="딴짓 오락실" />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": [
+    "WebApplication",
+    "Game"
+  ],
+  "name": "오늘의 동네",
+  "alternateName": "거리·방향 힌트 지역 맞추기 게임",
+  "url": "https://example.com/ddanjit/town/",
+  "description": "전국 226개 시·군·구 중 오늘의 동네 하나를 맞히는 지역 맞추기 게임. 틀리면 정답까지 거리(km)·방향·가까움(%)을 알려줘요. 기회 6번, 매일 0시 새 문제.",
+  "applicationCategory": "GameApplication",
+  "genre": [
+    "퀴즈",
+    "퍼즐"
+  ],
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "value": 1
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "딴짓 오락실",
+    "url": "https://example.com/ddanjit/"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "거리는 어떻게 재나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "각 시·군·구의 대략적인 중심(또는 청사) 좌표 사이 직선거리예요. 몇 km 정도 오차가 있을 수 있어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "\"동구\"처럼 이름이 겹치면요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "목록에 시·도 이름이 같이 나와요. 대구 동구, 부산 동구처럼 골라서 넣으면 돼요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "세종시도 나오나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "네. 세종특별자치시는 하나의 동네로 들어 있어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "기록은 어디에 남나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "이 브라우저에만 남아요. 서버로 보내지 않아요."
+      }
+    }
+  ]
+}
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 이 게임 장면만 캐비닛에서 짧게 반복 -->
+      <section class="intro intro--game" id="intro" data-view="intro">
+        <header class="marquee">
+          <span class="marquee__lamp" aria-hidden="true"></span>
+          <span class="marquee__name">딴짓 오락실</span>
+          <span class="marquee__coin" aria-hidden="true">GAME 2/4</span>
+        </header>
+        <h1 class="kinetic" aria-label="오늘의 동네, 거리·방향으로 추리">
+          <span class="kinetic__line" data-split>오늘의 동네</span>
+          <span class="kinetic__line kinetic__line--accent" data-split>거리·방향으로 추리</span>
+        </h1>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__cta">
+          <button class="coin-op" id="start" type="button">
+            <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
+            <span class="coin-op__label"><b id="startLabel">오늘의 동네 찾기</b><span class="pix" aria-hidden="true">6 TRIES · 226 TOWNS</span></span>
+            <span class="coin-op__btn" aria-hidden="true"><i></i></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2) 게임 화면 -->
+      <section class="game" id="game" data-view="game" hidden></section>
+
+      <!-- 3) SEO 본문: 게임 설명서 -->
+      <article class="seo manual" aria-labelledby="man-h">
+        <header class="manual__head">
+          <span class="manual__tag pix">HOW TO PLAY</span>
+          <h2 id="man-h">오늘의 동네 설명서</h2>
+          <dl class="manual__spec">
+            <div><dt>기회</dt><dd>6번</dd></div>
+            <div><dt>후보</dt><dd>시·군·구 226곳</dd></div>
+            <div><dt>새 문제</dt><dd>매일 0시</dd></div>
+          </dl>
+        </header>
+
+        <h3 class="manual__sec"><span class="pix">01</span>하는 법</h3>
+        <ol class="manual__steps">
+          <li><span>아무 시·군·구나 입력해요. 두 글자만 쳐도 목록이 떠요 (예: <b>해운</b> → 부산 해운대구).</span></li>
+          <li><span>틀리면 정답까지 <b>직선거리</b>, <b>8방위 화살표</b>, <b>가까움 %</b>가 나와요.</span></li>
+          <li><span>가까움 % = (1 − 거리 ÷ 500km) × 100. 500km 넘으면 0%.</span></li>
+          <li><span>4번 틀리면 <b>어느 시·도</b>인지 알려줘요.</span></li>
+        </ol>
+
+        <h3 class="manual__sec"><span class="pix">02</span>예시 플레이 (정답 강원 춘천시)</h3>
+        <table class="manual__table">
+          <thead><tr><th scope="col">#</th><th scope="col">입력</th><th scope="col">거리</th><th scope="col">방향</th><th scope="col">가까움</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1</th><td>부산 해운대구</td><td class="num">327km</td><td>↖️</td><td class="num">35% ⬜</td></tr>
+            <tr><th scope="row">2</th><td>대전 유성구</td><td class="num">172km</td><td>⬆️</td><td class="num">66% ⬜</td></tr>
+            <tr><th scope="row">3</th><td>경기 가평군</td><td class="num">20km</td><td>➡️</td><td class="num">96% 🟧</td></tr>
+            <tr class="is-win"><th scope="row">4</th><td>강원 춘천시</td><td class="num">0km</td><td>✓</td><td class="num">100% 🟩</td></tr>
+          </tbody>
+        </table>
+        <p class="manual__ex">화살표는 <b>내가 고른 곳에서 정답 쪽</b>을 가리켜요. 가평에서 ➡️ 동쪽 20km면 춘천이 떠오르죠.</p>
+
+        <h3 class="manual__sec"><span class="pix">03</span>색 칸 읽는 법</h3>
+        <table class="manual__table">
+          <tbody>
+            <tr><th scope="row">🟩</th><td>정답</td></tr>
+            <tr><th scope="row">🟧</th><td>가까움 90% 이상 (50km 안쪽)</td></tr>
+            <tr><th scope="row">🟨</th><td>가까움 75% 이상 (125km 안쪽)</td></tr>
+            <tr><th scope="row">⬜</th><td>그보다 멀어요</td></tr>
+          </tbody>
+        </table>
+
+        <h2 class="manual__qa">Q&amp;A</h2>
+        <details>
+          <summary>거리는 어떻게 재나요?</summary>
+          <p>각 시·군·구의 대략적인 중심(또는 청사) 좌표 사이 직선거리예요. 몇 km 정도 오차가 있을 수 있어요.</p>
+        </details>
+        <details>
+          <summary>"동구"처럼 이름이 겹치면요?</summary>
+          <p>목록에 시·도 이름이 같이 나와요. 대구 동구, 부산 동구처럼 골라서 넣으면 돼요.</p>
+        </details>
+        <details>
+          <summary>세종시도 나오나요?</summary>
+          <p>네. 세종특별자치시는 하나의 동네로 들어 있어요.</p>
+        </details>
+        <details>
+          <summary>기록은 어디에 남나요?</summary>
+          <p>이 브라우저에만 남아요. 서버로 보내지 않아요.</p>
+        </details>
+        <p class="manual__ex">다른 게임: <a href="../zoom/">줌아웃 퀴즈</a> · <a href="../price/">그때 그 가격</a> · <a href="../timeline/">추억 연대기</a> · <a href="../">4개 한 번에 보기</a></p>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">거리는 시·군·구 중심 좌표 기준 직선거리예요 · 기록은 이 기기에만 저장돼요</footer>
+    </main>
+    <aside class="sheet" id="result" role="dialog" aria-label="결과"></aside>
+    <script type="module">
+      import { bootGame } from "../play.js";
+      import game from "../games/town.js";
+      bootGame(game);
+    </script>
+  </body>
+</html>

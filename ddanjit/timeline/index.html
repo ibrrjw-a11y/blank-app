@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>연도 맞추기 퀴즈 | 추억 연대기 - 과자·드라마·노래 출시 연도 순서 맞히기 | 딴짓 오락실</title>
+    <meta name="description" content="과자, 드라마, 노래, 게임, 사건 카드를 시간 순서대로 끼워 넣는 연도 맞추기 퀴즈. 카드 6장, 4장 이상 맞히면 성공. 매일 0시 새 카드." />
+    <meta name="keywords" content="연도 맞추기 퀴즈, 추억 퀴즈, 출시 연도 퀴즈, 연대기 게임, 90년대 추억, 2000년대 추억, 타임라인 퀴즈, 데일리 퀴즈" />
+    <link rel="canonical" href="https://example.com/ddanjit/timeline/" />
+    <meta property="og:url" content="https://example.com/ddanjit/timeline/" />
+    <meta property="og:title" content="추억 연대기 - 출시 연도 순서 맞히기" />
+    <meta property="og:description" content="과자, 드라마, 노래, 게임, 사건 카드를 시간 순서대로 끼워 넣는 연도 맞추기 퀴즈. 카드 6장, 4장 이상 맞히면 성공. 매일 0시 새 카드." />
+    <meta name="theme-color" content="#0e0d0b" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="딴짓 오락실" />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": [
+    "WebApplication",
+    "Game"
+  ],
+  "name": "추억 연대기",
+  "alternateName": "출시 연도 순서 맞추기 퀴즈",
+  "url": "https://example.com/ddanjit/timeline/",
+  "description": "과자, 드라마, 노래, 게임, 사건 카드를 시간 순서대로 끼워 넣는 연도 맞추기 퀴즈. 카드 6장, 4장 이상 맞히면 성공. 매일 0시 새 카드.",
+  "applicationCategory": "GameApplication",
+  "genre": [
+    "퀴즈",
+    "퍼즐"
+  ],
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "numberOfPlayers": {
+    "@type": "QuantitativeValue",
+    "value": 1
+  },
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "딴짓 오락실",
+    "url": "https://example.com/ddanjit/"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "연도는 정확한가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "연도가 확실한 카드만 넣었어요. 출시·첫 방송·데뷔처럼 시작한 해 기준이에요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "같은 해 카드가 두 장 나오면요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "하루 카드는 연도가 겹치지 않게 뽑아요. 그래서 자리는 항상 하나만 맞아요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "추억 나이는 뭔가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "하루 카드 연도 평균으로 재미로 계산한 숫자예요. 실제 나이와는 상관없어요."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "기록은 어디에 남나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "이 브라우저에만 남아요."
+      }
+    }
+  ]
+}
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 이 게임 장면만 캐비닛에서 짧게 반복 -->
+      <section class="intro intro--game" id="intro" data-view="intro">
+        <header class="marquee">
+          <span class="marquee__lamp" aria-hidden="true"></span>
+          <span class="marquee__name">딴짓 오락실</span>
+          <span class="marquee__coin" aria-hidden="true">GAME 4/4</span>
+        </header>
+        <h1 class="kinetic" aria-label="추억 연대기, 연도 순서 맞히기">
+          <span class="kinetic__line" data-split>추억 연대기</span>
+          <span class="kinetic__line kinetic__line--accent" data-split>연도 순서 맞히기</span>
+        </h1>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__cta">
+          <button class="coin-op" id="start" type="button">
+            <span class="coin-op__door" aria-hidden="true"><span class="coin-op__slot"><i class="coin-op__coin"></i></span><span class="pix">INSERT<br />COIN</span></span>
+            <span class="coin-op__label"><b id="startLabel">오늘의 카드 받기</b><span class="pix" aria-hidden="true">6 CARDS · 4+ CLEAR</span></span>
+            <span class="coin-op__btn" aria-hidden="true"><i></i></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2) 게임 화면 -->
+      <section class="game" id="game" data-view="game" hidden></section>
+
+      <!-- 3) SEO 본문: 게임 설명서 -->
+      <article class="seo manual" aria-labelledby="man-h">
+        <header class="manual__head">
+          <span class="manual__tag pix">HOW TO PLAY</span>
+          <h2 id="man-h">추억 연대기 설명서</h2>
+          <dl class="manual__spec">
+            <div><dt>카드</dt><dd>기준 1 + 6장</dd></div>
+            <div><dt>성공</dt><dd>4장 이상</dd></div>
+            <div><dt>카드 풀</dt><dd>144장</dd></div>
+          </dl>
+        </header>
+
+        <h3 class="manual__sec"><span class="pix">01</span>하는 법</h3>
+        <ol class="manual__steps">
+          <li><span>연도가 보이는 <b>기준 카드</b> 1장이 줄에 놓여 있어요.</span></li>
+          <li><span>연도가 가려진 카드를 한 장씩 받아요.</span></li>
+          <li><span>줄에서 맞는 자리의 <b>여기에 넣기</b>를 눌러요.</span></li>
+          <li><span>틀리면 실제 연도가 공개되고 제자리로 옮겨져요. 6장을 다 놓으면 끝.</span></li>
+        </ol>
+
+        <h3 class="manual__sec"><span class="pix">02</span>예시 플레이 (기준: 🍫 초코파이 1974)</h3>
+        <table class="manual__table">
+          <thead><tr><th scope="col">#</th><th scope="col">받은 카드</th><th scope="col">넣은 자리</th><th scope="col">결과</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1</th><td>🌶️ 신라면 출시</td><td>초코파이 뒤</td><td>✓ 1986</td></tr>
+            <tr><th scope="row">2</th><td>🦐 새우깡 출시</td><td>맨 앞</td><td>✓ 1971</td></tr>
+            <tr><th scope="row">3</th><td>🌲 싸이월드 시작</td><td>맨 뒤</td><td>✓ 1999</td></tr>
+            <tr><th scope="row">4</th><td>💬 카카오톡 출시</td><td>맨 뒤</td><td>✓ 2010</td></tr>
+            <tr><th scope="row">5</th><td>🎶 서태지와 아이들 데뷔</td><td>카카오톡 뒤</td><td>✕ 1992 → 신라면·싸이월드 사이로</td></tr>
+            <tr><th scope="row">6</th><td>🤸 무한도전 첫 방송</td><td>싸이월드·카카오톡 사이</td><td>✓ 2005</td></tr>
+          </tbody>
+        </table>
+        <p class="manual__ex">공유 결과: <b>🟩🟩🟩🟩🟥🟩 5/6 맞힘</b></p>
+
+        <h3 class="manual__sec"><span class="pix">03</span>완성된 줄</h3>
+        <table class="manual__table manual__table--days">
+          <thead><tr><th scope="col">1971</th><th scope="col">1974</th><th scope="col">1986</th><th scope="col">1992</th><th scope="col">1999</th><th scope="col">2005</th><th scope="col">2010</th></tr></thead>
+          <tbody><tr><td>🦐</td><td>🍫</td><td>🌶️</td><td>🎶</td><td>🌲</td><td>🤸</td><td>💬</td></tr></tbody>
+        </table>
+        <p class="manual__ex">결과 화면의 "○○년대 감성"은 맞힌 카드가 가장 많은 시대예요. 동점이면 더 옛날 시대가 나와요.</p>
+
+        <h3 class="manual__sec"><span class="pix">04</span>카드 분류</h3>
+        <p class="manual__ex">먹거리 · 게임·기기 · 인터넷 · 방송·영화 · 음악 · 스포츠. 하루 카드 7장은 같은 분류가 2장을 넘지 않고, 같은 연도는 겹치지 않아요.</p>
+
+        <h2 class="manual__qa">Q&amp;A</h2>
+        <details>
+          <summary>연도는 정확한가요?</summary>
+          <p>연도가 확실한 카드만 넣었어요. 출시·첫 방송·데뷔처럼 시작한 해 기준이에요.</p>
+        </details>
+        <details>
+          <summary>같은 해 카드가 두 장 나오면요?</summary>
+          <p>하루 카드는 연도가 겹치지 않게 뽑아요. 그래서 자리는 항상 하나만 맞아요.</p>
+        </details>
+        <details>
+          <summary>추억 나이는 뭔가요?</summary>
+          <p>하루 카드 연도 평균으로 재미로 계산한 숫자예요. 실제 나이와는 상관없어요.</p>
+        </details>
+        <details>
+          <summary>기록은 어디에 남나요?</summary>
+          <p>이 브라우저에만 남아요.</p>
+        </details>
+        <p class="manual__ex">다른 게임: <a href="../zoom/">줌아웃 퀴즈</a> · <a href="../town/">오늘의 동네</a> · <a href="../price/">그때 그 가격</a> · <a href="../">4개 한 번에 보기</a></p>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">연도는 출시·첫 방송·데뷔 기준이에요 · 기록은 이 기기에만 저장돼요</footer>
+    </main>
+    <aside class="sheet" id="result" role="dialog" aria-label="결과"></aside>
+    <script type="module">
+      import { bootGame } from "../play.js";
+      import game from "../games/timeline.js";
+      bootGame(game);
+    </script>
+  </body>
+</html>
