@@ -209,28 +209,19 @@ body {
 
 .odo b,
 .odo__col {
-  display: block;
-  height: var(--odo-h);
-  line-height: var(--odo-h);
-}
-
-.odo b { font-weight: 400; padding: 0 1px; color: var(--color-text-tertiary); }
-
-.odo__col {
   position: relative;
   width: 0.6em;
   overflow: hidden;
   text-align: center;
-  /* 실제 카운터처럼 휠 위아래를 흐리게 → 구르는 중에도 숫자 조각이 튀지 않음 */
-  -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
-  mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
 }
 
-.odo__reel {
-  display: block;
-  transition: transform 220ms var(--ease-out);
-  will-change: transform;
+.odo__col.is-tick { animation: odo-tick 380ms var(--ease-out); }
+
+@keyframes odo-tick {
+  from { color: var(--color-primary); }
 }
+
+.odo__reel { display: block; }
 
 .odo__reel i {
   display: block;

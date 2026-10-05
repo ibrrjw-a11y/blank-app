@@ -366,7 +366,8 @@ textarea.input {
   background: var(--color-surface);
   box-shadow: var(--shadow-l);
   transform: translate(-50%, 104%);
-  transition: transform var(--dur-slow) var(--ease-standard);
+  visibility: hidden;
+  transition: transform var(--dur-slow) var(--ease-standard), visibility 0s linear var(--dur-slow);
 }
 
 .sheet::before {
@@ -379,7 +380,11 @@ textarea.input {
   background: var(--color-border-strong);
 }
 
-.sheet.is-open { transform: translate(-50%, 0); }
+.sheet.is-open {
+  transform: translate(-50%, 0);
+  visibility: visible;
+  transition: transform var(--dur-slow) var(--ease-spring);
+}
 .sheet-scrim.is-open { opacity: 1; pointer-events: auto; }
 
 /* ---------- Toast ---------- */

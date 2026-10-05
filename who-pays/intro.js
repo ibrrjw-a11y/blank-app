@@ -599,25 +599,16 @@ export function startIntro(root) {
     col.innerHTML = `<span class="odo__reel">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((d) => `<i>${d}</i>`).join("")}</span>`;
     col._d = 0;
   });
-  function setDigit(col, d, roll) {
+  // 숫자는 항상 같은 기준선에 즉시 놓이고, 바뀐 자리만 포인트 색으로 잠깐 깜빡인다 (위치 이동 없음 → 어긋남 없음)
+  function setDigit(col, d, flash) {
     if (col._d === d) return;
-    const prev = col._d;
     col._d = d;
-    const reel = col.firstChild;
-    clearTimeout(col._t);
-    if (!roll || reduced) {
-      reel.style.transition = "none";
-      reel.style.transform = `translateY(calc(${-d} * var(--odo-h)))`;
-      return;
+    col.firstChild.style.transform = `translateY(calc(${-d} * var(--odo-h)))`;
+    if (flash && !reduced) {
+      col.classList.remove("is-tick");
+      void col.offsetWidth;
+      col.classList.add("is-tick");
     }
-    reel.style.transition = "";
-    if (d === 0 && prev === 9) {
-      reel.style.transform = "translateY(calc(-10 * var(--odo-h)))";
-      col._t = setTimeout(() => {
-        reel.style.transition = "none";
-        reel.style.transform = "translateY(0)";
-      }, 240);
-    } else reel.style.transform = `translateY(calc(${-d} * var(--odo-h)))`;
   }
   let clockBase = 0;
   function tickClock(t) {
@@ -691,7 +682,6 @@ export function startIntro(root) {
       clearTimeout(timer);
       cancelAnimationFrame(raf);
       ro.disconnect();
-      wheels.forEach((c) => clearTimeout(c._t));
     },
   };
 }
