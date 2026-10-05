@@ -3,12 +3,9 @@
   <url><loc>https://example.com/</loc><lastmod>2026-10-05</lastmod><priority>1.0</priority></url>
   <url><loc>https://example.com/attachment/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/brain-age/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
-  <url><loc>https://example.com/calc/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/ddanjit/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/dream-saju/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
-  <url><loc>https://example.com/fortune/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/gacha/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
-  <url><loc>https://example.com/game/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/kkondae/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/ladder/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/life-progress/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
@@ -18,14 +15,11 @@
   <url><loc>https://example.com/name-match/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/one-to-fifty/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/others-mbti/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
-  <url><loc>https://example.com/pick/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/roulette/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/salary-live/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/stack-tower/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/team-split/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
-  <url><loc>https://example.com/test/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/teto-egen/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
-  <url><loc>https://example.com/together/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/where-to-go/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/who-pays/</loc><lastmod>2026-10-05</lastmod><priority>0.9</priority></url>
   <url><loc>https://example.com/ddanjit/price/</loc><lastmod>2026-10-05</lastmod><priority>0.6</priority></url>

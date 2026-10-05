@@ -1,6 +1,6 @@
 // 공통 유틸. 각 사이트는 <script type="module"> 에서 import 해서 쓴다.
 // 서버 없이 동작하는 것이 기본 원칙: 상태 공유는 URL, 개인 기록은 localStorage.
-import { CATEGORIES, TOOLS, categoryById, toolByPath } from "./sites.js";
+import { TOOLS, toolByPath } from "./sites.js";
 
 /* ---------- 페이지 이동 시 항상 맨 위에서 시작 ----------
  * 다른 페이지로 넘어왔을 때 이전 스크롤 위치가 복원되며 아래에서 시작하던 문제를 막는다.
@@ -360,35 +360,37 @@ export function openSheet(sheet) {
   return close;
 }
 
-/* ---------- 상단 경로 (홈 › 카테고리) ----------
- * 각 페이지 상단에 홈과 카테고리로 돌아가는 링크를 단다. 디자인은 사이트가 .crumb 를 덮어써서 맞춘다. */
-export function renderCrumb(el, toolPath = currentPath()) {
-  if (!el) return;
-  const tool = toolByPath(resolveToolPath(toolPath));
-  const cat = tool && categoryById(tool.cat);
-  el.classList.add("crumb");
-  el.setAttribute("aria-label", "위치");
-  el.innerHTML = `<a href="${urlOf("")}">홈</a>${
-    cat ? `<span aria-hidden="true">›</span><a href="${urlOf(cat.path)}">${cat.name}</a>` : ""
-  }`;
+/* ---------- 상단 경로: 쓰지 않는다 ----------
+ * 각 페이지는 독립된 사이트처럼 보여야 하므로 "홈 › 카테고리" 경로를 달지 않는다.
+ * 예전 호출이 남아 있어도 자리만 지우고 끝낸다. */
+export function renderCrumb(el) {
+  el?.remove();
 }
 
-/* ---------- 하단 추천: 같은 카테고리 먼저, 그다음 다른 카테고리 ---------- */
+/* ---------- 하단 "이것도 해보기" ----------
+ * 같은 도메인의 다른 도구 3개만 건넨다. 디자인은 각 사이트가 자기 장르로 입힌다
+ * (.more-sites, .more-sites__title, .more-sites__grid, .more-sites__item, __name, __desc). */
+export function relatedTools(toolPath = currentPath(), count = 3) {
+  const here = resolveToolPath(toolPath) || toolPath;
+  const tool = toolByPath(here);
+  const others = TOOLS.filter((t) => t.path !== here);
+  const same = tool ? others.filter((t) => t.cat === tool.cat) : [];
+  const rest = others.filter((t) => !same.includes(t));
+  // 같은 계열 2개 + 다른 계열 1개, 날짜마다 조금씩 바뀌게
+  const rand = seededRandom(`${here}:${todayKey()}`);
+  const pick = [...shuffle(same, rand).slice(0, 2), ...shuffle(rest, rand)].slice(0, count);
+  return pick;
+}
+
 export function renderMoreSites(el, toolPath = currentPath()) {
   if (!el) return;
   if (typeof toolPath !== "string") toolPath = currentPath();
-  toolPath = resolveToolPath(toolPath) || toolPath;
-  const tool = toolByPath(toolPath);
-  const cat = tool ? categoryById(tool.cat) : null;
-  const same = cat ? TOOLS.filter((t) => t.cat === cat.id && t.path !== toolPath) : [];
-  const others = CATEGORIES.filter((c) => !cat || c.id !== cat.id);
+  const items = relatedTools(toolPath);
   el.classList.add("more-sites");
   el.innerHTML = `
-    ${
-      same.length
-        ? `<h2 class="more-sites__title">${cat.name} 더 하기</h2>
+    <h2 class="more-sites__title">이것도 해보기</h2>
     <div class="more-sites__grid">
-      ${same
+      ${items
         .map(
           (t) => `<a class="more-sites__item" href="${urlOf(t.path)}">
             <span class="more-sites__name">${t.name}</span>
@@ -396,13 +398,6 @@ export function renderMoreSites(el, toolPath = currentPath()) {
           </a>`
         )
         .join("")}
-    </div>`
-        : ""
-    }
-    <h2 class="more-sites__title">다른 카테고리</h2>
-    <div class="more-sites__cats">
-      ${others.map((c) => `<a class="more-sites__cat" href="${urlOf(c.path)}">${c.name}</a>`).join("")}
-      <a class="more-sites__cat" href="${urlOf("")}">전체 보기</a>
     </div>`;
 }
 
