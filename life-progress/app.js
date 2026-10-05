@@ -854,6 +854,11 @@ function ipFrame(now) {
       const front = lt > 0 && lt < 200;
       batch(from, to, front ? white : idle, 1, rad);
     }
+    // 다 깔리면 10년마다 세로 한 줄이 하얗게 켜져 "세로 한 줄 = 1년" 구조가 보인다
+    for (let c = 0; c < cols; c += 10) {
+      const k = easeOut((t - 950 - c * 12) / 360);
+      if (k > 0) batch(c * rows, Math.min(total, c * rows + rows), white, k);
+    }
     ticks(easeOut((t - 300) / 500));
     // 첫 칸(태어난 주)은 처음부터 포인트 색
     const [x0, y0] = ipXY(0);
@@ -987,7 +992,7 @@ const EX_NOW = Math.round((EX.pct / 100) * Math.round(EX.life * 52));
 const EX_LEFT = Math.round(EX.life * 52) - EX_NOW;
 const SCENES = [
   {
-    title: "인생을 4,000칸으로",
+    title: "인생을 4,342칸으로",
     desc: "한 칸은 일주일, 세로 한 줄은 1년이에요",
     duration: 3000,
     play: ipScene(
