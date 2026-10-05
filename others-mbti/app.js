@@ -322,18 +322,25 @@ function fitBoard(stage) {
   board.style.setProperty("--fit", s.toFixed(3));
 }
 
-// 제목만 글자 단위로 튀어 오르게 (본문은 고정)
-function kinetic(root) {
-  const h = $(".intro__caption h2", root);
-  if (!h) return;
-  let i = 0;
-  h.innerHTML = h.textContent
+// 장면 설명: 단어마다 다른 종이에서 오려 낸 조각(협박편지) + 테이프로 붙인 손글씨 쪽지
+const CUTS = ["ink", "brand", "kraft", "white", "news", "note"];
+const TILT = [-4, 3, -2, 5, -3, 2, -5];
+function collageCaption(scene, n) {
+  const ransom = $("#capRansom");
+  const note = $("#capNote");
+  if (!ransom || !note) return;
+  ransom.setAttribute("aria-label", scene.title);
+  ransom.innerHTML = scene.title
     .split(" ")
-    .map(
-      (w) =>
-        `<span class="kw">${[...w].map((c) => `<span class="kc" style="--i:${i++}">${esc(c)}</span>`).join("")}</span>`
-    )
-    .join(" ");
+    .map((w, i) => {
+      const k = (i + n * 2) % CUTS.length;
+      return `<span class="om-rp om-rp--${CUTS[k]}" aria-hidden="true" style="--r:${TILT[(i + n) % TILT.length]}deg;--i:${i}">${esc(w)}</span>`;
+    })
+    .join("");
+  note.textContent = scene.desc;
+  note.classList.remove("is-in");
+  void note.offsetWidth;
+  note.classList.add("is-in");
 }
 
 function setOdo(board, value) {
@@ -366,7 +373,7 @@ function startIntro() {
         });
         setOdo(board, 0);
         enter("1");
-        kinetic(root);
+        collageCaption(scenes[0], 0);
       },
     },
     {
@@ -375,7 +382,7 @@ function startIntro() {
       duration: 3600,
       play() {
         enter("2");
-        kinetic(root);
+        collageCaption(scenes[1], 1);
       },
     },
     {
@@ -384,7 +391,7 @@ function startIntro() {
       duration: 4000,
       play(_, signal) {
         enter("3");
-        kinetic(root);
+        collageCaption(scenes[2], 2);
         sleep(prefersReducedMotion() ? 0 : 760).then(async () => {
           const els = $$(".flap", letters);
           await Promise.all(
@@ -407,7 +414,7 @@ function startIntro() {
           f.classList.remove("is-plain");
         });
         enter("4");
-        kinetic(root);
+        collageCaption(scenes[3], 3);
         sleep(prefersReducedMotion() ? 0 : 420).then(() => !signal.aborted && setOdo(board, 75));
       },
     },

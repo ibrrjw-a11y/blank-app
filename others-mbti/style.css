@@ -163,16 +163,6 @@ body::before {
   animation: om-wiggle 1.4s var(--art-spring) infinite;
 }
 
-.intro__caption {
-  text-align: left;
-}
-
-.intro__caption .t-title-02 {
-  font: var(--title-01);
-  font-family: var(--font-display);
-  font-weight: 800;
-}
-
 .intro__steps {
   justify-content: flex-start;
 }
@@ -1279,15 +1269,93 @@ body::before {
   min-height: 100dvh;
 }
 
-/* 캡션: 회색 부제 대신 테이프 위 손글씨 메모 */
-.om .intro__caption p {
-  display: inline;
-  padding: 0 var(--sp-6);
-  background: linear-gradient(transparent 18%, var(--art-note) 18% 88%, transparent 88%);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  font: 400 21px/1.45 var(--art-hand);
+/* 장면 설명: 협박편지 조각 + 테이프 붙인 손글씨 쪽지 (무대 콜라주에 겹쳐 붙인다) */
+.om-cap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-height: 132px;
+  margin-top: calc(var(--sp-8) * -1);
+}
+
+.om .intro__steps { margin-bottom: var(--sp-16); }
+
+.om .om-cap__ransom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-6) var(--sp-4);
+  margin: 0;
+  padding-right: var(--sp-24);
+}
+
+.om-rp {
+  display: inline-block;
+  padding: var(--sp-2) var(--sp-8) var(--sp-4);
+  font: 400 27px/1.15 var(--font-display);
   color: var(--art-ink);
+  box-shadow: var(--shadow-s);
+  transform: rotate(var(--r));
+  transform-origin: 50% 100%;
+  /* 가위로 대충 오린 가장자리 */
+  clip-path: polygon(0 6%, 18% 0, 55% 4%, 100% 0, 97% 52%, 100% 100%, 60% 95%, 22% 100%, 0 96%, 3% 48%);
+  animation: om-rp-in 560ms var(--art-spring) both;
+  animation-delay: calc(var(--i) * 80ms);
+}
+
+.om-rp--ink { background: var(--art-ink); color: var(--art-paper); }
+.om-rp--brand { background: var(--brand); }
+.om-rp--kraft { background: var(--art-kraft); font-family: var(--art-serif); font-weight: 700; }
+.om-rp--white { background: var(--art-white); font-family: var(--art-latin); font-size: 24px; }
+.om-rp--news { background: var(--art-paper-2); font-family: var(--art-serif); font-style: italic; font-weight: 700; }
+.om-rp--note { background: var(--art-note); font-family: var(--art-hand); font-size: 32px; line-height: 1.05; }
+
+/* 손글씨 쪽지: 오른쪽으로 비켜 붙이고 테이프 한 조각 */
+.om .om-cap__note {
+  position: relative;
+  align-self: flex-end;
+  max-width: 82%;
+  margin: var(--sp-8) var(--sp-4) 0 0;
+  padding: var(--sp-10) var(--sp-12) var(--sp-6);
+  background: var(--art-white);
+  background-image: repeating-linear-gradient(transparent 0 25px, color-mix(in srgb, var(--brand) 25%, transparent) 25px 26px);
+  background-position: 0 var(--sp-6);
+  box-shadow: var(--shadow-s);
+  font: 400 21px/26px var(--art-hand);
+  color: var(--art-ink);
+  transform: rotate(1.8deg);
+}
+
+.om-cap__note::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  width: 64px;
+  height: 20px;
+  margin-left: -32px;
+  background: var(--art-tape);
+  transform: rotate(-4deg);
+}
+
+.om-cap__note.is-in { animation: om-note-slap 620ms var(--art-snap) 260ms both; }
+
+@keyframes om-rp-in {
+  0% { opacity: 0; transform: translateY(-40%) rotate(calc(var(--r) - 24deg)) scale(1.5); }
+  55% { opacity: 1; transform: translateY(6%) rotate(calc(var(--r) + 4deg)) scale(0.92, 1.06); }
+  100% { opacity: 1; transform: rotate(var(--r)); }
+}
+
+@keyframes om-note-slap {
+  0% { opacity: 0; transform: translateX(40%) rotate(14deg) scale(1.1); }
+  60% { opacity: 1; transform: translateX(-3%) rotate(-1deg) scale(0.98); }
+  100% { opacity: 1; transform: rotate(1.8deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .om-rp, .om-cap__note.is-in { animation: none; }
 }
 
 /* 시작 버튼: 오려 낸 입장권 */

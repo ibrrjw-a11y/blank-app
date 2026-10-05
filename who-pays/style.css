@@ -1650,7 +1650,7 @@ body.is-playing .site-footer { display: none; }
   font: 700 16px/1.45 var(--font-sans);
 }
 :root[data-mode="barrel"] .rulebook summary::before {
-  content: "#" counter(faq) "0" counter(faq) " 시청자 문자";
+  content: "시청자 문자 #" counter(faq, decimal-leading-zero);
   position: absolute;
   left: var(--sp-16);
   top: var(--sp-10);
@@ -1674,7 +1674,7 @@ body.is-playing .site-footer { display: none; }
   position: relative;
   margin: 0 var(--sp-10) var(--sp-12);
   padding: var(--sp-10) var(--sp-14, 14px) var(--sp-10) 3.6em;
-  border-radius: var(--r-full);
+  border-radius: var(--r-24) var(--r-24) var(--r-24) var(--r-4);
   background: var(--art-chalk);
   color: var(--art-ink);
   font: 700 14px/1.45 var(--font-sans);
@@ -1683,13 +1683,12 @@ body.is-playing .site-footer { display: none; }
 :root[data-mode="barrel"] .rulebook details p::before {
   content: "MC";
   position: absolute;
-  left: var(--sp-6);
-  top: 50%;
+  left: var(--sp-8);
+  top: var(--sp-8);
   display: grid;
   place-items: center;
   width: 30px;
   height: 30px;
-  margin-top: -15px;
   border-radius: var(--r-full);
   background: var(--color-primary);
   color: var(--color-on-primary);
