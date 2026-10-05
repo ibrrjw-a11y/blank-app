@@ -105,21 +105,6 @@ addEventListener("resize", () => {
 
 /* ---------- 인트로 ---------- */
 let intro = null;
-const shared = getParam("w");
-if (shared) {
-  const st = sanitize(decodeState(shared)?.i ? { title: decodeState(shared).t, items: decodeState(shared).i.map(([name, weight]) => ({ name, weight })) } : null);
-  if (st) {
-    state = st;
-    save();
-    enterApp();
-    toast("받은 룰렛을 세트에 올렸어요");
-  } else {
-    runIntro();
-  }
-} else {
-  runIntro();
-}
-
 function runIntro() {
   intro = startIntro({
     canvas: $("#introWheel"),
@@ -552,7 +537,7 @@ async function finish() {
   $("#vTag").textContent = an.kind === "plain" ? "당첨" : an.kind === "fall" ? "당첨 · 한 칸 차이로 멈춤" : "당첨 · 핀 넘어서 멈춤";
   $("#vName").textContent = winnerName;
   let near = "";
-  if (an.kind === "fall" && nearName) near = `바로 옆 '${nearName}'에서 한 칸 차이로 떨어졌어요`;
+  if (an.kind === "fall" && nearName) near = `'${nearName}' 바로 앞 핀에 걸렸다가 굴러 떨어졌어요`;
   if (an.kind === "creep" && nearName) near = `'${nearName}'에 걸렸다가 핀을 기어 넘었어요`;
   if (elim.checked) {
     pendingOut = lastRun.winnerItem;
@@ -750,7 +735,7 @@ function drawCard(run) {
   ctx.textAlign = "center";
   ctx.fillStyle = "#f3ead6";
   let sub = "";
-  if (run.an.kind === "fall" && run.nearName) sub = `'${run.nearName}'에서 한 칸 차이로 멈춤`;
+  if (run.an.kind === "fall" && run.nearName) sub = `'${run.nearName}' 직전에서 한 칸 차이로 멈춤`;
   else if (run.an.kind === "creep" && run.nearName) sub = `'${run.nearName}'에서 핀을 기어 넘어 당첨`;
   if (sub) ctx.fillText(sub, W / 2, H - 52);
   ctx.font = `600 14px ${CANVAS_FONT}`;
@@ -767,5 +752,22 @@ function redrawFinal(run) {
   view.draw(s.th, s.f, { zoom: 1 });
 }
 
+
+/* ---------- 시작 ---------- */
+function boot() {
+  const shared = getParam("w");
+  const raw = shared ? decodeState(shared) : null;
+  const st = sanitize(Array.isArray(raw?.i) ? { title: raw.t, items: raw.i.map((x) => ({ name: Array.isArray(x) ? x[0] : "", weight: Array.isArray(x) ? x[1] : 1 })) } : null);
+  if (st) {
+    state = st;
+    save();
+    enterApp();
+    toast("받은 룰렛을 세트에 올렸어요");
+  } else {
+    runIntro();
+  }
+}
+boot();
+
 // 개발 확인용 훅 (스크린샷 검증)
-window.__roulette = { spin, enterApp, get last() { return lastRun; } };
+window.__roulette = { spin, enterApp, drawCard, get last() { return lastRun; } };

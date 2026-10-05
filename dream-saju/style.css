@@ -2068,3 +2068,12 @@ body::before {
 @media (prefers-reduced-motion: reduce) {
   .intro .talisman__seal { animation: none; }
 }
+.book .ptable tbody th { color: var(--art-ink); }
+.book .ptable--ex thead th:last-child,
+.book .ptable--mood thead th:last-child,
+.book .ptable--mood thead th:nth-child(2) { text-align: right; }
+.book .ptable--mood td:last-child { white-space: nowrap; }
+.book .ptable--mood tbody th { white-space: normal; }
+.book .ptable--mood tbody th small { display: block; margin-top: var(--sp-2); font-family: var(--font-sans); font-weight: 400; }
+.book .ptable--grade td:last-child { white-space: normal; text-align: left; color: var(--art-ink); font: var(--caption-01); font-family: var(--font-sans); }
+.book .ptable--grade td.num { text-align: left; }

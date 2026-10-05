@@ -475,7 +475,7 @@ textarea.input {
 /* ---------- SEO 설명 / FAQ ---------- */
 .seo {
   padding: var(--sp-48) 0 var(--sp-24);
-  color: var(--color-text-secondary);
+  color: var(--color-text);
 }
 
 .seo h2 {

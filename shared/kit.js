@@ -28,6 +28,17 @@ export function currentPath() {
   return rel.replace(/index\.html$/, "").replace(/\/$/, "");
 }
 
+// 등록된 도구 중 가장 가까운 상위 경로 (예: "dream-saju/s/snake" → "dream-saju")
+export function resolveToolPath(p = currentPath()) {
+  const parts = String(p).split("/").filter(Boolean);
+  while (parts.length) {
+    const candidate = parts.join("/");
+    if (toolByPath(candidate)) return candidate;
+    parts.pop();
+  }
+  return "";
+}
+
 export const urlOf = (path) => (path ? `${ROOT_URL}${path}/` : ROOT_URL);
 
 export const $ = (sel, root = document) => root.querySelector(sel);
@@ -353,7 +364,7 @@ export function openSheet(sheet) {
  * 각 페이지 상단에 홈과 카테고리로 돌아가는 링크를 단다. 디자인은 사이트가 .crumb 를 덮어써서 맞춘다. */
 export function renderCrumb(el, toolPath = currentPath()) {
   if (!el) return;
-  const tool = toolByPath(toolPath);
+  const tool = toolByPath(resolveToolPath(toolPath));
   const cat = tool && categoryById(tool.cat);
   el.classList.add("crumb");
   el.setAttribute("aria-label", "위치");
@@ -366,6 +377,7 @@ export function renderCrumb(el, toolPath = currentPath()) {
 export function renderMoreSites(el, toolPath = currentPath()) {
   if (!el) return;
   if (typeof toolPath !== "string") toolPath = currentPath();
+  toolPath = resolveToolPath(toolPath) || toolPath;
   const tool = toolByPath(toolPath);
   const cat = tool ? categoryById(tool.cat) : null;
   const same = cat ? TOOLS.filter((t) => t.cat === cat.id && t.path !== toolPath) : [];

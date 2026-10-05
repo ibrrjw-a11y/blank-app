@@ -1054,12 +1054,8 @@ body::before {
 }
 
 .te-vs__lane {
-  display: grid;
-  grid-template-columns: 3.2em 1fr 3.4em;
-  align-items: center;
-  gap: var(--sp-4);
+  position: relative;
   margin: 0 calc(var(--sp-16) * -1);
-  padding: 0 var(--sp-8);
   background: var(--art-split);
   border-bottom: 2px solid var(--art-ink);
 }
@@ -1067,7 +1063,11 @@ body::before {
 .te-vs__lane:first-of-type { border-top: 2px solid var(--art-ink); }
 
 .te-vs__who {
-  font: 400 15px/1.1 var(--font-display);
+  position: absolute;
+  left: var(--sp-8);
+  top: var(--sp-6);
+  max-width: 40%;
+  font: 400 16px/1.1 var(--font-display);
   color: var(--art-chalk);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1075,10 +1075,12 @@ body::before {
 }
 
 .te-vs__lane b {
-  font: 400 15px/1 var(--art-block);
+  position: absolute;
+  right: var(--sp-8);
+  top: var(--sp-6);
+  font: 400 16px/1 var(--art-block);
   font-weight: 400;
   color: var(--art-sepia);
-  text-align: right;
 }
 
 .te-vs__table {

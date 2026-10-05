@@ -66,6 +66,8 @@
   </head>
   <body>
     <main class="app">
+      <nav id="crumb"></nav>
+
       <!-- 1) 첫 화면: 모션그래픽 -->
       <section class="intro" id="intro" data-view="intro">
         <header class="diary-head">
@@ -73,22 +75,26 @@
             <span class="stamp" id="diaryDate">2026.01.01 THU</span>
             <span class="diary-head__weather">날씨 ☀ · 기분 두근두근</span>
           </div>
-          <p class="diary-head__title"><span class="mark">단톡방 궁합표</span><svg class="pixel-heart" viewBox="0 0 7 6" width="30" height="26" aria-hidden="true"><path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg></p>
+          <h1 class="diary-head__title"><span class="mark">단톡방 궁합표</span><svg class="pixel-heart" viewBox="0 0 7 6" width="30" height="26" aria-hidden="true"><path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg></h1>
           <p class="diary-head__sub">이름 획수로 보는 우리 방 전원 이름궁합</p>
         </header>
         <div class="intro__stage" aria-hidden="true"></div>
         <div class="intro__steps"></div>
         <div class="intro__caption" aria-live="polite"></div>
         <div class="intro__cta">
-          <button class="btn btn--primary btn--lg btn--block" id="start">단톡방 궁합표 만들기</button>
-          <button class="btn btn--ghost btn--block" id="startOne">1:1 이름궁합만 볼래요</button>
+          <button class="sticker-btn" id="start">
+            <span class="sticker-btn__t"><span class="mark">단톡방 궁합표 만들기</span></span>
+            <span class="sticker-btn__sub">이름 붙여넣기 · 2~12명 · 전원 궁합</span>
+            <svg class="sticker-btn__heart pixel-heart" viewBox="0 0 7 6" width="28" height="24" aria-hidden="true"><path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg>
+          </button>
+          <button class="hl-tab" id="startOne"><span>1:1 이름궁합만 볼래요</span><i aria-hidden="true">→</i></button>
         </div>
       </section>
 
       <!-- 2) 이름 입력 -->
       <section data-view="input" hidden>
         <header class="topbar">
-          <span class="topbar__brand"><span aria-hidden="true">💞</span> 단톡방 궁합표</span>
+          <span class="topbar__brand"><svg class="pixel-heart" viewBox="0 0 7 6" width="18" height="16" aria-hidden="true"><path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg> 단톡방 궁합표</span>
         </header>
         <div class="stack gap-16 pad-b">
           <div class="seg" role="tablist" aria-label="모드">
@@ -117,7 +123,7 @@
                 <button class="btn btn--ghost btn--sm" id="clearBtn">모두 지우기</button>
               </div>
             </div>
-            <button class="btn btn--primary btn--lg btn--block" id="makeBtn" disabled>궁합표 만들기</button>
+            <button class="sticker-btn sticker-btn--sm" id="makeBtn" disabled><span class="sticker-btn__t"><span class="mark" id="makeLabel">궁합표 만들기</span></span></button>
           </div>
 
           <!-- 1:1 -->
@@ -130,7 +136,7 @@
             <div class="one-heart" aria-hidden="true"><svg class="pixel-heart" viewBox="0 0 7 6" width="32" height="28"><path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/></svg></div>
             <label class="field"><span class="field__label">그 사람</span><input class="input" id="oneB" maxlength="10" placeholder="예: 지영" autocomplete="off" /></label>
             <span class="field__help" id="oneHelp">한글 이름만 계산해요</span>
-            <button class="btn btn--primary btn--lg btn--block" id="oneBtn" disabled>궁합 보기</button>
+            <button class="sticker-btn sticker-btn--sm" id="oneBtn" disabled><span class="sticker-btn__t"><span class="mark">궁합 보기</span></span></button>
           </div>
 
           <div class="stack gap-8" id="roomsWrap" hidden>
@@ -169,7 +175,7 @@
           <div class="stack gap-8" id="highlights"></div>
 
           <div class="stack gap-8">
-            <button class="btn btn--primary btn--lg btn--block" id="shareLink">단톡방에 궁합표 보내기</button>
+            <button class="sticker-btn sticker-btn--sm" id="shareLink"><span class="sticker-btn__t"><span class="mark">단톡방에 궁합표 보내기</span></span><span class="sticker-btn__sub">같은 표가 열리는 링크</span></button>
             <div class="row gap-8">
               <button class="btn btn--outline grow" id="shareImg">이미지로 저장</button>
               <button class="btn btn--outline grow" id="againBtn">새로 만들기</button>
@@ -179,29 +185,35 @@
         </div>
       </section>
 
-      <!-- 4) SEO 본문 -->
-      <article class="seo">
-        <h2>이름궁합 테스트, 단톡방 전원을 한 번에</h2>
-        <p>
-          학창 시절 공책 귀퉁이에 이름을 번갈아 적고 획수를 더하던 그 이름점을 단톡방 전체로 넓혔어요. 멤버 이름을 붙여넣으면
-          모든 조합의 이름궁합을 한 장의 궁합표로 보여주고, 최고의 커플·짝사랑·인기왕까지 찾아줘요.
-        </p>
+      <!-- 4) SEO 본문: 다이어리 한 페이지 -->
+      <article class="seo diary">
+        <header class="diary__top">
+          <span class="stamp">2026.10.05 MON</span>
+          <span class="diary__weather">오늘의 공부: 이름점</span>
+        </header>
+        <h2 class="diary__title"><span class="mark">이름궁합 계산법</span> 손으로 풀어보기</h2>
 
-        <h3>이름궁합 계산법</h3>
-        <ol>
-          <li>두 이름을 한 글자씩 번갈아 세워요. 민수와 지영이라면 ‘민 지 수 영’. 글자 수가 다르면 남는 글자를 뒤에 붙여요.</li>
-          <li>글자마다 초성·중성·종성으로 나눠 획수를 더해요. 예) 민 = ㅁ(4) + ㅣ(1) + ㄴ(2) = 7획</li>
-          <li>획수가 10 이상이면 일의 자리만 써요. 첫 줄은 ‘7 4 4 5’가 돼요.</li>
-          <li>이웃한 두 수를 더해 일의 자리만 아래 줄에 적어요. 7+4=11 → 1, 4+4=8, 4+5=9 → ‘1 8 9’</li>
-          <li>두 자리가 남을 때까지 반복해요. ‘1 8 9’ → ‘9 7’. 그래서 민수가 지영을 생각하는 마음은 97%예요.</li>
+        <ol class="diary__steps">
+          <li><b>1</b> 두 이름을 한 글자씩 번갈아 써요. 민수 + 지영 → <em>민 지 수 영</em></li>
+          <li><b>2</b> 글자마다 획수를 세요. 민 = ㅁ4 + ㅣ1 + ㄴ2 = <em>7</em></li>
+          <li><b>3</b> 옆끼리 더해서 일의 자리만 아랫줄에. 7 + 4 = 11 → <em>1</em></li>
+          <li><b>4</b> 두 자리 남을 때까지 반복. 마지막 두 자리가 %예요.</li>
         </ol>
-        <p>마지막 두 자리가 ‘00’이면 0%로 봐요. 이 방식에서는 100%가 나오지 않아요.</p>
 
-        <h3>획수표</h3>
+        <figure class="pyr-static" aria-label="민수가 지영을 생각하는 마음 계산 과정">
+          <div class="pyr-static__row is-letters"><span class="is-a">민</span><span class="is-b">지</span><span class="is-a">수</span><span class="is-b">영</span></div>
+          <div class="pyr-static__row is-strokes"><span>4+1+2</span><span>3+1</span><span>2+2</span><span>1+3+1</span></div>
+          <div class="pyr-static__row"><span>7</span><span>4</span><span>4</span><span>5</span></div>
+          <div class="pyr-static__row is-half"><span>1</span><span>8</span><span>9</span></div>
+          <div class="pyr-static__row is-final"><span>9</span><span>7</span></div>
+          <figcaption><span class="mark">민수 → 지영 = 97%</span> 반대로 지영 → 민수는 4 7 5 4 → 1 2 9 → <b>31%</b></figcaption>
+        </figure>
+
+        <h3 class="diary__h"><span class="mark">획수표</span> 공책 뒤에 붙여둔 것</h3>
         <div class="table-wrap">
-          <table class="seo-table">
+          <table class="seo-table stroke-table">
             <caption class="sr-only">한글 자음과 모음 획수</caption>
-            <thead><tr><th scope="col">자음</th><th scope="col">획수</th><th scope="col">모음</th><th scope="col">획수</th></tr></thead>
+            <thead><tr><th scope="col">자음</th><th scope="col">획</th><th scope="col">모음</th><th scope="col">획</th></tr></thead>
             <tbody>
               <tr><td>ㅇ</td><td>1</td><td>ㅡ ㅣ</td><td>1</td></tr>
               <tr><td>ㄱ ㄴ ㅅ</td><td>2</td><td>ㅏ ㅓ ㅗ ㅜ ㅢ</td><td>2</td></tr>
@@ -213,43 +225,54 @@
             </tbody>
           </table>
         </div>
-        <p>겹받침은 두 자음의 획수를 더해요. 예) ㄺ = ㄹ(5) + ㄱ(2) = 7, ㅄ = ㅂ(4) + ㅅ(2) = 6</p>
+        <p class="diary__memo">겹받침은 둘을 더해요. 닭 = ㄷ3 + ㅏ2 + ㄺ(5+2) = 12획 → 2</p>
 
-        <h3>순서가 바뀌면 결과가 다른 이유</h3>
-        <p>
-          ‘민수→지영’은 ‘민 지 수 영’, ‘지영→민수’는 ‘지 민 영 수’로 줄을 세워요. 같은 숫자라도 놓인 순서가 달라지면 이웃끼리 더하는
-          짝이 달라져서 최종 두 자리가 바뀌어요. 실제로 민수→지영은 97%, 지영→민수는 31%예요. 그래서 이 사이트는 A→B를 ‘A가 B를
-          생각하는 마음’으로 보고, 두 방향 차이가 큰 조합을 ‘짝사랑’으로 골라요.
-        </p>
+        <h3 class="diary__h"><span class="mark">친구들 이름으로</span> 풀어본 결과</h3>
+        <div class="table-wrap">
+          <table class="seo-table ex-table">
+            <thead><tr><th scope="col">누가 → 누구</th><th scope="col">첫 줄</th><th scope="col">마음</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">민수 → 지영</th><td>7 4 4 5</td><td>97%</td></tr>
+              <tr><th scope="row">지영 → 민수</th><td>4 7 5 4</td><td>31%</td></tr>
+              <tr><th scope="row">서준 → 유나</th><td>4 4 7 4</td><td>92%</td></tr>
+              <tr><th scope="row">유나 → 서준</th><td>4 4 4 7</td><td>69%</td></tr>
+              <tr><th scope="row">도윤 → 하늘</th><td>5 5 6 8</td><td>15%</td></tr>
+              <tr><th scope="row">김민수 → 이지영</th><td>7 2 7 4 4 5</td><td>75%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="diary__memo">순서를 바꾸면 이웃끼리 더하는 짝이 달라져서 결과도 달라요. 그래서 두 방향 차이가 큰 조합을 <span class="mark">짝사랑</span>으로 골라요. 민수·지영은 97 대 31.</p>
 
-        <h3>단톡방 궁합표 사용법</h3>
-        <ul>
-          <li>카카오톡 단톡방 멤버 이름을 복사해 붙여넣거나 한 명씩 추가해요. 최대 12명까지 돼요.</li>
-          <li>궁합표에서 칸을 누르면 숫자 피라미드가 한 줄씩 계산되는 과정을 볼 수 있어요.</li>
-          <li>‘단톡방에 궁합표 보내기’를 누르면 같은 표가 열리는 링크가 만들어져요. 이름은 링크에만 담기고 서버에 저장되지 않아요.</li>
-          <li>반·동아리·회사처럼 자주 보는 방은 저장해 두고 언제든 다시 열 수 있어요.</li>
+        <h3 class="diary__h"><span class="mark">단톡방 궁합표</span> 만드는 순서</h3>
+        <ul class="diary__todo">
+          <li>카톡 단톡방 멤버 이름 복사 → 붙여넣기 (최대 12명)</li>
+          <li>표에서 칸 누르기 → 피라미드 계산 과정 보기</li>
+          <li>단톡방에 보내기 → 같은 표가 열리는 링크 (이름은 링크에만)</li>
+          <li>반·동아리처럼 자주 보는 방은 저장해 두기</li>
         </ul>
 
-        <h3>자주 묻는 질문</h3>
-        <details>
-          <summary>영어 이름이나 이모지가 들어간 이름도 되나요?</summary>
-          <p>이름궁합은 한글 획수로 계산해서, 한글이 아닌 글자는 빼고 계산해요. 한글이 하나도 없는 이름은 추가할 수 없어요.</p>
-        </details>
-        <details>
-          <summary>성까지 넣어야 하나요?</summary>
-          <p>둘 다 괜찮아요. 다만 성을 넣느냐에 따라 결과가 달라지니, 한 방 안에서는 같은 방식으로 맞춰 주세요.</p>
-        </details>
-        <details>
-          <summary>결과가 너무 낮게 나왔어요.</summary>
-          <p>획수로 하는 이름점은 재미로 보는 놀이예요. 실제 관계와는 아무 상관이 없으니 웃고 넘겨 주세요.</p>
-        </details>
-        <details>
-          <summary>100%는 왜 안 나와요?</summary>
-          <p>마지막에 두 자리 숫자만 남기 때문에 최대 99%예요. ‘00’이 나오면 0%로 계산해요.</p>
-        </details>
+        <section class="diary__qa" aria-label="자주 묻는 질문">
+          <h3 class="diary__h"><span class="mark">쪽지 Q&amp;A</span></h3>
+          <details>
+            <summary>Q. 영어 이름이나 이모지도 돼요?</summary>
+            <p>한글만 세요. 1:1에서 "지수A"는 지수만 계산하고, 한글이 하나도 없는 이름은 넣을 수 없어요.</p>
+          </details>
+          <details>
+            <summary>Q. 성까지 넣어야 해요?</summary>
+            <p>둘 다 돼요. 민수→지영 97%, 김민수→이지영 75%처럼 달라지니 한 방 안에서는 맞춰 주세요.</p>
+          </details>
+          <details>
+            <summary>Q. 100%는 왜 안 나와요?</summary>
+            <p>마지막에 두 자리만 남아서 최대 99%예요. "0 0"이 남으면 0%예요.</p>
+          </details>
+          <details>
+            <summary>Q. 결과가 너무 낮게 나왔어요</summary>
+            <p>도윤→하늘 15%, 하늘→도윤 37%처럼 획수 놀이라 그래요. 실제 사이와는 상관없는 재미용이에요.</p>
+          </details>
+        </section>
       </article>
 
-      <nav id="more" aria-label="다른 놀이"></nav>
+      <nav id="more" aria-label="다른 도구"></nav>
       <footer class="site-footer">이름 획수로 보는 재미용 콘텐츠예요.</footer>
     </main>
 
@@ -279,7 +302,7 @@
           <span class="field__label">어떤 방이에요?</span>
           <div class="row wrap gap-8" id="roomTypes"></div>
         </div>
-        <button class="btn btn--primary btn--lg btn--block" id="roomSave">저장하기</button>
+        <button class="sticker-btn sticker-btn--sm" id="roomSave"><span class="sticker-btn__t"><span class="mark">저장하기</span></span></button>
         <p class="t-caption-01 t-tertiary m0">이 기기에만 저장돼요.</p>
       </div>
     </div>

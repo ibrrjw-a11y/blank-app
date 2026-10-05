@@ -303,7 +303,7 @@ export class Tower {
     const H = this.ch;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     // 하늘: 높이 올라갈수록 낮 → 노을 → 밤
-    const sky = clamp((this.over ? this.floors : this.cam / BH + 6) / 42, 0, 1);
+    const sky = clamp((this.over ? this.floors : (this.cam + this.HW * 0.62 - HANG - BH) / BH) / 36, 0, 1);
     const g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, ramp(c.skyTop, sky));
     g.addColorStop(1, ramp(c.skyBot, sky));
@@ -577,7 +577,7 @@ export class Tower {
 // 공유 이미지: 내 탑 실루엣
 export function drawSilhouette(ctx, blocks, W, H, c, { floors, title = "", sub = "" }) {
   const g = ctx.createLinearGradient(0, 0, 0, H);
-  const t = clamp(floors / 42, 0, 1);
+  const t = clamp(floors / 36, 0, 1);
   g.addColorStop(0, ramp(c.skyTop, t));
   g.addColorStop(1, ramp(c.skyBot, t));
   ctx.fillStyle = g;

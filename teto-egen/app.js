@@ -552,15 +552,15 @@ function showFriend(f) {
   view.innerHTML = `
     <div class="te-topline"><span>${esc(who)}${josa(who, "이/가")} 보낸 경기 결과</span></div>
     ${poster(r, { label: `${who}의 판정` })}
-    <p class="te-desc">${esc(r.type.desc)}</p>
-    <section class="te-box">
-      <h3 class="te-box__title">부문별 기록 <small>테토 : 에겐</small></h3>
-      <ul class="te-doms">${domainRows(r)}</ul>
-    </section>
     <section class="te-box te-dare">
       <p><b>${esc(who)}</b>${josa(who, "은/는")} 테토 ${r.teto}%. 나는 어느 쪽으로 끌려갈까요? 끝나면 두 줄을 나란히 보여드려요.</p>
       <button type="button" class="te-pistol" id="friendGo"><span class="te-pistol__label"><b>탕!</b> 나도 출전하기</span><span class="te-pistol__meta">14경기 · 약 2분</span></button>
       ${mine ? `<button type="button" class="te-textbtn" id="friendCmp">지난 내 기록으로 바로 비교하기 →</button>` : ""}
+    </section>
+    <p class="te-desc">${esc(r.type.desc)}</p>
+    <section class="te-box">
+      <h3 class="te-box__title">부문별 기록 <small>테토 : 에겐</small></h3>
+      <ul class="te-doms">${domainRows(r)}</ul>
     </section>`;
   swapView("friend");
   const field = mountField($("[data-field]", view), { stiffness: 90, damping: 6 });

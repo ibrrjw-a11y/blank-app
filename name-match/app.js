@@ -14,6 +14,7 @@ import {
   showView,
   openSheet,
   renderMoreSites,
+  renderCrumb,
   createCanvas,
   roundRect,
   CANVAS_FONT,
@@ -334,7 +335,7 @@ function renderChips() {
     .join("");
   $("#count").textContent = `${names.length} / ${MAX}명`;
   $("#makeBtn").disabled = names.length < 2;
-  $("#makeBtn").textContent = names.length < 2 ? "두 명 이상 넣어 주세요" : `${names.length}명 궁합표 만들기`;
+  $("#makeLabel").textContent = names.length < 2 ? "두 명 이상 넣어 주세요" : `${names.length}명 궁합표 만들기`;
 }
 
 function bindInput() {
@@ -342,7 +343,7 @@ function bindInput() {
   const commit = () => {
     if (!nameInput.value.trim()) return;
     if (addNames(nameInput.value)) nameInput.value = "";
-    nameInput.focus();
+    nameInput.focus({ preventScroll: true });
   };
   $("#addBtn").addEventListener("click", commit);
   nameInput.addEventListener("keydown", (e) => {
@@ -373,7 +374,7 @@ function bindInput() {
       nameInput.value = names[i];
       names.splice(i, 1);
       renderChips();
-      nameInput.focus();
+      nameInput.focus({ preventScroll: true });
       nameInput.select();
     }
   });
@@ -494,7 +495,7 @@ function bindRooms() {
     $("#roomName").value = existing?.title || title || "";
     renderTypes();
     closeSheet = openSheet($("#roomSheet"));
-    setTimeout(() => $("#roomName").focus(), 350);
+    setTimeout(() => $("#roomName").focus({ preventScroll: true }), 350);
   });
   $("#roomSave").addEventListener("click", () => {
     const t = $("#roomName").value.trim() || `${current.names.length}명의 방`;
@@ -952,7 +953,8 @@ function bindResult() {
 }
 
 function init() {
-  renderMoreSites($("#more"), "name-match");
+  renderCrumb($("#crumb"));
+  renderMoreSites($("#more"));
   bindInput();
   bindRooms();
   bindResult();

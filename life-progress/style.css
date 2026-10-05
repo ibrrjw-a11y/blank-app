@@ -443,10 +443,10 @@ h1.intro__name { margin: 0; }
 .idx-link:active .idx-link__no { width: 64px; transition-duration: 90ms; }
 
 /* 생년월일 한 줄 요약 */
-.sum-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: var(--sp-20) 0 0; border-top: 1px solid var(--art-white); }
-.sum-row > div { padding: var(--sp-10) var(--sp-8) var(--sp-4) 0; min-width: 0; }
+.sum-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-16); margin: var(--sp-20) 0 0; border-top: 1px solid var(--art-white); }
+.sum-row > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-8); padding: var(--sp-10) 0; min-width: 0; border-bottom: 1px solid var(--art-hair); }
 .sum-row dt { font: 600 10px/14px var(--art-num); letter-spacing: 0.08em; color: var(--color-text-tertiary); }
-.sum-row dd { margin: var(--sp-4) 0 0; font: 900 17px/22px var(--font-display); letter-spacing: -0.03em; white-space: nowrap; }
+.sum-row dd { margin: 0; font: 900 17px/22px var(--font-display); letter-spacing: -0.03em; white-space: nowrap; }
 .sum-row > div:first-child dd { color: var(--brand); }
 
 /* ---------- SEO: 연차보고서 도표 ---------- */
