@@ -738,6 +738,12 @@ $("#ledgerBody").addEventListener("click", (e) => {
 });
 
 /* ---------- 시작 ---------- */
+// 제목 서체가 실제로 로드되면 표시 (CSS 에서 가짜 굵기 합성을 끄는 데 씀)
+document.fonts?.ready
+  .then(() => {
+    if (document.fonts.check('20px "Black Han Sans"')) document.documentElement.classList.add("has-display-font");
+  })
+  .catch(() => {});
 renderMoreSites($("#more"), "who-pays");
 renderSetup();
 enterIntro();

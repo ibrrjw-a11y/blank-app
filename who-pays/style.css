@@ -64,7 +64,6 @@ body {
 .wordmark {
   display: inline-block;
   font: 800 22px/1 var(--font-display);
-  font-synthesis: none;
   letter-spacing: -0.01em;
   transform: skewX(var(--art-skew));
   color: var(--color-text);
@@ -136,7 +135,6 @@ body {
   background: var(--art-chalk);
   color: var(--art-ink);
   font: 800 17px/26px var(--font-display);
-  font-synthesis: none;
   transform: skewX(var(--art-skew));
 }
 
@@ -160,7 +158,6 @@ body {
   border-radius: 0;
   clip-path: polygon(var(--sp-12) 0, 100% 0, calc(100% - var(--sp-12)) 100%, 0 100%);
   font: 800 21px/1 var(--font-display);
-  font-synthesis: none;
   letter-spacing: 0.01em;
   transition: transform var(--dur-slow) var(--art-spring), background var(--dur-fast);
 }
@@ -299,7 +296,6 @@ body {
 .kinetic {
   margin: 0 0 var(--sp-8);
   font: 800 44px/1.04 var(--font-display);
-  font-synthesis: none;
   letter-spacing: -0.02em;
   transform: skewX(var(--art-skew));
   transform-origin: left bottom;
@@ -363,7 +359,6 @@ body {
 .setup__title {
   margin: var(--sp-6) 0 0;
   font: 800 40px/1.08 var(--font-display);
-  font-synthesis: none;
   letter-spacing: -0.02em;
   transform: skewX(var(--art-skew));
   transform-origin: left bottom;
@@ -500,7 +495,6 @@ body {
   background: var(--color-surface);
   color: var(--color-text-secondary);
   font: 800 17px/1 var(--font-display);
-  font-synthesis: none;
   cursor: pointer;
   transform: skewX(var(--art-skew));
   transition: background var(--dur-base) var(--ease-standard), color var(--dur-base), transform var(--dur-slow) var(--art-spring);
@@ -577,7 +571,6 @@ body {
 
 .mode__name {
   font: 800 20px/1.2 var(--font-display);
-  font-synthesis: none;
 }
 
 .mode__pick {
@@ -769,7 +762,6 @@ body.is-playing .site-footer { display: none; }
 
 .barrel__turn .t-title-03 {
   font: 800 26px/1.2 var(--font-display);
-  font-synthesis: none;
   transform: skewX(var(--art-skew));
   transform-origin: left;
 }
@@ -787,7 +779,6 @@ body.is-playing .site-footer { display: none; }
 .barrel__win {
   color: var(--color-primary);
   font: 800 30px/1.2 var(--font-display);
-  font-synthesis: none;
   transform: skewX(var(--art-skew));
   animation: kit-pop var(--dur-slow) var(--art-spring) both;
 }
@@ -922,7 +913,6 @@ body.is-playing .site-footer { display: none; }
   background: var(--art-chalk);
   color: var(--art-ink);
   font: 800 18px/1.3 var(--font-display);
-  font-synthesis: none;
   white-space: nowrap;
   pointer-events: none;
   animation: float-up 1s var(--art-spring) forwards;
@@ -1008,7 +998,6 @@ body.is-playing .site-footer { display: none; }
 
 .stamp__text {
   font: 800 40px/1.1 var(--font-display);
-  font-synthesis: none;
   letter-spacing: -0.02em;
   overflow-wrap: anywhere;
 }
@@ -1162,7 +1151,6 @@ body.is-playing .site-footer { display: none; }
 .lg__title {
   margin: 0;
   font: 800 22px/1.2 var(--font-display);
-  font-synthesis: none;
   transform: skewX(var(--art-skew));
   transform-origin: left;
 }
@@ -1275,7 +1263,6 @@ body.is-playing .site-footer { display: none; }
 /* ---------- SEO ---------- */
 .seo h2 {
   font: 800 24px/1.25 var(--font-display);
-  font-synthesis: none;
 }
 
 .seo ol,
@@ -1292,3 +1279,10 @@ body.is-playing .site-footer { display: none; }
 }
 
 .more-sites__item { border-radius: var(--r-4); }
+
+/* Black Han Sans 가 실제로 로드된 경우에만 가짜 굵기 합성을 끈다 (대체 서체는 굵게 보이도록) */
+:root.has-display-font { font-synthesis-weight: none; }
+:root.has-display-font body { font-synthesis-weight: auto; }
+:root.has-display-font :is(.wordmark, .bc-h, .btn--go, .kinetic, .setup__title, .seg__btn, .mode__name, .barrel__turn .t-title-03, .barrel__win, .barrel__float, .stamp__text, .lg__title, .seo h2) { font-synthesis-weight: none; }
+
+.odo__col:last-of-type::before { transition: transform 90ms var(--ease-out); }
