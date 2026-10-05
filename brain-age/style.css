@@ -240,6 +240,7 @@ body.is-playing .site-footer {
 
 /* 성적서 인쇄 (장면 4) */
 .slip {
+  contain: paint;
   position: absolute;
   inset: var(--sp-10) var(--sp-16) 0;
   z-index: 2;
@@ -870,7 +871,7 @@ body.is-playing .site-footer {
 .mt__pad.is-locked { pointer-events: none; opacity: 0.5; }
 
 /* ============ 결과: 인쇄된 성적서 ============ */
-.res { padding: var(--sp-8) 0 var(--sp-16); }
+.res { padding: var(--sp-8) 0 var(--sp-16); overflow-x: clip; }
 
 .paper {
   position: relative;
@@ -898,6 +899,7 @@ body.is-playing .site-footer {
 .report__small { margin-top: var(--sp-8) !important; font: var(--caption-01); color: var(--art-ink-2); }
 
 .report {
+  overflow: hidden;
   padding-bottom: calc(var(--sp-64) + var(--sp-8));
   animation: print 900ms var(--art-snap) both;
   -webkit-mask-image: radial-gradient(circle at 7px 100%, transparent 4px, #000 4.5px);

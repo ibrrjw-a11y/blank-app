@@ -304,13 +304,17 @@ export function openSheet(sheet) {
     scrim.className = "sheet-scrim";
     document.body.appendChild(scrim);
   }
+  let closed = false;
   const close = () => {
+    closed = true;
     sheet.classList.remove("is-open");
     scrim.classList.remove("is-open");
   };
   scrim.onclick = close;
   sheet.querySelectorAll("[data-sheet-close]").forEach((b) => (b.onclick = close));
   requestAnimationFrame(() => {
+    // 같은 프레임 안에 닫혔다면 다시 열지 않는다
+    if (closed) return;
     sheet.classList.add("is-open");
     scrim.classList.add("is-open");
   });
