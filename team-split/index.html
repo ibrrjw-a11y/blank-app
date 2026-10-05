@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>팀 나누기 | 랜덤 팀 나누기·조 편성 - 카드 섞어서 공평하게 조 짜기</title>
+    <meta name="description" content="이름을 넣고 팀 수나 팀당 인원을 정하면 카드를 섞어 팀별로 나눠 줘요. 같은 팀 금지·필수, 팀장 먼저, 지난번과 최대한 다르게 조 편성. 결과는 단톡방용 글로 복사돼요." />
+    <meta name="keywords" content="팀 나누기, 랜덤 팀 나누기, 조 편성, 조 짜기, 자리 배치, 팀 짜기, 랜덤 조 편성, 모둠 나누기" />
+    <link rel="canonical" href="https://example.com/team-split/" />
+    <meta name="theme-color" content="#0d4a31" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://example.com/team-split/" />
+    <meta property="og:title" content="팀 나누기 - 카드 섞어서 공평하게 조 편성" />
+    <meta property="og:description" content="딜러가 카드를 돌리듯 팀을 나눠요. 같은 팀 금지, 팀장 먼저, 지난번과 다르게." />
+    <meta property="og:image" content="../og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🃏</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@600;800&display=swap" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "팀 나누기 - 랜덤 조 편성",
+        "url": "https://example.com/team-split/",
+        "description": "이름을 넣고 팀 수나 팀당 인원을 정하면 카드를 섞어 공평하게 팀을 나눠 주는 무료 조 편성 도구예요. 같은 팀 금지·필수, 팀장, 지난번과 다르게 옵션이 있어요.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "13명을 4명씩 나누면 어떻게 돼요?", "acceptedAnswer": { "@type": "Answer", "text": "3팀이 되고 남는 1명은 한 팀에 더 들어가요. 5·4·4명이에요." } },
+          { "@type": "Question", "name": "같은 팀이 되면 안 되는 사람을 정할 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "같은 팀 금지에 두 사람을 짝지어 넣으면 다른 팀으로 떨어뜨려요. 반대로 같은 팀 필수도 정할 수 있어요." } },
+          { "@type": "Question", "name": "지난번과 다른 팀으로 나눌 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "같은 명단으로 한 번 나눈 뒤 '지난번과 최대한 다르게'를 켜면 지난번에 같은 팀이었던 쌍이 최대한 적게 겹치도록 나눠요." } }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <nav id="crumb"></nav>
+
+      <!-- 1) 첫 화면: 딜러 테이블 -->
+      <section class="intro" id="intro" data-view="intro">
+        <div class="felt">
+          <h1 class="felt__title">팀 나누기<small>랜덤 조 편성 테이블</small></h1>
+          <svg class="felt__arc" viewBox="0 0 360 44" aria-hidden="true">
+            <path id="arcPath" d="M14 40 Q180 -6 346 40" fill="none" />
+            <text><textPath href="#arcPath" startOffset="50%" text-anchor="middle">같은 팀 금지 · 팀장 먼저 · 지난번과 다르게</textPath></text>
+          </svg>
+          <p class="placard" id="placard" aria-live="polite"></p>
+          <div class="felt__cards" id="introCards" aria-hidden="true"></div>
+          <p class="intro__invite" id="invite" hidden></p>
+          <button class="shoe" id="start" type="button">
+            <span class="shoe__box" aria-hidden="true"><span class="shoe__card"></span></span>
+            <span class="shoe__label"><b>DEAL</b><span id="startLabel">명단 넣고 딜하기</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 2) 명단 + 규칙 -->
+      <section data-view="setup" class="setup" hidden>
+        <header class="bar">
+          <button class="bar__back" id="toIntro" type="button">← 테이블</button>
+          <span class="bar__title">명단</span>
+          <span class="bar__count t-num" id="count">0명</span>
+        </header>
+
+        <div class="groups" id="groups" hidden>
+          <p class="gold-label">저장한 그룹</p>
+          <div class="groups__row" id="groupRow"></div>
+        </div>
+
+        <div class="block">
+          <form class="row gap-8" id="addForm" autocomplete="off">
+            <label class="sr-only" for="nameInput">이름</label>
+            <input class="input grow" id="nameInput" maxlength="600" placeholder="이름 (쉼표·줄바꿈으로 여러 명)" enterkeyhint="done" />
+            <button class="btn btn--secondary" type="submit">추가</button>
+          </form>
+          <div class="minis" id="names" aria-live="polite"></div>
+          <div class="row gap-8 wrap">
+            <button class="chip" type="button" id="sample">예시 12명 넣기</button>
+            <button class="chip" type="button" id="saveGroup" hidden>그룹 저장</button>
+            <button class="chip" type="button" id="clearNames" hidden>모두 지우기</button>
+          </div>
+        </div>
+
+        <div class="block">
+          <p class="gold-label">나누는 방법</p>
+          <div class="seg" role="radiogroup" aria-label="나누는 방법">
+            <button class="seg__btn" role="radio" data-by="teams" aria-checked="true">팀 수로</button>
+            <button class="seg__btn" role="radio" data-by="per" aria-checked="false">팀당 인원으로</button>
+          </div>
+          <div class="stepper">
+            <button class="stepper__btn" type="button" id="numMinus" aria-label="줄이기">−</button>
+            <span class="stepper__val"><b id="numVal" class="t-num">3</b><span id="numUnit">팀</span></span>
+            <button class="stepper__btn" type="button" id="numPlus" aria-label="늘리기">+</button>
+          </div>
+          <p class="split-sum" id="splitSum"></p>
+        </div>
+
+        <div class="block rules">
+          <p class="gold-label">딜러 규칙 (선택)</p>
+          <details class="rule" id="ruleLead">
+            <summary><span class="rule__suit">♛</span>팀장 먼저 <span class="rule__count" id="leadCount"></span></summary>
+            <p class="rule__how">팀마다 한 명씩 먼저 돌려요. 팀 수까지 고를 수 있어요.</p>
+            <div class="picks" id="leadPicks"></div>
+          </details>
+          <details class="rule" id="ruleAvoid">
+            <summary><span class="rule__suit">✕</span>같은 팀 금지 <span class="rule__count" id="avoidCount"></span></summary>
+            <p class="rule__how">두 사람을 차례로 누르면 한 쌍이 돼요.</p>
+            <div class="picks" id="avoidPicks"></div>
+            <div class="pairs" id="avoidPairs"></div>
+          </details>
+          <details class="rule" id="ruleTogether">
+            <summary><span class="rule__suit">＋</span>같은 팀 필수 <span class="rule__count" id="togetherCount"></span></summary>
+            <p class="rule__how">두 사람을 차례로 누르면 꼭 같은 팀이 돼요.</p>
+            <div class="picks" id="togetherPicks"></div>
+            <div class="pairs" id="togetherPairs"></div>
+          </details>
+          <label class="rule rule--toggle">
+            <input type="checkbox" id="diffToggle" />
+            <span class="rule__switch" aria-hidden="true"></span>
+            <span><b>지난번과 최대한 다르게</b><small id="diffNote">같은 명단으로 한 번 나누면 켤 수 있어요</small></span>
+          </label>
+        </div>
+
+        <div class="setup__cta">
+          <p class="setup__hint" id="ctaHint">2명 이상 넣어 주세요</p>
+          <button class="shoe shoe--wide" id="go" type="button" disabled>
+            <span class="shoe__box" aria-hidden="true"><span class="shoe__card"></span></span>
+            <span class="shoe__label"><b>DEAL</b><span id="goLabel">딜하기</span></span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3) 딜 + 결과 -->
+      <section data-view="play" class="play" hidden>
+        <header class="bar">
+          <button class="bar__back" id="toSetup" type="button">← 명단</button>
+          <span class="bar__title" id="playTitle">딜</span>
+        </header>
+        <div class="table-felt">
+          <div class="table" id="table"></div>
+        </div>
+        <div class="after" id="after" hidden>
+          <p class="note" id="note" hidden></p>
+          <button class="copy-slip" id="copyText" type="button">
+            <span class="copy-slip__head">단톡방용 복사</span>
+            <span class="copy-slip__body" id="copyPreview"></span>
+          </button>
+          <div class="after__grid">
+            <button class="btn btn--outline" id="shareLink">결과 링크 보내기</button>
+            <button class="btn btn--outline" id="shareImg">결과 이미지</button>
+            <button class="btn btn--ghost" id="again">다시 섞기</button>
+            <button class="btn btn--ghost" id="edit">명단 고치기</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEO 본문: 딜러 규칙 카드 -->
+      <article class="seo house" id="seo">
+        <p class="gold-label">HOUSE RULES · 조 편성 방법</p>
+        <h2>랜덤 팀 나누기, 이렇게 딜해요</h2>
+        <ol class="house__steps">
+          <li><b>섞기</b> 이름 카드를 리플 셔플로 섞어요. 무작위 값은 브라우저 암호용 난수예요.</li>
+          <li><b>팀장 먼저</b> 팀장을 정했다면 팀마다 한 장씩 먼저 돌려요.</li>
+          <li><b>돌리기</b> 1팀 → 2팀 → 3팀 순서로 한 장씩. 인원은 최대 1명 차이로 맞춰요.</li>
+          <li><b>규칙 확인</b> 금지·필수 쌍이 어긋나면 두 사람 자리를 바꿔 가며 맞춰요.</li>
+          <li><b>뒤집기</b> 더미를 뒤집으면 팀 완성. 단톡방용 글로 바로 복사돼요.</li>
+        </ol>
+
+        <h3>예시 · 12명 → 3팀 (4명씩)</h3>
+        <div class="spec-wrap">
+          <table class="spec">
+            <thead><tr><th scope="col">팀</th><th scope="col">카드</th><th scope="col">멤버</th></tr></thead>
+            <tbody>
+              <tr><td><i class="tchip tchip--sm" style="--team: var(--chip-1)"></i>1팀</td><td>♠</td><td>하늘(팀장), 민수, 수아, 지훈</td></tr>
+              <tr><td><i class="tchip tchip--sm" style="--team: var(--chip-2)"></i>2팀</td><td>♥</td><td>도윤(팀장), 철수, 유나, 시우</td></tr>
+              <tr><td><i class="tchip tchip--sm" style="--team: var(--chip-3)"></i>3팀</td><td>♦</td><td>서연(팀장), 영희, 지은, 예준</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="house__note">조건: 팀장 하늘·도윤·서연 / 금지 민수✕영희, 철수✕지은 / 필수 수아＋지훈. 세 조건 모두 지켜진 판이에요.</p>
+
+        <h3>인원이 딱 안 나눠질 때</h3>
+        <div class="spec-wrap">
+          <table class="spec">
+            <thead><tr><th scope="col">명단</th><th scope="col">설정</th><th scope="col">결과</th></tr></thead>
+            <tbody>
+              <tr><td>13명</td><td>3팀</td><td class="t-num">5 · 4 · 4</td></tr>
+              <tr><td>13명</td><td>팀당 4명</td><td class="t-num">3팀: 5 · 4 · 4</td></tr>
+              <tr><td>10명</td><td>4팀</td><td class="t-num">3 · 3 · 2 · 2</td></tr>
+              <tr><td>30명</td><td>팀당 6명</td><td class="t-num">5팀: 6명씩</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>지난번과 최대한 다르게</h3>
+        <p class="house__note">같은 명단으로 나눈 결과를 이 폰에 기억해 두고, 다음엔 지난번 같은 팀이었던 쌍이 가장 적게 겹치는 판을 골라요. 12명 3팀이면 겹침 0쌍은 불가능해요(4명을 세 팀에서 뽑으면 최소 한 쌍은 겹쳐요). 그래서 팀마다 1쌍, 총 3쌍이 최소예요.</p>
+
+        <h3>딜러 Q&amp;A</h3>
+        <details>
+          <summary>금지 조건을 다 못 지키면요?</summary>
+          <p>예를 들어 2팀인데 세 사람을 서로 금지하면 불가능해요. 이럴 땐 가장 적게 어긋나는 판을 보여 주고, 결과 위에 어떤 쌍을 못 지켰는지 적어 둬요.</p>
+        </details>
+        <details>
+          <summary>몇 명까지 나눌 수 있나요?</summary>
+          <p>2명부터 60명까지예요. 반 전체(30명 안팎) 모둠 편성도 한 번에 돼요.</p>
+        </details>
+        <details>
+          <summary>자리 배치에도 쓸 수 있나요?</summary>
+          <p>팀 수를 줄(분단) 수로 정하면 줄별 자리 배치가 돼요. 카드 순서가 그 줄 안의 앉는 순서예요.</p>
+        </details>
+        <details>
+          <summary>친구에게 같은 결과를 보여 줄 수 있나요?</summary>
+          <p>"결과 링크 보내기"를 누르면 팀 결과가 담긴 링크가 만들어져요. 받은 사람도 같은 팀 구성을 그대로 봐요.</p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 도구"></nav>
+      <footer class="site-footer">팀 나누기 · 카드는 무작위로 섞여요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

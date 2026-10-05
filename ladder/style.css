@@ -120,7 +120,7 @@ body {
   top: var(--sp-12);
   z-index: 2;
   margin: 0;
-  font: 700 40px/44px var(--font-display);
+  font: 700 36px/42px var(--font-display);
   color: var(--art-chalk);
   letter-spacing: -0.01em;
   transform: rotate(-2deg);
@@ -158,8 +158,8 @@ body {
   top: var(--sp-16);
   z-index: 2;
   margin: 0;
-  max-width: 46%;
-  font: 400 24px/26px var(--art-pen);
+  max-width: 38%;
+  font: 400 21px/24px var(--art-pen);
   color: var(--art-yellow);
   text-align: right;
   transform: rotate(3deg);
