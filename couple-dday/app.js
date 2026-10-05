@@ -810,7 +810,8 @@ function drawCard(r) {
   const rand = seededRandom(`card:${r.id}`);
   for (let i = 0; i < 16; i++) {
     ctx.globalAlpha = 0.1 + rand() * 0.18;
-    drawHeart(ctx, rand() * W, rand() * H * 0.9, 8 + rand() * 22, brand);
+    const side = i % 2 ? W - 20 - rand() * 64 : 20 + rand() * 64;
+    drawHeart(ctx, side, 30 + rand() * (H - 60), 8 + rand() * 18, brand);
   }
   ctx.globalAlpha = 1;
 

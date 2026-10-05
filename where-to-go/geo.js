@@ -111,10 +111,10 @@ export function miniMapSVG(mid, { w = 340, h = 230 } = {}) {
       const A = toXY(l.person.loc);
       const initial = esc((l.person.name || "?").slice(0, 1));
       return `
-      <g class="mm-pin" transform="translate(${A.x.toFixed(1)} ${A.y.toFixed(1)})" style="--c: var(--pc-${i % 6}); --d: ${i * 90}ms">
+      <g transform="translate(${A.x.toFixed(1)} ${A.y.toFixed(1)})"><g class="mm-pin" style="--c: var(--pc-${i % 6}); --d: ${i * 90}ms">
         <circle r="13"/>
         <text y="4.5" text-anchor="middle">${initial}</text>
-      </g>`;
+      </g></g>`;
     })
     .join("");
 

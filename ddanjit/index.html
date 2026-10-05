@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>오늘의 데일리 퀴즈 | 딴짓 오락실 - 하루 3분 추리 게임 (줌아웃·동네 맞히기·추억 퀴즈)</title>
+    <meta
+      name="description"
+      content="매일 자정 새 문제가 나오는 데일리 퀴즈 오락실. 확대된 그림 맞히기 줌아웃, 거리·방향 힌트로 푸는 오늘의 동네, 그때 그 가격, 추억 연대기까지. 심심할 때 3분이면 끝나는 혼자 하는 웹게임이에요."
+    />
+    <meta name="keywords" content="데일리 퀴즈, 오늘의 퀴즈, 꼬들, 꼬맨틀, 심심할때 할만한 게임, 웹게임, 추억 퀴즈, 동네 맞히기, 그림 맞히기, 옛날 물가 퀴즈" />
+    <link rel="canonical" href="https://example.com/ddanjit/" />
+    <meta name="theme-color" content="#0e0d0b" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="딴짓 오락실" />
+    <meta property="og:url" content="https://example.com/ddanjit/" />
+    <meta property="og:title" content="딴짓 오락실 - 하루 3분, 혼자 하는 데일리 추리 게임" />
+    <meta property="og:description" content="줌아웃 · 오늘의 동네 · 그때 그 가격 · 추억 연대기. 매일 자정 새 문제, 틀릴수록 힌트가 점점 따뜻해져요." />
+    <meta property="og:image" content="og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Press+Start+2P&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": ["WebApplication", "Game"],
+        "name": "딴짓 오락실",
+        "alternateName": "하루 3분 데일리 추리 게임",
+        "url": "https://example.com/ddanjit/",
+        "description": "매일 자정(한국 시간) 새 문제가 나오는 데일리 퀴즈 모음. 줌아웃, 오늘의 동네, 그때 그 가격, 추억 연대기 4가지 게임을 혼자 3분 만에 즐겨요.",
+        "applicationCategory": "GameApplication",
+        "genre": ["퍼즐", "퀴즈", "추리"],
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "numberOfPlayers": { "@type": "QuantitativeValue", "value": 1 },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "문제는 매일 언제 바뀌나요?", "acceptedAnswer": { "@type": "Answer", "text": "매일 자정, 한국 시간(KST) 기준으로 네 게임 모두 새 문제로 바뀌어요. 같은 날에는 누구나 같은 문제를 풀어요." } },
+          { "@type": "Question", "name": "기록은 어디에 저장되나요?", "acceptedAnswer": { "@type": "Answer", "text": "지금 쓰는 기기의 브라우저(localStorage)에만 저장돼요. 서버로 보내지 않고, 다른 사람과 순위를 비교하지 않아요." } },
+          { "@type": "Question", "name": "정답은 언제 공개되나요?", "acceptedAnswer": { "@type": "Answer", "text": "게임을 끝내면 맞혔든 못 맞혔든 결과 화면에서 바로 정답을 보여줘요. 공유 문구에는 정답이 들어가지 않아요." } }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <!-- 1) 첫 화면: 오락실 캐비닛 화면에서 게임이 실제로 돌아가는 모션 -->
+      <section class="intro" id="intro" data-view="intro">
+        <header class="marquee">
+          <span class="marquee__lamp" aria-hidden="true"></span>
+          <span class="marquee__name">딴짓 오락실</span>
+          <span class="marquee__coin" aria-hidden="true">INSERT COIN</span>
+        </header>
+        <h1 class="kinetic" aria-label="하루 3분, 혼자 하는 추리 게임">
+          <span class="kinetic__line" data-split>하루 3분</span>
+          <span class="kinetic__line kinetic__line--accent" data-split>혼자 하는 추리</span>
+        </h1>
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__steps"></div>
+        <div class="intro__caption" aria-live="polite"></div>
+        <div class="intro__cta">
+          <button class="btn btn--primary btn--lg btn--block btn--coin" id="start">오늘의 딴짓 시작</button>
+          <p class="t-caption-01 t-tertiary intro__note">매일 자정 새 문제 · 게임 4개 · 순위표 없이 나만의 기록</p>
+        </div>
+      </section>
+
+      <!-- 2) 오늘의 게임 고르기 -->
+      <section class="hub" id="hub" data-view="hub" hidden></section>
+
+      <!-- 3) 게임 화면 -->
+      <section class="game" id="game" data-view="game" hidden></section>
+
+      <!-- 4) SEO 본문 -->
+      <article class="seo">
+        <h2>딴짓 오락실은 어떤 곳인가요?</h2>
+        <p>
+          하루에 한 번, 3분이면 끝나는 <strong>데일리 퀴즈</strong> 오락실이에요. 꼬들·꼬맨틀처럼 매일 같은 문제가 하나씩 나오고, 틀릴 때마다 힌트가 조금씩
+          따뜻해져요. 모르는 사람과 점수를 겨루는 순위표는 없어요. 어제의 나보다 빨리 맞히는 재미, 그리고 친구에게 “이거 해봐” 하고 툭 던지는 재미만 있어요.
+          심심할 때 할만한 게임, 설치 없는 웹게임을 찾고 있다면 지금 바로 오늘의 퀴즈부터 풀어보세요.
+        </p>
+
+        <h2>게임별 규칙</h2>
+        <h3>🔍 줌아웃 – 오늘의 사물 맞히기</h3>
+        <p>
+          그림 하나를 아주 크게 확대한 장면에서 시작해요. 무엇인지 한글로 입력하면 되고, 틀릴 때마다 화면이 한 단계씩 줌아웃돼요. 기회는 6번이에요. 2번 틀리면
+          분류 힌트가, 3번 틀리면 보기 4개 중에서 고를 수 있는 힌트가 열려요. “라면”, “라멘”처럼 자주 쓰는 다른 이름도 정답으로 인정해요.
+        </p>
+        <h3>🧭 오늘의 동네 – 시·군·구 맞히기</h3>
+        <p>
+          전국 시·군·구 중 오늘의 동네 하나를 맞혀요. 아무 동네나 입력하면 정답까지의 거리(km), 8방위 화살표, 가까움(%)을 알려줘요. 6번 안에 맞히면 성공이고, 4번
+          틀리면 어느 시·도인지 알려줘요. 거리는 각 시·군·구의 대략적인 중심 좌표로 계산해서 몇 km 정도 오차가 있을 수 있어요.
+        </p>
+        <h3>💸 그때 그 가격 – 옛날 물가 퀴즈</h3>
+        <p>
+          “1980년 짜장면 한 그릇은 얼마였을까?” 같은 문제에 금액을 적으면 더 비쌌는지, 더 쌌는지 알려줘요. 정답과 10% 이내면 정답이에요. 5번 안에 맞혀 보세요.
+          가격은 널리 알려진 대략적인 당시 평균가이고, 최저시급처럼 공식 값이 있는 문제는 정확한 값을 써요.
+        </p>
+        <h3>📼 추억 연대기 – 추억 퀴즈</h3>
+        <p>
+          과자, 드라마, 노래, 게임, 사건이 적힌 카드를 한 장씩 받아서 시간 순서에 맞는 자리에 끼워 넣어요. 틀리면 실제 연도와 함께 제자리로 옮겨져요. 6장을 다
+          놓으면 맞힌 시대를 바탕으로 “당신은 ○○년대 감성” 결과를 보여줘요.
+        </p>
+
+        <h2>자주 묻는 질문</h2>
+        <details>
+          <summary>문제는 매일 언제 바뀌나요?</summary>
+          <p>매일 자정, 한국 시간(KST) 기준으로 네 게임 모두 새 문제로 바뀌어요. 같은 날에는 누구나 같은 문제를 풀어요. 화면에 다음 문제까지 남은 시간이 보여요.</p>
+        </details>
+        <details>
+          <summary>기록은 어디에 저장되나요?</summary>
+          <p>
+            지금 쓰는 기기의 브라우저(localStorage)에만 저장돼요. 플레이 수, 성공률, 연속 기록, 시도 분포 모두 나만 보는 숫자예요. 브라우저 데이터를 지우거나
+            다른 기기에서 열면 기록이 처음부터 시작돼요.
+          </p>
+        </details>
+        <details>
+          <summary>정답은 언제 공개되나요?</summary>
+          <p>게임을 끝내면 맞혔든 못 맞혔든 결과 화면에서 바로 정답을 보여줘요. 친구에게 보내는 공유 문구에는 정답 없이 이모지 결과만 들어가요.</p>
+        </details>
+        <details>
+          <summary>순위나 랭킹은 없나요?</summary>
+          <p>일부러 만들지 않았어요. 모르는 사람과 경쟁하지 않고, 혼자 조용히 추리하는 3분을 위한 오락실이에요.</p>
+        </details>
+        <details>
+          <summary>가격이나 연도가 실제와 조금 달라요.</summary>
+          <p>
+            그때 그 가격은 지역·가게마다 차이가 있어서 대략적인 평균가로 보여줘요. 추억 연대기는 연도가 확실한 카드만 넣었어요. 혹시 다른 점을 발견하면
+            알려주세요.
+          </p>
+        </details>
+      </article>
+
+      <nav id="more"></nav>
+      <footer class="site-footer">기록은 이 기기에만 저장돼요 · 가격은 대략적인 평균가예요</footer>
+    </main>
+    <aside class="sheet" id="result" role="dialog" aria-label="결과"></aside>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

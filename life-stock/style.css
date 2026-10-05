@@ -57,7 +57,6 @@ body {
   border-radius: var(--r-24);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-l);
   overflow: hidden;
 }
 .demo__tape-wrap {
@@ -88,7 +87,7 @@ body {
 .demo__name { font: var(--label-02); color: var(--color-text-secondary); }
 .demo__name b { color: var(--color-text); font: var(--title-04); margin-right: var(--sp-4); }
 .demo__price { font: var(--title-02); letter-spacing: -0.01em; }
-.demo__chg { font: var(--label-02); color: var(--ls-up); }
+.demo__chg { font: var(--label-02); }
 .demo[data-scene="1"] .demo__chg { animation: kit-pop var(--dur-xslow) var(--ease-emphasized) both; }
 .demo__svg { width: 100%; height: auto; display: block; }
 .demo__svg text { font-family: var(--font-sans); }
@@ -488,3 +487,25 @@ select.input {
 .ceremony .btn { animation: kit-fade-up var(--dur-slow) var(--ease-standard) 1.2s both; }
 .ceremony__tape { overflow: hidden; margin: 0 calc(var(--gutter) * -1); border-block: 1px solid var(--color-border); padding: var(--sp-8) 0; }
 .ceremony__tape .demo__tape { animation-duration: 10s; }
+
+/* 데모 SVG 색 (토큰) */
+.demo__bandbg { fill: transparent; }
+.demo__bandbg.is-odd { fill: color-mix(in srgb, var(--color-text) 4%, transparent); }
+.demo__bandtxt { font: var(--label-03); font-size: 10px; fill: var(--color-text-secondary); }
+.demo__bandtxt.is-up { fill: var(--ls-up); }
+.demo__bandtxt.is-down { fill: var(--ls-down); }
+.demo__bandage { font-size: 8px; fill: var(--color-text-tertiary); }
+.demo__stop1 { stop-color: var(--ls-up); stop-opacity: 0.35; }
+.demo__stop2 { stop-color: var(--ls-up); stop-opacity: 0; }
+.demo__line { fill: none; stroke: var(--ls-up); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.demo__zone { fill: var(--ls-down-soft); }
+.demo__now { stroke: var(--color-text-tertiary); stroke-dasharray: 3 3; }
+.demo__nowdot { fill: var(--color-text); }
+.demo__cross line { stroke: var(--color-text); stroke-width: 1; }
+.demo__peak rect { fill: var(--color-warning); }
+.demo__peak text { font: var(--label-03); font-size: 11px; font-weight: 800; fill: var(--color-bg); }
+.demo__peak circle { fill: var(--color-warning); }
+.demo__candle.is-up line { stroke: var(--ls-up); }
+.demo__candle.is-up rect { fill: var(--ls-up); }
+.demo__candle.is-down line { stroke: var(--ls-down); }
+.demo__candle.is-down rect { fill: var(--ls-down); }

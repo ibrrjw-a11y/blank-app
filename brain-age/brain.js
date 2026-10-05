@@ -12,7 +12,9 @@ export const CEREBRUM =
 // 소뇌
 export const CEREBELLUM = "M220 170C236 164 266 164 277 177C286 192 270 207 248 207C228 207 212 196 214 184C215 177 216 173 220 170Z";
 // 뇌줄기
-export const STEM = "M196 176C199 196 197 214 190 232L210 234C214 214 217 196 218 178Z";
+export const STEM = "M198 176C201 194 200 212 193 229C199 233 207 233 212 229C212 212 214 194 219 178Z";
+// 소뇌 주름
+export const FOLIA = ["M224 181C240 176 262 177 274 186", "M220 192C236 189 256 191 270 197", "M226 201C238 201 252 202 262 204"];
 // 고랑(장식선)
 export const SULCI = [
   "M104 150C130 134 160 128 196 138C210 142 222 136 234 126",
@@ -102,9 +104,11 @@ export function brainMarkup() {
       </filter>
       <radialGradient id="ba-hot"><stop offset="0" class="ba-hot-0" /><stop offset="1" class="ba-hot-1" /></radialGradient>
     </defs>
-    <path class="ba-shell" d="${CEREBELLUM}" />
-    <path class="ba-shell" d="${STEM}" />
-    <path class="ba-shell ba-shell--main" d="${CEREBRUM}" />
+    <g class="ba-back" filter="url(#ba-glow)">
+      <path d="${STEM}" /><path d="${CEREBELLUM}" />
+    </g>
+    <g class="ba-folia">${FOLIA.map((d) => `<path d="${d}" />`).join("")}</g>
+    <path class="ba-shell" d="${CEREBRUM}" />
     ${Object.entries(REGIONS)
       .map(([k, r]) => `<circle class="ba-region" data-k="${k}" cx="${r.x}" cy="${r.y}" r="34" fill="url(#ba-hot)" />`)
       .join("")}
@@ -120,9 +124,7 @@ export function brainMarkup() {
     <g class="ba-pulses" filter="url(#ba-glow)">${pulses
       .map((t) => `<path class="ba-pulse" d="${tracePath(t)}" />`)
       .join("")}</g>
-    <g class="ba-outline" filter="url(#ba-glow)">
-      <path d="${CEREBELLUM}" /><path d="${STEM}" /><path d="${CEREBRUM}" />
-    </g>
+    <g class="ba-outline" filter="url(#ba-glow)"><path d="${CEREBRUM}" /></g>
   </svg>`;
 }
 
@@ -136,7 +138,7 @@ export function initPulses(root) {
   });
 }
 
-// 공유 카드/OG용 캔버스 그리기. colors: { line, glow, dim, fill }
+// 공유 카드/OG용 캔버스 그리기. colors: { line, glow, dim, fill, base(불투명 배경) }
 export function drawBrain(ctx, x, y, scale, colors) {
   const traces = buildTraces();
   ctx.save();
@@ -144,11 +146,27 @@ export function drawBrain(ctx, x, y, scale, colors) {
   ctx.scale(scale, scale);
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
-  const shapes = [CEREBELLUM, STEM, CEREBRUM].map((d) => new Path2D(d));
-  shapes.forEach((s) => {
+  const back = [STEM, CEREBELLUM].map((d) => new Path2D(d));
+  const main = new Path2D(CEREBRUM);
+  ctx.shadowColor = colors.glow;
+  ctx.shadowBlur = 10;
+  ctx.strokeStyle = colors.line;
+  ctx.lineWidth = 2.4;
+  back.forEach((s) => {
+    ctx.fillStyle = colors.base;
+    ctx.fill(s);
     ctx.fillStyle = colors.fill;
     ctx.fill(s);
+    ctx.stroke(s);
   });
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = colors.dim;
+  ctx.lineWidth = 1.4;
+  FOLIA.forEach((d) => ctx.stroke(new Path2D(d)));
+  ctx.fillStyle = colors.base;
+  ctx.fill(main);
+  ctx.fillStyle = colors.fill;
+  ctx.fill(main);
   // 회로
   ctx.strokeStyle = colors.dim;
   ctx.lineWidth = 1.4;
@@ -170,6 +188,6 @@ export function drawBrain(ctx, x, y, scale, colors) {
   });
   // 외곽선
   ctx.lineWidth = 2.6;
-  shapes.forEach((s) => ctx.stroke(s));
+  ctx.stroke(main);
   ctx.restore();
 }

@@ -1,0 +1,1031 @@
+import {
+  $,
+  $$,
+  createStore,
+  toast,
+  haptic,
+  share,
+  shareImage,
+  encodeState,
+  decodeState,
+  urlWith,
+  getParam,
+  todayKey,
+  runIntro,
+  showView,
+  renderMoreSites,
+  createCanvas,
+  roundRect,
+  CANVAS_FONT,
+  countUp,
+  fmt,
+  prefersReducedMotion,
+} from "../shared/kit.js";
+
+const store = createStore("life-progress");
+const DAY = 86400000;
+const YEAR_DAYS = 365.2425;
+const WD = ["일", "월", "화", "수", "목", "금", "토"];
+const ZODIAC = ["쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"];
+const ZODIAC_EMOJI = ["🐭", "🐮", "🐯", "🐰", "🐲", "🐍", "🐴", "🐑", "🐵", "🐔", "🐶", "🐷"];
+const DEFAULT_LIFE = 83.5; // 통계청 2023년 생명표 기대수명
+
+/* ---------- 날짜 ---------- */
+const pad = (n) => String(n).padStart(2, "0");
+const key = (y, m, d) => `${y}-${pad(m)}-${pad(d)}`;
+const parts = (k) => k.split("-").map(Number);
+const toUTC = (k) => {
+  const [y, m, d] = parts(k);
+  return Date.UTC(y, m - 1, d);
+};
+const fromUTC = (ms) => new Date(ms).toISOString().slice(0, 10);
+const addDays = (k, n) => fromUTC(toUTC(k) + n * DAY);
+const diffDays = (a, b) => Math.round((toUTC(b) - toUTC(a)) / DAY);
+const weekday = (k) => WD[new Date(toUTC(k)).getUTCDay()];
+const dotDate = (k) => k.replaceAll("-", ".");
+const longDate = (k) => `${dotDate(k)} (${weekday(k)})`;
+const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+function validKey(y, m, d) {
+  if (!(y >= 1900 && m >= 1 && m <= 12 && d >= 1)) return null;
+  const dim = [31, isLeap(y) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+  return d <= dim ? key(y, m, d) : null;
+}
+// 그 해의 생일. 2월 29일생은 평년에 3월 1일로 봐요 (민법 기간 계산 방식)
+function birthdayIn(birth, y) {
+  const [, m, d] = parts(birth);
+  if (m === 2 && d === 29 && !isLeap(y)) return key(y, 3, 1);
+  return key(y, m, d);
+}
+function manAge(birth, asOf) {
+  const [by] = parts(birth);
+  const [y] = parts(asOf);
+  return y - by - (asOf < birthdayIn(birth, y) ? 1 : 0);
+}
+function nextBirthday(birth, asOf) {
+  const [y] = parts(asOf);
+  let b = birthdayIn(birth, y);
+  if (b < asOf) b = birthdayIn(birth, y + 1);
+  return b;
+}
+const esc = (s) =>
+  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const token = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function alpha(hex, a) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+}
+
+/* ---------- 상태 ---------- */
+const state = {
+  birth: store.get("birth", null),
+  life: Number(store.get("life", DEFAULT_LIFE)) || DEFAULT_LIFE,
+  unit: store.get("unit", "week"),
+  bucket: store.get("bucket", []) || [],
+  parent: store.get("parent", { age: "", per: "" }) || { age: "", per: "" },
+  asOf: null,
+  friend: null,
+  showPastMiles: false,
+};
+
+/* ---------- 계산 ---------- */
+function lifeModel(birth, life, today = todayKey()) {
+  const lived = diffDays(birth, today) + 1; // 태어난 날 = 1일째
+  const totalDays = life * YEAR_DAYS;
+  const end = addDays(birth, Math.round(totalDays));
+  const pct = Math.min(100, Math.max(0, ((lived - 1) / totalDays) * 100));
+  const age = manAge(birth, today);
+  const lastBday = birthdayIn(birth, parts(birth)[0] + age);
+  const weekInYear = Math.min(51, Math.floor(diffDays(lastBday, today) / 7));
+  const [, bm, bd] = parts(birth);
+  const [ty, tm, tdd] = parts(today);
+  let monthInYear = (ty - parts(lastBday)[0]) * 12 + (tm - bm) - (tdd < Math.min(bd, 28) ? 1 : 0);
+  monthInYear = Math.max(0, Math.min(11, monthInYear));
+  return { lived, totalDays, end, pct, age, weekInYear, monthInYear, today };
+}
+function countDates(from, to, mmdd) {
+  // from..to 사이에 들어 있는 특정 월·일의 개수
+  let n = 0;
+  for (let y = parts(from)[0]; y <= parts(to)[0]; y++) {
+    const k = `${y}-${mmdd}`;
+    if (k >= from && k <= to) n++;
+  }
+  return n;
+}
+function emotionalStats(birth, life) {
+  const m = lifeModel(birth, life);
+  const today = m.today;
+  const end = m.end;
+  const christmas = end > today ? countDates(today, end, "12-25") : 0;
+  // 남은 주말 = 남은 토요일 수
+  let weekends = 0;
+  if (end > today) {
+    const dow = new Date(toUTC(today)).getUTCDay();
+    const firstSat = addDays(today, (6 - dow + 7) % 7);
+    weekends = firstSat <= end ? Math.floor(diffDays(firstSat, end) / 7) + 1 : 0;
+  }
+  // 남은 봄: 아직 끝나지 않은 봄(3~5월) 중 기대수명 안에 시작하는 것
+  let springs = 0;
+  for (let y = parts(today)[0]; y <= parts(end)[0]; y++) {
+    if (`${y}-05-31` >= today && `${y}-03-01` <= end) springs++;
+  }
+  const livedMs = Date.now() - (toUTC(birth) - 9 * 3600000);
+  const beats = (livedMs / 60000) * 70;
+  const orbits = (m.lived - 1) / 365.256;
+  const sleepYears = ((m.lived - 1) * 8) / 24 / YEAR_DAYS;
+  return { ...m, christmas, weekends, springs, beats, orbits, sleepYears };
+}
+function milestones(birth, life) {
+  const list = [];
+  [1000, 5000, 10000, 15000, 20000, 25000, 30000].forEach((n) =>
+    list.push({ date: addDays(birth, n - 1), title: `${fmt.num(n)}일째`, sub: n === 10000 ? "만 일, 태어난 날 = 1일째" : "태어난 날 = 1일째", hot: n % 10000 === 0 }),
+  );
+  [
+    [1e8, "1억 초"],
+    [1e9, "10억 초"],
+    [2e9, "20억 초"],
+  ].forEach(([s, t]) => list.push({ date: fromUTC(toUTC(birth) + s * 1000), title: `${t} 살기`, sub: "태어난 시각을 0시로 가정한 대략치", hot: s === 1e9 }));
+  [1000, 2000, 3000, 4000].forEach((w) => list.push({ date: addDays(birth, w * 7), title: `${fmt.num(w)}주`, sub: "그리드 한 칸 = 일주일" }));
+  [20, 30, 40, 50, 60, 70, 80].forEach((a) =>
+    list.push({ date: birthdayIn(birth, parts(birth)[0] + a), title: `만 ${a}세`, sub: a === 60 ? "환갑" : "생일", hot: a % 10 === 0 && a <= 40 }),
+  );
+  list.push({ date: addDays(birth, Math.round((life * YEAR_DAYS) / 2)), title: "인생의 절반", sub: `기대수명 ${life}세 가정` });
+  return list.sort((a, b) => (a.date < b.date ? -1 : 1));
+}
+
+/* ---------- 만나이 계산기 ---------- */
+function parseBirth(raw) {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length !== 8) return null;
+  return validKey(Number(digits.slice(0, 4)), Number(digits.slice(4, 6)), Number(digits.slice(6, 8)));
+}
+function formatBirthInput(raw) {
+  const d = raw.replace(/\D/g, "").slice(0, 8);
+  if (d.length <= 4) return d;
+  if (d.length <= 6) return `${d.slice(0, 4)}.${d.slice(4)}`;
+  return `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6)}`;
+}
+const birthInput = $("#birth");
+birthInput.addEventListener("input", () => {
+  const before = birthInput.value;
+  birthInput.value = formatBirthInput(before);
+  const field = $("#birthField");
+  const digits = birthInput.value.replace(/\D/g, "");
+  field.classList.remove("is-error");
+  $("#birthHelp").textContent = "숫자 8자리만 넣으면 돼요";
+  if (digits.length < 8) return;
+  const k = parseBirth(digits);
+  if (!k || k > todayKey()) {
+    field.classList.add("is-error");
+    $("#birthHelp").textContent = !k ? "없는 날짜예요. 다시 확인해 주세요" : "미래 날짜는 계산할 수 없어요";
+    return;
+  }
+  setBirth(k, { fresh: true });
+  birthInput.blur();
+});
+$("#asof").addEventListener("change", () => {
+  const v = $("#asof").value;
+  state.asOf = /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
+  renderCalc();
+});
+$("#asofToday").onclick = () => {
+  state.asOf = null;
+  $("#asof").value = todayKey();
+  renderCalc();
+};
+
+function setBirth(k, { fresh = false } = {}) {
+  const changed = state.birth !== k;
+  state.birth = k;
+  store.set("birth", k);
+  renderAll({ animate: fresh || changed });
+  if (fresh) haptic(14);
+}
+
+function renderCalc(animate = false) {
+  const b = state.birth;
+  if (!b) return;
+  const today = todayKey();
+  const asOf = state.asOf || today;
+  $("#asofLabel").textContent = asOf === today ? "(오늘)" : `(${dotDate(asOf)})`;
+  const res = $("#calcResult");
+  res.hidden = false;
+  if (asOf < b) {
+    $("#ageAsOf").textContent = "기준일이 생일보다 앞이에요";
+    $("#ageMan").textContent = "–";
+    return;
+  }
+  const [by, bm, bd] = parts(b);
+  const [ay] = parts(asOf);
+  const age = manAge(b, asOf);
+  $("#ageAsOf").textContent = `${asOf === today ? "오늘" : longDate(asOf)} 기준 · ${dotDate(b)}생`;
+  if (animate) countUp($("#ageMan"), age, { duration: 700, format: (n) => String(Math.round(n)) });
+  else $("#ageMan").textContent = age;
+  $("#ageYear").textContent = `${ay - by}세`;
+  $("#ageKor").textContent = `${ay - by + 1}살`;
+  const nb = nextBirthday(b, asOf);
+  const gap = diffDays(asOf, nb);
+  $("#nextBday").textContent = gap === 0 ? "오늘 🎂" : `D-${fmt.num(gap)}`;
+  const leapNote = bm === 2 && bd === 29 && nb.slice(5) === "03-01" ? " · 평년이라 3월 1일 기준" : "";
+  $("#nextBdaySub").textContent = `${longDate(nb)} · 만 ${manAge(b, nb)}세${leapNote}`;
+  const zi = (((by - 4) % 12) + 12) % 12;
+  $("#zodiac").textContent = `${ZODIAC_EMOJI[zi]} ${ZODIAC[zi]}띠`;
+  $("#zodiacSub").textContent = bm <= 2 ? "1~2월생은 설·입춘 기준으로 앞 해 띠일 수 있어요" : "양력 출생 연도 기준";
+  const lived = diffDays(b, asOf) + 1;
+  if (animate) countUp($("#livedDays"), lived, { duration: 900, format: (n) => `${fmt.num(Math.round(n))}일째` });
+  else $("#livedDays").textContent = `${fmt.num(lived)}일째`;
+  $("#calcNote").textContent =
+    bm === 2 && bd === 29
+      ? "2월 29일생은 평년에는 3월 1일에 만 나이가 한 살 늘어나는 것으로 계산해요. 2023년 6월 28일부터 법적 나이는 만 나이로 통일됐어요."
+      : "2023년 6월 28일부터 법적 나이는 만 나이로 통일됐어요. 연 나이는 일부 법(청소년보호법·병역법 등)에서만 써요.";
+}
+
+/* ---------- 생일 주간 배너 ---------- */
+function renderBanner() {
+  const el = $("#bdayBanner");
+  const b = state.birth;
+  const today = todayKey();
+  const [y] = parts(today);
+  const thisYear = birthdayIn(b, y);
+  const g = diffDays(today, thisYear);
+  const prevYear = birthdayIn(b, y - 1);
+  const nextYear = birthdayIn(b, y + 1);
+  const near = [thisYear, prevYear, nextYear].map((d) => diffDays(today, d)).find((d) => d >= -3 && d <= 6);
+  if (near == null) {
+    el.hidden = true;
+    return;
+  }
+  const age = manAge(b, today);
+  el.hidden = false;
+  el.innerHTML =
+    near === 0
+      ? `<span class="bday-banner__ico" aria-hidden="true">🎂</span><div><p class="t-body-02-strong">생일 축하해요! 오늘부터 만 ${age}세예요</p><p class="t-caption-01">그리드에 새로운 한 줄이 시작됐어요. 첫 칸을 멋지게 채워봐요.</p></div>`
+      : near > 0
+        ? `<span class="bday-banner__ico" aria-hidden="true">🎈</span><div><p class="t-body-02-strong">생일 주간이에요 · D-${near}</p><p class="t-caption-01">곧 만 ${age + 1}세가 돼요. 지금 줄의 마지막 칸이에요.</p></div>`
+        : `<span class="bday-banner__ico" aria-hidden="true">🎉</span><div><p class="t-body-02-strong">생일 주간이에요 · 만 ${age}세 ${-near + 1}일째</p><p class="t-caption-01">새 줄의 첫 칸을 채우는 중이에요.</p></div>`;
+  void g;
+}
+
+/* ---------- 인생 진행률 + 그리드 ---------- */
+const UNITS = {
+  week: { perYear: 52, cols: 52, name: "주" },
+  month: { perYear: 12, cols: 24, name: "개월" },
+  year: { perYear: 1, cols: 10, name: "년" },
+};
+const grid = {
+  canvas: $("#lifeGrid"),
+  layer: null,
+  geo: null,
+  sweep: 1,
+  sweepStart: 0,
+  raf: 0,
+  visible: true,
+};
+function gridData() {
+  const m = lifeModel(state.birth, state.life);
+  const u = UNITS[state.unit];
+  const total = Math.max(1, Math.round(state.life * u.perYear));
+  let current;
+  if (state.unit === "week") current = m.age * 52 + m.weekInYear;
+  else if (state.unit === "month") current = m.age * 12 + m.monthInYear;
+  else current = m.age;
+  current = Math.min(total - 1, current);
+  const goals = state.bucket
+    .filter((b) => b.age !== "" && b.age != null && Number.isFinite(Number(b.age)))
+    .map((b) => ({ ...b, idx: Math.min(total - 1, Math.round(Number(b.age) * u.perYear)) }));
+  return { m, u, total, current, goals };
+}
+function layoutGrid() {
+  const c = grid.canvas;
+  const W = c.parentElement.clientWidth;
+  const { u, total } = gridData();
+  const labelW = 26;
+  const pitch = (W - labelW) / u.cols;
+  const rows = Math.ceil(total / u.cols);
+  const H = Math.ceil(rows * pitch + 4);
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  c.width = Math.round(W * dpr);
+  c.height = Math.round(H * dpr);
+  c.style.height = `${H}px`;
+  grid.geo = { W, H, labelW, pitch, rows, dpr };
+}
+function cellXY(i) {
+  const { labelW, pitch } = grid.geo;
+  const { cols } = UNITS[state.unit];
+  return [labelW + (i % cols) * pitch + pitch / 2, Math.floor(i / cols) * pitch + pitch / 2 + 2];
+}
+function drawGridFrame(now) {
+  const c = grid.canvas;
+  if (!grid.geo || !state.birth) return;
+  const ctx = c.getContext("2d");
+  const { W, H, pitch, dpr } = grid.geo;
+  const { u, total, current, goals } = gridData();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const brand = token("--brand");
+  const left = token("--color-border-strong");
+  const text = token("--color-text");
+  const ter = token("--color-text-tertiary");
+  const success = token("--color-success");
+  const r = Math.max(1.2, pitch * (state.unit === "week" ? 0.34 : 0.36));
+  const t = grid.sweep;
+  const filled = Math.floor(current * t);
+
+  // 나이 라벨 (10년마다)
+  ctx.fillStyle = ter;
+  ctx.font = `600 10px ${CANVAS_FONT}`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  for (let row = 0; row * u.cols < total; row++) {
+    const yearsAtRow = (row * u.cols) / u.perYear;
+    if (yearsAtRow % 10 === 0 && Number.isInteger(yearsAtRow)) {
+      ctx.fillText(String(yearsAtRow), 0, cellXY(row * u.cols)[1]);
+    }
+  }
+  const dots = (from, to, color) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (let i = from; i < to; i++) {
+      const [x, y] = cellXY(i);
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  };
+  dots(filled, total, left);
+  dots(0, filled, brand);
+  // 스윕 앞머리 빛
+  if (t < 1 && filled > 0) {
+    const [x, y] = cellXY(filled);
+    ctx.fillStyle = alpha(brand, 0.35);
+    ctx.beginPath();
+    ctx.arc(x, y, r * 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // 버킷리스트 깃발
+  goals.forEach((g) => {
+    const [x, y] = cellXY(g.idx);
+    ctx.strokeStyle = g.done ? success : text;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, r + 2.5, 0, Math.PI * 2);
+    ctx.stroke();
+    if (g.done) {
+      ctx.fillStyle = success;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+  // 지금 칸 (맥박)
+  if (t >= 1) {
+    const [x, y] = cellXY(current);
+    const p = prefersReducedMotion() ? 0.5 : (Math.sin(now / 320) + 1) / 2;
+    ctx.fillStyle = alpha(text, 0.18 + 0.2 * p);
+    ctx.beginPath();
+    ctx.arc(x, y, r * (2.2 + 1.6 * p), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = text;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.15, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+function gridLoop(now) {
+  cancelAnimationFrame(grid.raf);
+  if (!state.birth || $("[data-view=app]").hidden) return;
+  if (grid.sweep < 1) {
+    grid.sweep = Math.min(1, (now - grid.sweepStart) / 1400);
+    grid.sweep = 1 - Math.pow(1 - grid.sweep, 3) === 1 ? 1 : grid.sweep;
+  }
+  const eased = grid.sweep >= 1 ? 1 : 1 - Math.pow(1 - grid.sweep, 3);
+  const keep = grid.sweep;
+  grid.sweep = eased;
+  drawGridFrame(now);
+  grid.sweep = keep;
+  if (grid.visible && !prefersReducedMotion()) grid.raf = requestAnimationFrame(gridLoop);
+  else if (grid.sweep < 1) grid.raf = requestAnimationFrame(gridLoop);
+}
+function startSweep() {
+  grid.sweep = prefersReducedMotion() ? 1 : 0;
+  grid.sweepStart = performance.now();
+  layoutGrid();
+  grid.raf = requestAnimationFrame(gridLoop);
+}
+if ("IntersectionObserver" in window) {
+  new IntersectionObserver((ents) => {
+    grid.visible = ents[0].isIntersecting;
+    if (grid.visible) grid.raf = requestAnimationFrame(gridLoop);
+  }).observe(grid.canvas);
+}
+grid.canvas.addEventListener("click", (ev) => {
+  if (!grid.geo) return;
+  const rect = grid.canvas.getBoundingClientRect();
+  const x = ev.clientX - rect.left - grid.geo.labelW;
+  const y = ev.clientY - rect.top - 2;
+  const { u, total, current } = gridData();
+  const col = Math.floor(x / grid.geo.pitch);
+  const row = Math.floor(y / grid.geo.pitch);
+  if (col < 0 || col >= u.cols || row < 0) return;
+  const i = row * u.cols + col;
+  if (i >= total) return;
+  const age = Math.floor(i / u.perYear);
+  const within = (i % u.perYear) + 1;
+  const date = addDays(birthdayIn(state.birth, parts(state.birth)[0] + age), state.unit === "week" ? (within - 1) * 7 : state.unit === "month" ? Math.round((within - 1) * 30.44) : 0);
+  const label = state.unit === "year" ? `만 ${age}세` : `만 ${age}세 · ${within}번째 ${state.unit === "week" ? "주" : "달"}`;
+  const tag = i < current ? "지나온 칸" : i === current ? "바로 지금" : "아직 오지 않은 칸";
+  toast(`${label} (${dotDate(date)}경) · ${tag}`);
+});
+let resizeT;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeT);
+  resizeT = setTimeout(() => {
+    if (!state.birth) return;
+    layoutGrid();
+    drawGridFrame(performance.now());
+  }, 120);
+});
+
+function renderProgress(animate) {
+  const m = lifeModel(state.birth, state.life);
+  const pctText = (n) => n.toFixed(1);
+  if (animate) countUp($("#pct"), m.pct, { duration: 1400, format: pctText });
+  else $("#pct").textContent = pctText(m.pct);
+  $("#pbar").style.width = `${m.pct}%`;
+  const dayShare = 100 / m.totalDays;
+  $("#todayShare").textContent = `오늘 하루는 인생의 약 ${dayShare.toFixed(4)}%예요. 기대수명 ${state.life}세 가정.`;
+  $("#lifeExp").value = state.life;
+  $("#lifeNote").textContent =
+    state.life === DEFAULT_LIFE
+      ? "평균 기대수명 약 83.5세(통계청 2023년 생명표)로 그렸어요. 숫자를 바꿔도 돼요."
+      : `기대수명 ${state.life}세로 그렸어요. 평균은 약 83.5세(통계청 2023년 생명표)예요.`;
+  const u = UNITS[state.unit];
+  const total = Math.round(state.life * u.perYear);
+  $("#gridHint").textContent = `한 줄 = ${state.unit === "year" ? "10년" : state.unit === "month" ? "2년" : "1년"}, 한 칸 = ${state.unit === "week" ? "일주일" : state.unit === "month" ? "한 달" : "1년"} · 모두 ${fmt.num(total)}칸 · 칸을 누르면 언제인지 알려줘요`;
+  $$(".seg__btn").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.unit === state.unit)));
+  const f = state.friend;
+  const cmp = $("#friendCmp");
+  if (f != null) {
+    cmp.hidden = false;
+    cmp.textContent = `친구 ${f.toFixed(1)}% · 나 ${m.pct.toFixed(1)}%`;
+  }
+}
+$$(".seg__btn").forEach((b) => {
+  b.onclick = () => {
+    state.unit = b.dataset.unit;
+    store.set("unit", state.unit);
+    renderProgress(false);
+    startSweep();
+  };
+});
+function setLife(v) {
+  const n = Math.round(Math.min(120, Math.max(40, Number(v) || DEFAULT_LIFE)) * 2) / 2;
+  if (n === state.life) {
+    $("#lifeExp").value = n;
+    return;
+  }
+  state.life = n;
+  store.set("life", n);
+  renderAll({ animate: false, sweep: true });
+}
+$("#lifeMinus").onclick = () => setLife(state.life - 0.5);
+$("#lifePlus").onclick = () => setLife(state.life + 0.5);
+$("#lifeExp").addEventListener("change", (e) => setLife(e.target.value));
+
+/* ---------- 감성 통계 ---------- */
+function renderStats(animate) {
+  const s = emotionalStats(state.birth, state.life);
+  const items = [
+    { ico: "🎄", k: "남은 크리스마스", v: s.christmas, unit: "번", sub: "기대수명 가정" },
+    { ico: "🛋️", k: "남은 주말", v: s.weekends, unit: "번", sub: "남은 토요일 수" },
+    { ico: "🌸", k: "남은 봄", v: s.springs, unit: "번", sub: "3~5월, 기대수명 가정" },
+    { ico: "📅", k: "살아온 날", v: s.lived, unit: "일째", sub: "태어난 날 = 1일째" },
+    { ico: "💓", k: "심장이 뛴 횟수", v: s.beats / 1e8, unit: "억 번", sub: "대략, 분당 70회 가정", digits: 1, approx: true },
+    { ico: "🌍", k: "지구가 태양을 돈 횟수", v: s.orbits, unit: "바퀴", sub: "살아온 날 ÷ 365.26일", digits: 1, approx: true },
+    { ico: "😴", k: "잠든 시간", v: s.sleepYears, unit: "년", sub: "하루 8시간 가정", digits: 1, approx: true },
+    { ico: "⏳", k: "남은 시간", v: Math.max(0, diffDays(s.today, s.end)), unit: "일", sub: "기대수명까지, 평균일 뿐이에요", approx: true },
+  ];
+  $("#statGrid").innerHTML = items
+    .map(
+      (it, i) => `<div class="stat" style="--i:${i}">
+        <span class="stat__ico" aria-hidden="true">${it.ico}</span>
+        <span class="stat__k">${it.k}</span>
+        <strong class="stat__v t-num">${it.approx ? "약 " : ""}<b data-v="${it.v}" data-d="${it.digits || 0}">0</b>${it.unit}</strong>
+        <span class="stat__s">${it.sub}</span>
+      </div>`,
+    )
+    .join("");
+  $$("#statGrid b").forEach((b) => {
+    const v = Number(b.dataset.v);
+    const d = Number(b.dataset.d);
+    const f = (n) => fmt.num(d ? n : Math.round(n), d);
+    if (animate) countUp(b, v, { duration: 1100, format: f });
+    else b.textContent = f(v);
+  });
+  renderParents();
+}
+function renderParents() {
+  const { age, per } = state.parent;
+  $("#parentAge").value = age;
+  $("#meetPerYear").value = per;
+  const a = Number(age);
+  const p = Number(per);
+  const out = $("#parentOut");
+  if (!age || !per || !(a > 0) || !(p > 0)) {
+    out.textContent = "두 칸을 채우면 조용히 계산해 드려요.";
+    return;
+  }
+  const remain = Math.max(0, state.life - a);
+  const n = Math.round(remain * p);
+  out.innerHTML =
+    remain <= 0
+      ? `평균 기대수명을 이미 넘기셨어요. 평균은 평균일 뿐, 함께하는 하루하루가 선물이에요. 오늘 안부 전화 한 통 어때요?`
+      : `지금처럼 1년에 ${p}번 만나면, 앞으로 <strong class="t-primary">약 ${fmt.num(n)}번</strong> 더 만날 수 있어요.<br /><span class="t-caption-01 t-tertiary">평균 기대수명(${state.life}세)으로 낸 아주 거친 숫자예요. 한 번 더 찾아가면 그만큼 늘어나요.</span>`;
+}
+["#parentAge", "#meetPerYear"].forEach((sel) =>
+  $(sel).addEventListener("input", () => {
+    $(sel).value = $(sel).value.replace(/\D/g, "").slice(0, 3);
+    state.parent = { age: $("#parentAge").value, per: $("#meetPerYear").value };
+    store.set("parent", state.parent);
+    renderParents();
+  }),
+);
+
+/* ---------- 이정표 ---------- */
+function renderMiles() {
+  const today = todayKey();
+  const list = milestones(state.birth, state.life);
+  const firstUp = list.findIndex((x) => x.date >= today);
+  const past = firstUp < 0 ? list.length : firstUp;
+  $("#mileList").innerHTML = list
+    .map((x, i) => {
+      const isPast = x.date < today;
+      if (isPast && !state.showPastMiles) return "";
+      const g = diffDays(today, x.date);
+      return `<li class="mile ${isPast ? "is-past" : ""} ${i === firstUp ? "is-next" : ""}">
+        <div class="mile__main">
+          <span class="mile__t">${x.title}${x.hot && !isPast ? ` <span class="badge">특별</span>` : ""}</span>
+          <span class="mile__s">${longDate(x.date)} · ${x.sub}</span>
+        </div>
+        <span class="mile__d t-num">${isPast ? "지났어요" : g === 0 ? "오늘!" : `D-${fmt.num(g)}`}</span>
+      </li>`;
+    })
+    .join("");
+  const btn = $("#togglePastMiles");
+  btn.hidden = past === 0;
+  btn.textContent = state.showPastMiles ? "지난 이정표 숨기기" : `지난 이정표 ${past}개 보기`;
+}
+$("#togglePastMiles").onclick = () => {
+  state.showPastMiles = !state.showPastMiles;
+  renderMiles();
+};
+
+/* ---------- 버킷리스트 ---------- */
+const IDEAS = ["오로라 보기", "부모님과 여행", "책 100권 읽기", "마라톤 완주", "혼자 해외여행", "악기 하나 배우기"];
+function saveBucket() {
+  store.set("bucket", state.bucket);
+}
+function renderBucket() {
+  const age = manAge(state.birth, todayKey());
+  $("#bucketAge").placeholder = `${age + 1}세`;
+  const done = state.bucket.filter((b) => b.done).length;
+  $("#bucketCount").textContent = state.bucket.length ? `${done}/${state.bucket.length} 완료` : "";
+  const has = new Set(state.bucket.map((b) => b.t));
+  $("#bucketIdeas").innerHTML = IDEAS.filter((t) => !has.has(t))
+    .slice(0, 4)
+    .map((t) => `<button class="chip" type="button" data-idea="${esc(t)}">+ ${esc(t)}</button>`)
+    .join("");
+  $$("#bucketIdeas .chip").forEach((c) => (c.onclick = () => addBucket(c.dataset.idea, "")));
+  $("#bucketList").innerHTML = state.bucket.length
+    ? state.bucket
+        .map(
+          (b) => `<li class="bk ${b.done ? "is-done" : ""}">
+        <button class="bk__check" data-id="${b.id}" aria-pressed="${!!b.done}" aria-label="${b.done ? "완료 취소" : "완료"}">${b.done ? "✓" : ""}</button>
+        <span class="bk__t">${esc(b.t)}</span>
+        <span class="bk__age t-num">${b.age !== "" && b.age != null ? `만 ${b.age}세` : "언젠가"}</span>
+        <button class="btn btn--ghost btn--icon btn--sm bk__del" data-del="${b.id}" aria-label="지우기">×</button>
+      </li>`,
+        )
+        .join("")
+    : `<li class="bk-empty t-caption-01 t-tertiary">아직 비어 있어요. 위에서 하나 골라 꽂아볼까요?</li>`;
+  $$("#bucketList .bk__check").forEach(
+    (b) =>
+      (b.onclick = () => {
+        const it = state.bucket.find((x) => x.id === b.dataset.id);
+        it.done = !it.done;
+        if (it.done) {
+          haptic([10, 30, 10]);
+          toast("한 칸을 제대로 채웠어요 ✨");
+        }
+        saveBucket();
+        renderBucket();
+      }),
+  );
+  $$("#bucketList .bk__del").forEach(
+    (b) =>
+      (b.onclick = () => {
+        state.bucket = state.bucket.filter((x) => x.id !== b.dataset.del);
+        saveBucket();
+        renderBucket();
+      }),
+  );
+  if (grid.geo) drawGridFrame(performance.now());
+}
+function addBucket(text, ageRaw) {
+  const t = String(text).trim().slice(0, 40);
+  if (!t) return;
+  const nowAge = manAge(state.birth, todayKey());
+  let age = ageRaw === "" ? nowAge + 1 : Number(ageRaw);
+  if (!Number.isFinite(age)) age = nowAge + 1;
+  age = Math.max(nowAge, Math.min(Math.floor(state.life), Math.round(age)));
+  state.bucket.push({ id: Math.random().toString(36).slice(2, 9), t, age, done: false });
+  saveBucket();
+  renderBucket();
+  haptic(10);
+}
+$("#bucketForm").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const t = $("#bucketText").value;
+  if (!t.trim()) {
+    $("#bucketText").classList.add("is-error");
+    return;
+  }
+  addBucket(t, $("#bucketAge").value.replace(/\D/g, ""));
+  $("#bucketText").value = "";
+  $("#bucketAge").value = "";
+});
+$("#bucketText").addEventListener("input", (e) => e.target.classList.remove("is-error"));
+
+/* ---------- 공유 ---------- */
+function emotionalLine(s) {
+  const lines = [
+    `남은 크리스마스 ${fmt.num(s.christmas)}번, 하나도 허투루 보내지 않기`,
+    `남은 봄 ${fmt.num(s.springs)}번, 올해 벚꽃은 꼭 보러 가기`,
+    `남은 주말 ${fmt.num(s.weekends)}번, 이번 주말부터 잘 쓰기`,
+    `오늘은 내 인생의 ${fmt.num(s.lived)}번째 날`,
+  ];
+  return lines[s.lived % lines.length];
+}
+function drawStory() {
+  const W = 540;
+  const H = 960;
+  const { canvas, ctx } = createCanvas(W, H, 2);
+  const brand = token("--brand");
+  const bg = token("--color-bg");
+  const surface = token("--color-surface-raised");
+  const text = token("--color-text");
+  const sub = token("--color-text-secondary");
+  const left = token("--color-border-strong");
+  const s = emotionalStats(state.birth, state.life);
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, surface);
+  g.addColorStop(1, bg);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  const glow = ctx.createRadialGradient(W / 2, 210, 10, W / 2, 210, 260);
+  glow.addColorStop(0, alpha(brand, 0.22));
+  glow.addColorStop(1, alpha(brand, 0));
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, 480);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = sub;
+  ctx.font = `600 18px ${CANVAS_FONT}`;
+  ctx.fillText("⏳ 인생 진행률", W / 2, 84);
+  ctx.fillStyle = text;
+  ctx.font = `700 26px ${CANVAS_FONT}`;
+  ctx.fillText("내 인생은 지금", W / 2, 150);
+  ctx.fillStyle = brand;
+  ctx.font = `800 104px ${CANVAS_FONT}`;
+  ctx.fillText(`${s.pct.toFixed(1)}%`, W / 2, 262);
+
+  // 점 그리드 (주 단위)
+  const cols = 52;
+  const total = Math.round(state.life * 52);
+  const rows = Math.ceil(total / cols);
+  const pitch = Math.min(7.4, 470 / rows);
+  const gw = cols * pitch;
+  const gx = (W - gw) / 2;
+  const gy = 300;
+  const current = Math.min(total - 1, s.age * 52 + s.weekInYear);
+  const r = pitch * 0.34;
+  const dots = (from, to, color) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (let i = from; i < to; i++) {
+      const x = gx + (i % cols) * pitch + pitch / 2;
+      const y = gy + Math.floor(i / cols) * pitch + pitch / 2;
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    }
+    ctx.fill();
+  };
+  dots(current + 1, total, left);
+  dots(0, current, brand);
+  const cx = gx + (current % cols) * pitch + pitch / 2;
+  const cy = gy + Math.floor(current / cols) * pitch + pitch / 2;
+  ctx.fillStyle = alpha(text, 0.3);
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 3.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = text;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 1.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  const by = gy + rows * pitch + 52;
+  ctx.fillStyle = text;
+  ctx.font = `700 22px ${CANVAS_FONT}`;
+  ctx.fillText(emotionalLine(s), W / 2, by);
+  ctx.fillStyle = sub;
+  ctx.font = `500 15px ${CANVAS_FONT}`;
+  ctx.fillText(`한 칸 = 일주일 · 만 ${s.age}세 · 기대수명 ${state.life}세 가정`, W / 2, by + 34);
+  ctx.fillStyle = alpha(text, 0.08);
+  roundRect(ctx, W / 2 - 150, H - 92, 300, 44, 22);
+  ctx.fill();
+  ctx.fillStyle = sub;
+  ctx.font = `600 15px ${CANVAS_FONT}`;
+  ctx.fillText("너의 인생 진행률은 몇 %야?", W / 2, H - 64);
+  return canvas;
+}
+$("#saveStory").onclick = async () => {
+  if (!state.birth) return;
+  const btn = $("#saveStory");
+  btn.classList.add("is-loading");
+  try {
+    const s = lifeModel(state.birth, state.life);
+    await shareImage(drawStory(), { filename: `인생진행률-${s.pct.toFixed(1)}.png`, text: `내 인생 진행률 ${s.pct.toFixed(1)}%` });
+  } finally {
+    btn.classList.remove("is-loading");
+  }
+};
+$("#shareLink").onclick = () => {
+  if (!state.birth) return;
+  const m = lifeModel(state.birth, state.life);
+  share({
+    title: "인생 진행률",
+    text: `내 인생 진행률은 ${m.pct.toFixed(1)}%래요. 너는 몇 %야? ⏳`,
+    url: urlWith({ from: encodeState({ p: Math.round(m.pct * 10) / 10 }) }),
+  });
+};
+
+/* ---------- 전체 렌더 ---------- */
+function renderAll({ animate = false, sweep = true } = {}) {
+  if (!state.birth) {
+    ["#lifeSection", "#statsSection", "#milesSection", "#bucketSection", "#shareSection"].forEach((s) => ($(s).hidden = true));
+    $("#calcResult").hidden = true;
+    $("#bdayBanner").hidden = true;
+    return;
+  }
+  if (!birthInput.value || parseBirth(birthInput.value) !== state.birth) birthInput.value = dotDate(state.birth);
+  ["#lifeSection", "#statsSection", "#milesSection", "#bucketSection", "#shareSection"].forEach((s) => ($(s).hidden = false));
+  renderCalc(animate);
+  renderBanner();
+  renderProgress(animate);
+  renderStats(animate);
+  renderMiles();
+  renderBucket();
+  if (sweep) startSweep();
+}
+
+/* ---------- 인트로 모션그래픽 (캔버스 하나로 4장면) ---------- */
+const EX = { pct: 37.4, life: 83.5 };
+EX.age = (EX.pct / 100) * EX.life; // 약 31.2세
+EX.christmas = Math.floor(EX.life - EX.age);
+EX.weekends = Math.round(((EX.life - EX.age) * YEAR_DAYS) / 7 / 100) * 100;
+EX.springs = Math.floor(EX.life - EX.age);
+const ip = { scene: 0, t0: 0, raf: 0, running: false, geo: null };
+function ipLayout() {
+  const stage = $("#intro .intro__stage");
+  const cv = $(".ip-canvas");
+  const w = stage.clientWidth;
+  const h = stage.clientHeight;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.round(w * dpr);
+  cv.height = Math.round(h * dpr);
+  cv.style.width = `${w}px`;
+  cv.style.height = `${h}px`;
+  const cols = 52;
+  const total = Math.round(EX.life * 52);
+  const rows = Math.ceil(total / cols);
+  const pitch = Math.min((w - 24) / cols, (h - 24) / rows);
+  const gx = (w - cols * pitch) / 2;
+  const gy = (h - rows * pitch) / 2;
+  ip.geo = { w, h, dpr, cols, total, rows, pitch, gx, gy, ctx: cv.getContext("2d"), current: Math.round((EX.pct / 100) * total) };
+}
+const ipXY = (i) => {
+  const g = ip.geo;
+  return [g.gx + (i % g.cols) * g.pitch + g.pitch / 2, g.gy + Math.floor(i / g.cols) * g.pitch + g.pitch / 2];
+};
+const clamp01 = (t) => (t < 0 ? 0 : t > 1 ? 1 : t);
+const easeOut = (t) => 1 - Math.pow(1 - clamp01(t), 3);
+const easeIO = (t) => ((t = clamp01(t)), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+function ipFrame(now) {
+  const g = ip.geo;
+  if (!g) return;
+  const { ctx, w, h, dpr, total, pitch, current } = g;
+  const t = prefersReducedMotion() ? 99999 : now - ip.t0;
+  const brand = token("--brand");
+  const left = token("--color-border-strong");
+  const text = token("--color-text");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const r = pitch * 0.34;
+  const batch = (from, to, color, a = 1) => {
+    if (to <= from) return;
+    ctx.globalAlpha = a;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    for (let i = from; i < to; i++) {
+      const [x, y] = ipXY(i);
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    }
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  };
+  const glow = (x, y, rad, a) => {
+    const gr = ctx.createRadialGradient(x, y, 0, x, y, rad);
+    gr.addColorStop(0, alpha(brand, a));
+    gr.addColorStop(1, alpha(brand, 0));
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.arc(x, y, rad, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  const pulseNow = (k = 1) => {
+    const [x, y] = ipXY(current);
+    const p = (Math.sin(now / 300) + 1) / 2;
+    ctx.fillStyle = alpha(text, (0.15 + 0.25 * p) * k);
+    ctx.beginPath();
+    ctx.arc(x, y, r * (2.4 + 2 * p), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = k;
+    ctx.fillStyle = text;
+    ctx.beginPath();
+    ctx.arc(x, y, r * 1.3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  };
+
+  if (ip.scene === 0) {
+    // 점 하나 → 줄줄이 채워지는 4,000칸
+    const appear = easeOut(t / 500);
+    const move = easeIO((t - 700) / 500);
+    const fill = easeIO((t - 1200) / 2000);
+    const [x0, y0] = ipXY(0);
+    const cx = w / 2 + (x0 - w / 2) * move;
+    const cy = h / 2 + (y0 - h / 2) * move;
+    if (move < 1) {
+      const rr = r + (14 - r) * (1 - move);
+      glow(cx, cy, rr * 4, 0.5 * appear);
+      ctx.fillStyle = brand;
+      ctx.globalAlpha = appear;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rr * (1 + 0.08 * Math.sin(now / 200)), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    } else {
+      const k = Math.floor(total * fill);
+      batch(0, k, left);
+      // 로딩바처럼 앞머리 한 줄은 밝게
+      batch(Math.max(0, k - 52), k, brand, 0.9);
+      const [hx, hy] = ipXY(Math.max(0, k - 1));
+      glow(hx, hy, pitch * 5, 0.6);
+    }
+  } else if (ip.scene === 1) {
+    const fill = easeIO((t - 200) / 1800);
+    const k = Math.floor(current * fill);
+    batch(k, total, left);
+    batch(0, k, brand);
+    if (fill < 1) {
+      const [hx, hy] = ipXY(k);
+      glow(hx, hy, pitch * 6, 0.7);
+    } else pulseNow();
+  } else if (ip.scene === 2) {
+    batch(current, total, left, 0.5);
+    batch(0, current, brand, 0.45);
+    pulseNow(0.6);
+  } else {
+    // 이번 주 한 칸에 집중 + 버킷리스트 깃발
+    const focus = easeOut(t / 900);
+    batch(current, total, left, 1 - 0.5 * focus);
+    batch(0, current, brand, 1 - 0.4 * focus);
+    const [x, y] = ipXY(current);
+    const ringR = r * (2 + 10 * focus);
+    ctx.strokeStyle = alpha(text, 0.9 * (1 - focus) + 0.25);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, ringR, 0, Math.PI * 2);
+    ctx.stroke();
+    pulseNow();
+    [0.55, 0.68, 0.8].forEach((f, i) => {
+      const a = easeOut((t - 900 - i * 250) / 400);
+      if (a <= 0) return;
+      const idx = Math.round(total * f) + 17 * i;
+      const [fx, fy] = ipXY(idx);
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = brand;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(fx, fy, r + 3, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = brand;
+      ctx.font = `700 11px ${CANVAS_FONT}`;
+      ctx.textAlign = "left";
+      ctx.fillText(["🌌 오로라", "🏃 마라톤", "✈️ 부모님과 여행"][i], fx + r + 8, fy + 4);
+      ctx.globalAlpha = 1;
+    });
+  }
+}
+function ipLoop(now) {
+  if (!ip.running) return;
+  ipFrame(now);
+  if (!prefersReducedMotion()) ip.raf = requestAnimationFrame(ipLoop);
+}
+function ipScene(n, html = "") {
+  return (stage, signal) => {
+    ip.scene = n;
+    ip.t0 = performance.now();
+    const ov = $(".ip-overlay", stage);
+    ov.innerHTML = html;
+    if (prefersReducedMotion()) ipFrame(performance.now());
+    if (n === 1) {
+      const el = $(".ip-pct b", ov);
+      const t0 = performance.now();
+      const step = (now) => {
+        if (signal.aborted) return;
+        const v = EX.pct * easeIO((now - t0 - 200) / 1800);
+        el.textContent = v.toFixed(1);
+        if (now - t0 < 2100) requestAnimationFrame(step);
+      };
+      if (prefersReducedMotion()) el.textContent = EX.pct.toFixed(1);
+      else requestAnimationFrame(step);
+    }
+  };
+}
+const SCENES = [
+  { title: "인생을 4,000칸으로", desc: "한 칸은 일주일, 한 줄은 1년이에요", duration: 3800, play: ipScene(0, `<div class="ip-tag">한 칸 = 일주일</div>`) },
+  {
+    title: "지금 여기까지 왔어요",
+    desc: "예시 · 만 31세, 기대수명 83.5세 기준",
+    duration: 3400,
+    play: ipScene(1, `<div class="ip-pct t-num"><b>0.0</b><span>%</span></div>`),
+  },
+  {
+    title: "숫자로 보면 달라져요",
+    desc: "남은 크리스마스, 주말, 봄을 세어봐요",
+    duration: 3600,
+    play: ipScene(
+      2,
+      `<div class="ip-cards">
+        <div class="ip-card" style="--i:0"><span>🎄</span><p>남은 크리스마스</p><b class="t-num">${EX.christmas}번</b></div>
+        <div class="ip-card" style="--i:1"><span>🛋️</span><p>남은 주말</p><b class="t-num">약 ${fmt.num(EX.weekends)}번</b></div>
+        <div class="ip-card" style="--i:2"><span>🌸</span><p>남은 봄</p><b class="t-num">${EX.springs}번</b></div>
+      </div>`,
+    ),
+  },
+  { title: "이번 주도 딱 한 칸이에요", desc: "버킷리스트를 칸 위에 꽂고 하나씩 채워요", duration: 3600, play: ipScene(3, `<div class="ip-tag ip-tag--now">이번 주</div>`) },
+];
+let intro;
+function startIntro() {
+  showView("intro");
+  ipLayout();
+  ip.running = true;
+  cancelAnimationFrame(ip.raf);
+  ip.raf = requestAnimationFrame(ipLoop);
+  intro?.stop();
+  intro = runIntro({ root: $("#intro"), scenes: SCENES, loop: true });
+}
+function stopIntro() {
+  intro?.stop();
+  intro = null;
+  ip.running = false;
+  cancelAnimationFrame(ip.raf);
+}
+function openApp() {
+  stopIntro();
+  showView("app");
+  renderAll({ animate: true });
+  if (!state.birth) setTimeout(() => birthInput.focus(), 200);
+}
+$("#start").onclick = openApp;
+$("#replayIntro").onclick = startIntro;
+window.addEventListener("resize", () => ip.running && ipLayout());
+
+/* ---------- 시작 ---------- */
+renderMoreSites($("#more"), "life-progress");
+$("#asof").value = todayKey();
+const fromParam = getParam("from");
+if (fromParam) {
+  const f = decodeState(fromParam);
+  if (f && Number.isFinite(f.p) && f.p >= 0 && f.p <= 100) {
+    state.friend = f.p;
+    $("#friendNote").hidden = false;
+    $("#friendNote").innerHTML = `친구의 인생 진행률은 <strong class="t-primary">${f.p.toFixed(1)}%</strong>예요. 나는 몇 %일까요?`;
+  }
+  history.replaceState(null, "", location.pathname);
+}
+if (state.birth && !state.friend) openApp();
+else startIntro();

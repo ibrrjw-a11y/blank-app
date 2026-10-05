@@ -47,7 +47,7 @@ function sceneOrbit(stage, signal) {
   const sy = H / VB.h;
   const cx = VB.w / 2;
   const cy = VB.h / 2;
-  const rx = 146;
+  const rx = 134;
   const ry = 112;
   const reduce = prefersReducedMotion();
   const arrived = new Set();
@@ -141,7 +141,8 @@ function sceneChat(stage, signal) {
 
 export function startIntro(root) {
   const stage = root.querySelector(".intro__stage");
-  stage.innerHTML = `<div class="ib">${brainMarkup()}<div class="ib-chips"></div></div><div class="ib-layer"></div>`;
+  stage.innerHTML = `<div class="ib-hud"><i></i><i></i><i></i><i></i><span>BRAIN SCAN</span></div>
+    <div class="ib">${brainMarkup()}<div class="ib-scan"></div><div class="ib-chips"></div></div><div class="ib-layer"></div>`;
   initPulses(stage);
   return runIntro({
     root,

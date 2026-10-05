@@ -4,7 +4,7 @@ import { randomSeed, escapeHtml, headline, penaltyEmoji } from "./common.js";
 
 // 통 일러스트 (SVG 내부 장식색)
 const BARREL_SVG = `
-<svg class="barrel__svg" viewBox="0 0 300 260" aria-hidden="true">
+<svg class="barrel__svg" viewBox="0 0 300 320" preserveAspectRatio="none" aria-hidden="true">
   <defs>
     <linearGradient id="wood" x1="0" x2="1">
       <stop offset="0" stop-color="#5a2c12"/><stop offset=".22" stop-color="#9a5527"/>
@@ -12,18 +12,18 @@ const BARREL_SVG = `
       <stop offset="1" stop-color="#5a2c12"/>
     </linearGradient>
     <linearGradient id="hoop" x1="0" x2="1">
-      <stop offset="0" stop-color="#2a2e36"/><stop offset=".5" stop-color="#6b7280"/><stop offset="1" stop-color="#2a2e36"/>
+      <stop offset="0" stop-color="#2a2e36"/><stop offset=".5" stop-color="#7b8494"/><stop offset="1" stop-color="#2a2e36"/>
     </linearGradient>
   </defs>
-  <path d="M42 20 Q14 130 42 244 L258 244 Q286 130 258 20 Z" fill="url(#wood)"/>
-  <g stroke="#4a230d" stroke-width="2" opacity=".55">
-    <path d="M84 20 Q72 130 84 244" fill="none"/><path d="M126 20 Q122 130 126 244" fill="none"/>
-    <path d="M174 20 Q178 130 174 244" fill="none"/><path d="M216 20 Q228 130 216 244" fill="none"/>
+  <path d="M40 20 Q6 162 40 306 L260 306 Q294 162 260 20 Z" fill="url(#wood)"/>
+  <g stroke="#4a230d" stroke-width="2" opacity=".55" fill="none">
+    <path d="M84 20 Q70 162 84 306"/><path d="M126 20 Q121 162 126 306"/>
+    <path d="M174 20 Q179 162 174 306"/><path d="M216 20 Q230 162 216 306"/>
   </g>
-  <path d="M30 52 Q150 64 270 52 L273 70 Q150 82 27 70 Z" fill="url(#hoop)"/>
-  <path d="M27 196 Q150 208 273 196 L270 214 Q150 226 30 214 Z" fill="url(#hoop)"/>
-  <ellipse cx="150" cy="20" rx="108" ry="14" fill="#2b1407"/>
-  <ellipse cx="150" cy="18" rx="96" ry="9" fill="#120803"/>
+  <path d="M30 50 Q150 62 270 50 L273 66 Q150 78 27 66 Z" fill="url(#hoop)"/>
+  <path d="M26 262 Q150 274 274 262 L271 278 Q150 290 29 278 Z" fill="url(#hoop)"/>
+  <ellipse cx="150" cy="20" rx="110" ry="14" fill="#2b1407"/>
+  <ellipse cx="150" cy="18" rx="98" ry="9" fill="#120803"/>
 </svg>`;
 
 const PIRATE_SVG = `

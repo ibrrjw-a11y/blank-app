@@ -118,7 +118,8 @@ export function drawShareCard({ comp, raw, real }) {
     line: c.brand,
     glow: c.brand,
     dim: alpha(c.brand, 0.32),
-    fill: alpha(c.brand, 0.05),
+    fill: alpha(c.brand, 0.06),
+    base: c.bg,
   });
 
   // 나이

@@ -529,7 +529,7 @@ function askQuiz() {
         <span class="ask-head__mirror" aria-hidden="true">🪞</span>
         <div class="grow">
           <h1 class="t-title-03">${esc(N(name, "은"))} 어떤 사람일까요?</h1>
-          <p class="t-body-03 t-secondary">정답은 없어요. 평소의 ${esc(name)}를 떠올리며 골라 주세요.</p>
+          <p class="t-body-03 t-secondary">정답은 없어요. 평소의 ${esc(N(name, "을"))} 떠올리며 골라 주세요.</p>
         </div>
       </div>`,
     onDone(a) {
@@ -595,7 +595,7 @@ function renderGuess({ owner, answers, from, note, url, again = false, fresh = f
             .map(
               ({ ax, ca, cb }) => `<div class="lean__row">
                 <span class="${ca >= cb ? "is-win" : ""}">${ax.a}</span>
-                <span class="lean__dots">${"<i class=on></i>".repeat(ca)}${"<i></i>".repeat(cb)}</span>
+                <span class="lean__dots">${`<i class="${ca >= cb ? "on" : ""}"></i>`.repeat(ca)}${`<i class="${cb > ca ? "on" : ""}"></i>`.repeat(cb)}</span>
                 <span class="${cb > ca ? "is-win" : ""}">${ax.b}</span></div>`
             )
             .join("")}
@@ -702,7 +702,7 @@ function handleKeep(raw) {
   saveOwner(o);
   store.set("me", o.id);
   history.replaceState({ v: "me" }, "", BASE);
-  openDashboard(o, { via: "keep", added, fresh });
+  openDashboard(o, { via: "keep", added, fresh, quiet: fresh });
 }
 
 /* ---------- 주인: 대시보드 ---------- */
@@ -710,7 +710,7 @@ let dash = null; // { id, baseline, compat, flags }
 
 function openDashboard(o, flags = {}) {
   stopIntro();
-  const baseline = flags.added ? o.responses.length - flags.added : o.seen || 0;
+  const baseline = flags.quiet ? o.responses.length : flags.added ? o.responses.length - flags.added : o.seen || 0;
   dash = { id: o.id, baseline: Math.min(baseline, o.responses.length), compat: dash?.id === o.id ? dash.compat : null, flags };
   showView("me");
   renderMe(true);
@@ -720,6 +720,8 @@ function openDashboard(o, flags = {}) {
   if (flags.via === "reply") {
     if (flags.dup) toast(`${flags.from}님의 응답은 이미 들어와 있어요`);
     else toast(`${flags.from}님의 응답이 도착했어요`);
+  } else if (flags.created) {
+    toast("내 링크를 만들었어요! 단톡방에 보내 주세요");
   } else if (flags.via === "keep") {
     toast(flags.added ? `응답 ${flags.added}개를 합쳤어요` : "이미 모두 들어와 있는 응답이에요");
   }
@@ -769,7 +771,7 @@ function renderMe(first = false) {
       <div class="locked__veil">
         <span class="locked__icon" aria-hidden="true">🔒</span>
         <p class="t-body-02-strong">${UNLOCK - n}명 더 답하면 열려요</p>
-        <p class="t-caption-01 t-secondary">지금은 ${n}명뿐이라 한두 명 생각에 크게 흔들려요</p>
+        <p class="t-caption-01 t-secondary">${n ? `지금은 ${n}명뿐이라 한두 명 생각에 크게 흔들려요` : "친구가 답하면 여기에 하나씩 쌓여요"}</p>
       </div>
     </div>`;
 
@@ -929,7 +931,7 @@ function renderMe(first = false) {
       ${notice}
       ${pickSelf}
       ${progress}
-      ${unlocked ? result : locked + linkCard}
+      ${unlocked ? result : n === 0 ? linkCard + locked : locked + linkCard}
       ${friends}
       ${unlocked ? linkCard : ""}
       ${compat}

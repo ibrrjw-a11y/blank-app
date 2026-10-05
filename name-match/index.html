@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>이름궁합 테스트 | 단톡방 궁합표 - 이름 10명 전원 궁합 한 번에</title>
+    <meta
+      name="description"
+      content="단톡방 멤버 이름을 붙여넣으면 전원의 이름궁합을 한 장의 궁합표로 보여줘요. 획수 이름점 피라미드, 짝사랑 지수, 최고의 커플과 인기왕까지. 1:1 이름 궁합 테스트도 돼요."
+    />
+    <meta name="keywords" content="이름궁합, 이름 궁합 테스트, 이름점, 친구 궁합, 단톡방 궁합, 이름 획수 궁합, 짝사랑 테스트" />
+    <link rel="canonical" href="https://example.com/name-match/" />
+    <meta name="theme-color" content="#ff5c8a" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="단톡방 궁합표 - 우리 방 전원 이름궁합 한 번에" />
+    <meta property="og:description" content="누가 누구를 더 생각할까? 이름 획수로 보는 단톡방 전원 궁합표와 짝사랑 지수" />
+    <meta property="og:image" content="og.png" />
+    <meta property="og:url" content="https://example.com/name-match/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💞</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "단톡방 궁합표",
+        "alternateName": "이름궁합 테스트",
+        "url": "https://example.com/name-match/",
+        "description": "이름 획수로 보는 이름궁합을 단톡방 전원에게 한 번에 계산해 궁합표로 보여주는 테스트",
+        "applicationCategory": "EntertainmentApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "이름궁합은 어떻게 계산하나요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "두 이름의 글자를 번갈아 세운 뒤 글자마다 획수를 적고, 이웃한 두 수를 더해 일의 자리만 남기는 과정을 두 자리가 남을 때까지 반복해요. 마지막 두 자리가 궁합 퍼센트예요."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "이름 순서를 바꾸면 왜 결과가 달라지나요?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "누구 이름을 먼저 세우느냐에 따라 숫자 줄의 순서가 바뀌고, 이웃끼리 더하는 조합이 달라져서 결과도 달라져요. 그래서 A→B는 'A가 B를 생각하는 마음'으로 봐요."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app">
+      <!-- 1) 첫 화면: 모션그래픽 -->
+      <section class="intro" id="intro" data-view="intro">
+        <div class="intro__stage" aria-hidden="true"></div>
+        <div class="intro__steps"></div>
+        <div class="intro__caption" aria-live="polite"></div>
+        <div class="intro__cta">
+          <button class="btn btn--primary btn--lg btn--block" id="start">단톡방 궁합표 만들기</button>
+          <button class="btn btn--ghost btn--block" id="startOne">1:1 이름궁합만 볼래요</button>
+        </div>
+      </section>
+
+      <!-- 2) 이름 입력 -->
+      <section data-view="input" hidden>
+        <header class="topbar">
+          <span class="topbar__brand"><span aria-hidden="true">💞</span> 단톡방 궁합표</span>
+        </header>
+        <div class="stack gap-16 pad-b">
+          <div class="seg" role="tablist" aria-label="모드">
+            <button class="seg__btn is-on" role="tab" aria-selected="true" data-mode="group">단톡방 (여러 명)</button>
+            <button class="seg__btn" role="tab" aria-selected="false" data-mode="one">1:1</button>
+          </div>
+
+          <!-- 여러 명 -->
+          <div class="card stack gap-16" id="groupPane">
+            <div>
+              <h1 class="t-title-03 m0">이름을 붙여넣어 주세요</h1>
+              <p class="t-body-03 t-secondary m0">단톡방 멤버 목록을 복사해 붙여넣으면 쉼표·줄바꿈·띄어쓰기로 나눠서 넣어줘요. 2~12명까지 돼요.</p>
+            </div>
+            <div class="field" id="nameField">
+              <div class="add-row">
+                <textarea class="input add-row__input" id="nameInput" rows="1" placeholder="예: 민수, 지영, 서준" autocomplete="off" enterkeyhint="done"></textarea>
+                <button class="btn btn--secondary" id="addBtn">추가</button>
+              </div>
+              <span class="field__help" id="nameHelp">이름을 누르면 고칠 수 있어요</span>
+            </div>
+            <div class="chips" id="chips" aria-live="polite"></div>
+            <div class="row between">
+              <span class="t-label-02 t-secondary t-num" id="count">0 / 12명</span>
+              <div class="row gap-4">
+                <button class="btn btn--ghost btn--sm" id="sampleBtn">예시 넣기</button>
+                <button class="btn btn--ghost btn--sm" id="clearBtn">모두 지우기</button>
+              </div>
+            </div>
+            <button class="btn btn--primary btn--lg btn--block" id="makeBtn" disabled>궁합표 만들기</button>
+          </div>
+
+          <!-- 1:1 -->
+          <div class="card stack gap-16" id="onePane" hidden>
+            <div>
+              <h1 class="t-title-03 m0">두 사람 이름을 넣어 주세요</h1>
+              <p class="t-body-03 t-secondary m0">순서를 바꾸면 결과가 달라서, 양쪽 방향을 모두 보여줘요.</p>
+            </div>
+            <label class="field"><span class="field__label">나</span><input class="input" id="oneA" maxlength="10" placeholder="예: 민수" autocomplete="off" /></label>
+            <div class="one-heart" aria-hidden="true">💞</div>
+            <label class="field"><span class="field__label">그 사람</span><input class="input" id="oneB" maxlength="10" placeholder="예: 지영" autocomplete="off" /></label>
+            <span class="field__help" id="oneHelp">한글 이름만 계산해요</span>
+            <button class="btn btn--primary btn--lg btn--block" id="oneBtn" disabled>궁합 보기</button>
+          </div>
+
+          <div class="stack gap-8" id="roomsWrap" hidden>
+            <h2 class="t-title-04 m0">저장한 방</h2>
+            <div class="stack gap-8" id="rooms"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3) 결과 -->
+      <section data-view="result" hidden>
+        <header class="topbar">
+          <button class="btn btn--ghost btn--sm" id="backBtn">← 이름 고치기</button>
+          <button class="btn btn--secondary btn--sm" id="saveRoomBtn">방 저장</button>
+        </header>
+        <div class="stack gap-16 pad-b">
+          <div class="shared-note" id="sharedNote" hidden>👀 친구가 보낸 궁합표예요. 우리 방 이름으로도 만들어 보세요!</div>
+          <div>
+            <p class="t-label-02 t-primary m0" id="resultKicker">단톡방 궁합표</p>
+            <h1 class="t-title-02 m0" id="resultTitle">궁합표</h1>
+          </div>
+
+          <!-- 매트릭스 -->
+          <div class="card matrix-card" id="matrixCard">
+            <p class="t-caption-01 t-secondary m0 matrix-legend">
+              <b>가로줄</b> 사람이 <b>세로줄</b> 사람을 생각하는 마음이에요. 칸을 누르면 계산 과정을 보여줘요.
+            </p>
+            <div class="matrix" id="matrix" role="grid"></div>
+            <div class="scale" aria-hidden="true"><span>0%</span><i></i><span>99%</span></div>
+          </div>
+
+          <!-- 1:1 결과 -->
+          <div class="stack gap-12" id="pairView" hidden></div>
+
+          <!-- 하이라이트 -->
+          <div class="stack gap-8" id="highlights"></div>
+
+          <div class="stack gap-8">
+            <button class="btn btn--primary btn--lg btn--block" id="shareLink">단톡방에 궁합표 보내기</button>
+            <div class="row gap-8">
+              <button class="btn btn--outline grow" id="shareImg">이미지로 저장</button>
+              <button class="btn btn--outline grow" id="againBtn">새로 만들기</button>
+            </div>
+          </div>
+          <p class="t-caption-01 t-tertiary t-center m0">이름 획수로 보는 재미용 테스트예요. 진짜 마음은 직접 물어보세요 😉</p>
+        </div>
+      </section>
+
+      <!-- 4) SEO 본문 -->
+      <article class="seo">
+        <h2>이름궁합 테스트, 단톡방 전원을 한 번에</h2>
+        <p>
+          학창 시절 공책 귀퉁이에 이름을 번갈아 적고 획수를 더하던 그 이름점을 단톡방 전체로 넓혔어요. 멤버 이름을 붙여넣으면
+          모든 조합의 이름궁합을 한 장의 궁합표로 보여주고, 최고의 커플·짝사랑·인기왕까지 찾아줘요.
+        </p>
+
+        <h3>이름궁합 계산법</h3>
+        <ol>
+          <li>두 이름을 한 글자씩 번갈아 세워요. 민수와 지영이라면 ‘민 지 수 영’. 글자 수가 다르면 남는 글자를 뒤에 붙여요.</li>
+          <li>글자마다 초성·중성·종성으로 나눠 획수를 더해요. 예) 민 = ㅁ(4) + ㅣ(1) + ㄴ(2) = 7획</li>
+          <li>획수가 10 이상이면 일의 자리만 써요. 첫 줄은 ‘7 4 4 5’가 돼요.</li>
+          <li>이웃한 두 수를 더해 일의 자리만 아래 줄에 적어요. 7+4=11 → 1, 4+4=8, 4+5=9 → ‘1 8 9’</li>
+          <li>두 자리가 남을 때까지 반복해요. ‘1 8 9’ → ‘9 7’. 그래서 민수가 지영을 생각하는 마음은 97%예요.</li>
+        </ol>
+        <p>마지막 두 자리가 ‘00’이면 0%로 봐요. 이 방식에서는 100%가 나오지 않아요.</p>
+
+        <h3>획수표</h3>
+        <div class="table-wrap">
+          <table class="seo-table">
+            <caption class="sr-only">한글 자음과 모음 획수</caption>
+            <thead><tr><th scope="col">자음</th><th scope="col">획수</th><th scope="col">모음</th><th scope="col">획수</th></tr></thead>
+            <tbody>
+              <tr><td>ㅇ</td><td>1</td><td>ㅡ ㅣ</td><td>1</td></tr>
+              <tr><td>ㄱ ㄴ ㅅ</td><td>2</td><td>ㅏ ㅓ ㅗ ㅜ ㅢ</td><td>2</td></tr>
+              <tr><td>ㄷ ㅈ ㅋ ㅎ</td><td>3</td><td>ㅐ ㅑ ㅔ ㅕ ㅚ ㅛ ㅟ ㅠ</td><td>3</td></tr>
+              <tr><td>ㄲ ㅁ ㅂ ㅆ ㅊ ㅌ ㅍ</td><td>4</td><td>ㅒ ㅖ ㅘ ㅝ</td><td>4</td></tr>
+              <tr><td>ㄹ</td><td>5</td><td>ㅙ ㅞ</td><td>5</td></tr>
+              <tr><td>ㄸ ㅉ</td><td>6</td><td></td><td></td></tr>
+              <tr><td>ㅃ</td><td>8</td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>겹받침은 두 자음의 획수를 더해요. 예) ㄺ = ㄹ(5) + ㄱ(2) = 7, ㅄ = ㅂ(4) + ㅅ(2) = 6</p>
+
+        <h3>순서가 바뀌면 결과가 다른 이유</h3>
+        <p>
+          ‘민수→지영’은 ‘민 지 수 영’, ‘지영→민수’는 ‘지 민 영 수’로 줄을 세워요. 같은 숫자라도 놓인 순서가 달라지면 이웃끼리 더하는
+          짝이 달라져서 최종 두 자리가 바뀌어요. 실제로 민수→지영은 97%, 지영→민수는 31%예요. 그래서 이 사이트는 A→B를 ‘A가 B를
+          생각하는 마음’으로 보고, 두 방향 차이가 큰 조합을 ‘짝사랑’으로 골라요.
+        </p>
+
+        <h3>단톡방 궁합표 사용법</h3>
+        <ul>
+          <li>카카오톡 단톡방 멤버 이름을 복사해 붙여넣거나 한 명씩 추가해요. 최대 12명까지 돼요.</li>
+          <li>궁합표에서 칸을 누르면 숫자 피라미드가 한 줄씩 계산되는 과정을 볼 수 있어요.</li>
+          <li>‘단톡방에 궁합표 보내기’를 누르면 같은 표가 열리는 링크가 만들어져요. 이름은 링크에만 담기고 서버에 저장되지 않아요.</li>
+          <li>반·동아리·회사처럼 자주 보는 방은 저장해 두고 언제든 다시 열 수 있어요.</li>
+        </ul>
+
+        <h3>자주 묻는 질문</h3>
+        <details>
+          <summary>영어 이름이나 이모지가 들어간 이름도 되나요?</summary>
+          <p>이름궁합은 한글 획수로 계산해서, 한글이 아닌 글자는 빼고 계산해요. 한글이 하나도 없는 이름은 추가할 수 없어요.</p>
+        </details>
+        <details>
+          <summary>성까지 넣어야 하나요?</summary>
+          <p>둘 다 괜찮아요. 다만 성을 넣느냐에 따라 결과가 달라지니, 한 방 안에서는 같은 방식으로 맞춰 주세요.</p>
+        </details>
+        <details>
+          <summary>결과가 너무 낮게 나왔어요.</summary>
+          <p>획수로 하는 이름점은 재미로 보는 놀이예요. 실제 관계와는 아무 상관이 없으니 웃고 넘겨 주세요.</p>
+        </details>
+        <details>
+          <summary>100%는 왜 안 나와요?</summary>
+          <p>마지막에 두 자리 숫자만 남기 때문에 최대 99%예요. ‘00’이 나오면 0%로 계산해요.</p>
+        </details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">이름 획수로 보는 재미용 콘텐츠예요.</footer>
+    </main>
+
+    <!-- 피라미드 시트 -->
+    <div class="sheet" id="pyrSheet" role="dialog" aria-label="이름궁합 계산 과정">
+      <div class="pyr-head">
+        <p class="t-label-02 t-secondary m0" id="pyrKicker"></p>
+        <h2 class="t-title-03 m0" id="pyrTitle"></h2>
+      </div>
+      <div class="pyr" id="pyr"></div>
+      <div class="pyr-result" id="pyrResult"></div>
+      <div class="row gap-8 sheet-actions">
+        <button class="btn btn--outline grow" id="pyrFlip">반대 방향 보기</button>
+        <button class="btn btn--primary grow" data-sheet-close>닫기</button>
+      </div>
+    </div>
+
+    <!-- 방 저장 시트 -->
+    <div class="sheet" id="roomSheet" role="dialog" aria-label="방 저장">
+      <div class="stack gap-16">
+        <h2 class="t-title-03 m0">이 방 저장하기</h2>
+        <label class="field">
+          <span class="field__label">방 이름</span>
+          <input class="input" id="roomName" maxlength="20" placeholder="예: 3학년 2반" autocomplete="off" />
+        </label>
+        <div class="field">
+          <span class="field__label">어떤 방이에요?</span>
+          <div class="row wrap gap-8" id="roomTypes"></div>
+        </div>
+        <button class="btn btn--primary btn--lg btn--block" id="roomSave">저장하기</button>
+        <p class="t-caption-01 t-tertiary m0">이 기기에만 저장돼요.</p>
+      </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

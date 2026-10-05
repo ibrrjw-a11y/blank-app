@@ -556,7 +556,7 @@
   width: var(--sp-24);
   height: var(--sp-8);
   border-radius: var(--r-full);
-  background: var(--color-surface-sunken);
+  background: var(--color-border-strong);
 }
 
 .lean__dots i.on {
@@ -630,7 +630,7 @@
 .locked {
   position: relative;
   overflow: hidden;
-  min-height: calc(var(--sp-64) * 3 + var(--sp-24));
+  padding-bottom: var(--sp-32);
 }
 
 .locked__veil {
