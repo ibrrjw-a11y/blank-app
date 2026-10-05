@@ -97,16 +97,76 @@ body {
   100% { transform: none; opacity: 1; }
 }
 
+/* 장면은 무대 높이를 꽉 채우고, 내용은 그 안 가운데에 모은다 */
+.intro__stage { padding: var(--sp-12) 0; }
 .scene {
   position: relative;
+  align-self: stretch;
   width: 100%;
-  max-width: 340px;
-  height: 340px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
+  gap: var(--sp-12);
 }
+.scene--center { align-items: center; gap: 0; }
+.scene__meta { margin: 0; font: 600 13px/18px var(--font-num); color: var(--art-ink-2); }
+
+/* 영수증 머리말 (POS 헤더) */
+.masthead {
+  padding: var(--sp-12) var(--sp-16) var(--sp-20);
+  background: var(--art-slip);
+  color: var(--art-ink);
+  text-align: center;
+  -webkit-mask: var(--tear);
+  mask: var(--tear);
+  animation: print-in 700ms steps(8) both;
+}
+.masthead__store { margin: 0; font: 700 22px/30px var(--font-kr); letter-spacing: 0.08em; }
+.masthead__sub { margin: 0 0 var(--sp-8); font: 500 11px/16px var(--font-num); color: var(--art-ink-2); letter-spacing: 0.04em; }
+.masthead__pos {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding-top: var(--sp-8);
+  border-top: 2px dotted var(--art-rule);
+  font: 500 12px/16px var(--font-num);
+  color: var(--art-ink-2);
+}
+
+/* 넓은 카운터 */
+.housing--wide { display: flex; justify-content: center; width: 100%; padding: var(--sp-10) var(--sp-8); }
+.odo--lg { --h: 76px; --w: 42px; --fs: 56px; }
+
+/* 영수증 블록 (점선 리더) */
+.rcpt { padding: var(--sp-16) var(--sp-16) var(--sp-24); }
+.rcpt__grid { display: grid; grid-template-columns: 112px 1fr; gap: var(--sp-16); align-items: end; }
+.rcpt__grid .jar { width: 112px; height: 136px; }
+.rcpt__title { margin: 0 0 var(--sp-6); font: 700 13px/18px var(--font-kr); letter-spacing: 0.06em; color: var(--art-ink-2); }
+.lead-row { display: flex; align-items: baseline; gap: var(--sp-6); padding: var(--sp-4) 0; font: 400 14px/20px var(--font-kr); color: var(--art-ink); }
+.lead-row i { flex: 1; min-width: var(--sp-8); border-bottom: 2px dotted var(--art-rule); transform: translateY(-4px); }
+.lead-row b { font: 700 15px/20px var(--font-num); }
+.lead-row.is-hot b { color: var(--color-primary); }
+.rcpt .barcode { height: 28px; margin-top: var(--sp-12); }
+
+/* 장면 2: 영수증 트레이 */
+.tray { display: flex; flex-direction: column; gap: var(--sp-8); }
+.tray__slot { min-height: 52px; border: 2px dashed var(--art-rule); border-radius: var(--r-4); }
+.tray__slot:has(.ticket) { border-color: transparent; }
+.tray .ticket { rotate: var(--tilt, 0deg); padding: var(--sp-10) var(--sp-16) var(--sp-16); font-size: 15px; }
+.tray .ticket b { font-size: 19px; }
+.ticket.is-hot b { color: var(--color-primary); }
+
+/* 장면 3 */
+.scene--center .printer { width: 300px; }
+.scene--center .paper-wrap { width: 264px; height: auto; flex: 1; max-height: 400px; }
+.paper__sub { text-align: center; font: 500 11px/16px var(--font-num); color: var(--art-ink-2); }
+.paper__note { text-align: center; font: 700 13px/20px var(--font-kr); }
+
+/* 장면 4 */
+.seats { justify-content: space-between; margin-bottom: 0; }
+.seat { width: 48px; height: 48px; font-size: 16px; }
 
 /* 기계식 오도미터 */
 .odo {
@@ -226,12 +286,10 @@ body {
   font: 600 16px/22px var(--font-kr);
   -webkit-mask: var(--tear);
   mask: var(--tear);
-  rotate: -2deg;
   animation: slap 560ms var(--spring) both;
 }
 .ticket b { font: 700 22px/1 var(--font-num); }
 .ticket--hot b { color: var(--color-primary); }
-.ticket + .ticket { rotate: 1.5deg; animation-delay: 140ms; }
 @keyframes slap {
   0% { transform: translateY(-30px) scale(1.25); opacity: 0; }
   60% { transform: translateY(0) scale(0.96); opacity: 1; }
@@ -556,3 +614,11 @@ body {
 
 /* 등장 애니메이션 중 커지는 요소가 가로 스크롤을 만들지 않게 */
 main.app { overflow-x: clip; }
+
+/* 장면 3: 빈 감열지가 먼저 나오고, 헤드가 한 줄씩 찍는다 */
+.scene--center .paper { transform: translateY(-16px); min-height: 100%; padding-top: var(--sp-24); }
+.scene--center .paper.is-print { animation: paper-feed 1500ms steps(15) forwards; }
+.scene--center .paper > * { opacity: 0; }
+.scene--center .paper.is-print > * { animation: line-in 80ms steps(1) forwards; animation-delay: calc(var(--i, 0) * 95ms + 60ms); }
+@keyframes paper-feed { to { transform: translateY(0); } }
+@keyframes line-in { to { opacity: 1; } }

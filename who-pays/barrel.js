@@ -7,36 +7,36 @@ const BARREL_SVG = `
 <svg class="barrel__svg" viewBox="0 0 300 320" preserveAspectRatio="none" aria-hidden="true">
   <defs>
     <linearGradient id="wood" x1="0" x2="1">
-      <stop offset="0" stop-color="#5a2c12"/><stop offset=".22" stop-color="#9a5527"/>
-      <stop offset=".5" stop-color="#c4773b"/><stop offset=".78" stop-color="#9a5527"/>
-      <stop offset="1" stop-color="#5a2c12"/>
+      <stop offset="0" style="stop-color:var(--art-wood-1)"/><stop offset=".22" style="stop-color:var(--art-wood-2)"/>
+      <stop offset=".5" style="stop-color:var(--art-wood-3)"/><stop offset=".78" style="stop-color:var(--art-wood-2)"/>
+      <stop offset="1" style="stop-color:var(--art-wood-1)"/>
     </linearGradient>
     <linearGradient id="hoop" x1="0" x2="1">
-      <stop offset="0" stop-color="#2a2e36"/><stop offset=".5" stop-color="#7b8494"/><stop offset="1" stop-color="#2a2e36"/>
+      <stop offset="0" style="stop-color:var(--art-hoop-1)"/><stop offset=".5" style="stop-color:var(--art-hoop-2)"/><stop offset="1" style="stop-color:var(--art-hoop-1)"/>
     </linearGradient>
   </defs>
   <path d="M40 20 Q6 162 40 306 L260 306 Q294 162 260 20 Z" fill="url(#wood)"/>
-  <g stroke="#4a230d" stroke-width="2" opacity=".55" fill="none">
+  <g style="stroke:var(--art-wood-line)" stroke-width="2" opacity=".55" fill="none">
     <path d="M84 20 Q70 162 84 306"/><path d="M126 20 Q121 162 126 306"/>
     <path d="M174 20 Q179 162 174 306"/><path d="M216 20 Q230 162 216 306"/>
   </g>
   <path d="M30 50 Q150 62 270 50 L273 66 Q150 78 27 66 Z" fill="url(#hoop)"/>
   <path d="M26 262 Q150 274 274 262 L271 278 Q150 290 29 278 Z" fill="url(#hoop)"/>
-  <ellipse cx="150" cy="20" rx="110" ry="14" fill="#2b1407"/>
-  <ellipse cx="150" cy="18" rx="98" ry="9" fill="#120803"/>
+  <ellipse cx="150" cy="20" rx="110" ry="14" style="fill:var(--art-rim)"/>
+  <ellipse cx="150" cy="18" rx="98" ry="9" style="fill:var(--art-hole)"/>
 </svg>`;
 
 const PIRATE_SVG = `
 <svg class="barrel__pirate-svg" viewBox="0 0 120 120" aria-hidden="true">
-  <circle cx="60" cy="68" r="40" fill="#ffd2a8"/>
-  <path d="M18 58 Q60 6 102 58 Q60 44 18 58 Z" fill="var(--brand)"/>
-  <circle cx="98" cy="60" r="7" fill="var(--brand)"/>
-  <path d="M104 62 l12 10 M104 62 l14 -2" stroke="var(--brand)" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="44" cy="66" r="11" fill="#111"/>
-  <path d="M22 54 L86 80" stroke="#111" stroke-width="3"/>
-  <circle cx="76" cy="66" r="6" fill="#fff"/><circle cx="77" cy="67" r="3.4" fill="#111"/>
-  <path d="M40 88 Q60 100 82 86" stroke="#7a2e14" stroke-width="4" fill="none" stroke-linecap="round"/>
-  <path d="M44 84 Q60 78 78 84" stroke="#3a1a0a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <circle cx="60" cy="68" r="40" style="fill:var(--art-skin)"/>
+  <path d="M18 58 Q60 6 102 58 Q60 44 18 58 Z" style="fill:var(--brand)"/>
+  <circle cx="98" cy="60" r="7" style="fill:var(--brand)"/>
+  <path d="M104 62 l12 10 M104 62 l14 -2" style="stroke:var(--brand)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="44" cy="66" r="11" style="fill:var(--art-ink)"/>
+  <path d="M22 54 L86 80" style="stroke:var(--art-ink)" stroke-width="3"/>
+  <circle cx="76" cy="66" r="6" style="fill:var(--art-chalk)"/><circle cx="77" cy="67" r="3.4" style="fill:var(--art-ink)"/>
+  <path d="M40 88 Q60 100 82 86" style="stroke:var(--art-wood-1)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M44 84 Q60 78 78 84" style="stroke:var(--art-rim)" stroke-width="5" fill="none" stroke-linecap="round"/>
 </svg>`;
 
 export function startBarrel({ stage, tray: trayEl, players, penalty, onDone }) {

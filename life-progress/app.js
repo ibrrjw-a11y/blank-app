@@ -406,7 +406,7 @@ function drawGridFrame(now) {
     const p = prefersReducedMotion() ? 0.5 : (Math.sin(now / 320) + 1) / 2;
     ctx.fillStyle = alpha(brand, 0.2 + 0.25 * p);
     ctx.beginPath();
-    ctx.arc(x, y, r * (2.2 + 1.6 * p), 0, Math.PI * 2);
+    ctx.arc(x, y, Math.min(r * (2.2 + 1.6 * p), r + 4 + 6 * p), 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = brand;
     ctx.beginPath();
@@ -633,7 +633,7 @@ function renderBucket() {
         it.done = !it.done;
         if (it.done) {
           haptic([10, 30, 10]);
-          toast("한 칸을 제대로 채웠어요 ✨");
+          toast("한 칸을 제대로 채웠어요");
         }
         saveBucket();
         renderBucket();
@@ -689,81 +689,102 @@ function drawStory() {
   const H = 960;
   const { canvas, ctx } = createCanvas(W, H, 2);
   const brand = token("--brand");
-  const bg = token("--color-bg");
-  const surface = token("--color-surface-raised");
-  const text = token("--color-text");
+  const black = token("--art-black");
+  const white = token("--art-white");
+  const left = token("--art-dot-left");
   const sub = token("--color-text-secondary");
-  const left = token("--color-border-strong");
+  const num = token("--art-num") || CANVAS_FONT;
+  const disp = token("--font-display") || CANVAS_FONT;
   const s = emotionalStats(state.birth, state.life);
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, surface);
-  g.addColorStop(1, bg);
-  ctx.fillStyle = g;
+  ctx.fillStyle = black;
   ctx.fillRect(0, 0, W, H);
-  const glow = ctx.createRadialGradient(W / 2, 210, 10, W / 2, 210, 260);
-  glow.addColorStop(0, alpha(brand, 0.22));
-  glow.addColorStop(1, alpha(brand, 0));
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, 480);
 
-  ctx.textAlign = "center";
+  // 머리글 + 헤어라인
+  ctx.fillStyle = white;
+  ctx.textBaseline = "alphabetic";
+  ctx.textAlign = "left";
+  ctx.font = `900 20px ${disp}`;
+  ctx.fillText("인생 진행률", 24, 50);
+  ctx.textAlign = "right";
   ctx.fillStyle = sub;
-  ctx.font = `600 18px ${CANVAS_FONT}`;
-  ctx.fillText("⏳ 인생 진행률", W / 2, 84);
-  ctx.fillStyle = text;
-  ctx.font = `700 26px ${CANVAS_FONT}`;
-  ctx.fillText("내 인생은 지금", W / 2, 150);
-  ctx.fillStyle = brand;
-  ctx.font = `800 104px ${CANVAS_FONT}`;
-  ctx.fillText(`${s.pct.toFixed(1)}%`, W / 2, 262);
+  ctx.font = `600 11px ${num}`;
+  ctx.fillText(`FIG. 01 — ${dotDate(s.today)}`, W - 24, 50);
+  ctx.fillStyle = white;
+  ctx.fillRect(24, 64, W - 48, 1.5);
 
-  // 점 그리드 (주 단위)
+  // 거대한 퍼센트 (오른쪽이 살짝 잘리도록)
+  const pctText = s.pct.toFixed(1);
+  ctx.textAlign = "left";
+  ctx.fillStyle = white;
+  ctx.font = `900 196px ${num}`;
+  ctx.fillText(pctText, 14, 246);
+  const pw = ctx.measureText(pctText).width;
+  ctx.fillStyle = brand;
+  ctx.font = `900 48px ${num}`;
+  ctx.fillText("%", Math.min(14 + pw + 6, W - 44), 120);
+
+  ctx.fillStyle = white;
+  ctx.fillRect(24, 272, W - 48, 1);
+  ctx.fillStyle = sub;
+  ctx.font = `600 11px ${num}`;
+  ctx.fillText("LIFE IN WEEKS — 한 칸 = 일주일, 한 줄 = 1년", 24, 292);
+
+  // 점 그리드
   const cols = 52;
   const total = Math.round(state.life * 52);
   const rows = Math.ceil(total / cols);
-  const pitch = Math.min(7.4, 470 / rows);
-  const gw = cols * pitch;
-  const gx = (W - gw) / 2;
-  const gy = 300;
+  const pitch = Math.min(6.6, 540 / rows);
+  const gx = 44;
+  const gy = 312;
   const current = Math.min(total - 1, s.age * 52 + s.weekInYear);
   const r = pitch * 0.34;
+  const xy = (i) => [gx + (i % cols) * pitch + pitch / 2, gy + Math.floor(i / cols) * pitch + pitch / 2];
   const dots = (from, to, color) => {
     ctx.fillStyle = color;
     ctx.beginPath();
     for (let i = from; i < to; i++) {
-      const x = gx + (i % cols) * pitch + pitch / 2;
-      const y = gy + Math.floor(i / cols) * pitch + pitch / 2;
+      const [x, y] = xy(i);
       ctx.moveTo(x + r, y);
       ctx.arc(x, y, r, 0, Math.PI * 2);
     }
     ctx.fill();
   };
   dots(current + 1, total, left);
-  dots(0, current, brand);
-  const cx = gx + (current % cols) * pitch + pitch / 2;
-  const cy = gy + Math.floor(current / cols) * pitch + pitch / 2;
-  ctx.fillStyle = alpha(text, 0.3);
+  dots(0, current, white);
+  ctx.fillStyle = sub;
+  ctx.font = `600 9px ${num}`;
+  ctx.textAlign = "right";
+  for (let a = 0; a * 52 < total; a += 10) ctx.fillText(String(a), gx - 6, xy(a * 52)[1] + 3);
+  const [cx, cy] = xy(current);
+  ctx.fillStyle = brand;
   ctx.beginPath();
-  ctx.arc(cx, cy, r * 3.2, 0, Math.PI * 2);
+  ctx.arc(cx, cy, r * 1.6, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = text;
+  // 주석선: 지금 여기
+  const lx = gx + cols * pitch + 14;
+  ctx.strokeStyle = brand;
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(cx, cy, r * 1.3, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(cx + r * 2, cy);
+  ctx.lineTo(lx, cy);
+  ctx.stroke();
+  ctx.textAlign = "left";
+  ctx.fillStyle = brand;
+  ctx.font = `800 13px ${disp}`;
+  ctx.fillText("지금 여기", lx + 4, cy + 4);
+  ctx.fillStyle = sub;
+  ctx.font = `600 11px ${num}`;
+  ctx.fillText(`만 ${s.age}세`, lx + 4, cy + 20);
 
-  const by = gy + rows * pitch + 52;
-  ctx.fillStyle = text;
-  ctx.font = `700 22px ${CANVAS_FONT}`;
-  ctx.fillText(emotionalLine(s), W / 2, by);
+  // 감성 한 줄 + 각주
+  const by = gy + rows * pitch + 46;
+  ctx.fillStyle = white;
+  ctx.fillRect(24, by - 26, W - 48, 1);
+  ctx.font = `800 21px ${disp}`;
+  ctx.fillText(emotionalLine(s), 24, by + 4);
   ctx.fillStyle = sub;
-  ctx.font = `500 15px ${CANVAS_FONT}`;
-  ctx.fillText(`한 칸 = 일주일 · 만 ${s.age}세 · 기대수명 ${state.life}세 가정`, W / 2, by + 34);
-  ctx.fillStyle = alpha(text, 0.08);
-  roundRect(ctx, W / 2 - 150, H - 92, 300, 44, 22);
-  ctx.fill();
-  ctx.fillStyle = sub;
-  ctx.font = `600 15px ${CANVAS_FONT}`;
-  ctx.fillText("너의 인생 진행률은 몇 %야?", W / 2, H - 64);
+  ctx.font = `500 12px ${CANVAS_FONT}`;
+  ctx.fillText(`기대수명 ${state.life}세 가정 · 근사치 · 너의 인생 진행률은 몇 %야?`, 24, by + 32);
   return canvas;
 }
 $("#saveStory").onclick = async () => {
@@ -806,13 +827,14 @@ function renderAll({ animate = false, sweep = true } = {}) {
   if (sweep) startSweep();
 }
 
-/* ---------- 인트로 모션그래픽 (캔버스 하나로 4장면) ---------- */
+/* ---------- 인트로 모션그래픽 (캔버스 그리드 + 타이포 오버레이) ---------- */
 const EX = { pct: 37.4, life: 83.5 };
 EX.age = (EX.pct / 100) * EX.life; // 약 31.2세
 EX.christmas = Math.floor(EX.life - EX.age);
 EX.weekends = Math.round(((EX.life - EX.age) * YEAR_DAYS) / 7 / 100) * 100;
 EX.springs = Math.floor(EX.life - EX.age);
 const ip = { scene: 0, t0: 0, raf: 0, running: false, geo: null };
+const OVERLAY_H = 146;
 function ipLayout() {
   const stage = $("#intro .intro__stage");
   const cv = $(".ip-canvas");
@@ -826,10 +848,8 @@ function ipLayout() {
   const cols = 52;
   const total = Math.round(EX.life * 52);
   const rows = Math.ceil(total / cols);
-  const pitch = Math.min((w - 24) / cols, (h - 24) / rows);
-  const gx = (w - cols * pitch) / 2;
-  const gy = (h - rows * pitch) / 2;
-  ip.geo = { w, h, dpr, cols, total, rows, pitch, gx, gy, ctx: cv.getContext("2d"), current: Math.round((EX.pct / 100) * total) };
+  const pitch = Math.min(w / cols, (h - OVERLAY_H - 12) / rows);
+  ip.geo = { w, h, dpr, cols, total, rows, pitch, gx: 0, gy: 10, ctx: cv.getContext("2d"), current: Math.round((EX.pct / 100) * total) };
 }
 const ipXY = (i) => {
   const g = ip.geo;
@@ -838,17 +858,19 @@ const ipXY = (i) => {
 const clamp01 = (t) => (t < 0 ? 0 : t > 1 ? 1 : t);
 const easeOut = (t) => 1 - Math.pow(1 - clamp01(t), 3);
 const easeIO = (t) => ((t = clamp01(t)), t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+// 감쇠 진동 스프링 (0 → 1, 오버슈트 후 정착)
+const spring = (t) => (t <= 0 ? 0 : 1 - Math.exp(-6 * t) * Math.cos(13 * t));
 function ipFrame(now) {
   const g = ip.geo;
   if (!g) return;
   const { ctx, w, h, dpr, total, pitch, current } = g;
   const t = prefersReducedMotion() ? 99999 : now - ip.t0;
   const brand = token("--brand");
-  const left = token("--color-border-strong");
-  const text = token("--color-text");
+  const white = token("--art-white");
+  const left = token("--art-dot-left");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, w, h);
-  const r = pitch * 0.34;
+  const r = pitch * 0.36;
   const batch = (from, to, color, a = 1) => {
     if (to <= from) return;
     ctx.globalAlpha = a;
@@ -862,96 +884,142 @@ function ipFrame(now) {
     ctx.fill();
     ctx.globalAlpha = 1;
   };
-  const glow = (x, y, rad, a) => {
-    const gr = ctx.createRadialGradient(x, y, 0, x, y, rad);
-    gr.addColorStop(0, alpha(brand, a));
-    gr.addColorStop(1, alpha(brand, 0));
-    ctx.fillStyle = gr;
+  const dot = (x, y, rad, color, a = 1) => {
+    ctx.globalAlpha = a;
+    ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(x, y, rad, 0, Math.PI * 2);
     ctx.fill();
+    ctx.globalAlpha = 1;
+  };
+  // 오른쪽 여백: 나이 눈금 + "지금" 주석 (연차보고서 도표처럼)
+  const gridRight = g.gx + g.cols * pitch;
+  const ticks = (a = 1) => {
+    ctx.globalAlpha = a;
+    ctx.fillStyle = token("--color-text-tertiary");
+    ctx.font = `600 9px ${token("--art-num") || CANVAS_FONT}`;
+    ctx.textAlign = "left";
+    for (let yr = 0; yr * 52 < total; yr += 10) ctx.fillText(`${yr}`, gridRight + 10, ipXY(yr * 52)[1] + 3);
+    ctx.globalAlpha = 1;
+  };
+  const annotate = (a = 1) => {
+    const [x, y] = ipXY(current);
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = brand;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + r * 2.5, y);
+    ctx.lineTo(gridRight + 34, y);
+    ctx.stroke();
+    ctx.fillStyle = brand;
+    ctx.textAlign = "left";
+    ctx.font = `800 12px ${token("--font-display") || CANVAS_FONT}`;
+    ctx.fillText("지금", gridRight + 38, y + 4);
+    ctx.fillStyle = white;
+    ctx.font = `600 10px ${token("--art-num") || CANVAS_FONT}`;
+    ctx.fillText("만 31세", gridRight + 38, y + 18);
+    ctx.globalAlpha = 1;
   };
   const pulseNow = (k = 1) => {
     const [x, y] = ipXY(current);
-    const p = (Math.sin(now / 300) + 1) / 2;
-    ctx.fillStyle = alpha(text, (0.15 + 0.25 * p) * k);
-    ctx.beginPath();
-    ctx.arc(x, y, r * (2.4 + 2 * p), 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = k;
-    ctx.fillStyle = text;
-    ctx.beginPath();
-    ctx.arc(x, y, r * 1.3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    const p = (Math.sin(now / 280) + 1) / 2;
+    dot(x, y, r * (2.4 + 2.2 * p), brand, (0.18 + 0.22 * p) * k);
+    dot(x, y, r * 1.5, brand, k);
   };
 
   if (ip.scene === 0) {
-    // 점 하나 → 줄줄이 채워지는 4,000칸
-    const appear = easeOut(t / 500);
-    const move = easeIO((t - 700) / 500);
-    const fill = easeIO((t - 1200) / 2000);
+    // 점 하나가 스프링으로 튀어나와 첫 칸에 앉고, 줄줄이 4,000칸이 깔린다
+    const cx = w / 2;
+    const cy = (h - OVERLAY_H) / 2;
+    const pop = spring((t - 80) / 700);
+    const move = easeIO((t - 800) / 420);
+    const fill = easeIO((t - 1200) / 2100);
     const [x0, y0] = ipXY(0);
-    const cx = w / 2 + (x0 - w / 2) * move;
-    const cy = h / 2 + (y0 - h / 2) * move;
     if (move < 1) {
-      const rr = r + (14 - r) * (1 - move);
-      glow(cx, cy, rr * 4, 0.5 * appear);
-      ctx.fillStyle = brand;
-      ctx.globalAlpha = appear;
-      ctx.beginPath();
-      ctx.arc(cx, cy, rr * (1 + 0.08 * Math.sin(now / 200)), 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      const x = cx + (x0 - cx) * move;
+      const y = cy + (y0 - cy) * move;
+      const rad = Math.max(0, 16 * pop * (1 - move) + r * move);
+      // 출발 직전 살짝 눌렸다(스쿼시) 튀어나가기
+      const squash = move > 0 && move < 0.3 ? 1 - 0.35 * Math.sin((move / 0.3) * Math.PI) : 1;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(1 / squash, squash);
+      dot(0, 0, rad, brand);
+      ctx.restore();
     } else {
       const k = Math.floor(total * fill);
+      ticks(fill);
       batch(0, k, left);
-      // 로딩바처럼 앞머리 한 줄은 밝게
-      batch(Math.max(0, k - 52), k, brand, 0.9);
-      const [hx, hy] = ipXY(Math.max(0, k - 1));
-      glow(hx, hy, pitch * 5, 0.6);
+      const row = Math.max(0, k - 52);
+      batch(row, k, white);
+      if (k < total) {
+        const [hx, hy] = ipXY(Math.max(0, k - 1));
+        dot(hx, hy, r * 1.8, brand);
+      }
     }
   } else if (ip.scene === 1) {
-    const fill = easeIO((t - 200) / 1800);
+    const fill = easeIO((t - 150) / 1800);
     const k = Math.floor(current * fill);
     batch(k, total, left);
-    batch(0, k, brand);
+    batch(0, k, white);
+    ticks();
     if (fill < 1) {
       const [hx, hy] = ipXY(k);
-      glow(hx, hy, pitch * 6, 0.7);
-    } else pulseNow();
+      dot(hx, hy, r * 2, brand);
+    } else {
+      pulseNow();
+      annotate(easeOut((t - 1950) / 300));
+    }
   } else if (ip.scene === 2) {
-    batch(current, total, left, 0.5);
-    batch(0, current, brand, 0.45);
-    pulseNow(0.6);
+    const dim = 1 - 0.55 * easeOut(t / 500);
+    batch(current, total, left, dim);
+    batch(0, current, white, dim);
+    ticks(dim);
+    pulseNow(dim);
+    annotate(dim);
   } else {
-    // 이번 주 한 칸에 집중 + 버킷리스트 깃발
     const focus = easeOut(t / 900);
-    batch(current, total, left, 1 - 0.5 * focus);
-    batch(0, current, brand, 1 - 0.4 * focus);
+    batch(current, total, left, 1 - 0.4 * focus);
+    batch(0, current, white, 1 - 0.6 * focus);
     const [x, y] = ipXY(current);
-    const ringR = r * (2 + 10 * focus);
-    ctx.strokeStyle = alpha(text, 0.9 * (1 - focus) + 0.25);
+    ctx.strokeStyle = brand;
     ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 1 - 0.6 * focus;
     ctx.beginPath();
-    ctx.arc(x, y, ringR, 0, Math.PI * 2);
+    ctx.arc(x, y, r * (2 + 14 * spring(t / 900)), 0, Math.PI * 2);
     ctx.stroke();
+    ctx.globalAlpha = 1;
     pulseNow();
-    [0.55, 0.68, 0.8].forEach((f, i) => {
-      const a = easeOut((t - 900 - i * 250) / 400);
+    const goals = [
+      [0.52, "오로라 보기"],
+      [0.66, "마라톤 완주"],
+      [0.8, "부모님과 여행"],
+    ];
+    goals.forEach(([f, label], i) => {
+      const a = spring((t - 900 - i * 220) / 600);
       if (a <= 0) return;
-      const idx = Math.round(total * f) + 17 * i;
+      const idx = Math.round(total * f) + 9 * i;
       const [fx, fy] = ipXY(idx);
-      ctx.globalAlpha = a;
+      ctx.save();
+      ctx.translate(fx, fy);
+      ctx.scale(a, a);
       ctx.strokeStyle = brand;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(fx, fy, r + 3, 0, Math.PI * 2);
+      ctx.arc(0, 0, r + 3.5, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = brand;
-      ctx.font = `700 11px ${CANVAS_FONT}`;
+      ctx.restore();
+      ctx.globalAlpha = clamp01(a);
+      ctx.strokeStyle = brand;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(fx + r + 4, fy);
+      ctx.lineTo(fx + 18, fy);
+      ctx.stroke();
+      ctx.fillStyle = white;
+      ctx.font = `800 11px ${token("--font-display") || CANVAS_FONT}`;
       ctx.textAlign = "left";
-      ctx.fillText(["🌌 오로라", "🏃 마라톤", "✈️ 부모님과 여행"][i], fx + r + 8, fy + 4);
+      ctx.fillText(label, fx + 22, fy + 4);
       ctx.globalAlpha = 1;
     });
   }
@@ -961,49 +1029,73 @@ function ipLoop(now) {
   ipFrame(now);
   if (!prefersReducedMotion()) ip.raf = requestAnimationFrame(ipLoop);
 }
-function ipScene(n, html = "") {
+function kinetic() {
+  const h = $("#intro .intro__caption h2");
+  if (!h || prefersReducedMotion()) return;
+  let k = 0;
+  h.innerHTML = h.textContent
+    .split(" ")
+    .map((w) => `<span class="kin">${[...w].map((ch) => `<i style="--k:${k++}">${esc(ch)}</i>`).join("")}</span>`)
+    .join(" ");
+}
+function ipScene(n, html = "", after) {
   return (stage, signal) => {
     ip.scene = n;
     ip.t0 = performance.now();
+    kinetic();
+    $("#introFig").textContent = `FIG. 0${n + 1} / 04`;
     const ov = $(".ip-overlay", stage);
     ov.innerHTML = html;
     if (prefersReducedMotion()) ipFrame(performance.now());
-    if (n === 1) {
-      const el = $(".ip-pct b", ov);
-      const t0 = performance.now();
-      const step = (now) => {
-        if (signal.aborted) return;
-        const v = EX.pct * easeIO((now - t0 - 200) / 1800);
-        el.textContent = v.toFixed(1);
-        if (now - t0 < 2100) requestAnimationFrame(step);
-      };
-      if (prefersReducedMotion()) el.textContent = EX.pct.toFixed(1);
-      else requestAnimationFrame(step);
-    }
+    const timers = [];
+    const later = (ms, fn) => timers.push(setTimeout(() => !signal.aborted && fn(), prefersReducedMotion() ? 0 : ms));
+    signal.addEventListener("abort", () => timers.forEach(clearTimeout));
+    after?.(ov, later);
   };
 }
 const SCENES = [
-  { title: "인생을 4,000칸으로", desc: "한 칸은 일주일, 한 줄은 1년이에요", duration: 3800, play: ipScene(0, `<div class="ip-tag">한 칸 = 일주일</div>`) },
+  {
+    title: "인생을 4,000칸으로",
+    desc: "한 칸은 일주일, 한 줄은 1년이에요",
+    duration: 4000,
+    play: ipScene(0, `<div class="ip-count"><span class="odo" data-v="4,342"></span><span class="ip-label">칸 — 기대수명 83.5년 × 52주</span></div>`, (ov, later) => {
+      const el = $(".odo", ov);
+      later(1200, () => odometer(el, el.dataset.v));
+    }),
+  },
   {
     title: "지금 여기까지 왔어요",
     desc: "예시 · 만 31세, 기대수명 83.5세 기준",
-    duration: 3400,
-    play: ipScene(1, `<div class="ip-pct t-num"><b>0.0</b><span>%</span></div>`),
+    duration: 3600,
+    play: ipScene(1, `<div class="ip-pct"><span class="odo"></span><sup>%</sup></div>`, (ov, later) => later(150, () => odometer($(".odo", ov), EX.pct.toFixed(1)))),
   },
   {
     title: "숫자로 보면 달라져요",
     desc: "남은 크리스마스, 주말, 봄을 세어봐요",
-    duration: 3600,
+    duration: 3800,
     play: ipScene(
       2,
-      `<div class="ip-cards">
-        <div class="ip-card" style="--i:0"><span>🎄</span><p>남은 크리스마스</p><b class="t-num">${EX.christmas}번</b></div>
-        <div class="ip-card" style="--i:1"><span>🛋️</span><p>남은 주말</p><b class="t-num">약 ${fmt.num(EX.weekends)}번</b></div>
-        <div class="ip-card" style="--i:2"><span>🌸</span><p>남은 봄</p><b class="t-num">${EX.springs}번</b></div>
-      </div>`,
+      `<ol class="ip-rows">
+        <li style="--i:0"><span>남은 크리스마스</span><span><b class="odo" data-v="${EX.christmas}"></b><small>번</small></span></li>
+        <li style="--i:1"><span>남은 주말</span><span><small>약</small><b class="odo" data-v="${fmt.num(EX.weekends)}"></b><small>번</small></span></li>
+        <li style="--i:2"><span>남은 봄</span><span><b class="odo" data-v="${EX.springs}"></b><small>번</small></span></li>
+      </ol>`,
+      (ov, later) => $$(".odo", ov).forEach((el, i) => later(260 + i * 160, () => odometer(el, el.dataset.v))),
     ),
   },
-  { title: "이번 주도 딱 한 칸이에요", desc: "버킷리스트를 칸 위에 꽂고 하나씩 채워요", duration: 3600, play: ipScene(3, `<div class="ip-tag ip-tag--now">이번 주</div>`) },
+  {
+    title: "이번 주도 딱 한 칸",
+    desc: "버킷리스트를 칸 위에 꽂고 하나씩 채워요",
+    duration: 3800,
+    play: ipScene(3, `<span class="ip-tag">이번 주</span><div class="ip-count"><span class="odo" data-v="1"></span><span class="ip-label">/ 4,342칸 — 이번 주는 한 번뿐이에요</span></div>`, (ov, later) => {
+      const el = $(".ip-count .odo", ov);
+      later(300, () => odometer(el, el.dataset.v));
+      const [x, y] = ipXY(ip.geo.current);
+      const tag = $(".ip-tag", ov);
+      tag.style.left = `${Math.min(x + 12, ip.geo.w - 64)}px`;
+      tag.style.top = `${y - 30}px`;
+    }),
+  },
 ];
 let intro;
 function startIntro() {
@@ -1033,6 +1125,7 @@ window.addEventListener("resize", () => ip.running && ipLayout());
 
 /* ---------- 시작 ---------- */
 renderMoreSites($("#more"), "life-progress");
+$("#todayMeta").textContent = dotDate(todayKey());
 $("#asof").value = todayKey();
 const fromParam = getParam("from");
 if (fromParam) {

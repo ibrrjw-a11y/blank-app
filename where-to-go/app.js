@@ -93,7 +93,7 @@ function streakWarning() {
   if (logs.length < 2) return null;
   let n = 1;
   while (n < logs.length && logs[n].n === logs[0].n) n++;
-  if (n >= 2) return `최근 ${n}번 연속 ${logs[0].e} ${logs[0].n}이에요. 오늘은 다른 거 어때요?`;
+  if (n >= 2) return `최근 ${n}번 연속 ${logs[0].n}이에요. 오늘은 다른 거 어때요?`;
   let g = 1;
   while (g < logs.length && logs[g].g === logs[0].g) g++;
   if (g >= 3) return `최근 ${g}번 연속 ${logs[0].g}만 먹었어요. 새로운 분류도 도전해 봐요!`;
@@ -821,7 +821,7 @@ async function coinFlip([A, B]) {
   coin.animate(
     [
       { transform: "translateY(0) rotateY(0deg)" },
-      { transform: `translateY(-140px) rotateY(${end / 2}deg)`, offset: 0.45 },
+      { transform: `translateY(-80px) rotateY(${end / 2}deg) scale(1.15)`, offset: 0.45 },
       { transform: `translateY(0) rotateY(${end}deg)` },
     ],
     { duration: reduce ? 1 : 1500, easing: "cubic-bezier(0.25, 0.6, 0.3, 1)", fill: "forwards" }
@@ -883,9 +883,9 @@ function unpackWinner(x) {
 function actionsHTML(w, near) {
   const L = mapLinks(w, near);
   return `<div class="actions">
-    <a class="btn btn--primary" href="${L.kakao}" target="_blank" rel="noopener">카카오맵에서 찾기</a>
-    <a class="btn btn--outline" href="${L.naver}" target="_blank" rel="noopener">네이버지도</a>
-    ${L.route ? `<a class="btn btn--secondary btn--wide" href="${L.route}" target="_blank" rel="noopener">길찾기 (카카오맵) →</a>` : ""}
+    <a class="btn btn--primary btn--lg btn--wide" href="${L.kakao}" target="_blank" rel="noopener">카카오맵에서 찾기 →</a>
+    <a class="btn btn--outline ${L.route ? "" : "btn--wide"}" href="${L.naver}" target="_blank" rel="noopener">네이버지도</a>
+    ${L.route ? `<a class="btn btn--secondary" href="${L.route}" target="_blank" rel="noopener">길찾기</a>` : ""}
   </div>`;
 }
 
@@ -1079,87 +1079,86 @@ function readTokens() {
 
 function drawCard() {
   const T = readTokens();
+  const cs = getComputedStyle(document.documentElement);
+  const colorOf = (it) => {
+    const m = /var\((--[\w-]+)\)/.exec(lineOf(it));
+    return (m && cs.getPropertyValue(m[1]).trim()) || T.brand;
+  };
+  const board = cs.getPropertyValue("--art-board").trim() || "#16191e";
+  const led = cs.getPropertyValue("--art-led").trim() || "#ffc21a";
+  const paper = cs.getPropertyValue("--art-paper").trim() || "#fbfaf6";
+  const disp = `"Gothic A1", ${CANVAS_FONT}`;
   const W = 600, H = 760;
   const { canvas, ctx } = createCanvas(W, H, 2);
-  ctx.fillStyle = T.soft;
+  ctx.fillStyle = paper;
   ctx.fillRect(0, 0, W, H);
-  // 지도 느낌의 점선 격자
-  ctx.strokeStyle = T.surface;
-  ctx.lineWidth = 2;
-  ctx.setLineDash([2, 10]);
-  for (let x = 40; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-  ctx.setLineDash([]);
-  ctx.fillStyle = T.surface;
-  roundRect(ctx, 32, 92, W - 64, H - 160, 32);
-  ctx.fill();
-  ctx.fillStyle = T.brand;
-  ctx.font = `800 28px ${CANVAS_FONT}`;
-  ctx.textAlign = "left";
-  ctx.fillText("어디가?", 40, 60);
-  ctx.textAlign = "right";
-  ctx.font = `600 20px ${CANVAS_FONT}`;
-  ctx.fillStyle = T.sub;
-  ctx.fillText(MODES[G.mode].title, W - 40, 58);
-  ctx.textAlign = "center";
+  // 브랜드: 역 표시 원 + 이름
+  ctx.fillStyle = T.surface; ctx.strokeStyle = T.brand; ctx.lineWidth = 7;
+  ctx.beginPath(); ctx.arc(54, 56, 13, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = T.brand; ctx.fillRect(70, 53, 12, 6);
+  ctx.fillStyle = T.text; ctx.font = `900 28px ${disp}`; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+  ctx.fillText("어디가?", 92, 57);
+  ctx.textAlign = "right"; ctx.font = `600 18px ${CANVAS_FONT}`; ctx.fillStyle = T.sub;
+  ctx.fillText(MODES[G.mode].title, W - 36, 57);
+  ctx.textBaseline = "alphabetic";
   const near = G.loc ? locLabel(G.loc) : "";
+  const badge = (it, x, y, r) => {
+    ctx.fillStyle = colorOf(it); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = T.surface; ctx.font = `800 ${Math.round(r * 1.05)}px ${disp}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(glyphOf(it), x, y + 1); ctx.textBaseline = "alphabetic";
+  };
   if (G.mode === "date") {
-    ctx.font = `800 36px ${CANVAS_FONT}`;
-    ctx.fillStyle = T.text;
-    ctx.fillText("💑 오늘의 데이트 코스", W / 2, 160);
-    ctx.font = `400 20px ${CANVAS_FONT}`;
-    ctx.fillStyle = T.sub;
-    if (near) ctx.fillText(`${near} 근처`, W / 2, 196);
+    ctx.textAlign = "left"; ctx.fillStyle = T.sub; ctx.font = `600 20px ${CANVAS_FONT}`;
+    ctx.fillText(`오늘의 데이트 코스${near ? ` · ${near} 근처` : ""}`, 40, 130);
     G.stages.forEach((s, i) => {
-      const y = 260 + i * 130;
-      ctx.fillStyle = T.soft;
-      ctx.beginPath(); ctx.arc(110, y, 44, 0, Math.PI * 2); ctx.fill();
-      if (i < 2) {
-        ctx.strokeStyle = T.brand; ctx.lineWidth = 3; ctx.setLineDash([6, 6]);
-        ctx.beginPath(); ctx.moveTo(110, y + 48); ctx.lineTo(110, y + 82); ctx.stroke(); ctx.setLineDash([]);
-      }
-      ctx.font = `48px ${CANVAS_FONT}`;
-      ctx.fillText(s.winner.e, 110, y + 17);
-      ctx.textAlign = "left";
-      ctx.fillStyle = T.brand;
-      ctx.font = `700 18px ${CANVAS_FONT}`;
-      ctx.fillText(`${i + 1}코스 · ${STAGE[s.k].n}`, 176, y - 10);
-      ctx.fillStyle = T.text;
-      ctx.font = `800 30px ${CANVAS_FONT}`;
-      wrapText(ctx, s.winner.n, 176, y + 28, W - 240, 34);
-      ctx.textAlign = "center";
+      const y = 210 + i * 170;
+      const col = cs.getPropertyValue(`--art-${STAGE[s.k].l}`).trim() || T.brand;
+      if (i < 2) { ctx.fillStyle = col; ctx.fillRect(74, y, 14, 170); }
+      ctx.fillStyle = T.surface; ctx.strokeStyle = col; ctx.lineWidth = 12;
+      ctx.beginPath(); ctx.arc(81, y, 26, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.textAlign = "left"; ctx.fillStyle = T.sub; ctx.font = `700 18px ${CANVAS_FONT}`;
+      ctx.fillText(`${i + 1}코스 · ${STAGE[s.k].n}`, 136, y - 18);
+      ctx.fillStyle = T.text; ctx.font = `900 44px ${disp}`;
+      wrapText(ctx, s.winner.n, 136, y + 30, W - 176, 48);
     });
   } else {
     const st = G.stages[0];
     const w = st.winner;
-    ctx.font = `64px ${CANVAS_FONT}`;
-    ctx.fillText("👑", W / 2, 180);
-    ctx.font = `120px ${CANVAS_FONT}`;
-    ctx.fillText(w.e, W / 2, 320);
+    const rk = st.ranking || [];
+    // 역명판
+    ctx.fillStyle = T.surface; roundRect(ctx, 32, 108, W - 64, 320, 22); ctx.fill();
+    ctx.save(); roundRect(ctx, 32, 108, W - 64, 320, 22); ctx.clip();
+    ctx.fillStyle = colorOf(w); ctx.fillRect(32, 352, W - 64, 76);
+    ctx.restore();
+    ctx.strokeStyle = T.text; ctx.lineWidth = 6; roundRect(ctx, 35, 111, W - 70, 314, 20); ctx.stroke();
+    badge(w, 84, 162, 24);
+    ctx.textAlign = "left"; ctx.fillStyle = T.sub; ctx.font = `700 20px ${CANVAS_FONT}`;
+    ctx.fillText(G.mode === "group" ? "오늘 모임 1위" : "오늘 점심 1위", 120, 169);
+    ctx.font = `64px ${CANVAS_FONT}`; ctx.fillText(w.e || "", 62, 290);
     ctx.fillStyle = T.text;
-    ctx.font = `800 48px ${CANVAS_FONT}`;
-    wrapText(ctx, w.n, W / 2, 400, W - 120, 56);
-    ctx.font = `400 22px ${CANVAS_FONT}`;
-    ctx.fillStyle = T.sub;
-    const sub = G.mode === "group" ? (near ? `${near} 근처에서 만나요` : "오늘 모임은 여기로!") : near ? `${near} 근처 · 오늘의 점심` : "오늘의 점심";
-    ctx.fillText(sub, W / 2, 448);
-    ctx.strokeStyle = T.border; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(72, 488); ctx.lineTo(W - 72, 488); ctx.stroke();
-    (st.ranking || []).slice(1, 4).forEach((r, i) => {
-      const y = 534 + i * 44;
-      ctx.textAlign = "left";
-      ctx.fillStyle = T.ter;
-      ctx.font = `600 18px ${CANVAS_FONT}`;
-      ctx.fillText(r.label, 80, y);
-      ctx.fillStyle = T.text;
-      ctx.font = `600 22px ${CANVAS_FONT}`;
-      ctx.fillText(`${r.item.e}  ${r.item.n}`.slice(0, 26), 180, y);
-      ctx.textAlign = "center";
+    let fs = 76;
+    ctx.font = `900 ${fs}px ${disp}`;
+    while (ctx.measureText(w.n).width > W - 220 && fs > 34) { fs -= 4; ctx.font = `900 ${fs}px ${disp}`; }
+    ctx.fillText(w.n, 152, 292);
+    ctx.font = `700 22px ${CANVAS_FONT}`; ctx.fillStyle = T.surface;
+    if (rk[1]) { ctx.textAlign = "left"; ctx.fillText(`← ${rk[1].label} ${rk[1].item.n}`.slice(0, 18), 60, 398); }
+    if (rk[2]) { ctx.textAlign = "right"; ctx.fillText(`${rk[2].label} ${rk[2].item.n} →`.slice(-18), W - 60, 398); }
+    // 안내판
+    ctx.fillStyle = board; roundRect(ctx, 32, 458, W - 64, 214, 18); ctx.fill();
+    ctx.textAlign = "left"; ctx.fillStyle = led; ctx.font = `700 18px ${CANVAS_FONT}`;
+    ctx.fillText(near ? `${near} 근처` : "메뉴 월드컵 결과", 56, 496);
+    rk.slice(0, 4).forEach((r, i) => {
+      const y = 540 + i * 36;
+      ctx.textAlign = "left"; ctx.fillStyle = led; ctx.font = `700 18px ${CANVAS_FONT}`;
+      ctx.fillText(i === 0 ? "1위" : r.label, 56, y);
+      badge(r.item, 150, y - 6, 12);
+      ctx.textAlign = "left"; ctx.fillStyle = T.surface; ctx.font = `800 22px ${disp}`;
+      ctx.fillText(r.item.n.slice(0, 18), 174, y);
     });
   }
-  ctx.fillStyle = T.sub;
-  ctx.font = `600 18px ${CANVAS_FONT}`;
+  ctx.textAlign = "center"; ctx.fillStyle = T.sub; ctx.font = `600 18px ${CANVAS_FONT}`;
   const host = (document.querySelector('link[rel="canonical"]')?.href || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
-  ctx.fillText(`다같이 고르는 메뉴 월드컵 · ${host}`, W / 2, H - 28);
+  ctx.fillText(`다같이 고르는 메뉴 월드컵 · ${host}`, W / 2, H - 34);
   return canvas;
 }
 

@@ -204,6 +204,27 @@ export function startIntro(root) {
         }
       }
     });
+    // 출전 확정 판
+    if (t > 2.45) {
+      const k = spring((t - 2.45) / 0.55);
+      const x = -260 + 282 * k;
+      const y = h * 0.34;
+      slant(ctx, x, y, 92, 64, 10);
+      ctx.fillStyle = tk.brand;
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = `400 40px ${tk.num}`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("4", x + 46, y + 34);
+      slant(ctx, x + 96, y + 8, 150, 48, 8);
+      ctx.fillStyle = tk.chalk;
+      ctx.fill();
+      ctx.fillStyle = tk.bg;
+      ctx.font = `800 20px ${tk.display}`;
+      ctx.textAlign = "left";
+      ctx.fillText("명 출전 확정", x + 112, y + 33);
+    }
   }
 
   /* ---------- 02 출발 신호 + 레이스 ---------- */

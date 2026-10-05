@@ -183,7 +183,11 @@ function introScenes() {
   const exDay = exPs * dailyWorkSeconds(exSch);
   const toilet = Math.round(exPs * 300);
   const coffeeMin = Math.round(COFFEE / exPs / 60);
-  const meetHour = Math.round((6 * 50_000_000) / (12 * 209));
+  const lunchMin = Math.round(LUNCH / exPs / 60);
+  const meetPer = (6 * 50_000_000) / (12 * 209 * 3600); // 원/초, 6명 평균 5,000만
+  const meetHour = Math.round(meetPer * 3600);
+  const line = (label, val, cls = "") =>
+    `<div class="lead-row ${cls}"><span>${label}</span><i></i><b>${val}</b></div>`;
 
   const scenes = [
     {
@@ -192,21 +196,30 @@ function introScenes() {
       duration: 3600,
       play(stage, signal) {
         stage.innerHTML = `<div class="scene">
-          <div class="housing"><span class="housing__cur">₩</span><span class="odo" id="iOdo"></span></div>
-          <p class="s1__meta">오늘 번 돈 · 실수령 · 09:00 출근</p>
-          <div class="s1">
-            <div class="jar">
-              <svg viewBox="0 0 132 160">
-                <rect class="jar__lid" x="30" y="2" width="72" height="14" rx="3"/>
-                <clipPath id="jarClip"><path d="M34 18 h64 v12 q24 12 24 40 v66 q0 20 -20 20 h-72 q-20 0 -20 -20 v-66 q0 -28 24 -40z"/></clipPath>
-                <g clip-path="url(#jarClip)">
-                  <rect class="jar__fill" id="jarFill" x="0" y="30" width="132" height="130"/>
-                  ${Array.from({ length: 12 }, (_, i) => `<line class="jar__hatch" x1="${i * 14 - 40}" y1="160" x2="${i * 14 + 40}" y2="30"/>`).join("")}
-                </g>
-                <path class="jar__glass" d="M34 18 h64 v12 q24 12 24 40 v66 q0 20 -20 20 h-72 q-20 0 -20 -20 v-66 q0 -28 24 -40z"/>
-              </svg>
+          <div class="housing housing--wide"><span class="housing__cur">₩</span><span class="odo odo--lg" id="iOdo"></span></div>
+          <p class="scene__meta">오늘 번 돈 · 실수령 · 09:00 출근부터</p>
+          <div class="slip rcpt">
+            <div class="rcpt__grid">
+              <div class="jar">
+                <svg viewBox="0 0 132 160">
+                  <rect class="jar__lid" x="30" y="2" width="72" height="14" rx="3"/>
+                  <clipPath id="jarClip"><path d="M34 18 h64 v12 q24 12 24 40 v66 q0 20 -20 20 h-72 q-20 0 -20 -20 v-66 q0 -28 24 -40z"/></clipPath>
+                  <g clip-path="url(#jarClip)">
+                    <rect class="jar__fill" id="jarFill" x="0" y="30" width="132" height="130"/>
+                    ${Array.from({ length: 12 }, (_, i) => `<line class="jar__hatch" x1="${i * 14 - 40}" y1="160" x2="${i * 14 + 40}" y2="30"/>`).join("")}
+                  </g>
+                  <path class="jar__glass" d="M34 18 h64 v12 q24 12 24 40 v66 q0 20 -20 20 h-72 q-20 0 -20 -20 v-66 q0 -28 24 -40z"/>
+                </svg>
+              </div>
+              <div class="rcpt__lines">
+                <p class="rcpt__title">시간당 적립</p>
+                ${line("1초", `${exPs.toFixed(1)}원`)}
+                ${line("1분", `${comma(exPs * 60)}원`)}
+                ${line("1시간", `${comma(exPs * 3600)}원`)}
+                ${line("하루", `${comma(exDay)}원`, "is-hot")}
+              </div>
             </div>
-            <p class="s1__meta">1초에 ${exPs.toFixed(1)}원<br/>1분에 ${comma(exPs * 60)}원<br/>1시간에 ${comma(exPs * 3600)}원</p>
+            <div class="barcode"></div>
           </div>
         </div>`;
         const odo = new Odometer($("#iOdo", stage), { minDigits: 6, dur: 260 });
@@ -231,8 +244,8 @@ function introScenes() {
             const c = document.createElement("span");
             c.className = "coin coin--drop";
             c.textContent = "₩";
-            c.style.setProperty("--x", `${Math.round((Math.random() - 0.5) * 50)}px`);
-            c.style.setProperty("--y", `${126 - eased * 70}px`);
+            c.style.setProperty("--x", `${Math.round((Math.random() - 0.5) * 40)}px`);
+            c.style.setProperty("--y", `${118 - eased * 66}px`);
             jar.appendChild(c);
             setTimeout(() => c.remove(), 860);
           }
@@ -247,74 +260,92 @@ function introScenes() {
     {
       title: "화장실 5분도 돈이에요",
       desc: "커피 한 잔, 점심 한 끼가 내 노동 몇 분인지 바로 계산해요",
-      duration: 3600,
+      duration: 3800,
       play(stage, signal) {
-        stage.innerHTML = `<div class="scene"><div class="s2">
+        const slips = [
+          ["🚽 화장실 5분", `${comma(toilet)}원`, "is-hot"],
+          [`☕ 커피 한 잔 ${comma(COFFEE)}원`, `${coffeeMin}분 노동`],
+          [`🍱 점심 한 끼 ${comma(LUNCH)}원`, `${lunchMin}분 노동`],
+          ["🗓️ 회의 1시간 (내 몫)", `${comma(exPs * 3600)}원`],
+        ];
+        stage.innerHTML = `<div class="scene">
           <div class="timer-row">
             <div class="dial">
               <svg viewBox="0 0 108 108"><circle class="dial__bar" cx="54" cy="54" r="46"/></svg>
               <span class="dial__emoji">🚽</span>
             </div>
-            <span class="timer-row__time" id="iTime">00:00</span>
+            <div><p class="scene__meta m0">화장실 타이머</p><span class="timer-row__time" id="iTime">00:00</span></div>
           </div>
-          <div class="stack gap-8" id="iChips"></div>
-        </div></div>`;
+          <div class="tray">${slips.map(() => `<div class="tray__slot"></div>`).join("")}</div>
+        </div>`;
         const bar = $(".dial__bar", stage);
         const time = $("#iTime", stage);
-        const chips = $("#iChips", stage);
+        const slots = $$(".tray__slot", stage);
         requestAnimationFrame(() => bar.classList.add("is-run"));
         const t0 = performance.now();
         const tick = (now) => {
           if (signal.aborted) return;
-          const t = Math.min(1, (now - t0) / 1500);
+          const t = Math.min(1, (now - t0) / 1100);
           const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
           time.textContent = hms(300 * e);
           if (t < 1) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
-        setTimeout(() => {
-          if (signal.aborted) return;
-          chips.innerHTML = `<div class="ticket ticket--hot"><span>화장실 5분</span><b>${comma(toilet)}원</b></div>`;
-        }, 1600);
-        setTimeout(() => {
-          if (signal.aborted) return;
-          chips.insertAdjacentHTML("beforeend", `<div class="ticket"><span>커피 한 잔 (4,500원)</span><b>${coffeeMin}분 노동</b></div>`);
-        }, 2100);
+        slips.forEach(([l, v, cls = ""], i) =>
+          setTimeout(() => {
+            if (signal.aborted) return;
+            slots[i].innerHTML = `<div class="ticket ${cls}" style="--tilt:${i % 2 ? 1.4 : -1.6}deg"><span>${l}</span><b>${v}</b></div>`;
+          }, 1050 + i * 330)
+        );
       },
     },
     {
       title: "딴짓한 시간은 영수증으로",
       desc: "월급루팡 타이머를 켜두면 그동안 번 돈이 한 줄씩 찍혀요",
-      duration: 3400,
+      duration: 3600,
       play(stage) {
         const row = (a, b) => `<div class="paper__row"><span>${a}</span><span>${b}</span></div>`;
-        stage.innerHTML = `<div class="scene s3">
+        const lupang = exPs * 2820;
+        stage.innerHTML = `<div class="scene scene--center">
           <div class="printer"><span class="printer__led"></span></div>
           <div class="paper-wrap"><div class="paper" id="iPaper">
             <div class="paper__title">월급루팡 영수증</div>
-            ${row("근무 8시간", comma(exDay))}
+            <div class="paper__sub">2026.10.05 (월) 17:58 · POS 01</div>
             <div class="paper__hr"></div>
+            ${row("💼 근무 8시간", comma(exDay))}
             ${row("🚽 화장실 12분", comma(exPs * 720))}
             ${row("☕ 커피 15분", comma(exPs * 900))}
             ${row("📱 딴짓 20분", comma(exPs * 1200))}
+            ${row("🗓️ 회의 30분", comma(exPs * 1800))}
             <div class="paper__hr"></div>
-            <div class="paper__row paper__total"><span>루팡 수익</span><span>${comma(exPs * 2820)}원</span></div>
+            <div class="paper__row paper__total"><span>루팡 수익</span><span>${comma(lupang)}원</span></div>
+            ${row("루팡률", `${((2820 / 28800) * 100).toFixed(1)}%`)}
+            <div class="paper__hr"></div>
+            <div class="paper__note">프로 월급루팡러의 하루 😎</div>
             <div class="barcode"></div>
           </div></div>
         </div>`;
         const paper = $("#iPaper", stage);
+        Array.from(paper.children).forEach((c, i) => c.style.setProperty("--i", i));
         requestAnimationFrame(() => paper.classList.add("is-print"));
       },
     },
     {
       title: "이 회의, 지금 얼마 쓰는 중?",
       desc: `평균 연봉 5,000만 원인 6명이 1시간 회의하면 인건비 약 ${comma(Math.round(meetHour / 1000) * 1000)}원`,
-      duration: 3400,
+      duration: 3600,
       play(stage, signal) {
-        stage.innerHTML = `<div class="scene s4">
+        stage.innerHTML = `<div class="scene">
           <div class="seats">${Array.from({ length: 6 }, (_, i) => `<span class="seat" style="animation-delay:${i * 80}ms">${String.fromCharCode(65 + i)}</span>`).join("")}</div>
-          <div class="housing"><span class="housing__cur">₩</span><span class="odo" id="iMeet"></span></div>
-          <p class="s4__cap" id="iMeetT">회의 00:00</p>
+          <div class="housing housing--wide"><span class="housing__cur">₩</span><span class="odo odo--lg" id="iMeet"></span></div>
+          <p class="scene__meta" id="iMeetT">회의 00:00</p>
+          <div class="slip rcpt">
+            <p class="rcpt__title">회의 비용 명세</p>
+            ${line("참석", "6명")}
+            ${line("평균 연봉 (세전)", "5,000만 원")}
+            ${line("1분마다", `${comma(meetPer * 60)}원`)}
+            ${line("1시간", `${comma(meetHour)}원`, "is-hot")}
+          </div>
         </div>`;
         const odo = new Odometer($("#iMeet", stage), { minDigits: 6, dur: 240 });
         odo.set(0, { instant: true });
@@ -327,7 +358,7 @@ function introScenes() {
           const e = t * t * (3 - 2 * t);
           if (now - last > 90 || t === 1) {
             odo.set(meetHour * e);
-            cap.textContent = `회의 ${hms(3600 * e)} · 1분에 ${comma(meetHour / 60)}원`;
+            cap.textContent = `회의 ${hms(3600 * e)} 경과 · 6명 참석`;
             last = now;
           }
           if (t < 1) requestAnimationFrame(tick);
@@ -343,6 +374,19 @@ function introScenes() {
       sc.play(stage, signal);
     },
   }));
+}
+
+// 인트로 상단 POS 헤더 시계
+function startPosClock() {
+  const el = $("#posTime");
+  if (!el) return () => {};
+  const upd = () => {
+    const n = new Date();
+    el.textContent = `${n.getFullYear()}-${pad2(n.getMonth() + 1)}-${pad2(n.getDate())} (${DAY_NAMES[n.getDay()]}) ${pad2(n.getHours())}:${pad2(n.getMinutes())}:${pad2(n.getSeconds())}`;
+  };
+  upd();
+  const id = setInterval(upd, 1000);
+  return () => clearInterval(id);
 }
 
 /* =========================================================
@@ -1157,9 +1201,11 @@ function init() {
     openApp();
     return;
   }
+  const stopClock = startPosClock();
   const intro = runIntro({ root: $("#intro"), scenes: introScenes() });
   $("#start").addEventListener("click", () => {
     intro.stop();
+    stopClock();
     if (saved && result) openApp();
     else openSetup();
   });

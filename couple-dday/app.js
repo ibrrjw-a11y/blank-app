@@ -431,7 +431,7 @@ function renderNext(r, today) {
   const pct = Math.min(100, Math.max(0, (diffDays(from, today) / total) * 100));
   const [ny, nm, nd] = next.date.split("-");
   $("#nextCard").innerHTML = `
-    <div class="stamp"><small>${gap === 0 ? "오늘" : "다음 기념일"}</small><b>${next.label}</b><small>${next.kind === "year" ? `D+${fmt.num(next.n)}` : "기념일"}</small></div>
+    <div class="stamp"><small>${gap === 0 ? "오늘" : "다음 기념일"}</small><b>${next.label}</b><small>${Number(nm)}월 ${Number(nd)}일</small></div>
     <div class="next__body">
       <p class="t-label-03 t-tertiary">${gap === 0 ? "오늘이 기념일이에요" : `${next.label}까지`}</p>
       <p class="next__d t-num"><span class="odo" id="nextOdo"></span></p>

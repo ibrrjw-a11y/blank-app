@@ -396,8 +396,8 @@ function renderResult() {
   $("#ranks").innerHTML = r.rows
     .map(
       (row, k) => `<li class="rank${row.isLoser ? " is-loser" : ""}" style="--i:${k};--pc:${row.color}">
-        <span class="rank__pos">${r.mode === "race" ? k + 1 : escapeHtml(row.label.replace(/[^0-9]/g, "") || (row.isLoser ? "!" : "–"))}</span>
-        <span class="rank__name">${escapeHtml(row.name)}<small>${escapeHtml(r.mode === "race" ? "" : row.label)}</small></span>
+        <span class="rank__pos">${r.mode === "barrel" ? (row.isLoser ? "!" : "–") : k + 1}</span>
+        <span class="rank__name">${escapeHtml(row.name)}<small>${escapeHtml(r.mode === "race" || row.isLoser ? "" : row.label)}</small></span>
         <span class="rank__sub">${row.isLoser ? "당첨" : escapeHtml(row.sub || "")}</span>
       </li>`
     )
@@ -461,106 +461,145 @@ $("#shareCard").addEventListener("click", async () => {
   }
 });
 
-function drawCard(r) {
+export function drawCard(r = lastResult) {
   const tk = readTokens();
   const W = 1080;
   const H = 1350;
   const { canvas, ctx } = createCanvas(W, H, 1);
-  ctx.fillStyle = tk.bg;
+  const SK = 0.16; // 기울기
+  const plate = (x, y, w, h, k = h * SK) => {
+    ctx.beginPath();
+    ctx.moveTo(x + k, y);
+    ctx.lineTo(x + w + k, y);
+    ctx.lineTo(x + w - k, y + h);
+    ctx.lineTo(x - k, y + h);
+    ctx.closePath();
+  };
+  ctx.fillStyle = tk.asphalt;
   ctx.fillRect(0, 0, W, H);
-  const glow = ctx.createRadialGradient(W / 2, 360, 40, W / 2, 360, 700);
-  glow.addColorStop(0, alpha(tk.brand, 0.32));
-  glow.addColorStop(1, alpha(tk.brand, 0));
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "rgba(255,255,255,0.03)";
+  for (let y = 0; y < H; y += 6) ctx.fillRect(0, y, W, 2);
+  // 사선 띠 (방송 와이프 느낌)
+  ctx.fillStyle = tk.brand;
+  ctx.beginPath();
+  ctx.moveTo(W - 300, 0);
+  ctx.lineTo(W, 0);
+  ctx.lineTo(W, 120);
+  ctx.lineTo(W - 360, 120);
+  ctx.closePath();
+  ctx.fill();
 
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
-  ctx.font = `800 40px ${CANVAS_FONT}`;
-  ctx.fillStyle = tk.text;
-  ctx.fillText("🎯 누가 쏠래?", 72, 92);
-  ctx.textAlign = "right";
-  ctx.font = `600 32px ${CANVAS_FONT}`;
-  ctx.fillStyle = tk.text2;
-  const d = new Date(r.entry.ts);
-  ctx.fillText(`${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} · ${MODE_NAME[r.mode]}`, W - 72, 92);
-
-  // 도장
-  ctx.textAlign = "center";
-  ctx.font = `160px ${CANVAS_FONT}`;
-  ctx.fillText(penaltyEmoji(r.penalty), W / 2, 290);
   ctx.save();
-  ctx.translate(W / 2, 480);
-  ctx.rotate(-0.08);
-  let fs = 92;
-  const text = headline(r.loser, r.penalty);
-  ctx.font = `900 ${fs}px ${CANVAS_FONT}`;
-  while (ctx.measureText(text).width > W - 260 && fs > 48) {
-    fs -= 4;
-    ctx.font = `900 ${fs}px ${CANVAS_FONT}`;
-  }
-  const tw = ctx.measureText(text).width + 100;
-  roundRect(ctx, -tw / 2, -90, tw, 180, 32);
-  ctx.fillStyle = alpha(tk.brand, 0.1);
-  ctx.fill();
-  ctx.lineWidth = 12;
-  ctx.strokeStyle = tk.brand;
-  ctx.stroke();
-  ctx.fillStyle = tk.brand;
-  ctx.fillText(text, 0, 6);
+  ctx.translate(72, 92);
+  ctx.transform(1, 0, -SK, 1, 0, 0);
+  ctx.font = `800 56px ${tk.display}`;
+  ctx.fillStyle = tk.chalk;
+  ctx.fillText("누가 쏠래?", 0, 0);
   ctx.restore();
+  ctx.textAlign = "right";
+  ctx.font = `400 34px ${tk.num}`;
+  ctx.fillStyle = "#fff";
+  const d = new Date(r.entry.ts);
+  ctx.fillText(`${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`, W - 56, 62);
 
-  // 벌칙
-  ctx.font = `700 40px ${CANVAS_FONT}`;
-  const pt = `벌칙 · ${r.penalty}`;
-  const pw = ctx.measureText(pt).width + 64;
-  roundRect(ctx, W / 2 - pw / 2, 620, pw, 76, 38);
-  ctx.fillStyle = tk.raised;
+  // 판정 판
+  ctx.textAlign = "left";
+  ctx.font = `400 30px ${tk.num}`;
+  ctx.fillStyle = tk.brand;
+  ctx.fillText(`FINAL · ${MODE_NAME[r.mode]} · ${r.mode === "barrel" ? "튀어나오면 당첨" : RULE_NAME[r.rule]}`, 80, 214);
+  const text = headline(r.loser, r.penalty);
+  let fs = 110;
+  ctx.font = `800 ${fs}px ${tk.display}`;
+  while (ctx.measureText(text).width > W - 260 && fs > 56) {
+    fs -= 4;
+    ctx.font = `800 ${fs}px ${tk.display}`;
+  }
+  const tw = ctx.measureText(text).width + 110;
+  ctx.save();
+  ctx.translate(76, 270);
+  ctx.rotate(-0.035);
+  plate(0, 0, tw, 200);
+  ctx.fillStyle = tk.brand;
   ctx.fill();
-  ctx.fillStyle = tk.text;
-  ctx.fillText(pt, W / 2, 660);
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = "#fff";
+  plate(14, 14, tw - 28, 172);
+  ctx.stroke();
+  ctx.save();
+  ctx.translate(56, 104);
+  ctx.transform(1, 0, -SK, 1, 0, 0);
+  ctx.fillStyle = "#fff";
+  ctx.fillText(text, 0, 4);
+  ctx.restore();
+  ctx.restore();
+  // 벌칙 로어서드
+  ctx.font = `800 40px ${tk.display}`;
+  const pw = ctx.measureText(r.penalty).width + 72;
+  plate(96, 500, 120, 70);
+  ctx.fillStyle = tk.chalk;
+  ctx.fill();
+  plate(222, 500, pw, 70);
+  ctx.fillStyle = "rgba(10,11,13,0.95)";
+  ctx.fill();
+  ctx.fillStyle = tk.bg;
+  ctx.font = `800 32px ${tk.display}`;
+  ctx.textAlign = "center";
+  ctx.fillText("벌칙", 156, 537);
+  ctx.fillStyle = "#fff";
+  ctx.font = `800 40px ${tk.display}`;
+  ctx.textAlign = "left";
+  ctx.fillText(`${r.penalty} ${penaltyEmoji(r.penalty)}`, 258, 537);
 
-  // 순위
+  // 타이밍 타워
   const rows = r.rows;
-  const top = 750;
-  const avail = 1180 - top;
-  const rh = Math.min(84, avail / rows.length);
+  const top = 640;
   const cols = rows.length > 6 ? 2 : 1;
   const perCol = Math.ceil(rows.length / cols);
-  const rowH = Math.min(84, avail / perCol);
-  const colW = (W - 144 - (cols - 1) * 24) / cols;
+  const rowH = Math.min(cols === 2 ? 118 : 92, (1180 - top) / perCol);
+  const colW = (W - 144 - (cols - 1) * 28) / cols;
+  ctx.font = `400 26px ${tk.num}`;
+  plate(72, top - 52, ctx.measureText("CLASSIFICATION").width + 30, 40, 0);
+  ctx.fillStyle = tk.brand;
+  ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.fillText("CLASSIFICATION", 86, top - 31);
   rows.forEach((row, k) => {
     const c = Math.floor(k / perCol);
-    const x = 72 + c * (colW + 24);
+    const x = 72 + c * (colW + 28);
     const y = top + (k % perCol) * rowH;
-    roundRect(ctx, x, y + 4, colW, rowH - 10, 20);
-    ctx.fillStyle = row.isLoser ? alpha(tk.brand, 0.18) : tk.surface;
-    ctx.fill();
-    if (row.isLoser) {
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = tk.brand;
-      ctx.stroke();
-    }
-    const cy = y + 4 + (rowH - 10) / 2;
-    const f = Math.round(Math.min(34, rowH * 0.42));
+    const hgt = rowH - 6;
+    ctx.fillStyle = row.isLoser ? tk.brand : "rgba(10,11,13,0.92)";
+    ctx.fillRect(x, y, colW, hgt);
+    ctx.fillStyle = row.isLoser ? tk.bg : tk.chalk;
+    ctx.fillRect(x, y, hgt, hgt);
+    ctx.fillStyle = row.isLoser ? "#fff" : tk.bg;
+    const f = Math.round(Math.min(44, hgt * 0.5));
+    ctx.font = `400 ${f}px ${tk.num}`;
+    ctx.textAlign = "center";
+    const pos = r.mode !== "barrel" ? String(k + 1) : row.isLoser ? "!" : "–";
+    ctx.fillText(pos, x + hgt / 2, y + hgt / 2 + 2);
+    ctx.fillStyle = row.isLoser ? "#fff" : row.color;
+    ctx.fillRect(x + hgt + 8, y + 10, 8, hgt - 20);
     ctx.textAlign = "left";
     ctx.font = `700 ${f}px ${CANVAS_FONT}`;
-    ctx.fillStyle = row.isLoser ? tk.brand : tk.text2;
-    ctx.fillText(row.label, x + 28, cy);
-    ctx.beginPath();
-    ctx.arc(x + 28 + f * 4.6, cy, f * 0.32, 0, Math.PI * 2);
-    ctx.fillStyle = row.color;
-    ctx.fill();
-    ctx.font = `800 ${f}px ${CANVAS_FONT}`;
-    ctx.fillStyle = tk.text;
-    ctx.fillText(row.name + (row.isLoser ? ` ${penaltyEmoji(r.penalty)}` : ""), x + 28 + f * 5.4, cy, colW - f * 5.4 - 40);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(row.name, x + hgt + 34, y + hgt / 2 + 2, colW - hgt - 200);
+    ctx.textAlign = "right";
+    ctx.font = `400 ${Math.round(f * 0.7)}px ${tk.num}`;
+    ctx.fillStyle = row.isLoser ? "#fff" : tk.text2;
+    ctx.fillText(row.isLoser ? "당첨" : r.mode === "race" ? row.sub || "" : row.label, x + colW - 20, y + hgt / 2 + 2);
   });
-  void rh;
 
-  ctx.textAlign = "center";
+  ctx.textAlign = "left";
   ctx.font = `600 30px ${CANVAS_FONT}`;
   ctx.fillStyle = tk.text3;
-  ctx.fillText("아이템 쓰는 벌칙 추첨 레이스 · 누가 쏠래?", W / 2, H - 80);
+  ctx.fillText("아이템 쓰는 벌칙 추첨 레이스", 72, H - 76);
+  ctx.textAlign = "right";
+  ctx.font = `800 34px ${tk.display}`;
+  ctx.fillStyle = tk.chalk;
+  ctx.fillText("우리도 해보기 →", W - 72, H - 76);
   return canvas;
 }
 
@@ -741,10 +780,11 @@ $("#ledgerBody").addEventListener("click", (e) => {
 // 제목 서체가 실제로 로드되면 표시 (CSS 에서 가짜 굵기 합성을 끄는 데 씀)
 document.fonts?.ready
   .then(() => {
-    if (document.fonts.check('20px "Black Han Sans"')) document.documentElement.classList.add("has-display-font");
+    // check() 는 해당 서체가 아예 없을 때도 true 라서, 실제로 받아진 서체가 있는지 직접 확인
+    const ok = [...document.fonts].some((f) => f.family.replace(/["']/g, "") === "Black Han Sans" && f.status === "loaded");
+    if (ok) document.documentElement.classList.add("has-display-font");
   })
   .catch(() => {});
 renderMoreSites($("#more"), "who-pays");
 renderSetup();
 enterIntro();
-if (shared) toast("친구가 보낸 멤버를 불러왔어요");

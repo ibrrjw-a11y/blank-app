@@ -124,6 +124,9 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-emphasized: cubic-bezier(0.3, 0, 0, 1.2);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  /* 쫄깃한 스프링: 목표를 살짝 지나쳤다가 돌아온다 */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-snap: cubic-bezier(0.5, 1.8, 0.5, 0.8);
 
   /* ---------- Layout ---------- */
   --app-max: 480px;

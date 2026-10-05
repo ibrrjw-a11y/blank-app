@@ -56,7 +56,7 @@ body {
 .intro__fig { font: 600 11px/1 var(--art-num); letter-spacing: 0.14em; color: var(--color-text-secondary); }
 .intro__stage { min-height: 400px; overflow: hidden; align-items: stretch; justify-content: stretch; }
 .ip-canvas { position: absolute; inset: 0; }
-.ip-overlay { position: absolute; left: 0; right: 0; bottom: 0; height: 132px; pointer-events: none; }
+.ip-overlay { position: absolute; inset: 0; pointer-events: none; }
 .intro__steps { justify-content: flex-start; gap: var(--sp-4); margin: var(--sp-12) 0; }
 .intro__steps span { width: 24px; height: 2px; border-radius: 0; background: var(--art-hair); }
 .intro__steps span.is-on { width: 24px; background: var(--brand); }
@@ -113,7 +113,7 @@ body {
   animation: rule 700ms var(--art-spring-soft) both;
   animation-delay: calc(var(--i) * 160ms);
 }
-.ip-rows b { font: 900 30px/1 var(--art-num); letter-spacing: -0.03em; }
+.ip-rows b { font: 900 30px/1 var(--art-num); letter-spacing: -0.03em; --odo-h: 0.9em; }
 .ip-rows small { font: 600 12px var(--art-num); color: var(--color-text-secondary); margin-left: var(--sp-4); }
 @keyframes rule {
   from { transform: scaleX(0); }

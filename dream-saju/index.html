@@ -61,6 +61,15 @@
         <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" seed="7" result="n" />
         <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
       </filter>
+      <filter id="ink-brush" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.05 0.9" numOctaves="2" seed="3" result="n" />
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="ink-wash" x="-40%" y="-40%" width="180%" height="180%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="11" result="n" />
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="38" xChannelSelector="R" yChannelSelector="G" result="d" />
+        <feGaussianBlur in="d" stdDeviation="3.5" />
+      </filter>
     </svg>
     <main class="app">
       <header class="topbar">
@@ -75,6 +84,14 @@
         <h1 class="intro__h1">4칸으로 끝내는 꿈해몽</h1>
         <div class="intro__stage" aria-hidden="true">
           <canvas class="sky"></canvas>
+          <div class="paper">
+            <svg class="paper__wash" aria-hidden="true">
+              <ellipse class="w" cx="92%" cy="96%" rx="110" ry="64" opacity=".16" />
+              <ellipse class="w" cx="4%" cy="6%" rx="70" ry="46" opacity=".12" />
+              <ellipse class="w" cx="96%" cy="18%" rx="26" ry="18" opacity=".18" />
+              <path class="w" d="M-10 330 C 60 300, 120 345, 200 318" stroke-width="10" opacity=".08" fill="none" />
+            </svg>
+          </div>
           <div class="scene"></div>
         </div>
         <div class="intro__steps"></div>

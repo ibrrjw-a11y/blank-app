@@ -103,7 +103,9 @@ export function miniMapSVG(mid, { w = 340, h = 230 } = {}) {
   const dists = mid.legs
     .map((l) => {
       const A = toXY(l.person.loc);
-      const mx = A.x + (S.x - A.x) * 0.55, my = A.y + (S.y - A.y) * 0.55;
+      const len = Math.hypot(S.x - A.x, S.y - A.y);
+      if (len < 70) return ""; // 너무 짧으면 지도엔 생략 (아래 목록에 표시)
+      const mx = A.x + (S.x - A.x) * 0.5, my = A.y + (S.y - A.y) * 0.5;
       const label = fmtDist(l.km);
       const lw = label.length * 7 + 12;
       return `<g class="mm-dist" transform="translate(${mx.toFixed(1)} ${my.toFixed(1)})">
@@ -127,9 +129,24 @@ export function miniMapSVG(mid, { w = 340, h = 230 } = {}) {
 
   const name = esc(mid.station.name);
   const lw = mid.station.name.length * 14 + 18;
-  const below = S.y < h - 60;
-  const lx = Math.min(Math.max(S.x, lw / 2 + 6), w - lw / 2 - 6);
-  const ly = below ? S.y + 22 : S.y - 46;
+  // 역 이름표: 핀·선에서 가장 먼 쪽(아래/위/왼쪽/오른쪽)에 둔다
+  const obstacles = mid.legs.flatMap((l) => {
+    const A = toXY(l.person.loc);
+    return [A, { x: (A.x + S.x) / 2, y: (A.y + S.y) / 2 }, { x: A.x + (S.x - A.x) * 0.8, y: A.y + (S.y - A.y) * 0.8 }];
+  });
+  const cands = [
+    { x: S.x, y: S.y + 20 },
+    { x: S.x, y: S.y - 46 },
+    { x: S.x + lw / 2 + 18, y: S.y - 13 },
+    { x: S.x - lw / 2 - 18, y: S.y - 13 },
+  ].map((c) => ({
+    x: Math.min(Math.max(c.x, lw / 2 + 6), w - lw / 2 - 6),
+    y: Math.min(Math.max(c.y, 6), h - 56),
+  }));
+  const score = (c) => Math.min(...obstacles.map((o) => Math.hypot(Math.max(Math.abs(o.x - c.x) - lw / 2, 0), Math.max(Math.abs(o.y - (c.y + 13)) - 13, 0))));
+  const best = cands.reduce((a, b) => (score(b) > score(a) ? b : a));
+  const lx = best.x;
+  const ly = best.y;
 
   return `<svg class="minimap" viewBox="0 0 ${w} ${h}" role="img" aria-label="참가자 위치와 중간지점 ${name}을 그린 약도">
     <rect class="mm-bg" x="0.5" y="0.5" width="${w - 1}" height="${h - 1}" rx="12"/>

@@ -17,7 +17,7 @@ const W = 340;
 const H = 360;
 // 실제 위치 관계를 단순화한 좌표 (신촌·왕십리·사당은 모두 2호선, 이태원은 6호선)
 const PINS = [
-  { x: 62, y: 142, name: "지민", st: "신촌", line: "l3", tag: "left" },
+  { x: 62, y: 142, name: "지민", st: "신촌", line: "sb", tag: "left" },
   { x: 282, y: 124, name: "도윤", st: "왕십리", line: "l4", tag: "right" },
   { x: 160, y: 296, name: "나", st: "사당", line: "l2", tag: "below" },
 ];
@@ -79,7 +79,7 @@ function build(stage) {
       <rect class="wi-bg" width="${W}" height="${H}" rx="20"/>
       <g class="wi-map">
         <path class="wi-river" d="M-10 214 C 60 196, 120 236, 200 222 S 310 196, 350 206 L 350 244 C 300 230, 250 262, 190 258 S 60 236, -10 252 Z"/>
-        <text class="wi-river__t" x="300" y="236" text-anchor="end">한강</text>
+        <text class="wi-river__t" x="250" y="240" text-anchor="end">한강</text>
         <path class="wi-ln" style="--l: var(--art-l4)" pathLength="1" d="M150 370 V318 L118 286 V140 L96 118 V-10"/>
         <path class="wi-ln" style="--l: var(--art-l6)" pathLength="1" d="M-10 150 H104 L130 176 H350"/>
         <path class="wi-ln wi-ln--main" style="--l: var(--art-l2)" pathLength="1" d="M104 84 H240 Q282 84 282 126 V254 Q282 296 240 296 H104 Q62 296 62 254 V126 Q62 84 104 84 Z"/>
@@ -96,7 +96,7 @@ function build(stage) {
       <g class="wi-kms">
         ${PINS.map((p, i) => {
           const pos = [
-            [112, 192],
+            [98, 206],
             [246, 104],
             [216, 254],
           ][i];
@@ -145,6 +145,8 @@ function build(stage) {
     <div class="wi-vs">VS</div>
     <div class="wi-score">2 : 1</div>
     <div class="wi-crown">👑</div>
+    <div class="wi-go">카카오맵에서 열기 →</div>
+    <div class="wi-led" aria-hidden="true"><span class="wi-led__dot"></span><span class="wi-led__txt"></span></div>
     <div class="wi-spark">${Array.from({ length: 8 }, () => "<i></i>").join("")}</div>
   </div>`;
   return stage.querySelector(".wi");
@@ -192,6 +194,12 @@ export function startIntro(root) {
   const draw = (el, delay, duration = 700, easing = IN_OUT) =>
     A(el, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration, delay, easing });
 
+  const led = (text) => {
+    const t = q(".wi-led__txt");
+    t.textContent = text;
+    A(t, [{ transform: "translateX(110%)" }, { transform: "translateX(0)" }], { duration: 900, delay: 150, easing: SPRING_SOFT });
+    A(q(".wi-led__dot"), [{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], { duration: 700, iterations: reduce ? 1 : 5, easing: "steps(2, jump-none)" });
+  };
   const dropPin = (pin, delay) => {
     const body = pin.querySelector(".wi-pin__body");
     A(body, [
@@ -206,8 +214,8 @@ export function startIntro(root) {
     ], { duration: 1000, delay, easing: "ease" });
     A(pin.querySelector(".wi-pin__shadow"), [
       { transform: "translateX(-50%) scale(0.2)", opacity: 0 },
-      { transform: "translateX(-50%) scale(1.5)", opacity: 1, offset: 0.5 },
-      { transform: "translateX(-50%) scale(1)", opacity: 1 },
+      { transform: "translateX(-50%) scale(1.5)", opacity: 0.35, offset: 0.5 },
+      { transform: "translateX(-50%) scale(1)", opacity: 0.25 },
     ], { duration: 900, delay: delay + 120 });
     A(pin.querySelector(".wi-tag"), [{ clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0 0 0)" }], { duration: 420, delay: delay + 560 });
   };
@@ -220,6 +228,7 @@ export function startIntro(root) {
       play() {
         clear("1");
         kinetic(root, reduce);
+        led("출발 · 신촌 · 왕십리 · 사당");
         qa(".wi-ln").forEach((p, i) => draw(p, i * 140, 1000));
         A(q(".wi-stations"), [{ opacity: 0 }, { opacity: 1 }], { duration: 200, delay: 700 });
         qa(".wi-pin").forEach((pin, i) => dropPin(pin, 900 + i * 230));
@@ -232,6 +241,7 @@ export function startIntro(root) {
       play() {
         clear("2");
         kinetic(root, reduce);
+        led("이번 역은 이태원, 중간역입니다");
         qa(".wi-leg-case").forEach((p, i) => draw(p, 150 + i * 160, 800));
         qa(".wi-leg").forEach((p, i) => draw(p, 150 + i * 160, 800));
         A(q(".wi-xfer"), [{ transform: "scale(0)" }, { transform: "scale(1)" }], { duration: 800, delay: 1050, easing: SPRING });
@@ -252,6 +262,7 @@ export function startIntro(root) {
       play() {
         clear("3");
         kinetic(root, reduce);
+        led("후보 8곳 · 대진 출발 대기");
         A(q(".wi-board"), [
           { clipPath: `circle(0px at ${MID.x}px ${MID.y}px)` },
           { clipPath: `circle(${W}px at ${MID.x}px ${MID.y}px)` },
@@ -278,6 +289,7 @@ export function startIntro(root) {
       play() {
         clear("4");
         kinetic(root, reduce);
+        led("1위 김치찌개 · 지도로 바로 연결");
         const a = q(".wi-duel--a");
         const b = q(".wi-duel--b");
         A(a, [{ transform: "translate(-230px, 0) rotate(-8deg)" }, { transform: "translate(0, 0) rotate(0)" }], { duration: 700, easing: SPRING_SOFT, fill: "backwards" });
@@ -322,6 +334,10 @@ export function startIntro(root) {
           { transform: "translate(-50%, -12px) scale(0.95, 1.08)", offset: 0.78 },
           { transform: "translate(-50%, 0) scale(1, 1)", opacity: 1, offset: 1 },
         ], { duration: 900, delay: 2950, easing: "ease" });
+        A(q(".wi-go"), [
+          { transform: "translate(-50%, 24px) scale(0.6)", opacity: 0 },
+          { transform: "translate(-50%, 0) scale(1)", opacity: 1 },
+        ], { duration: 700, delay: 3500, easing: SPRING });
         qa(".wi-spark i").forEach((s, i) =>
           A(s, [
             { transform: `rotate(${i * 45}deg) translateY(-14px) scaleY(0.2)`, opacity: 1 },
