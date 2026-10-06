@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>번호 추첨기 | 랜덤 번호 뽑기·숫자 추첨 - 범위·개수·뺄 번호 정하고 뽑기</title>
+    <meta name="description" content="시작 번호와 끝 번호, 뽑을 개수만 넣으면 랜덤 번호를 뽑아요. 중복 없이 또는 중복 허용, 뺄 번호 지정, 작은 순 정렬. 번호표 경품 추첨·자리 번호·발표 순서 정하기에. 가입 없이 무료." />
+    <meta name="keywords" content="번호 추첨기, 랜덤 번호 뽑기, 숫자 랜덤 뽑기, 랜덤 숫자 생성기, 번호 추첨, 경품 번호 추첨, 랜덤추첨" />
+    <link rel="canonical" href="https://guesswhat.co.kr/random/number/" />
+    <meta name="theme-color" content="#f3eee2" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="번호 추첨기 - 범위·개수·뺄 번호 정하고 랜덤 뽑기" />
+    <meta property="og:description" content="중복 없이 또는 중복 허용, 뺄 번호 지정, 작은 순 정렬. 번호표 경품 추첨에." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "번호 추첨기",
+        "url": "https://guesswhat.co.kr/random/number/",
+        "description": "범위와 개수를 정해 랜덤 번호를 뽑는 무료 숫자 추첨 도구. 중복 허용 여부, 뺄 번호, 정렬.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="rd">
+      <p class="rd-kick">RANDOM DRAW · 번호 추첨</p>
+      <h1>번호 추첨기</h1>
+      <p class="rd-lead">몇 번부터 몇 번까지, 몇 개 뽑을지 정하세요.</p>
+
+      <section class="sheet" aria-label="추첨 설정">
+        <div class="row3">
+          <div><label class="lbl" for="min">시작 번호</label><input id="min" type="number" value="1" inputmode="numeric" /></div>
+          <div><label class="lbl" for="max">끝 번호</label><input id="max" type="number" value="100" inputmode="numeric" /></div>
+          <div><label class="lbl" for="count">뽑을 개수</label><input id="count" type="number" min="1" max="1000" value="1" inputmode="numeric" /></div>
+        </div>
+        <label class="lbl" for="exclude">뺄 번호 <small>쉼표나 빈칸으로, 없으면 비워 두기</small></label>
+        <input id="exclude" type="text" placeholder="예: 4, 13, 44" inputmode="numeric" />
+        <label class="chk"><input id="dup" type="checkbox" /><span>같은 번호가 또 나와도 됨</span></label>
+        <label class="chk"><input id="sort" type="checkbox" /><span>뽑은 뒤 작은 번호부터 정렬</span></label>
+        <p class="err" id="err" role="alert" hidden></p>
+        <button class="go" id="draw" type="button">번호 뽑기</button>
+      </section>
+
+      <section class="sheet" id="out" aria-label="추첨 결과" hidden>
+        <span class="stamp" id="stamp" hidden>추첨<br />완료</span>
+        <h2>뽑은 번호</h2>
+        <div class="balls" id="balls" aria-live="polite"></div>
+        <div class="log" id="log" hidden></div>
+        <div class="sub"><button id="copy" type="button">번호 복사</button><button id="again" type="button">다시 뽑기</button></div>
+      </section>
+
+      <article class="seo">
+        <h2>이렇게 뽑아요</h2>
+        <p>시작 번호부터 끝 번호까지에서 뺄 번호를 지운 나머지 가운데, 브라우저의 암호용 난수(crypto.getRandomValues)로 하나씩 고릅니다. 모든 번호가 나올 확률은 같고, '같은 번호가 또 나와도 됨'을 끄면 한 번 나온 번호는 다시 나오지 않아요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>번호표 경품 추첨에 어떻게 쓰나요?</summary><p>나눠 준 번호표가 1번부터 300번이면 시작 1, 끝 300, 뽑을 개수에 경품 수를 넣으세요. 결석한 사람 번호는 '뺄 번호'에 넣으면 나오지 않아요.</p></details>
+        <details><summary>로또 번호도 뽑을 수 있나요?</summary><p>1부터 45까지 6개, 중복 없이, 작은 번호부터 정렬로 뽑을 수 있어요. 다만 무작위 번호일 뿐 당첨 확률을 높여 주지는 않아요.</p></details>
+        <details><summary>몇 개까지, 어떤 범위까지 되나요?</summary><p>한 번에 1,000개까지, 범위는 1,000만 칸까지 뽑을 수 있어요. 음수도 돼요.</p></details>
+        <details><summary>뽑은 번호가 저장되나요?</summary><p>아니요. 이 기기 화면에만 보이고 어디에도 보내지 않아요.</p></details>
+        <p><a href="/random/">랜덤 추첨기 모음</a> · <a href="/random/winner/">당첨자 추첨기</a> · <a href="/roulette/">룰렛 돌리기</a> · <a href="/ladder/">사다리타기</a></p>
+      </article>
+    </main>
+    <nav id="more" aria-label="다른 추첨"></nav>
+    <footer class="site-footer">번호 추첨기 · 추첨은 이 기기 안에서만 해요</footer>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

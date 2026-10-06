@@ -24,6 +24,9 @@ export const TOOLS = [
   { path: "who-pays/duck", cat: "pick", name: "오리 레이스", desc: "물살·소용돌이에 순위가 계속 바뀌는 고무오리" },
   { path: "who-pays/dodge", cat: "pick", name: "똥 피하기", desc: "쏟아지는 똥, 먼저 맞으면 당첨" },
   { path: "who-pays/bomb", cat: "pick", name: "폭탄 돌리기", desc: "언제 터질지 모르는 폭탄 넘기기" },
+  { path: "random/winner", cat: "pick", name: "당첨자 추첨기", desc: "명단 붙여 넣고 N명, 예비 당첨까지" },
+  { path: "random/number", cat: "pick", name: "번호 추첨기", desc: "범위·개수·뺄 번호 정하고 랜덤 번호" },
+  { path: "random", cat: "pick", name: "랜덤 추첨기 모음", desc: "상황에 맞는 추첨 14가지" },
 
   // 심리테스트
   { path: "others-mbti", cat: "test", name: "남이 정해주는 MBTI", desc: "친구 3명이 답하는 나의 MBTI" },
