@@ -20,6 +20,10 @@ export const TOOLS = [
   { path: "who-pays", cat: "pick", name: "구슬 레이스", desc: "아이템으로 개입하는 벌칙 레이스" },
   { path: "who-pays/battle", cat: "pick", name: "배틀로얄 추첨", desc: "좁아지는 링에서 마지막 한 명" },
   { path: "who-pays/barrel", cat: "pick", name: "통아저씨", desc: "돌아가며 꽂는 해적 룰렛" },
+  { path: "who-pays/balloon", cat: "pick", name: "풍선 터뜨리기", desc: "모두의 풍선이 동시에, 먼저 터지면 당첨" },
+  { path: "who-pays/duck", cat: "pick", name: "오리 레이스", desc: "물살·소용돌이에 순위가 계속 바뀌는 고무오리" },
+  { path: "who-pays/dodge", cat: "pick", name: "똥 피하기", desc: "쏟아지는 똥, 먼저 맞으면 당첨" },
+  { path: "who-pays/bomb", cat: "pick", name: "폭탄 돌리기", desc: "언제 터질지 모르는 폭탄 넘기기" },
 
   // 심리테스트
   { path: "others-mbti", cat: "test", name: "남이 정해주는 MBTI", desc: "친구 3명이 답하는 나의 MBTI" },

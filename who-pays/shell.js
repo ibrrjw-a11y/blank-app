@@ -39,6 +39,11 @@ export const MODES = {
     go: "통 꺼내기",
     video: "",
   },
+  // 실시간 추첨 4종 (who-pays/live.js)
+  balloon: { name: "풍선 터뜨리기", short: "풍선", path: "who-pays/balloon", rules: { last: "먼저 터지면 당첨", first: "끝까지 남으면 당첨" }, kicker: "PRE-SHOW · 풍선 받을 사람", word: "PUMP", go: "풍선 불기", video: "" },
+  duck: { name: "오리 레이스", short: "오리", path: "who-pays/duck", rules: { last: "꼴찌가 당첨", first: "1등이 당첨" }, kicker: "PRE-RACE · 오리 띄울 사람", word: "SPLASH", go: "오리 띄우기", video: "" },
+  dodge: { name: "똥 피하기", short: "똥 피하기", path: "who-pays/dodge", rules: { last: "먼저 맞으면 당첨", first: "끝까지 살면 당첨" }, kicker: "PRE-GAME · 피할 사람", word: "DODGE", go: "하늘 열기", video: "" },
+  bomb: { name: "폭탄 돌리기", short: "폭탄", path: "who-pays/bomb", rules: null, only: "터질 때 든 사람이 당첨", kicker: "PRE-GAME · 폭탄 돌릴 사람", word: "BOOM", go: "심지 붙이기", video: "" },
 };
 
 const MAX = 12;
@@ -213,7 +218,7 @@ function dressMore(mode) {
 /* ================================================================ */
 export function startShell({ mode, start, intro }) {
   const M = MODES[mode];
-  const RULE = M.rules || { last: "튀어나오면 당첨", first: "튀어나오면 당첨" };
+  const RULE = M.rules || { last: M.only || "튀어나오면 당첨", first: M.only || "튀어나오면 당첨" };
   const slot = $("#views");
   slot.outerHTML = viewsHtml(mode);
 
@@ -224,7 +229,7 @@ export function startShell({ mode, start, intro }) {
     penalty: typeof saved?.penalty === "string" ? saved.penalty : "커피 쏘기",
   };
   const persist = () => store.set("last", { ...store.get("last", {}), ...state });
-  const ruleText = () => (M.rules ? RULE[state.rule] : "튀어나오면 당첨");
+  const ruleText = () => (M.rules ? RULE[state.rule] : M.only || "튀어나오면 당첨");
 
   let introCtl = null;
   let game = null;
