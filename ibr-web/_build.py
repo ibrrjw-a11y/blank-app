@@ -49,6 +49,17 @@ def fill(html):
     return html
 
 
+# 관리자 화면이 고치는 데이터 파일. 호스팅(GitHub Pages)이 파일을 10분쯤 기억해 두기 때문에
+# 주소 뒤에 1분마다 바뀌는 번호를 붙여, 저장한 내용이 1~2분 안에 홈페이지에 보이게 합니다.
+DATA_JS = {"ibr-data.js", "ibr-media.js", "ibr-links.js", "ibr-ir-data.js"}
+
+
+def script_tag(name):
+    if name in DATA_JS:
+        return ("<script>document.write('<script src=\"assets/js/%s?v=' + Math.floor(Date.now() / 6e4) + '\"><\\/script>')</script>\n" % name)
+    return '<script src="assets/js/%s"></script>\n' % name
+
+
 def build(page, artifact_dir=None):
     body = read(page)
     meta = dict(re.findall(r"<!-- (\w+): (.+?) -->\n", body))
@@ -61,7 +72,7 @@ def build(page, artifact_dir=None):
     home = "" if page == "index.html" else "index.html"
     header = header.replace("{{HOME}}", home)
     footer = read("_footer.html").replace("{{HOME}}", home)
-    scripts = "".join('<script src="assets/js/%s"></script>\n' % s for s in meta["scripts"].split())
+    scripts = "".join(script_tag(s) for s in meta["scripts"].split())
     gate = read("_gate.html") if meta.get("gate") == "yes" else ""
 
     content = fill(gate + header + body + footer + scripts)
