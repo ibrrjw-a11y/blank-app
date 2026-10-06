@@ -193,7 +193,12 @@ export const kakaoAdapter = {
     const code = kind === "cafe" ? "CE7" : "FD6";
     const docs = await kakaoCall(kakao, "categorySearch", code, opts, 3);
     const seen = new Set();
-    return docs.map(kakaoToItem).filter((x) => !seen.has(x.n) && seen.add(x.n));
+    // 카카오 '음식점'에는 빵집·간식집도 섞여 있어서, 밥 고르는 단계에서는 뺀다(카페 단계는 그대로) — 2026-10-06
+    const SNACK = /간식|제과|베이커리|디저트|아이스크림|빙수|도넛|떡|와플|호두과자|초콜릿/;
+    return docs
+      .map(kakaoToItem)
+      .filter((x) => kind === "cafe" || !(SNACK.test(x.g) || SNACK.test(x.c)))
+      .filter((x) => !seen.has(x.n) && seen.add(x.n));
   },
   async keyword({ query, lat, lon, radius = 1500 }) {
     const kakao = await this.ready();
