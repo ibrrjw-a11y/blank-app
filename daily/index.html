@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>오늘의 퀴즈 | 오늘의 Guess - 그림·동네·가격·연도·비율 하루 5문제</title>
+    <meta name="description" content="매일 0시에 바뀌는 다섯 문제. 확대된 그림, 오늘의 동네, 그때 그 가격, 추억 연대기, 오늘의 비율을 한 장의 점수판으로 모아 보고 결과를 단톡방에 보내요. 가입 없이 무료." />
+    <meta name="keywords" content="오늘의 퀴즈, 데일리 퀴즈, 매일 퀴즈, 워들, 상식 퀴즈, 그림 맞추기, 지역 맞추기, 옛날 물가 퀴즈" />
+    <link rel="canonical" href="https://guesswhat.co.kr/daily/" />
+    <meta name="theme-color" content="#f3eee3" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="오늘의 Guess - 하루 다섯 문제" />
+    <meta property="og:description" content="그림·동네·가격·연도·비율, 오늘 몇 칸 맞혔어?" />
+    <meta property="og:image" content="https://guesswhat.co.kr/og.png" />
+    <meta property="og:url" content="https://guesswhat.co.kr/daily/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=Nanum+Myeongjo:wght@700;800&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "오늘의 Guess",
+        "url": "https://guesswhat.co.kr/daily/",
+        "description": "매일 바뀌는 그림·동네·가격·연도·비율 다섯 문제를 한 장의 점수판으로 모아 보는 데일리 퀴즈",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="paper">
+      <header class="mast">
+        <div class="mast__top"><span id="mastDate">----.--.--</span><span>제 1 면</span></div>
+        <h1 class="mast__title"><span>오</span><span>늘</span><span>의</span> <span>G</span><span>u</span><span>e</span><span>s</span><span>s</span></h1>
+        <div class="mast__bot"><span>퍼즐 면 · 다섯 문제</span><span>다음 문제까지 <b id="next">--:--:--</b></span></div>
+      </header>
+
+      <section class="today" aria-label="오늘의 다섯 문제">
+        <div class="today__head"><span>오늘 푼 칸</span><b id="tally" data-full="0">0 / 5</b></div>
+        <div class="board" id="board"></div>
+        <p class="today__note">칸을 누르면 그 문제로 갑니다. 풀고 돌아오면 이 면에 저절로 적혀요.</p>
+      </section>
+
+      <section class="coupon" id="coupon" hidden>
+        <div class="coupon__cut"><span>✂</span> 오려서 단톡방에</div>
+        <pre class="coupon__text" id="couponText"></pre>
+        <button class="coupon__btn" id="shareBtn" type="button">이 쿠폰 보내기</button>
+      </section>
+
+      <article class="seo notice">
+        <h2>알림 · 오늘의 Guess 보는 법</h2>
+        <table class="notice__tbl">
+          <tr><th>1</th><td>그림</td><td>크게 확대한 그림이 틀릴 때마다 줌아웃, 기회 6번</td></tr>
+          <tr><th>2</th><td>동네</td><td>시군구 이름을 넣으면 거리·방향 힌트</td></tr>
+          <tr><th>3</th><td>가격</td><td>그 시절 물건값, 업·다운 힌트로 ±10% 안</td></tr>
+          <tr><th>4</th><td>연도</td><td>출시 연도 순서대로 줄 세우기</td></tr>
+          <tr><th>5</th><td>비율</td><td>공개 조사 숫자 짐작 3문제, 오차가 작을수록 점수</td></tr>
+        </table>
+        <p>문제는 한국 시각 0시에 다 같이 바뀝니다. 기록은 이 기기의 브라우저에만 남고, 순위표는 없습니다.</p>
+        <h2>독자 문답</h2>
+        <details><summary>각 문제 페이지에서 푼 것도 여기 적히나요?</summary><p>네. 같은 기록을 읽기 때문에 어디서 풀든 이 면에 적힙니다. 반대로 이 면에서 들어가 푼 것도 그 문제 페이지에 남아요.</p></details>
+        <details><summary>휴대폰을 바꾸면 기록이 사라지나요?</summary><p>기록은 지금 쓰는 브라우저에만 저장돼서, 다른 기기나 다른 앱 안 브라우저에서는 처음부터 보입니다.</p></details>
+        <details><summary>쿠폰에는 뭐가 적히나요?</summary><p>오늘 날짜, 몇 칸 풀었는지, 문제별 힌트 기록(정답은 안 적힘)만 들어갑니다.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 면"></nav>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

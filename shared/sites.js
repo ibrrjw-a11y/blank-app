@@ -33,6 +33,7 @@ export const TOOLS = [
   { path: "dream-saju", cat: "fortune", name: "꿈 사주", desc: "4칸으로 끝내는 꿈해몽" },
 
   // 미니게임
+  { path: "daily", cat: "game", name: "오늘의 Guess", desc: "그림·동네·가격·연도·비율 하루 5문제" },
   { path: "ddanjit", cat: "game", name: "딴짓 오락실", desc: "오늘의 데일리 게임 4종 모음" },
   { path: "ddanjit/zoom", cat: "game", name: "줌아웃 퀴즈", desc: "확대된 그림 맞히기" },
   { path: "ddanjit/town", cat: "game", name: "오늘의 동네", desc: "거리·방향 힌트로 시군구 맞히기" },
