@@ -148,6 +148,7 @@ export const WAVES = {
   color: (x, t) => Math.sin(x * Math.PI * 4 + t * 0.004) * 0.6,
   hear: (x, t) => Math.sin(x * Math.PI * 46 + t * 0.03) * 0.55 * Math.sin(x * Math.PI),
   math: (x, t) => (((x * 5 + t * 0.0006) % 1) - 0.5) * 1.3,
+  dyn: (x, t) => { const p = ((t * 0.0012) % 1.4) - 0.2; return Math.exp(-(((x - p) / 0.03) ** 2)) * 0.9 + (Math.random() - 0.5) * 0.04; },
 };
 
 export class Scope {

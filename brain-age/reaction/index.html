@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>반응속도 테스트 | 초록불에 탭, 밀리초까지 재는 반응속도 측정</title>
+    <meta name="description" content="화면이 초록색으로 바뀌는 순간 탭해서 반응속도를 ms(밀리초)로 재요. 5번 재서 가장 느린 1번은 빼고 평균. 너무 빨리 누르면 +30ms. 설치 없이 20초." />
+    <meta name="keywords" content="반응속도 테스트, 반응속도 측정, 반응 속도, 순발력 테스트, 클릭 속도" />
+    <link rel="canonical" href="https://guesswhat.co.kr/brain-age/reaction/" />
+    <meta name="theme-color" content="#0d0f0e" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="반응속도 테스트" />
+    <meta property="og:description" content="화면이 초록색으로 바뀌는 순간 탭해서 반응속도를 ms(밀리초)로 재요. 5번 재서 가장 느린 1번은 빼고 평균. 너무 빨리 누르면 +30ms. 설치 없이 20초." />
+    <meta property="og:image" content="https://guesswhat.co.kr/brain-age/og.png" />
+    <meta property="og:url" content="https://guesswhat.co.kr/brain-age/reaction/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../solo.css" />
+    <style>:root { --solo: #7dff9b; --art-phosphor: #7dff9b; }</style>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "반응속도 테스트", "url": "https://guesswhat.co.kr/brain-age/reaction/", "description": "화면이 초록색으로 바뀌는 순간 탭해서 반응속도를 ms(밀리초)로 재요. 5번 재서 가장 느린 1번은 빼고 평균. 너무 빨리 누르면 +30ms. 설치 없이 20초.", "applicationCategory": "GameApplication", "operatingSystem": "Any", "inLanguage": "ko", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}}</script>
+  </head>
+  <body class="solo solo--rt">
+    <main class="app">
+      <section class="solo-intro" data-view="intro">
+        <header class="solo-head"><span class="mono solo-head__model">CH1 · RT</span><span class="tag mono">재미용 측정</span></header>
+        <h1 class="solo-title"><span class="solo-title__icon" aria-hidden="true">⚡</span>반응속도 테스트</h1>
+        <p class="solo-kicker">초록불이 켜지는 순간 탭</p>
+        <div class="solo-scope plate"><div class="plate__top"><span class="plate__code mono">CH1 · RT</span><span class="plate__bar"></span></div><div class="plate__scope"><canvas id="scope"></canvas></div></div>
+        <p class="solo-best" id="best"></p>
+        <button class="arm" id="start" type="button" aria-label="측정 개시">
+          <span class="arm__well" aria-hidden="true"><span class="arm__btn"></span><span class="arm__guard"><i>OPEN</i></span></span>
+          <span class="arm__plate"><b>측정 개시</b><small class="mono">START · CH1 · RT</small></span>
+          <span class="arm__lamp" aria-hidden="true"><i></i><small class="mono">READY</small></span>
+        </button>
+        <p class="solo-also t-body-03"><a href="../">5개 한 번에 하고 뇌 나이 보기 →</a></p>
+      </section>
+      <section class="game" data-view="game" hidden>
+        <header class="game-head"><button class="btn btn--ghost btn--icon" type="button" id="quit" aria-label="그만하기">✕</button><span class="t-label-01">반응속도 테스트</span><span class="btn--icon" aria-hidden="true"></span></header>
+        <div class="game-area" id="area"></div>
+      </section>
+      <section class="result" data-view="result" hidden>
+        <header class="topbar"><button class="btn btn--ghost btn--icon" type="button" id="back" aria-label="처음으로">←</button><span class="t-label-01">측정 결과</span><span class="btn--icon" aria-hidden="true"></span></header>
+        <div id="resultBody"></div>
+      </section>
+      <article class="seo labdoc">
+        <header class="labdoc__head"><p class="labdoc__no mono"><span>문서 CH1 · RT</span><span>재미용 · 비진단</span></p><h2>반응속도 테스트 측정 방법</h2></header>
+        <section class="labdoc__sec"><p>화면이 초록색으로 바뀌는 순간 탭해서 반응속도를 ms(밀리초)로 재요. 5번 재서 가장 느린 1번은 빼고 평균. 너무 빨리 누르면 +30ms. 설치 없이 20초.</p>
+          <table class="solo-tbl"><tr><th class="mono">측정값</th><td>5번 중 가장 느린 1번을 뺀 평균(ms)</td></tr><tr><th class="mono">실수 처리</th><td>초록 전에 누르면 다시, +30ms</td></tr><tr><th class="mono">시간</th><td>약 20초</td></tr></table></section>
+        <section class="labdoc__sec"><h3><span class="mono">Q&amp;A</span> 측정 문답</h3><details><summary>휴대폰마다 결과가 다른가요?</summary><p>화면과 터치가 반응하는 데 걸리는 시간이 기기마다 달라 수십 ms 차이가 날 수 있어요. 같은 기기로 잰 내 기록끼리 비교하는 게 정확해요.</p></details><details><summary>100ms보다 빠르면 왜 실수인가요?</summary><p>사람이 보고 누르기엔 너무 빨라서, 미리 짐작하고 누른 것으로 봐요.</p></details></section>
+      </article>
+      <nav id="more" aria-label="다른 측정 채널"></nav>
+    </main>
+    <script type="module">import { bootSolo } from "../solo.js"; bootSolo("rt");</script>
+  </body>
+</html>

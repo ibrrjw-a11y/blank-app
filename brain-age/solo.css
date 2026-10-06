@@ -1,0 +1,35 @@
+/* 뇌 나이 측정소 — 테스트 하나씩 하는 페이지. 계기판(측정소) 장르는 같고, 페이지마다 계기 색(--solo)과 첫 화면 문구가 다르다 */
+.solo-intro { min-height: 100svh; display: flex; flex-direction: column; gap: var(--sp-16); padding: var(--sp-16) var(--sp-16) var(--sp-32); }
+.solo-head { display: flex; justify-content: space-between; align-items: center; }
+.solo-head__model { color: var(--solo); font-size: 13px; letter-spacing: 0.08em; }
+.solo-title { margin: var(--sp-8) 0 0; font: 700 40px/1.12 "IBM Plex Sans KR", var(--font-sans); letter-spacing: -0.03em; display: flex; flex-direction: column; gap: var(--sp-8); }
+.solo-title__icon { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: var(--r-12); background: var(--solo); color: #0d0f0e; font-size: 30px; animation: solo-kick 2.6s var(--art-spring) infinite; }
+@keyframes solo-kick { 0%, 72% { transform: none; } 80% { transform: translateY(-6px) rotate(-8deg) scale(1.08); } 90% { transform: rotate(5deg); } 100% { transform: none; } }
+.solo-kicker { margin: 0; color: var(--solo); font: 700 16px/1.4 var(--font-sans); }
+.solo-scope { margin-top: var(--sp-8); }
+.solo-scope .plate__scope { height: 180px; }
+.solo-scope canvas { width: 100%; height: 100%; display: block; }
+.solo-best { margin: 0; font: 600 14px/1.4 var(--font-sans); color: var(--color-text-secondary); }
+.solo-intro .arm { margin-top: auto; }
+.solo-also { margin: 0; text-align: center; }
+.solo-also a { color: var(--color-text-secondary); }
+.solo-done { padding: var(--sp-24) var(--sp-16); display: flex; flex-direction: column; gap: var(--sp-16); }
+.solo-done__btns { display: flex; flex-direction: column; gap: var(--sp-8); margin-top: var(--sp-8); }
+.solo-tbl { width: 100%; border-collapse: collapse; margin-top: var(--sp-12); font-size: 14px; }
+.solo-tbl th, .solo-tbl td { text-align: left; padding: var(--sp-8) var(--sp-6); border-bottom: 1px solid var(--art-rule); vertical-align: top; }
+.solo-tbl th { width: 88px; font-weight: 600; }
+
+/* 동체시력 게임 */
+.dv { display: flex; flex-direction: column; gap: var(--sp-12); padding: var(--sp-8) 0; }
+.dv__head { display: flex; justify-content: space-between; }
+.dv__track { position: relative; height: 220px; border-radius: var(--r-12); overflow: hidden; background: var(--art-screen, #07110b);
+  background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px); background-size: 22px 22px; }
+.dv__line { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(255,255,255,.08); }
+.dv__plate { position: absolute; left: 0; visibility: hidden; display: grid; place-items: center; width: 80px; height: 56px; border-radius: var(--r-8);
+  background: var(--solo, #ff5050); color: #0d0f0e; font: 700 34px/1 var(--art-mono, monospace); will-change: transform; box-shadow: 0 0 18px var(--solo, #ff5050); }
+.dv__ask { text-align: center; margin: 0; min-height: 22px; }
+.dv__opts { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
+.dv__opt { font-size: 24px; }
+.dv__opt.is-right { border-color: #5bd68a; color: #5bd68a; }
+.dv__opt.is-wrong { border-color: var(--color-danger); color: var(--color-danger); }
+@media (prefers-reduced-motion: reduce) { .solo-title__icon { animation: none; } }

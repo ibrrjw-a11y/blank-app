@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>색감 테스트 | 색이 다른 칸 하나 찾기, 30초 색 구분 테스트</title>
+    <meta name="description" content="수많은 칸 중에서 색이 살짝 다른 칸 하나를 찾아 탭해요. 단계가 오를수록 칸은 많아지고 차이는 작아져요. 30초 동안 몇 단계까지 가는지 재는 색 구분 테스트." />
+    <meta name="keywords" content="색감 테스트, 색 구분 테스트, 다른 색 찾기, 색깔 테스트, 절대색감" />
+    <link rel="canonical" href="https://guesswhat.co.kr/brain-age/color/" />
+    <meta name="theme-color" content="#0d0f0e" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="색감 테스트" />
+    <meta property="og:description" content="수많은 칸 중에서 색이 살짝 다른 칸 하나를 찾아 탭해요. 단계가 오를수록 칸은 많아지고 차이는 작아져요. 30초 동안 몇 단계까지 가는지 재는 색 구분 테스트." />
+    <meta property="og:image" content="https://guesswhat.co.kr/brain-age/og.png" />
+    <meta property="og:url" content="https://guesswhat.co.kr/brain-age/color/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../solo.css" />
+    <style>:root { --solo: #ff6bd5; --art-phosphor: #ff6bd5; }</style>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "색감 테스트", "url": "https://guesswhat.co.kr/brain-age/color/", "description": "수많은 칸 중에서 색이 살짝 다른 칸 하나를 찾아 탭해요. 단계가 오를수록 칸은 많아지고 차이는 작아져요. 30초 동안 몇 단계까지 가는지 재는 색 구분 테스트.", "applicationCategory": "GameApplication", "operatingSystem": "Any", "inLanguage": "ko", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}}</script>
+  </head>
+  <body class="solo solo--color">
+    <main class="app">
+      <section class="solo-intro" data-view="intro">
+        <header class="solo-head"><span class="mono solo-head__model">CH3 · HUE</span><span class="tag mono">재미용 측정</span></header>
+        <h1 class="solo-title"><span class="solo-title__icon" aria-hidden="true">◐</span>색감 테스트</h1>
+        <p class="solo-kicker">색이 살짝 다른 칸 하나</p>
+        <div class="solo-scope plate"><div class="plate__top"><span class="plate__code mono">CH3 · HUE</span><span class="plate__bar"></span></div><div class="plate__scope"><canvas id="scope"></canvas></div></div>
+        <p class="solo-best" id="best"></p>
+        <button class="arm" id="start" type="button" aria-label="측정 개시">
+          <span class="arm__well" aria-hidden="true"><span class="arm__btn"></span><span class="arm__guard"><i>OPEN</i></span></span>
+          <span class="arm__plate"><b>측정 개시</b><small class="mono">START · CH3 · HUE</small></span>
+          <span class="arm__lamp" aria-hidden="true"><i></i><small class="mono">READY</small></span>
+        </button>
+        <p class="solo-also t-body-03"><a href="../">5개 한 번에 하고 뇌 나이 보기 →</a></p>
+      </section>
+      <section class="game" data-view="game" hidden>
+        <header class="game-head"><button class="btn btn--ghost btn--icon" type="button" id="quit" aria-label="그만하기">✕</button><span class="t-label-01">색감 테스트</span><span class="btn--icon" aria-hidden="true"></span></header>
+        <div class="game-area" id="area"></div>
+      </section>
+      <section class="result" data-view="result" hidden>
+        <header class="topbar"><button class="btn btn--ghost btn--icon" type="button" id="back" aria-label="처음으로">←</button><span class="t-label-01">측정 결과</span><span class="btn--icon" aria-hidden="true"></span></header>
+        <div id="resultBody"></div>
+      </section>
+      <article class="seo labdoc">
+        <header class="labdoc__head"><p class="labdoc__no mono"><span>문서 CH3 · HUE</span><span>재미용 · 비진단</span></p><h2>색감 테스트 측정 방법</h2></header>
+        <section class="labdoc__sec"><p>수많은 칸 중에서 색이 살짝 다른 칸 하나를 찾아 탭해요. 단계가 오를수록 칸은 많아지고 차이는 작아져요. 30초 동안 몇 단계까지 가는지 재는 색 구분 테스트.</p>
+          <table class="solo-tbl"><tr><th class="mono">측정값</th><td>30초 동안 통과한 단계</td></tr><tr><th class="mono">틀리면</th><td>2초 줄어듦</td></tr><tr><th class="mono">시간</th><td>30초</td></tr></table></section>
+        <section class="labdoc__sec"><h3><span class="mono">Q&amp;A</span> 측정 문답</h3><details><summary>화면 밝기에 따라 달라지나요?</summary><p>네. 밝기·색 설정·블루라이트 필터에 따라 달라질 수 있어요. 같은 조건에서 비교하세요.</p></details><details><summary>색약 검사인가요?</summary><p>아니에요. 재미로 보는 색 구분 게임이고 의학적 검사가 아니에요.</p></details></section>
+      </article>
+      <nav id="more" aria-label="다른 측정 채널"></nav>
+    </main>
+    <script type="module">import { bootSolo } from "../solo.js"; bootSolo("color");</script>
+  </body>
+</html>

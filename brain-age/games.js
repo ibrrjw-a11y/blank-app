@@ -126,6 +126,9 @@ export const HOWTO = {
   math: {
     lead: "나오는 계산 문제를 숫자 패드로 빠르게 풀어요.",
     lines: ["정답을 다 누르면 자동으로 넘어가요", "어려우면 패스해도 돼요", "30초"],
+  },  dyn: {
+    lead: "두 자리 숫자판이 화면을 휙 지나가요. 무슨 숫자였는지 골라요.",
+    lines: ["맞힐 때마다 점점 빨라져요", "방향과 높이는 매번 바뀌어요", "두 번 틀리면 끝"],
   },
 };
 
@@ -732,6 +735,89 @@ async function playMath(area, signal) {
   return { raw: correct, tried };
 }
 
-export const PLAY = { rt: playReaction, mem: playMemory, color: playColor, hear: playHearing, math: playMath };
+/* ========== 6. 동체시력 (따로 하는 측정 전용, 종합 뇌 나이에는 안 들어감) ========== */
+const DYN_START = 1300; // 첫 판 숫자판이 화면을 지나가는 시간(ms)
+const DYN_STEP = 0.84; // 맞힐 때마다 이만큼 빨라짐
+const DYN_MIN = 140;
+const DYN_LIVES = 2;
+
+async function playDynamic(area, signal) {
+  area.innerHTML = `
+    <div class="dv">
+      <div class="dv__head"><span class="t-label-01 t-num" data-lv>1단계</span><span class="t-body-03 t-secondary" data-life>기회 ●●</span></div>
+      <div class="dv__track" aria-hidden="true"><span class="dv__plate t-num" data-plate></span><i class="dv__line"></i></div>
+      <p class="t-body-03 t-secondary dv__ask" data-ask>숫자판이 지나가요. 잘 보세요</p>
+      <div class="dv__opts" data-opts></div>
+    </div>`;
+  const plate = area.querySelector("[data-plate]");
+  const track = area.querySelector(".dv__track");
+  const opts = area.querySelector("[data-opts]");
+  const ask = area.querySelector("[data-ask]");
+  const lvEl = area.querySelector("[data-lv]");
+  const lifeEl = area.querySelector("[data-life]");
+  let dur = DYN_START;
+  let level = 0;
+  let lives = DYN_LIVES;
+  let fastest = null;
+  while (lives > 0 && !signal.aborted) {
+    lvEl.textContent = `${level + 1}단계 · ${Math.round(dur)}ms`;
+    lifeEl.textContent = `기회 ${"●".repeat(lives)}${"○".repeat(DYN_LIVES - lives)}`;
+    const n = ri(10, 99);
+    plate.textContent = String(n);
+    opts.innerHTML = "";
+    ask.textContent = "숫자판이 지나가요. 잘 보세요";
+    await wait(500, signal);
+    // 위·아래 높이와 방향을 매 판 바꿔 예측을 막는다
+    const w = track.clientWidth;
+    const fromLeft = Math.random() < 0.5;
+    const y = ri(12, Math.max(14, track.clientHeight - 70));
+    plate.style.top = `${y}px`;
+    const x0 = fromLeft ? -90 : w + 10;
+    const x1 = fromLeft ? w + 10 : -90;
+    plate.style.transition = "none";
+    plate.style.transform = `translateX(${x0}px)`;
+    plate.style.visibility = "visible";
+    await nextFrame();
+    await nextFrame();
+    plate.style.transition = `transform ${dur}ms linear`;
+    plate.style.transform = `translateX(${x1}px)`;
+    await wait(dur + 30, signal);
+    plate.style.visibility = "hidden";
+    // 보기 4개: 정답 + 비슷한 숫자(자리 바꿈·한 자리 차이)
+    const set = new Set([n]);
+    const near = [Number(String(n).split("").reverse().join("")), n + 1, n - 1, n + 10, n - 10, n + 11];
+    for (const c of near.sort(() => Math.random() - 0.5)) if (set.size < 4 && c >= 10 && c <= 99) set.add(c);
+    while (set.size < 4) set.add(ri(10, 99));
+    const choices = [...set].sort(() => Math.random() - 0.5);
+    ask.textContent = "방금 지나간 숫자는?";
+    opts.innerHTML = choices.map((c) => `<button class="btn btn--outline btn--lg dv__opt t-num" type="button" data-v="${c}">${c}</button>`).join("");
+    const picked = await until(signal, (done) => {
+      const on = (e) => {
+        const b = e.target.closest("[data-v]");
+        if (b) done(Number(b.dataset.v));
+      };
+      opts.addEventListener("click", on);
+      return () => opts.removeEventListener("click", on);
+    });
+    const ok = picked === n;
+    opts.querySelectorAll("[data-v]").forEach((b) => {
+      const v = Number(b.dataset.v);
+      if (v === n) b.classList.add("is-right");
+      else if (v === picked) b.classList.add("is-wrong");
+      b.disabled = true;
+    });
+    haptic(ok ? 8 : [30, 40, 30]);
+    if (ok) {
+      level++;
+      fastest = dur;
+      dur = Math.max(DYN_MIN, dur * DYN_STEP);
+    } else lives--;
+    await wait(650, signal);
+  }
+  if (signal.aborted) throw abortErr();
+  return { raw: level, fastest };
+}
+
+export const PLAY = { rt: playReaction, mem: playMemory, color: playColor, hear: playHearing, math: playMath, dyn: playDynamic };
 
 export const fmtHz = (hz) => `${fmt.num(hz)}Hz`;

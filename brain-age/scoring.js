@@ -20,6 +20,8 @@ export const META = {
     fmt: (v) => (v ? `${(v / 1000).toLocaleString("ko-KR")}kHz` : "건너뜀"),
   },
   math: { code: "CH5", name: "순간계산", short: "계산", better: "high", fmt: (v) => `${v}문제` },
+  // 동체시력은 따로 하는 측정 전용. 나이 환산 곡선이 없어 종합 뇌 나이(KEYS)에는 넣지 않는다
+  dyn: { code: "CH6", name: "동체시력", short: "동체", better: "high", fmt: (v) => `${v}단계` },
 };
 
 // [측정값, 나이] 앵커. x 오름차순.
@@ -59,7 +61,7 @@ function interp(x, pts) {
 }
 
 export function ageFor(key, raw) {
-  if (raw == null) return null;
+  if (raw == null || !CURVES[key]) return null;
   return clamp(interp(raw, CURVES[key]), AGE_MIN, AGE_MAX);
 }
 

@@ -40,6 +40,12 @@ export const TOOLS = [
   { path: "ddanjit/price", cat: "game", name: "그때 그 가격", desc: "옛날 물가 맞히기" },
   { path: "ddanjit/timeline", cat: "game", name: "추억 연대기", desc: "출시 연도 순서 맞히기" },
   { path: "brain-age", cat: "game", name: "뇌 나이 측정소", desc: "미니게임 5개로 재는 뇌 나이" },
+  { path: "brain-age/reaction", cat: "game", name: "반응속도 테스트", desc: "초록불에 탭, 밀리초까지" },
+  { path: "brain-age/memory", cat: "game", name: "순간기억력 테스트", desc: "불 들어온 순서 따라 누르기" },
+  { path: "brain-age/color", cat: "game", name: "색감 테스트", desc: "색이 다른 칸 하나 찾기" },
+  { path: "brain-age/hearing", cat: "game", name: "고주파 청력 테스트", desc: "몇 Hz까지 들리나" },
+  { path: "brain-age/mental-math", cat: "game", name: "암산 테스트", desc: "30초 동안 몇 문제" },
+  { path: "brain-age/dynamic-vision", cat: "game", name: "동체시력 테스트", desc: "휙 지나간 숫자 맞히기" },
 
   // 생활 계산기
   { path: "salary-live/net-pay", cat: "calc", name: "연봉 실수령액 계산기", desc: "2026년 4대보험·세금 반영" },

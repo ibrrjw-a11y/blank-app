@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>순간기억력 테스트 | 불 들어온 칸 순서 따라 누르기</title>
+    <meta name="description" content="칸에 불이 들어오는 순서를 기억했다가 그대로 눌러요. 맞힐 때마다 한 칸씩 길어지고 기회는 2번. 몇 칸까지 기억하는지 재는 기억력 테스트." />
+    <meta name="keywords" content="기억력 테스트, 순간기억력, 단기기억 테스트, 순서 기억 게임, 기억력 게임" />
+    <link rel="canonical" href="https://guesswhat.co.kr/brain-age/memory/" />
+    <meta name="theme-color" content="#0d0f0e" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="순간기억력 테스트" />
+    <meta property="og:description" content="칸에 불이 들어오는 순서를 기억했다가 그대로 눌러요. 맞힐 때마다 한 칸씩 길어지고 기회는 2번. 몇 칸까지 기억하는지 재는 기억력 테스트." />
+    <meta property="og:image" content="https://guesswhat.co.kr/brain-age/og.png" />
+    <meta property="og:url" content="https://guesswhat.co.kr/brain-age/memory/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../solo.css" />
+    <style>:root { --solo: #ffb547; --art-phosphor: #ffb547; }</style>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "순간기억력 테스트", "url": "https://guesswhat.co.kr/brain-age/memory/", "description": "칸에 불이 들어오는 순서를 기억했다가 그대로 눌러요. 맞힐 때마다 한 칸씩 길어지고 기회는 2번. 몇 칸까지 기억하는지 재는 기억력 테스트.", "applicationCategory": "GameApplication", "operatingSystem": "Any", "inLanguage": "ko", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}}</script>
+  </head>
+  <body class="solo solo--mem">
+    <main class="app">
+      <section class="solo-intro" data-view="intro">
+        <header class="solo-head"><span class="mono solo-head__model">CH2 · MEM</span><span class="tag mono">재미용 측정</span></header>
+        <h1 class="solo-title"><span class="solo-title__icon" aria-hidden="true">▦</span>순간기억력 테스트</h1>
+        <p class="solo-kicker">불이 켜진 순서 그대로</p>
+        <div class="solo-scope plate"><div class="plate__top"><span class="plate__code mono">CH2 · MEM</span><span class="plate__bar"></span></div><div class="plate__scope"><canvas id="scope"></canvas></div></div>
+        <p class="solo-best" id="best"></p>
+        <button class="arm" id="start" type="button" aria-label="측정 개시">
+          <span class="arm__well" aria-hidden="true"><span class="arm__btn"></span><span class="arm__guard"><i>OPEN</i></span></span>
+          <span class="arm__plate"><b>측정 개시</b><small class="mono">START · CH2 · MEM</small></span>
+          <span class="arm__lamp" aria-hidden="true"><i></i><small class="mono">READY</small></span>
+        </button>
+        <p class="solo-also t-body-03"><a href="../">5개 한 번에 하고 뇌 나이 보기 →</a></p>
+      </section>
+      <section class="game" data-view="game" hidden>
+        <header class="game-head"><button class="btn btn--ghost btn--icon" type="button" id="quit" aria-label="그만하기">✕</button><span class="t-label-01">순간기억력 테스트</span><span class="btn--icon" aria-hidden="true"></span></header>
+        <div class="game-area" id="area"></div>
+      </section>
+      <section class="result" data-view="result" hidden>
+        <header class="topbar"><button class="btn btn--ghost btn--icon" type="button" id="back" aria-label="처음으로">←</button><span class="t-label-01">측정 결과</span><span class="btn--icon" aria-hidden="true"></span></header>
+        <div id="resultBody"></div>
+      </section>
+      <article class="seo labdoc">
+        <header class="labdoc__head"><p class="labdoc__no mono"><span>문서 CH2 · MEM</span><span>재미용 · 비진단</span></p><h2>순간기억력 테스트 측정 방법</h2></header>
+        <section class="labdoc__sec"><p>칸에 불이 들어오는 순서를 기억했다가 그대로 눌러요. 맞힐 때마다 한 칸씩 길어지고 기회는 2번. 몇 칸까지 기억하는지 재는 기억력 테스트.</p>
+          <table class="solo-tbl"><tr><th class="mono">측정값</th><td>따라 누른 최대 길이(칸)</td></tr><tr><th class="mono">기회</th><td>2번</td></tr><tr><th class="mono">시간</th><td>약 30초</td></tr></table></section>
+        <section class="labdoc__sec"><h3><span class="mono">Q&amp;A</span> 측정 문답</h3><details><summary>몇 칸이면 잘한 건가요?</summary><p>공간 순서를 기억하는 폭은 흔히 6~7칸 정도라고 알려져 있어요. 재미로 보는 기준이에요.</p></details><details><summary>틀리면 바로 끝나나요?</summary><p>두 번까지 틀릴 수 있어요.</p></details></section>
+      </article>
+      <nav id="more" aria-label="다른 측정 채널"></nav>
+    </main>
+    <script type="module">import { bootSolo } from "../solo.js"; bootSolo("mem");</script>
+  </body>
+</html>
