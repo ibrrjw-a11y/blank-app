@@ -25,6 +25,16 @@
 - **색·글꼴**: `assets/css/ibr.css` 맨 위 `:root` 블록.
 - **세계 지도 점**: `tools/make_world.py` (보통은 손댈 일 없음).
 
+## 배포 (GitHub Pages)
+
+- 저장소 `ibrrjw-a11y/blank-app` 의 `main` 브랜치를 GitHub Pages 로 그대로 내보냅니다(빌드 과정 없음).
+  - 주소: `https://ibrrjw-a11y.github.io/blank-app/` → 홈페이지(`ibr-web/`)로 바로 넘어갑니다.
+  - 관리자: `https://ibrrjw-a11y.github.io/blank-app/ibr-web/admin.html` (홈페이지 맨 아래 '관리자' 링크)
+- 처음 한 번 켜기: 저장소 **Settings → Pages → Build and deployment** → Source **Deploy from a branch** → Branch **main** · **/ (root)** → Save.
+- `main` 에 저장(관리자 화면 저장 포함)하면 1~2분 뒤 자동으로 다시 올라갑니다. 진행 상황은 저장소 **Actions** 탭의 *pages build and deployment* 에서 봅니다.
+- 저장소 맨 위의 `index.html`(홈페이지로 넘기기)과 `.nojekyll`(파일을 그대로 내보내기)은 배포용이니 지우지 마세요.
+- 도메인이 정해지면 Settings → Pages → Custom domain 에 넣고, 도메인 회사에서 DNS 를 GitHub Pages 로 연결합니다.
+
 ## 관리자 화면 (`admin.html`)
 
 홈페이지 주소 뒤에 `/admin.html` 을 붙여 엽니다(메뉴에는 링크하지 않았습니다).
