@@ -1716,3 +1716,16 @@ body {
 
 /* 줌아웃 정답 사진 (Pixabay) */
 .zoom-reveal__photo { width: 96px; height: 96px; flex: none; object-fit: cover; border-radius: var(--r-12); box-shadow: var(--shadow-s); }
+
+/* ---------- 휴대폰 사용성 (2026-10-06) ----------
+ * 1) 오늘의 동네: 지도 칸이 세로로 늘면서 비율 때문에 옆 칸을 덮던 것 → 칸 폭 안에서만 그림
+ * 2) 입력 중(키보드가 올라와 보이는 높이가 줄어듦)에는 문제 그림을 보이는 높이에 맞춰 줄여, 문제와 입력칸이 한 화면에 같이 보이게
+ *    --vvh 는 play.js 가 visualViewport 높이로 넣는다 */
+.town__map { aspect-ratio: auto; min-width: 0; width: 100%; }
+.town__read { min-width: 0; }
+.typing .zoom__crt { width: min(100%, max(150px, calc(var(--vvh, 100vh) - 200px))); margin-inline: auto; }
+.typing .town__top { height: min(236px, max(120px, calc(var(--vvh, 100vh) - 200px))); }
+.typing .town__top .compass { width: 44px; height: 44px; }
+.typing .price__q .price__badge { display: none; }
+@media (max-height: 420px) { .typing .price__q .price__emoji { display: none; } }
+.typing .msg:empty { min-height: 0; }

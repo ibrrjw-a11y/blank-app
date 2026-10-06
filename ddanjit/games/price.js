@@ -78,17 +78,17 @@ export default {
         <span class="badge price__badge">${p.exact ? "공식 고시 값 · ±10% 안이면 정답" : "대략적인 당시 평균가 · ±10% 안이면 정답"}</span>
         <div class="crt__scan"></div>
       </div>
+      <p class="msg" id="pmsg" aria-live="polite"></p>
+      <form class="answer" id="pform" autocomplete="off">
+        <label class="won-field"><span>원</span><input class="input" id="pin" inputmode="numeric" placeholder="얼마였을까요?" enterkeyhint="done" aria-label="가격(원)" /></label>
+        <button class="btn btn--primary" type="submit">확인</button>
+      </form>
       <div class="range" id="prange">
         <div class="range__label"><span>힌트 범위</span><b id="pknown">아직 몰라요</b></div>
         <div class="range__track" id="ptrack"><div class="range__known" id="pband" style="left:0;width:100%"></div></div>
         <div class="range__ticks">${TICKS.map((t) => `<span style="left:${pos(t)}%">${tickLabel(t)}</span>`).join("")}</div>
       </div>
       <ol class="rows" id="prows"></ol>
-      <p class="msg" id="pmsg" aria-live="polite"></p>
-      <form class="answer" id="pform" autocomplete="off">
-        <label class="won-field"><span>원</span><input class="input" id="pin" inputmode="numeric" placeholder="얼마였을까요?" enterkeyhint="done" aria-label="가격(원)" /></label>
-        <button class="btn btn--primary" type="submit">확인</button>
-      </form>
       <div class="done-bar" id="pdone" hidden><button class="btn btn--primary btn--lg" id="pres">결과 보기</button></div>`;
 
     function bounds(rs) {

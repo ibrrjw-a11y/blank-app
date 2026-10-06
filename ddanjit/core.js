@@ -16,11 +16,18 @@ export const store = createStore("ddanjit");
 export const DATE = todayKey();
 export const DAY = dayNumber(EPOCH);
 
+/* ---------- 지금 푸는 판의 번호 ----------
+ * 평소엔 오늘(DAY). '한 판 더'(연습 판)에서는 지난 날짜 번호를 넣어 그날 문제를 다시 꺼낸다.
+ * 앞으로 나올 문제(미래 날짜)는 쓰지 않는다 — 내일 문제를 미리 보는 일이 없게 */
+export let PLAY = DAY;
+export const isPractice = () => PLAY !== DAY;
+export function setPlay(day) { PLAY = day; }
+
 export const EMOJI_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Segoe UI Symbol",sans-serif';
 
 /* ---------- 오늘의 문제 (모두 같은 문제) ---------- */
 // 풀을 한 바퀴 돌 때까지 겹치지 않게: 바퀴마다 시드 섞기 → dayNumber 위치
-export function pickDaily(pool, gameId, day = DAY) {
+export function pickDaily(pool, gameId, day = PLAY) {
   const n = pool.length;
   const i = (((day - 1) % n) + n) % n;
   const cycle = Math.floor((day - 1) / n);
@@ -31,7 +38,7 @@ export function pickDaily(pool, gameId, day = DAY) {
   return pool[order[i]];
 }
 
-export const dailyRand = (gameId, extra = "") => seededRandom(`ddanjit:${gameId}:${DATE}${extra}`);
+export const dailyRand = (gameId, extra = "") => seededRandom(`ddanjit:${gameId}:${PLAY === DAY ? DATE : "p" + PLAY}${extra}`);
 
 /* ---------- 하루 상태 (다시 열어도 그대로) ---------- */
 export const loadDay = (gameId) => store.get(`d:${gameId}:${DAY}`, null);

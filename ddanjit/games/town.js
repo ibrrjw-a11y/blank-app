@@ -154,14 +154,15 @@ export default {
           <div class="t-caption-01 t-tertiary" id="tpct">가까움 0%</div>
         </div>
       </div>
-      <div class="town__hint" id="thint" hidden></div>
-      <ol class="rows" id="trows"></ol>
       <p class="msg" id="tmsg" aria-live="polite"></p>
       <form class="answer ac" id="tform" autocomplete="off">
         <ul class="ac__list" id="tlist" role="listbox" hidden></ul>
         <input class="input" id="tin" placeholder="시·군·구 이름 (예: 해운대, 춘천)" enterkeyhint="done" role="combobox" aria-controls="tlist" aria-expanded="false" />
         <button class="btn btn--primary" type="submit">확인</button>
       </form>
+      <div class="town__hint" id="thint" hidden></div>
+      <ol class="rows" id="trows"></ol>
+      
       <div class="done-bar" id="tdone" hidden><button class="btn btn--primary btn--lg" id="tres">결과 보기</button></div>`;
 
     let sel = 0;

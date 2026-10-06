@@ -38,6 +38,78 @@ export const ROOT_URL = new URL("../", import.meta.url).href;
   else addEventListener("DOMContentLoaded", put, { once: true });
 })();
 
+/* ---------- 큰 제목 맞춤 (2026-10-06) ----------
+ * 휴대폰 폭이 좁거나 글자 크기를 키운 기기에서 큰 제목이 칸 밖으로 잘리거나 단어 중간에서 꺾이는 일이 있었다.
+ * 제목마다 칸을 넘치거나 한 단어가 두 줄로 쪼개지면 글자를 6%씩 줄여 맞춘다(최소 원래의 60%). 디자인 크기는 그대로 두고 넘칠 때만 줄임 */
+(function fitTitles() {
+  const HANGUL = /[가-힣A-Za-z0-9]/;
+  // 움직이는 중인 글자(날아 들어오는 연출 등)는 빼고, 가만히 있는 글자만으로 테두리를 잰다
+  const still = (e) => { for (let k = 0; e && k < 3; e = e.parentElement, k++) { if (e.getAnimations?.().length || getComputedStyle(e).transform !== "none") return false; } return true; };
+  const midBreak = (el) => {
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let n, prev = null, lastParent = null;
+    while ((n = w.nextNode())) {
+      const t = n.textContent;
+      // 글자마다 쪼갠 제목(한 글자 = 한 조각)도 이어서 보되, 일부러 줄을 나눈 덩어리(블록)로 넘어가면 새로 센다
+      const par = n.parentElement;
+      if (par !== lastParent && !/^inline/.test(getComputedStyle(par).display)) prev = null;
+      lastParent = par;
+      for (let i = 0; i < t.length; i++) {
+        if (/\s/.test(t[i])) { prev = null; continue; }
+        if (i === 0 && !still(par)) { prev = null; break; }   // 움직이는 중인 글자는 판단에서 뺌
+        const r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + 1);
+        const rc = r.getClientRects()[0]; if (!rc || !rc.height) continue;
+        // 줄이 바뀌면 다음 글자는 아래로 내려가면서 왼쪽으로 돌아간다(통통 튀는 글자 움직임과 구분)
+        if (prev && rc.top > prev.top + prev.h * 0.9 && rc.left < prev.left - prev.h * 0.5 && HANGUL.test(prev.ch) && HANGUL.test(t[i])) return true;
+        prev = { top: rc.top, h: rc.height, ch: t[i], left: rc.left };
+      }
+    }
+    return false;
+  };
+  // 넘침은 '글자'만 본다(꾸밈용 그림·화살표가 칸 밖으로 나가는 건 일부러 그런 디자인일 수 있어서 제외)
+  const textBox = (el) => {
+    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n, L = Infinity, R = -Infinity;
+    while ((n = w.nextNode())) {
+      if (!n.textContent.trim() || !still(n.parentElement)) continue;
+      const r = document.createRange(); r.selectNodeContents(n); const b = r.getBoundingClientRect();
+      if (b.width) { L = Math.min(L, b.left); R = Math.max(R, b.right); }
+    }
+    return { left: L === Infinity ? 0 : L, right: R === -Infinity ? 0 : R };
+  };
+  const bad = (el) => {
+    const t = textBox(el), vw = document.documentElement.clientWidth;
+    // 글자를 잘라 내는(넘치면 숨기는) 가장 가까운 칸 — 자기 자신부터 네 단계 위까지
+    let box = null;
+    for (let e = el, k = 0; e && k < 5; e = e.parentElement, k++) if (getComputedStyle(e).overflowX !== "visible") { box = e.getBoundingClientRect(); break; }
+    return t.right > vw + 1 || t.left < -1 || (box && (t.right > box.right + 1 || t.left < box.left - 1)) || midBreak(el);
+  };
+  function run() {
+    document.querySelectorAll("h1, h2, [class*='title'], [data-fit]").forEach((el) => {
+      if (el.closest("[hidden]") || el.matches("[data-nofit]") || el.textContent.trim().length > 40) return;
+      if (el.parentElement?.closest("[data-fitted]")) return;   // 바깥 제목을 이미 줄였으면 안쪽은 그대로
+      el.style.zoom = "";
+      delete el.dataset.fitted;
+      const r = el.getBoundingClientRect();
+      if (r.width < 40 || r.height < 4 || !bad(el)) return;
+      // 안쪽 글자마다 크기가 따로 정해진 제목도 있어서 글자 크기 대신 제목 전체를 비율로 줄인다(zoom)
+      for (let k = 0.94; k >= 0.6; k -= 0.06) {
+        el.style.zoom = k.toFixed(2);
+        el.dataset.fitted = k.toFixed(2);
+        if (!bad(el)) break;
+      }
+    });
+  }
+  let t = 0;
+  const later = () => { clearTimeout(t); t = setTimeout(run, 120); };
+  addEventListener("load", later);
+  // 글자가 날아 들어오는 연출이 끝난 뒤에 한 번 더 잰다
+  addEventListener("load", () => { setTimeout(run, 1600); setTimeout(run, 3200); });
+  addEventListener("resize", later);
+  document.fonts?.ready.then(later);
+  // 화면이 바뀌어 새 제목이 나타날 때(숨김 해제)도 한 번 더
+  new MutationObserver(later).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["hidden"] });
+})();
+
 // 현재 페이지의 도구 경로 (예: "ddanjit/zoom"). 루트·카테고리 페이지면 ""
 export function currentPath() {
   const rel = decodeURIComponent(location.href.slice(ROOT_URL.length).split(/[?#]/)[0]);

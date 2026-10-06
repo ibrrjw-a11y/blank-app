@@ -94,7 +94,7 @@ export function startIntro(root) {
 
   const tableScene = (filled) => `
     <div class="i1">
-      <div class="i1__head"><span class="i1__title">꿈 원국</span><span class="i1__date">${dateLabel}</span></div>
+      <div class="i1__head"><span class="i1__title" data-nofit>꿈 원국</span><span class="i1__date">${dateLabel}</span></div>
       <div class="i1__mid">
         <div class="itb">
           <svg class="itb__lines" aria-hidden="true"></svg>

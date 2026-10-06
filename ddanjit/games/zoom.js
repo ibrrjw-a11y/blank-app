@@ -162,14 +162,15 @@ export default {
         <div class="zoom__flash" id="zflash"></div>
         <div class="crt__scan"></div>
       </div>
-      <div class="zoom__hints" id="zhints"></div>
-      <div class="zoom__choices" id="zchoices" hidden></div>
-      <div class="guesslog" id="zlog"></div>
       <p class="msg" id="zmsg" aria-live="polite"></p>
       <form class="answer" id="zform" autocomplete="off">
         <input class="input" id="zin" placeholder="무엇일까요? 예: 라면" enterkeyhint="done" maxlength="20" />
         <button class="btn btn--primary" type="submit">맞히기</button>
       </form>
+      <div class="zoom__hints" id="zhints"></div>
+      <div class="zoom__choices" id="zchoices" hidden></div>
+      <div class="guesslog" id="zlog"></div>
+      
       <div class="done-bar" id="zdone" hidden><button class="btn btn--primary btn--lg" id="zres">결과 보기</button></div>`;
 
     const canvas = $("#zcanvas", root);
