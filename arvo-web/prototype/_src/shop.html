@@ -1,0 +1,53 @@
+<!-- title: 전체 상품 · Árvo -->
+<!-- nav: shop -->
+<main id="main">
+  <div class="wrap page-head">
+    <nav class="crumbs" aria-label="현재 위치"><a href="index.html">홈</a><span>/</span><span>전체 상품</span></nav>
+    <h1>전체 상품</h1>
+    <p>무드 오일 세 가지와 같은 향의 케어, 두피를 위한 스칼프, 살롱에서 쓰는 컬 크림까지.</p>
+  </div>
+
+  <div class="filters">
+    <div class="wrap row">
+      <div class="tabs" role="group" aria-label="분류">
+        <button type="button" data-cat="all" aria-pressed="true">전체</button>
+        <button type="button" data-cat="oil" aria-pressed="false">무드 오일</button>
+        <button type="button" data-cat="care" aria-pressed="false">무드 케어</button>
+        <button type="button" data-cat="scalp" aria-pressed="false">스칼프</button>
+        <button type="button" data-cat="salon" aria-pressed="false">살롱</button>
+      </div>
+      <div>
+        <label class="sr-only" for="sort">정렬</label>
+        <select id="sort">
+          <option value="reco">추천순</option>
+          <option value="low">낮은 가격순</option>
+          <option value="high">높은 가격순</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="scent-chips" role="group" aria-label="향으로 거르기">
+      <button type="button" data-scent-filter="07" data-scent="07" aria-pressed="false"><i></i>07 플로럴 선샤인</button>
+      <button type="button" data-scent-filter="10" data-scent="10" aria-pressed="false"><i></i>10 블룸 오브 샤론</button>
+      <button type="button" data-scent-filter="11" data-scent="11" aria-pressed="false"><i></i>11 포레스트 포그</button>
+    </div>
+    <p class="list-count" style="margin-bottom:20px">상품 <span data-count>8</span>개</p>
+    <div id="shop-grid" class="prd-grid cols-4"></div>
+  </div>
+
+  <section class="section minis" style="margin-top:96px">
+    <div class="wrap">
+      <div class="sec-head split">
+        <div><p class="label muted">20ml</p><h2>내 번호를 모르겠다면</h2></div>
+        <p>20ml로 세 가지 향을 먼저 맡아 보세요. 마음에 드는 번호를 찾으면 50ml로.</p>
+      </div>
+      <div class="mini-row">
+        <a class="mini" data-scent="07" href="product.html#oil-07"><img src="assets/img/p-07-mini.webp" alt="No.07 20ml" width="232" height="469" loading="lazy"><span class="num">07</span><span class="en-name">Floral Sunshine</span><span class="price">12,000<small>원</small></span></a>
+        <a class="mini" data-scent="10" href="product.html#oil-10"><img src="assets/img/p-10-mini.webp" alt="No.10 20ml" width="456" height="954" loading="lazy"><span class="num">10</span><span class="en-name">Bloom of Sharon</span><span class="price">12,000<small>원</small></span></a>
+        <a class="mini" data-scent="11" href="product.html#oil-11"><img src="assets/img/p-11-mini.webp" alt="No.11 20ml" width="232" height="469" loading="lazy"><span class="num">11</span><span class="en-name">Forest Fog</span><span class="price">12,000<small>원</small></span></a>
+      </div>
+    </div>
+  </section>
+</main>

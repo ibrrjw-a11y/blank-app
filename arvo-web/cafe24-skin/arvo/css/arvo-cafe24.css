@@ -1,0 +1,343 @@
+/* ==========================================================================
+   Árvo — 카페24 모듈 덮어쓰기
+   카페24가 자동으로 그리는 부분(상품 목록 칸, 옵션·수량·총 상품금액, 구매 버튼,
+   리뷰·문의 게시판, 페이지 번호)을 Árvo 모양으로 맞춥니다.
+   기본 스킨 CSS 뒤에 읽히고, 대부분 #arvoPdp 같은 Árvo 영역 안에서만 적용됩니다.
+   ========================================================================== */
+
+/* ---------- 0. 기본 스킨 초기화 보정 ---------- */
+body.arvo { min-width: 0; }
+.arvo a:hover { text-decoration: none; }
+.arvo .displaynone { display: none !important; }
+.arvo-main { display: block; }
+/* 기본 스킨의 화면 크기별 보이기 규칙 (layout.css 를 쓰지 않으므로 여기서 정의) */
+.arvo .display_tablet_only { display: none !important; }
+@media (max-width: 1024px) {
+  .arvo .RW { display: none !important; }
+  .arvo .RTMB { display: block !important; }
+  .arvo .display_pc_only { display: none !important; }
+  .arvo .display_tablet_only { display: block !important; }
+}
+@media (min-width: 1025px) { .arvo .RTMB { display: none !important; } }
+
+/* 기본 스킨의 어둡게 덮는 판(기본 머리말 전용)은 Árvo 화면에서 쓰지 않습니다. */
+.arvo #layoutDimmed { display: none !important; }
+.arvo .layer_shadow { display: none; }
+
+/* ---------- 1. 상품 칸 (목록·메인·관련 상품) ---------- */
+.arvo-list ul { list-style: none; margin: 0; padding: 0; }
+.arvo-list .prd { list-style: none; }
+.arvo-list .prd .thumb img.p { inset: 6% 7% 5%; left: 7%; bottom: 5%; width: 86%; height: 89%; max-width: 100%; object-fit: contain; object-position: 50% 100%; transform: none; }
+.arvo-list .prd:hover .thumb img.p { transform: translateY(-8px); }
+.arvo-list[data-arvo-thumb="cover"] .prd .thumb img.p { inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none; }
+.arvo-list .prd .icons { position: absolute; left: 10px; top: 10px; z-index: 1; display: flex; flex-wrap: wrap; gap: 4px; }
+.arvo-list .prd .icons img { display: inline-block; height: 18px; width: auto; }
+.arvo-list .prd .info .kr { display: block; }
+.arvo-list .prd .summary { font-size: 12.5px; color: var(--ink-3); }
+.arvo-list .prd .summary:empty { display: none; }
+.arvo-list .prd .row1:not(:has(.num:not(:empty), .en-name:not(:empty))) { display: none; }
+.arvo-list .prd .quick { background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%231B1A19' stroke-width='1.3'%3E%3Cpath d='M3.5 6.5h11l-1 9h-9z'/%3E%3Cpath d='M6.5 6.5V5a2.5 2.5 0 0 1 5 0v1.5'/%3E%3C/svg%3E") center / 18px no-repeat; }
+.arvo-list .prd .quick img { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.arvo-list .prd .quick:not(:has(img)) { display: none; }
+/* 할인가가 있으면 원래 가격에 줄 긋기 */
+.arvo .meta:has(.sale:not(.displaynone)) .price:not(.sale),
+.arvo .prices:has(.sale:not(.displaynone)) .price:not(.sale) { text-decoration: line-through; color: var(--ink-3); font-weight: 500; font-size: .9em; }
+.arvo .price.sale { color: var(--ink); }
+.arvo-list .scent-card { list-style: none; }
+.arvo-list .scent-card .panel { display: block; }
+.arvo-list .scent-card .panel img { left: 8%; right: 8%; bottom: 5%; width: 84%; height: 82%; max-width: 100%; object-fit: contain; object-position: 50% 100%; transform: none; }
+.arvo-list .scent-card:hover .panel img { transform: translateY(-10px); }
+.arvo-list .scent-card h3 a { color: inherit; }
+.arvo-list .scent-card .line:empty, .arvo-list .scent-card .notes:empty { display: none; }
+.arvo-list .scent-card .meta { gap: 12px; }
+.scent-row.compact .scent-card .txt p.line { display: none; }
+.scent-row .scent-card.is-current .panel { outline: 2px solid var(--ink); outline-offset: -2px; }
+.arvo-list .mini-row { display: flex; justify-content: center; }
+.arvo-list .mini-row li { list-style: none; display: grid; flex: 0 1 calc((100% - 24px) / 3); }
+@media (min-width: 768px) { .arvo-list .mini-row li { flex-basis: calc((100% - 40px) / 3); } }
+.arvo-list .mini img { width: 100%; height: clamp(120px, 18vw, 220px); object-fit: contain; }
+.arvo-list .mini .m-name { font-size: 12.5px; color: var(--ink-2); line-height: 1.4; display: none; }
+.arvo-list .mini[data-scent="none"] .m-name { display: block; }
+.arvo-list .rail > li { list-style: none; }
+
+/* ---------- 2. 상품 목록 화면 ---------- */
+.crumbs { flex-wrap: wrap; }
+.crumbs i { font-style: normal; margin: 0 8px 0 0; }
+.crumbs > span { display: inline-flex; gap: 0; }
+.page-head h1 img { max-height: 56px; width: auto; }
+.page-head [data-arvo-cate-desc]:empty { display: none; }
+.page-head .top-image img { width: 100%; height: auto; margin-top: 16px; }
+.page-head .top-image:empty { display: none; }
+.filters .tabs ul { display: flex; gap: 22px; }
+.filters .tabs li { list-style: none; }
+.filters .tabs a { display: inline-block; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin-bottom: 28px; }
+.toolbar .scent-chips { margin-bottom: 0; }
+.toolbar .sort { display: flex; align-items: center; gap: 18px; }
+.toolbar .list-count { margin: 0; }
+#selArray { font: inherit; font-size: 13px; border: 0; background: transparent; padding: 8px 22px 8px 0; color: var(--ink); -webkit-appearance: none; appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4-4 4' fill='none' stroke='%231B1A19' stroke-width='1.2' transform='rotate(90 5 3) translate(2 -2)'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right center; }
+.prd.is-filtered { display: none; }
+.empty[hidden] { display: none; }
+.paging { display: flex; justify-content: center; align-items: center; gap: 18px; margin-top: 64px; font-family: var(--en); font-size: 13px; }
+.paging ol { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.paging ol a { display: grid; place-items: center; width: 36px; height: 36px; color: var(--ink-3); }
+.paging ol a.this, .paging ol a[aria-current] { color: var(--ink); border-bottom: 1.5px solid var(--ink); font-weight: 700; }
+.paging .prev, .paging .next { color: var(--ink-2); }
+.paging:not(:has(ol li a)) { display: none; }
+.list-cta { background: var(--white); }
+
+/* ---------- 3. 상품 상세: 위쪽 ---------- */
+.pdp-crumbs { padding-top: 20px; }
+#arvoPdp { padding-block: 16px 72px; }
+#arvoPdp .pdp-module { margin: 0; }
+#arvoPdp .detailArea { display: grid; gap: 28px; float: none; width: auto; margin: 0; padding: 0; }
+#arvoPdp .detailArea::after { display: none; }
+#arvoPdp .imgArea, #arvoPdp .infoArea { float: none; width: auto; margin: 0; padding: 0; min-width: 0; }
+@media (min-width: 1025px) {
+  #arvoPdp { padding-block: 24px 120px; }
+  #arvoPdp .detailArea { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 64px; align-items: start; }
+}
+
+/* 사진 */
+#arvoPdp .imgArea .prdImg, #arvoPdp .imgArea .thumbnail { position: relative; margin: 0; width: auto; height: auto; border: 0; }
+#arvoPdp .imgArea .RW .thumbnail { aspect-ratio: 4 / 5; background: linear-gradient(180deg, var(--s-a, #EEEBE6), var(--s-b, #E7E3DC) 55%, var(--s-c, #DDD8D0)); overflow: hidden; }
+#arvoPdp .imgArea .RW .thumbnail > a { position: absolute; inset: 0; display: block; }
+#arvoPdp .imgArea .RW .thumbnail img { position: absolute; inset: 4% 6%; width: 88%; height: 92%; max-width: none; object-fit: contain; object-position: 50% 100%; filter: drop-shadow(0 26px 22px rgba(27, 26, 25, .2)); }
+#arvoPdp .imgArea .wish { position: absolute; right: 12px; top: 12px; z-index: 2; }
+#arvoPdp .imgArea .listImg { margin-top: 8px; position: static; width: auto; }
+#arvoPdp .imgArea .listImg .inner { overflow: visible; width: auto; margin: 0; padding: 0; }
+#arvoPdp .imgArea .listImg ul { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; list-style: none; margin: 0; padding: 0; width: auto !important; left: 0 !important; }
+#arvoPdp .imgArea .listImg li { float: none; width: auto; margin: 0; aspect-ratio: 1 / 1; overflow: hidden; background: var(--stone); cursor: pointer; }
+#arvoPdp .imgArea .listImg li img { width: 100%; height: 100%; object-fit: cover; border: 0; }
+#arvoPdp .imgArea .listImg li.selected, #arvoPdp .imgArea .listImg li:hover { outline: 1.5px solid var(--ink); outline-offset: -2px; }
+#arvoPdp .imgArea .listImg .prev, #arvoPdp .imgArea .listImg .next { display: none; }
+#arvoPdp .imgArea .RTMB:has(.xans-product-mobileimage li) > p.prdImg { display: none; }
+#arvoPdp .imgArea .RTMB .prdImg, #arvoPdp .imgArea .RTMB .thumbnail { background: linear-gradient(180deg, var(--s-a, #EEEBE6), var(--s-c, #DDD8D0)); }
+#arvoPdp .imgArea .RTMB img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: contain; }
+#arvoPdp .xans-product-mobileimage ul { margin: 0; padding: 0; }
+
+/* 이름·가격 */
+#arvoPdp .infoArea { display: grid; gap: 22px; align-content: start; }
+#arvoPdp .headingArea { display: grid; gap: 6px; padding: 0; margin: 0; border: 0; }
+#arvoPdp .headingArea .icon:empty { display: none; }
+#arvoPdp .headingArea .icon img { display: inline-block; height: 18px; width: auto; }
+#arvoPdp .headingArea .row1 { display: flex; align-items: baseline; gap: 12px; }
+#arvoPdp .headingArea .row1:not(:has(.num:not(:empty))) { display: none; }
+#arvoPdp .headingArea .num { font-size: 52px; line-height: .9; color: var(--s-t); }
+#arvoPdp .headingArea .en-name { font-size: 14px; color: var(--s-t); }
+#arvoPdp .headingArea h1 { font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; letter-spacing: -0.035em; line-height: 1.32; margin: 4px 0 0; padding: 0; color: var(--ink); }
+#arvoPdp .headingArea .lede { color: var(--ink-2); font-size: 15px; margin: 0; }
+#arvoPdp .headingArea .lede:empty { display: none; }
+#arvoPdp .headingArea .delivery { font-size: 12px; color: var(--ink-3); }
+#arvoPdp .topLogo { display: none; }
+#arvoPdp table { width: 100%; border: 0; border-collapse: collapse; }
+#arvoPdp .xans-product-detaildesign { border-block: 1px solid var(--line); padding-block: 6px; }
+#arvoPdp .xans-product-detaildesign table th, #arvoPdp .xans-product-detaildesign table td { text-align: left; vertical-align: baseline; padding: 7px 0; border: 0; font-size: 13.5px; font-weight: 400; color: var(--ink-2); background: none; }
+#arvoPdp .xans-product-detaildesign table th { width: 30%; color: var(--ink-3); padding-right: 12px; }
+#arvoPdp .xans-product-detaildesign table th span, #arvoPdp .xans-product-detaildesign table td span { font: inherit; }
+#arvoPdp #span_product_price_text, #arvoPdp #span_product_price_sale { font-family: var(--en); font-size: 24px !important; font-weight: 600 !important; color: var(--ink) !important; letter-spacing: 0.01em; }
+
+/* 옵션 · 수량 */
+#arvoPdp .xans-product-option, #arvoPdp table.xans-product-option { border: 0; margin: 0; }
+#arvoPdp .xans-product-option th { display: block; text-align: left; font-size: 13px; font-weight: 600; color: var(--ink); padding: 0 0 8px; border: 0; background: none; width: auto; }
+#arvoPdp .xans-product-option td { display: block; padding: 0 0 16px; border: 0; }
+#arvoPdp .xans-product-option tr { display: block; }
+#arvoPdp select { width: 100%; height: 52px; padding: 0 40px 0 16px; border: 1px solid var(--line-2); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%231B1A19' stroke-width='1.3'/%3E%3C/svg%3E") right 16px center no-repeat; -webkit-appearance: none; appearance: none; font-family: var(--kr); font-size: 14px; color: var(--ink); border-radius: 0; }
+#arvoPdp .ec-product-button { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+#arvoPdp .ec-product-button li { display: block; margin: 0; padding: 0; border: 1px solid var(--line-2); border-radius: 0; background: var(--white); }
+#arvoPdp .ec-product-button li a { display: grid; place-items: center; min-height: 52px; color: var(--ink); text-decoration: none; }
+#arvoPdp .ec-product-button li a span { font-family: var(--en); font-size: 14px; font-weight: 600; padding: 4px 8px; }
+#arvoPdp .ec-product-button li.ec-product-selected { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+#arvoPdp .ec-product-button li.ec-product-soldout { opacity: .45; }
+#arvoPdp .xans-product-option .value:empty { display: none; }
+#arvoPdp .ec-base-qty { position: relative; display: inline-grid; grid-template-columns: 44px 56px 44px; height: 48px; width: auto !important; padding: 0 !important; border: 1px solid var(--line-2); background: var(--white); vertical-align: middle; }
+#arvoPdp .ec-base-qty input[type="text"], #arvoPdp .ec-base-qty input { grid-column: 2; grid-row: 1; width: 100% !important; height: 100%; margin: 0; padding: 0; border: 0; border-inline: 1px solid var(--line); text-align: center; font-family: var(--en); font-weight: 600; font-size: 14px; line-height: normal; background: transparent; }
+#arvoPdp .ec-base-qty a, #arvoPdp .ec-base-qty .qtyUp, #arvoPdp .ec-base-qty .qtyDown { position: relative !important; left: auto; right: auto; top: auto; grid-row: 1; display: block; width: auto; height: 100%; border: 0; overflow: hidden; }
+#arvoPdp .ec-base-qty .down { grid-column: 1; }
+#arvoPdp .ec-base-qty .up { grid-column: 3; }
+#arvoPdp .ec-base-qty a::before { content: ""; position: absolute; left: 50%; top: 50%; width: 12px; height: 1.3px; margin: -0.65px 0 0 -6px; background: var(--ink); }
+#arvoPdp .ec-base-qty .up::after { content: ""; position: absolute; left: 50%; top: 50%; width: 1.3px; height: 12px; margin: -6px 0 0 -0.65px; background: var(--ink); }
+#arvoPdp .ec-base-qty img { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .00001; }
+#arvoPdp dl.quantity { display: grid; gap: 8px; margin: 0; }
+#arvoPdp dl.quantity dt { font-size: 13px; font-weight: 600; }
+#arvoPdp dl.quantity dd { margin: 0; }
+#arvoPdp .guideArea:not(:has(.info:not(.displaynone), .sizeGuide:not(.displaynone))) { display: none; }
+#arvoPdp .guideArea { font-size: 12.5px; color: var(--ink-3); }
+
+/* 고른 옵션 목록 · 총 상품금액 */
+#arvoPdp #totalProducts { margin: 0; border-top: 1px solid var(--line); }
+#arvoPdp #totalProducts > table { table-layout: fixed; }
+#arvoPdp #totalProducts thead { display: none; }
+#arvoPdp #totalProducts col:nth-child(1) { width: auto !important; }
+#arvoPdp #totalProducts col:nth-child(2) { width: 128px !important; }
+#arvoPdp #totalProducts col:nth-child(3) { width: 92px !important; }
+#arvoPdp #totalProducts td { padding: 14px 0; border: 0; border-bottom: 1px solid var(--line); font-size: 13.5px; vertical-align: middle; color: var(--ink); background: none; }
+#arvoPdp #totalProducts td.right { text-align: right; font-family: var(--en); font-weight: 600; white-space: nowrap; }
+#arvoPdp #totalProducts .product { font-weight: 500; line-height: 1.5; }
+#arvoPdp #totalProducts .product span { display: block; color: var(--ink-3); font-size: 12.5px; }
+#arvoPdp #totalProducts .quantity { position: relative; display: inline-flex; align-items: center; gap: 2px; }
+#arvoPdp #totalProducts .quantity input { width: 40px; height: 32px; border: 1px solid var(--line-2); text-align: center; font-family: var(--en); font-size: 13px; }
+#arvoPdp #totalProducts .quantity .up, #arvoPdp #totalProducts .quantity .down { display: inline-grid; place-items: center; width: 24px; height: 32px; }
+#arvoPdp #totalProducts .quantity img { width: 12px; height: auto; }
+#arvoPdp #totalProducts .option_box_del { width: 14px; height: auto; margin-left: 8px; vertical-align: middle; }
+#arvoPdp #totalProducts .mileage { display: none; }
+#arvoPdp .totalPrice { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 4px 0 0; margin: 0; border: 0; font-size: 14px; color: var(--ink); text-align: left; }
+#arvoPdp .totalPrice .title { font-weight: 600; font-size: 14px; }
+#arvoPdp .totalPrice .title .qty { display: inline; height: auto; border: 0; background: none; font-weight: 400; color: var(--ink-3); font-size: 12.5px; }
+#arvoPdp .totalPrice .total strong, #arvoPdp .totalPrice .total em { font-family: var(--en); font-style: normal; font-size: 22px; font-weight: 600; color: var(--ink); }
+#arvoPdp .totalPrice .total { font-family: var(--en); font-size: 12.5px; color: var(--ink-3); }
+#arvoPdp .ec-base-help { font-size: 12px; color: var(--ink-3); margin: 0; padding: 0; background: none; }
+#arvoPdp .ec-base-help::before { display: none; }
+
+/* 구매 버튼 */
+#arvoPdp .productAction { margin: 0; padding: 0; }
+#arvoPdp .productAction .action_button { display: grid; grid-template-columns: 1fr 1fr 52px; gap: 8px; margin: 0; }
+#arvoPdp .productAction .action_button > * { margin: 0; min-width: 0; }
+#arvoPdp .productAction .sub_sold { grid-column: 1 / -1; text-align: center; font-weight: 600; padding: 14px; background: var(--stone); }
+#arvoPdp .productAction .actionCart { order: 1; }
+#arvoPdp .productAction .btnSubmit { order: 2; }
+#arvoPdp .productAction .actionWish { order: 3; }
+#arvoPdp .productAction .btnSubmit, #arvoPdp .productAction .btnNormal, #arvoPdp #orderFixArea .btnSubmit, #arvoPdp #orderFixArea .btnNormal {
+  display: inline-flex; align-items: center; justify-content: center; width: auto; min-height: 56px; height: auto; padding: 0 18px; margin: 0; border-radius: 0;
+  font-family: var(--kr); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; text-decoration: none; transition: background-color .25s var(--ease), color .25s var(--ease); }
+#arvoPdp .btnSubmit { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
+#arvoPdp .btnSubmit:hover { background: #000; }
+#arvoPdp .btnNormal { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+#arvoPdp .btnNormal:hover { background: var(--ink); color: var(--paper); }
+#arvoPdp .productAction .actionWish { font-size: 0; padding: 0; border-color: var(--line-2); background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='18' fill='none' stroke='%231B1A19' stroke-width='1.3'%3E%3Cpath d='M10 16.5S2 11.6 2 6.2A4 4 0 0 1 10 4.4a4 4 0 0 1 8 1.8C18 11.6 10 16.5 10 16.5z'/%3E%3C/svg%3E") center no-repeat; }
+#arvoPdp .productAction .actionWish:hover { background-color: var(--stone); color: transparent; }
+#arvoPdp .productAction .soldout { display: grid; gap: 8px; }
+#arvoPdp .productAction .soldout.displaynone { display: none; }
+#arvoPdp .productAction > a.btnNormal { display: flex; margin-top: 8px; min-height: 48px; }
+#arvoPdp #NaverChk_Button:empty { display: none; }
+#arvoPdp #NaverChk_Button { margin-top: 10px; }
+#arvoPdp .eventArea:empty { display: none; }
+#arvoPdp .xans-myshop-asyncbenefit { margin-top: 12px; padding: 14px 16px; border: 1px solid var(--line); background: var(--white); font-size: 13px; }
+
+/* 모바일 하단 구매 바 (스크롤하면 /js/common.js 가 보이고 숨깁니다) */
+#arvoPdp #orderFixArea { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; margin: 0; padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(245, 244, 240, .96); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+#arvoPdp #orderFixArea .gColumn { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+#arvoPdp #orderFixArea .actionCart { order: 1; }
+#arvoPdp #orderFixArea .btnSubmit { order: 2; }
+#arvoPdp #orderFixArea .btnSubmit, #arvoPdp #orderFixArea .btnNormal { min-height: 48px; }
+@media (min-width: 1025px) { #arvoPdp #orderFixArea { display: none !important; } }
+
+/* 특징 목록 · 접이식 정보 */
+#arvoPdp .trust[hidden], #arvoPdp [data-arvo-notes-wrap][hidden] { display: none; }
+#arvoPdp .acc a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* 향 이야기 · 사용법 · 사용감 (JS가 채운 뒤 보임) */
+[data-arvo-story][hidden], [data-arvo-how-wrap][hidden], [data-arvo-oil-only][hidden] { display: none !important; }
+
+/* 쿠폰 받기 (쿠폰이 있을 때만 카페24가 그립니다) */
+.pdp-coupon { padding-bottom: 24px; }
+.pdp-coupon:not(:has(*)) { display: none; }
+
+/* ---------- 4. 상품 상세: 아래쪽 (상세 정보 · 리뷰 · 문의 · 구매 안내) ---------- */
+.pdp-additional { margin: 0; padding: 0; }
+.pdp-tabs { position: sticky; top: var(--header-h); z-index: 20; background: var(--paper); border-block: 1px solid var(--line); }
+.pdp-tabs .wrap { display: flex; gap: 26px; overflow-x: auto; scrollbar-width: none; white-space: nowrap; }
+.pdp-tabs .wrap::-webkit-scrollbar { display: none; }
+.pdp-tabs a { padding-block: 16px; font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.pdp-tabs a span { font-family: var(--en); font-size: 12px; color: var(--ink-3); margin-left: 2px; }
+.pdp-tabs a:hover { color: var(--ink); }
+#prdDetail, #prdReview, #prdQnA, #prdInfo { scroll-margin-top: calc(var(--header-h) + 56px); }
+/* 기본 스킨은 모바일에서 탭으로 하나씩 보여 주느라 리뷰·문의·안내를 숨겨 둡니다. Árvo 는 모두 펼쳐 보여 줍니다. */
+.arvo #prdReview, .arvo #prdQnA, .arvo #prdInfo { display: block !important; }
+#prdDetail { padding-block: 72px 24px; }
+#prdDetail .detail-body { max-width: 860px; margin-inline: auto; text-align: center; }
+#prdDetail .detail-body img { display: inline-block; max-width: 100%; height: auto; }
+#prdDetail .detail-body p { margin: 0; }
+.pdp-related { padding-block: 72px; }
+.pdp-board { max-width: var(--max); margin-inline: auto; padding: 72px var(--gutter) 0; }
+.pdp-board .board_title { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; padding: 0; border: 0; }
+.pdp-board .board_title h2 { font-size: clamp(24px, 3vw, 34px); font-weight: 600; letter-spacing: -0.04em; margin: 0; }
+.pdp-board .board_title .ec-base-button { display: flex; gap: 8px; margin: 0; padding: 0; }
+.pdp-board .btnNormalFix { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font-size: 13px; font-weight: 600; border-radius: 0; }
+.pdp-board .btnNormalFix:hover { background: var(--ink); color: var(--paper); text-decoration: none; }
+.pdp-board .ec-base-table table { border-top: 1px solid var(--ink); }
+.pdp-board .ec-base-table th, .pdp-board .ec-base-table td { padding: 14px 8px; border: 0; border-bottom: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); background: none; }
+.pdp-board .ec-base-table th { font-weight: 600; color: var(--ink); font-size: 12.5px; }
+.pdp-board .ec-base-table td.subject a { color: var(--ink); }
+.pdp-board .ec-base-table td img { display: inline-block; vertical-align: middle; }
+.pdp-board .ec-base-table table.displaynone + p, .pdp-board .noAccess { font-size: 13px; color: var(--ink-3); }
+.pdp-board .ec-base-paginate { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 28px; font-family: var(--en); font-size: 13px; }
+.pdp-board .ec-base-paginate ol { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.pdp-board .ec-base-paginate ol a { display: grid; place-items: center; min-width: 32px; height: 32px; color: var(--ink-3); border: 0; background: none; }
+.pdp-board .ec-base-paginate ol li { border: 0; margin: 0; }
+.pdp-board .ec-base-paginate ol a.this { color: var(--ink); font-weight: 700; border-bottom: 1.5px solid var(--ink); }
+.pdp-board .ec-base-paginate > a { font-size: 12px; color: var(--ink-3); width: auto; height: auto; text-indent: 0; background: none; border: 0; }
+.pdp-board .ec-base-paginate > a::before, .pdp-board .ec-base-paginate > a::after { display: none; }
+.pdp-board .ec-base-paginate > a.first, .pdp-board .ec-base-paginate > a.last { display: none; }
+/* 아직 글이 없을 때 */
+.pdp-board .ec-base-table:has(table.displaynone)::after { content: "아직 작성된 글이 없습니다."; display: block; padding: 40px 0; text-align: center; font-size: 14px; color: var(--ink-3); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
+.pdp-board .contents:has(table.displaynone) .ec-base-paginate { display: none; }
+#prdInfo { padding-bottom: 96px; }
+#prdInfo .detail_guide { border-top: 1px solid var(--ink); }
+#prdInfo .ec-base-fold { display: block; float: none; width: auto; border: 0; border-bottom: 1px solid var(--line); margin: 0; }
+#prdInfo .ec-base-fold .title { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 18px 0; margin: 0; border: 0; background: none; cursor: pointer; }
+#prdInfo .ec-base-fold .title h2 { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+#prdInfo .ec-base-fold .title::after { content: "+"; font-family: var(--en); font-size: 22px; font-weight: 400; line-height: 1; transition: transform .3s var(--ease); }
+#prdInfo .ec-base-fold.selected .title::after { transform: rotate(45deg); }
+#prdInfo .ec-base-fold .contents { display: none; background: none; border: 0; padding: 0 0 20px; font-size: 13.5px; line-height: 1.8; color: var(--ink-2); }
+#prdInfo .ec-base-fold.selected .contents { display: block; }
+#prdInfo .ec-base-fold .contents ul { list-style: none; margin: 0; padding: 0; }
+#prdInfo .ec-base-fold .contents .info { background: none; border: 0; padding: 0; }
+#prdInfo .detail_guide { display: grid; }
+@media (min-width: 1025px) { #prdInfo .detail_guide { grid-template-columns: 1fr 1fr; column-gap: 48px; } }
+
+/* ---------- 5. 리뷰 · 문의 (카페24 기본 게시판을 카드형으로) ---------- */
+.arvo-app-slot:empty { display: none; }
+.arvo-app-slot[data-slot="rating"] { margin-top: 2px; }
+.arvo [data-arvo-app-section][hidden], .arvo .arvo-native-review[hidden] { display: none !important; }
+.arvo-app-slot[data-slot="review"]:not(:empty) { margin-bottom: 40px; }
+.pdp-board .board_title h2 .cnt { font-family: var(--en); font-size: .55em; font-weight: 600; color: var(--ink-3); vertical-align: middle; margin-left: 4px; }
+.pdp-board .ec-base-table table:not(.displaynone), .pdp-board .ec-base-table table:not(.displaynone) tbody { display: block; width: 100%; }
+.pdp-board .ec-base-table colgroup, .pdp-board .ec-base-table thead { display: none; }
+.pdp-board .ec-base-table tbody tr { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px 14px; align-items: center; padding: 18px 2px; border-bottom: 1px solid var(--line); }
+.pdp-board .ec-base-table tbody td { display: block; height: auto !important; padding: 0; border: 0; text-align: left; font-size: 12.5px; color: var(--ink-3); background: none; }
+.pdp-board .ec-base-table tbody td.RW { display: none !important; }
+.pdp-board .ec-base-table tbody td.subject { grid-column: 1 / -1; grid-row: 2; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.pdp-board .ec-base-table tbody td.subject a { color: var(--ink); }
+.pdp-board .ec-base-table tbody td.subject .comment { font-family: var(--en); font-size: 12px; color: var(--ink-3); margin-left: 4px; }
+/* 리뷰: 별점 · 작성자 · 날짜 / 제목 */
+#prdReview .ec-base-table tbody td:nth-child(6) { grid-column: 1; grid-row: 1; }
+#prdReview .ec-base-table tbody td:nth-child(6) img { height: 14px; width: auto; }
+#prdReview .ec-base-table tbody td:nth-child(3) { grid-column: 3; grid-row: 1; }
+#prdReview .ec-base-table tbody td:nth-child(4) { grid-column: 4; grid-row: 1; font-family: var(--en); }
+#prdReview .ec-base-table tbody td:nth-child(5) { display: none; }
+/* 문의: 분류 · 작성자 · 날짜 / 제목 */
+#prdQnA .ec-base-table tbody td:nth-child(2) { grid-column: 1; grid-row: 1; font-weight: 600; color: var(--ink-2); }
+#prdQnA .ec-base-table tbody td:nth-child(4) { grid-column: 3; grid-row: 1; }
+#prdQnA .ec-base-table tbody td:nth-child(5) { grid-column: 4; grid-row: 1; font-family: var(--en); }
+#prdQnA .ec-base-table tbody td:nth-child(6) { display: none; }
+.pdp-board .ec-base-table table:not(.displaynone) { border-top: 1px solid var(--ink); }
+
+/* 리뷰·문의 제목을 누르면 카페24가 그 줄 바로 아래에 본문 줄(사진, 내용, 댓글)을 끼워 넣습니다.
+   카드형 목록 규칙이 이 줄에 적용되면 사진이 원래 크기로 넘쳐 아래 영역을 덮으므로, 따로 정리합니다. */
+.pdp-board .ec-base-table tbody tr[id^="product-review-read"],
+.pdp-board .ec-base-table tbody tr[id^="product-qna-read"] { display: block; padding: 6px 2px 28px; border-bottom: 1px solid var(--line); }
+.pdp-board .ec-base-table tbody tr[id^="product-review-read"] > td,
+.pdp-board .ec-base-table tbody tr[id^="product-qna-read"] > td { display: block !important; width: auto !important; height: auto !important; min-width: 0; grid-column: auto; grid-row: auto; font-size: 14.5px; line-height: 1.75; color: var(--ink-2); }
+#prdReview .view, #prdQnA .view { position: static; z-index: auto; overflow: visible; margin: 0; padding: 0 !important; background: none; text-align: left; line-height: 1.75; color: var(--ink-2); }
+.pdp-board .view p { margin: 0 0 10px; }
+.pdp-board .view .attach { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.pdp-board .view .attach:empty { display: none; }
+.pdp-board .view img, .pdp-board .boardComment img:not([alt$="점"]) { display: block; width: auto !important; height: auto !important; max-width: min(100%, 420px) !important; max-height: 420px; object-fit: contain; }
+.pdp-board .view .ec-base-button { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin: 16px 0 0; padding: 0; }
+.pdp-board .view .ec-base-button > div { display: flex; flex-wrap: wrap; gap: 6px; float: none; }
+.pdp-board .view .btnNormal, .pdp-board .boardComment .btnNormal, .pdp-board .commentSecret .btnNormal { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 0; background: var(--white); color: var(--ink); font-size: 12px; font-weight: 500; text-decoration: none; }
+.pdp-board .view .btnNormal.displaynone { display: none !important; }
+.pdp-board .boardComment { margin: 14px 0 0; padding: 0; background: var(--white); list-style: none; }
+.pdp-board .boardComment li { padding: 14px 16px !important; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.7; }
+.pdp-board .boardComment li::before { display: none; }
+.pdp-board .boardComment .commentInfo { display: flex; gap: 10px; align-items: center; font-size: 12px; color: var(--ink-3); margin-bottom: 4px; }
+.pdp-board .boardComment .grade img { height: 12px; width: auto; display: inline-block; }
+.pdp-board .memoCont { margin: 14px 0 0 !important; padding: 0 !important; }
+.pdp-board .memoCont textarea { width: 100%; min-height: 80px; border: 1px solid var(--line-2); padding: 10px; font: inherit; font-size: 13.5px; }
+.pdp-board .memoCont .writeForm { margin: 0 !important; position: static; }
+.pdp-board .memoCont .writeForm::before { display: none; }
+.pdp-board .memoCont .ctrl { position: static !important; margin-top: 8px; line-height: normal; }
+.pdp-board .view.secret input[type="password"] { height: 36px; border: 1px solid var(--line-2); padding: 0 10px; margin-right: 6px; }
+@media (max-width: 767px) { .pdp-board .view .attach img { max-width: calc(50% - 4px) !important; max-height: 260px; object-fit: cover; } }

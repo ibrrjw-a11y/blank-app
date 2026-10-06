@@ -1,0 +1,37 @@
+<!--
+    상품 카드 (목록·메인 케어 라인 공통)
+    카페24 규칙: 반복되는 상품 칸은 똑같은 것을 두 번 적어 둡니다. 실제 개수는 $count 와 관리자 진열 설정이 정합니다.
+    향 번호(07·10·11)와 색은 상품명에 들어 있는 "No.07" 같은 글자를 /arvo/js/arvo-skin.js 가 읽어 자동으로 입힙니다.
+-->
+<li class="prd" id="anchorBoxId_{$product_no}" data-arvo-card>
+    <a class="thumb" href="{$link_product_detail}">
+        <img class="p" src="{$image_medium}" id="{$image_medium_id}" alt="{$seo_alt_tag}" loading="lazy">
+        <span class="icons">{$soldout_icon} {$new_icon} {$recommend_icon} {$product_icons}</span>
+    </a>
+    <span class="quick" title="장바구니 담기">{$basket_icon}</span>
+    <div class="info">
+        <div class="row1"><span class="num" data-arvo-no></span><span class="en-name" data-arvo-en></span></div>
+        <a class="kr" href="{$link_product_detail}" data-arvo-name>{$product_name}</a>
+        <p class="summary">{$summary_desc}</p>
+        <div class="meta">
+            <span class="price {$product_price_display|display} {$product_sale_strike}">{$disp_product_price}</span>
+            <span class="price sale {$product_sale_display|display}">{$product_sale_price}</span>
+        </div>
+    </div>
+</li>
+<li class="prd" id="anchorBoxId_{$product_no}" data-arvo-card>
+    <a class="thumb" href="{$link_product_detail}">
+        <img class="p" src="{$image_medium}" id="{$image_medium_id}" alt="{$seo_alt_tag}" loading="lazy">
+        <span class="icons">{$soldout_icon} {$new_icon} {$recommend_icon} {$product_icons}</span>
+    </a>
+    <span class="quick" title="장바구니 담기">{$basket_icon}</span>
+    <div class="info">
+        <div class="row1"><span class="num" data-arvo-no></span><span class="en-name" data-arvo-en></span></div>
+        <a class="kr" href="{$link_product_detail}" data-arvo-name>{$product_name}</a>
+        <p class="summary">{$summary_desc}</p>
+        <div class="meta">
+            <span class="price {$product_price_display|display} {$product_sale_strike}">{$disp_product_price}</span>
+            <span class="price sale {$product_sale_display|display}">{$product_sale_price}</span>
+        </div>
+    </div>
+</li>

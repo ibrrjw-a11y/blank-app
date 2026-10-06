@@ -1,0 +1,68 @@
+<!--
+    Árvo 꼬리말 (모든 화면 공통)
+    - 상호, 대표자, 사업자등록번호, 통신판매업 신고번호, 주소, 전화, 개인정보보호책임자는
+      관리자 > 쇼핑몰 설정 > 기본 설정 > 내 쇼핑몰 정보에 입력한 값이 자동으로 표시됩니다. (법적 필수 표시 항목)
+    - 고객센터 운영시간·이메일은 관리자 > 쇼핑몰 설정 > 고객센터 정보에서 바꿉니다.
+-->
+<footer class="site-footer" id="arvoFooter">
+    <div module="Layout_footer">
+        <div class="arvo-wrap top">
+            <div>
+                <img class="logo" src="/arvo/img/logo-white.webp" alt="Árvo" width="1000" height="385" loading="lazy">
+                <p class="slogan">Wear your mood on your hair.</p>
+            </div>
+            <div module="Layout_Info">
+                <h4>Customer</h4>
+                <p class="cs-tel">{$phone}</p>
+                <ul>
+                    <li>{$runtime}</li>
+                    <li>{$inquiry_email}</li>
+                </ul>
+            </div>
+            <div>
+                <h4>Shop</h4>
+                <div module="Layout_category">
+                    <ul>
+                        <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+                        <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <h4>Árvo</h4>
+                <ul>
+                    <li><a href="/brand/story.html">브랜드 이야기</a></li>
+                    <li><a href="https://www.instagram.com/arvo.official/" target="_blank" rel="noopener">Instagram</a></li>
+                    <li><a href="/myshop/order/list.html">주문 조회</a></li>
+                </ul>
+                <div module="Layout_BoardInfo" class="boards">
+                    <ul>
+                        <li><a href="{$link_board_list}">{$board_name}</a></li>
+                        <li><a href="{$link_board_list}">{$board_name}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="arvo-wrap legal">
+            <div class="links">
+                <a href="/shopinfo/company.html">회사소개</a>
+                <a href="/member/mall_agreement.html">이용약관</a>
+                <a href="/member/privacy.html"><b>개인정보처리방침</b></a>
+                <a href="/shopinfo/guide.html">이용안내</a>
+            </div>
+            <p class="biz">
+                <span>상호 {$company_name}</span>
+                <span>대표 {$president_name}</span>
+                <span>주소 {$mall_zipcode} {$mall_addr1} {$mall_addr2}</span>
+                <span>전화 {$phone}</span>
+                <span>사업자등록번호 {$company_regno}</span>
+                <span>통신판매업 신고 {$network_regno} {$biz_no_link}</span>
+                <span>개인정보보호책임자 {$cpo_name}</span>
+            </p>
+            <!-- 구매안전서비스 안내: 가입한 PG사의 '서비스 가입 확인' 주소가 있으면 href 에 넣어 주세요. -->
+            <p class="escrow">고객님은 안전거래를 위해 현금 등으로 결제 시 저희 쇼핑몰에서 가입한 구매안전서비스를 이용하실 수 있습니다.</p>
+            <p class="copy">Copyright © {$mall_name}. All rights reserved. Hosting by Cafe24 Corp.</p>
+        </div>
+    </div>
+</footer>

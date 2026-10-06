@@ -1,0 +1,97 @@
+<!--@layout(/arvo/layout.html)-->
+<!--@js(/js/module/product/normalmenu.js)-->
+<!--
+    Árvo 상품 목록 (카테고리 화면)
+    - 위쪽 탭: 관리자 상품 분류의 대분류가 자동으로 나옵니다. 지금 보고 있는 분류에 밑줄이 그어집니다.
+    - 향 칩(07·10·11): 상품명에 "No.07" 처럼 번호가 들어 있으면 이 화면 안에서 바로 걸러 줍니다.
+    - 정렬, 개수, 페이지 번호는 카페24 기본 기능 그대로입니다.
+-->
+<div class="wrap page-head">
+    <nav class="crumbs" module="product_headcategory" aria-label="현재 위치">
+        <a href="/">홈</a>
+        <span class="{$disp_cate_1|display}"><i>/</i><a href="{$link_product_list_1}">{$name_1}</a></span>
+        <span class="{$disp_cate_2|display}"><i>/</i><a href="{$link_product_list_2}">{$name_2}</a></span>
+        <span class="{$disp_cate_3|display}"><i>/</i><a href="{$link_product_list_3}">{$name_3}</a></span>
+        <span class="{$disp_cate_4|display}"><i>/</i><a href="{$link_product_list_4}">{$name_4}</a></span>
+    </nav>
+    <div module="product_headcategory">
+        <h1 data-arvo-cate-title>{$title_text_or_image}</h1>
+    </div>
+    <p data-arvo-cate-desc></p>
+    <div module="product_headcategory" class="top-image">{$top_image1_tag}</div>
+</div>
+
+<div class="filters">
+    <div class="wrap row">
+        <nav class="tabs" module="Layout_category" aria-label="분류">
+            <ul>
+                <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+                <li><a href="{$link_product_list}">{$name_or_img_tag}</a></li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div module="product_normalpackage">
+    <div class="wrap">
+        <div class="toolbar">
+            <div class="scent-chips" role="group" aria-label="향으로 거르기" data-arvo-chips>
+                <button type="button" data-scent-filter="07" data-scent="07" aria-pressed="false"><i></i>07 플로럴 선샤인</button>
+                <button type="button" data-scent-filter="10" data-scent="10" aria-pressed="false"><i></i>10 블룸 오브 샤론</button>
+                <button type="button" data-scent-filter="11" data-scent="11" aria-pressed="false"><i></i>11 포레스트 포그</button>
+            </div>
+            <div module="product_normalmenu" class="sort">
+                <!--
+                    $compare_page = /product/compare.html
+                -->
+                <p class="list-count">상품 <span data-arvo-count>{$total_count}</span>개</p>
+                <label class="sr-only" for="selArray">정렬</label>
+                <select id="selArray" name="selArray" module="product_Orderby">
+                    <option value="">정렬</option>
+                    <option value="{$param}">{$sort_name}</option>
+                    <option value="{$param}">{$sort_name}</option>
+                </select>
+            </div>
+        </div>
+
+        <div module="product_listnormal" class="arvo-list" data-arvo-list="grid">
+            <!--
+                $count = 40
+                $moreview = no
+                $cache = yes
+                $basket_result = /product/add_basket.html
+                $basket_option = /product/basket_option.html
+            -->
+            <ul class="prd-grid cols-4">
+                <!--@import(/arvo/inc/prd-card.html)-->
+            </ul>
+        </div>
+        <p class="empty" data-arvo-empty hidden>이 향의 상품이 이 분류에는 없습니다. <button type="button" class="link-arrow" data-scent-filter="">전체 보기</button></p>
+
+        <div module="product_normalpaging" class="paging">
+            <a href="{$param_before}" class="prev">이전</a>
+            <ol>
+                <li><a href="{$param}" class="{$param_class}">{$no}</a></li>
+                <li><a href="{$param}" class="{$param_class}">{$no}</a></li>
+                <li><a href="{$param}" class="{$param_class}">{$no}</a></li>
+                <li><a href="{$param}" class="{$param_class}">{$no}</a></li>
+                <li><a href="{$param}" class="{$param_class}">{$no}</a></li>
+            </ol>
+            <a href="{$param_next}" class="next">다음</a>
+        </div>
+    </div>
+</div>
+
+<section class="section list-cta">
+    <div class="wrap">
+        <div class="sec-head split">
+            <div><p class="label muted">20ml</p><h2>내 번호를 모르겠다면</h2></div>
+            <p>20ml로 세 가지 향을 먼저 맡아 보세요. 마음에 드는 번호를 찾으면 50ml로.</p>
+        </div>
+        <div class="compare">
+            <a data-scent="07" href="/product/detail.html?product_no=21"><span class="num">07</span><span class="en-name">Floral Sunshine</span><p>햇살 아래 은방울꽃. 밝고 화사한 하루.</p></a>
+            <a data-scent="10" href="/product/detail.html?product_no=28"><span class="num">10</span><span class="en-name">Bloom of Sharon</span><p>무궁화로 시작해 자스민과 베리로.</p></a>
+            <a data-scent="11" href="/product/detail.html?product_no=22"><span class="num">11</span><span class="en-name">Forest Fog</span><p>안개 낀 숲, 베르가못과 샌달우드.</p></a>
+        </div>
+    </div>
+</section>

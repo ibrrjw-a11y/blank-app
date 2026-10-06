@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <!--
+        Árvo 전용 레이아웃
+        메인(/index.html), 상품 목록(/product/list.html), 상품 상세(/product/detail.html),
+        브랜드 이야기(/brand/story.html)가 이 레이아웃을 씁니다.
+        장바구니·주문·회원 같은 나머지 화면은 /layout/basic/layout.html 을 씁니다.
+    -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- PG크로스브라우징필수내용 -->
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <!-- // PG크로스브라우징필수내용 -->
+
+    <title></title>
+    <meta name="theme-color" content="#F5F4F0">
+
+    <!-- 카페24 기본 CSS: 옵션·장바구니 레이어·게시판 모양에 필요합니다. 지우지 마세요. -->
+    <!--@css(/layout/basic/css/common.css)-->
+    <!--@css(/layout/basic/css/ec-base-ui.css)-->
+    <!--@css(/layout/basic/css/ec-base-button.css)-->
+    <!--@css(/layout/basic/css/ec-base-tab.css)-->
+    <!--@css(/layout/basic/css/ec-base-table.css)-->
+    <!--@css(/layout/basic/css/ec-base-tooltip.css)-->
+    <!--@css(/layout/basic/css/ec-base-help.css)-->
+    <!--@css(/layout/basic/css/ec-base-fold.css)-->
+    <!--@css(/layout/basic/css/ec-base-box.css)-->
+    <!--@css(/layout/basic/css/ec-base-desc.css)-->
+    <!--@css(/layout/basic/css/ec-base-product.css)-->
+    <!--@css(/layout/basic/css/ec-base-prdInfo.css)-->
+    <!--@css(/layout/basic/css/ec-base-paginate.css)-->
+    <!--@css(/layout/basic/css/ec-base-layer.css)-->
+
+    <!-- 글꼴: 한글 Pretendard, 영문 Montserrat, 숫자 Playfair Display -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap">
+
+    <!-- Árvo 스타일 (순서 유지: 토큰·헤더/푸터 → 페이지 → 카페24 모듈 덮어쓰기) -->
+    <!--@css(/arvo/css/arvo-chrome.css)-->
+    <!--@css(/arvo/css/arvo-page.css)-->
+    <!--@css(/arvo/css/arvo-cafe24.css)-->
+
+    <!--@css(/layout/basic/css/swiper.min.css)-->
+    <!--@js(/layout/basic/js/swiper-bundle.min.js)-->
+    <!--@js(/js/module/product/sale_price.js)-->
+    <!--@js(/layout/basic/js/basic.js)-->
+    <!--@js(/js/common.js)-->
+    <!--@js(/arvo/js/arvo-skin.js)-->
+    <!--@js(/arvo/js/arvo-motion.js)-->
+</head>
+<body id="arvo" class="arvo">
+<a class="skip" href="#contents">본문 바로가기</a>
+<div id="wrap">
+<!--@import(/arvo/inc/header.html)-->
+<main id="contents" class="arvo-main">
+<!--@contents-->
+</main>
+<!--@import(/arvo/inc/footer.html)-->
+</div><!-- //wrap -->
+
+<!-- 아래는 카페24 결제·배송 기능에 필요한 영역입니다. 지우지 마세요. -->
+<div id="progressPaybar" style="display:none;">
+    <div id="progressPaybarBackground" class="layerProgress"></div>
+    <div id="progressPaybarView">
+        <div class="box">
+            <h3>현재 결제가 진행중입니다.</h3>
+            <p class="txt">
+                본 결제 창은 결제완료 후 자동으로 닫히며, 결제 진행 중에 본 결제 창을 닫으시면<br>
+                주문이 되지 않으니 결제 완료 될 때 까지 닫지 마시기 바랍니다.
+            </p>
+            <div class="progressbar"><img src="//img.echosting.cafe24.com/skin/skin/common/img_loading.gif" alt="loading"></div>
+        </div>
+    </div>
+</div>
+
+<div module="Layout_multishopShipping">
+    <!--@css(/css/module/layout/multishopShipping.css)-->
+    <!--@js(/js/module/layout/multishopShipping.js)-->
+    <div class="worldshipLayer ec-base-layer typeModal">
+        <div class="header">
+            <h3>WORLD SHIPPING</h3>
+        </div>
+        <div class="content">
+            <p class="desc">PLEASE SELECT THE DESTINATION COUNTRY AND LANGUAGE :</p>
+            <select module="Layout_multishopShippingCountrylist">
+                <option value="{$country_code}" {$country_default_selected}>SHIPPING TO : {$country_name}</option>
+                <option value="{$country_code}" {$country_default_selected}>SHIPPING TO : {$country_name}</option>
+            </select>
+            <select module="Layout_multishopShippingLanguagelist">
+                <option value="{$shop_domain}" {$shop_default_selected}>LANGUAGE : {$shop_language_name}</option>
+                <option value="{$shop_domain}" {$shop_default_selected}>LANGUAGE : {$shop_language_name}</option>
+            </select>
+        </div>
+        <div class="ec-base-button">
+            <a href="#none" class="btnSubmitFix sizeM">GO</a>
+        </div>
+        <a href="#none" class="btnClose">닫기</a>
+    </div>
+</div>
+
+<div class="layer_shadow" id="layer_shadow"></div>
+<div id="layoutDimmed" class="dimmed"></div>
+</body>
+</html>
