@@ -1713,3 +1713,6 @@ body {
 .cab--timeline .sc-card em { font-size: 11px; }
 .cab--timeline .sc-time__line { top: auto; bottom: 18%; height: 6px; background: repeating-linear-gradient(90deg, var(--brand) 0 2px, transparent 2px 22px), var(--art-bezel-edge); }
 .cab--timeline .sc-time__ok { top: calc(50% - 130px); }
+
+/* 줌아웃 정답 사진 (Pixabay) */
+.zoom-reveal__photo { width: 96px; height: 96px; flex: none; object-fit: cover; border-radius: var(--r-12); box-shadow: var(--shadow-s); }

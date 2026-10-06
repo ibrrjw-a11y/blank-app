@@ -2,6 +2,7 @@
 import { $, shuffle, prefersReducedMotion, haptic } from "../../shared/kit.js";
 import { pickDaily, dailyRand, norm, esc, shake, pop, token, EMOJI_FONT } from "../core.js";
 import { ZOOM_POOL } from "../data/zoom.js";
+import { PHOTOS, PHOTO_DIR } from "../data/zoom-photos.js";
 
 const MAX = 6;
 // 이모지 크기 대비 보이는 창 크기 (단계별)
@@ -19,9 +20,18 @@ function isAnswer(guess, p) {
   return p.answers.some((a) => variants.includes(norm(a)));
 }
 
-function render(off) {
+// 오늘 문제의 Pixabay 사진(사람이 확인한 것만). 없으면 이모지로 그린다
+const photoOf = (p) => PHOTOS[p.name] || null;
+
+function render(off, img) {
   const ctx = off.getContext("2d", { willReadFrequently: true });
   ctx.clearRect(0, 0, OFF, OFF);
+  if (img) {
+    // 사진은 가운데를 정사각형으로 꽉 채워 그린다
+    const s = Math.min(img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, OFF, OFF);
+    return ctx.getImageData(0, 0, OFF, OFF).data;
+  }
   ctx.font = `${FONT_PX}px ${EMOJI_FONT}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -129,13 +139,15 @@ export default {
   reveal(s) {
     const p = puzzle();
     const others = p.answers.slice(1, 4);
+    const ph = photoOf(p);
     return `<div class="zoom-reveal">
-      <span class="zoom-reveal__emoji">${p.emoji}</span>
+      ${ph ? `<img class="zoom-reveal__photo" src="${PHOTO_DIR}${ph.f}" alt="${esc(p.name)}" width="96" height="96">` : `<span class="zoom-reveal__emoji">${p.emoji}</span>`}
       <div class="stack gap-4">
         <span class="t-caption-01 t-tertiary">오늘의 사물</span>
         <b class="t-title-02" >${esc(p.name)}</b>
         ${others.length ? `<span class="t-body-03 t-secondary">${esc(others.join(", "))}도 정답으로 인정해요</span>` : ""}
         ${s.usedChoices ? `<span class="t-caption-01 t-tertiary">보기 힌트를 썼어요</span>` : ""}
+        ${ph ? `<a class="t-caption-01 t-tertiary" href="${esc(ph.page)}" target="_blank" rel="noopener">사진: ${esc(ph.by)} · Pixabay</a>` : ""}
       </div>
     </div>`;
   },
@@ -164,7 +176,9 @@ export default {
     const ctx = canvas.getContext("2d");
     const off = document.createElement("canvas");
     off.width = off.height = OFF;
-    const geo = analyse(render(off));
+    const ph = photoOf(p);
+    // 사진이 있으면 다 받기 전까지는 빈 화면(이모지가 잠깐 보여 정답이 새지 않게)
+    let geo = ph ? { size: OFF, cx: OFF / 2, cy: OFF / 2, px: OFF / 2, py: OFF / 2 } : analyse(render(off));
     const bg = token("--art-crt") || "#0b100c";
     let view = null;
     let raf = 0;
@@ -175,10 +189,12 @@ export default {
       canvas.width = Math.round(r.width * dpr);
       canvas.height = Math.round(r.height * dpr);
     }
+    let ready = !ph;
     function draw(v) {
       const W = canvas.width;
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, W);
+      if (!ready) return;
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
       const sx = v.x - v.w / 2;
@@ -354,6 +370,26 @@ export default {
     view = viewFor(stage(), geo);
     draw(view);
     hud();
+    if (ph) {
+      const img = new Image();
+      img.decoding = "async";
+      img.onload = () => {
+        geo = analyse(render(off, img));
+        ready = true;
+        view = viewFor(stage(), geo);
+        draw(view);
+        hud();
+      };
+      img.onerror = () => {
+        // 사진을 못 받으면 원래 이모지로
+        geo = analyse(render(off));
+        ready = true;
+        view = viewFor(stage(), geo);
+        draw(view);
+        hud();
+      };
+      img.src = PHOTO_DIR + ph.f;
+    }
     hints();
     log();
     if (s.done) finishUI();
