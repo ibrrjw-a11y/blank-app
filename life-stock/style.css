@@ -977,3 +977,15 @@ select.input {
   100% { opacity: 1; clip-path: inset(0 0 0 0); background-size: 0% 100%; }
 }
 .wl + .site-footer { padding-top: var(--sp-16); }
+
+/* ---------- 생활 속 나 · M&A 생활 장면 (2026-10-06) ---------- */
+.life { display: grid; gap: var(--sp-10); margin: var(--sp-8) 0 var(--sp-16); }
+.life__b { padding: var(--sp-12) var(--sp-14, 14px); border-radius: var(--r-12); background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-border); }
+.life__b b { display: block; font: var(--label-01); color: var(--art-amber, var(--color-warning)); margin-bottom: var(--sp-6); }
+.life__b ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--sp-6); }
+.life__b li { font: var(--body-03); line-height: 1.55; }
+.ma__rel { display: flex; gap: var(--sp-8); margin: var(--sp-12) 0 var(--sp-8); }
+.ma__band { margin: 0 0 var(--sp-8); font: var(--body-02-strong); }
+.ma__h3 { margin: var(--sp-16) 0 var(--sp-8); font: var(--label-01); color: var(--color-text-secondary); }
+.ma__scene { margin: 0; padding-left: 1.1em; display: grid; gap: var(--sp-8); }
+.ma__scene li { font: var(--body-03); line-height: 1.55; }

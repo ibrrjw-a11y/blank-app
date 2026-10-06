@@ -22,10 +22,13 @@ import {
   CANVAS_FONT,
   countUp,
   prefersReducedMotion,
+  hashString,
 } from "../shared/kit.js";
 import * as E from "./engine.js";
 import { flap, odometer, kinetic, tween, springEase, wait } from "./fx.js";
 import { createLineChart, createCandleChart, sparkline, palette, alpha } from "./chart.js";
+import { SAJU_LIFE, SAJU_TITLE, SAJU_REL, SAJU_H, SAJU_L } from "./saju_life.js";   // 2026-10-06 생활 풀이(짐작과 진짜와 같은 문장)
+import { RELS, BANK, FILL, BAND, fill as fillLine } from "./ma_bank.js";            // 2026-10-06 M&A 궁합 생활 장면
 
 const store = createStore("life-stock");
 const TODAY = E.todayYmd();
@@ -762,6 +765,34 @@ function renderCandles(ci) {
   candleChart.set({ candles: cs, highlight: ti, height: 190 });
 }
 
+/* ---------- 생활 속 나 (2026-10-06) ----------
+ * 사주 여덟 글자의 오행 개수를 십신 다섯 묶음(비겁·식상·재성·관성·인성) 비율로 바꾸고, 많음(30%↑)/적음(10%↓)/보통으로 나눠
+ * 짐작과 진짜와 같은 문장 은행에서 영역마다 관련 깊은 묶음 순서로 한 줄씩 고른다. 같은 사람은 늘 같은 문장 */
+const GROUPS = ["비겁", "식상", "재성", "관성", "인성"];
+function lifeLines() {
+  const g = [0, 0, 0, 0, 0];
+  P.counts.forEach((c, el) => (g[P.rel(el)] += c));
+  const tot = g.reduce((a, b) => a + b, 0) || 1;
+  const lv = {};
+  GROUPS.forEach((k, i) => (lv[k] = g[i] / tot >= SAJU_H ? "H" : g[i] / tot < SAJU_L ? "L" : "M"));
+  const seed = hashString(`${P.code}:life`);
+  return Object.keys(SAJU_TITLE).map((area, ai) => ({
+    area,
+    lines: SAJU_REL[area]
+      .map((grp, gi) => {
+        const o = SAJU_LIFE[area]?.[grp]?.[lv[grp]];
+        const pool = o ? [].concat(o.soft || [], o.hard || []).filter(Boolean) : [];
+        return pool.length ? pool[(seed + ai * 7 + gi * 3) % pool.length] : null;
+      })
+      .filter(Boolean),
+  }));
+}
+function lifeHTML() {
+  const L = lifeLines();
+  return `<h3>생활 속 ${esc(P.name)} <span class="t-label-03 t-tertiary">· 이거 완전 나</span></h3>
+    <div class="life">${L.map((b) => `<div class="life__b"><b>${SAJU_TITLE[b.area]}</b><ul>${b.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul></div>`).join("")}</div>`;
+}
+
 /* ---------- 애널리스트 리포트 ---------- */
 function renderReport() {
   const C = palette();
@@ -818,6 +849,7 @@ function renderReport() {
   )}</div></div>
       <div><div class="opinion__k">현재주가</div><div class="opinion__v t-num">${won(R.nowPrice)}</div><div class="opinion__s t-num">${TODAY.m}/${TODAY.d} 종가</div></div>
     </div>
+    ${lifeHTML()}
     <h3>투자포인트</h3>
     <ol class="points">${R.points.map((p) => `<li><b>${p.title}</b><p>${p.body}</p></li>`).join("")}</ol>
     <h3>리스크 요인</h3>
@@ -940,6 +972,28 @@ async function sendMA() {
   if (r === "shared") toast("제안서를 보냈어요");
 }
 
+/* M&A 궁합 생활 장면 (2026-10-06): 두 사람 일간 오행 관계(같음 / 살려 줌 / 다잡음)와 부족한 기운 채움을 연인·친구·동료 장면으로 */
+function maScenesHTML(B, M) {
+  const rel = RELS[store.get("maRel", "love")] ? store.get("maRel", "love") : "love";
+  const d = (((B.dmEl - P.dmEl) % 5) + 5) % 5;   // 0 같음, 1 내가 살려 줌, 4 상대가 살려 줌, 2 내가 다잡음, 3 상대가 다잡음
+  const [type, X, Y] = d === 0 ? ["same", P.name, B.name] : d === 1 ? ["gen", P.name, B.name] : d === 4 ? ["gen", B.name, P.name] : d === 2 ? ["ctrl", P.name, B.name] : ["ctrl", B.name, P.name];
+  const pool = BANK[rel][type];
+  const seed = hashString(`${P.code}|${B.name}|${B.y}${B.m}${B.d}`);
+  const picks = [0, 1, 2].map((k) => pool[(seed + k) % pool.length]).filter((v, i, a) => a.indexOf(v) === i);
+  const fills = M.fills.slice(0, 2).map((f) => {
+    const [lack, give] = f.to === "A" ? [P.name, B.name] : [B.name, P.name];
+    return FILL[f.el]?.[rel] ? fillLine(FILL[f.el][rel], lack, give) : null;
+  }).filter(Boolean);
+  const bi = M.synergy >= 25 ? 0 : M.synergy >= 10 ? 1 : M.synergy >= -5 ? 2 : 3;
+  const lines = [...picks.map((l) => fillLine(l, X, Y)), ...fills];
+  return `<div class="ma__rel" role="group" aria-label="어떤 사이인가요">${Object.entries(RELS)
+    .map(([k, v]) => `<button type="button" class="chip" data-marel="${k}" aria-pressed="${k === rel}">${v}</button>`)
+    .join("")}</div>
+    <p class="ma__band">${esc(BAND[rel][bi])}</p>
+    <h3 class="ma__h3">${RELS[rel]}로 같이 있으면</h3>
+    <ul class="ma__scene">${lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>`;
+}
+
 let maChart;
 function renderMA() {
   const el = $("#sec-ma");
@@ -993,6 +1047,8 @@ function renderMA() {
     <div class="legend"><span><i class="lg-up"></i>${esc(P.name)}</span><span><i class="lg-amber"></i>${esc(
       B.name
     )}</span><span>${from}년=100 기준</span></div>
+    ${maScenesHTML(B, M)}
+    <h3 class="ma__h3">숫자로 보면</h3>
     <ul class="ma__why">${why.map((w) => `<li>${w}</li>`).join("")}</ul>
     <p class="note">시너지 = 사이클 상관(${M.corr.toFixed(2)}) + 일간 상생(${M.mutual.toFixed(2)}) + 오행 보완(${Math.round(
       M.comp * 100
@@ -1015,6 +1071,7 @@ function renderMA() {
         B.name
       )} ${nb[i].toFixed(0)}</span>`,
   });
+  $$("[data-marel]").forEach((b) => b.addEventListener("click", () => { store.set("maRel", b.dataset.marel); renderMA(); }));
   $("#maSend").addEventListener("click", sendMA);
   $("#maClear").addEventListener("click", () => {
     partner = null;
