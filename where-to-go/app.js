@@ -511,8 +511,16 @@ async function prepareStage() {
 }
 
 /* ---------- 공통 조각 ---------- */
+// 실제 가게의 종류 표시: "일식 · 초밥,롤" (큰 분류와 세부가 같으면 하나만)
+// 세부 칸이 가게 이름에 들어 있으면 체인 이름(강다짐·해장쿡)이라 큰 분류만
+const kindOf = (it) => {
+  const g = it.g || "";
+  const c = it.c || "";
+  if (!c || c === g || c.includes(g) || (it.n || "").replace(/\s/g, "").includes(c.replace(/\s/g, ""))) return g || c;
+  return `${g} · ${c}`;
+};
 function subLine(it) {
-  if (it.kind === "place") return `${it.c}${it.dist != null ? ` · ${fmtDist(it.dist)}` : ""}`;
+  if (it.kind === "place") return `${kindOf(it)}${it.dist != null ? ` · ${fmtDist(it.dist)}` : ""}`;
   if (it.kind === "menu") return `${PRICE_LABEL[it.p] || ""} · ${(it.t || []).slice(0, 2).join("·")}`;
   return (it.t || []).slice(0, 2).join(" · ");
 }
@@ -630,7 +638,7 @@ const FALL = "cubic-bezier(0.55, 0, 1, 0.45)";
 function mcardHTML(it, side) {
   const phone = G.vote === "phone";
   let cat;
-  if (it.kind === "place") cat = `${it.c}${it.dist != null ? ` · ${fmtDist(it.dist)}` : ""}`;
+  if (it.kind === "place") cat = `${kindOf(it)}${it.dist != null ? ` · ${fmtDist(it.dist)}` : ""}`;
   else if (it.kind === "menu") cat = `${it.g} · ${PRICE_LABEL[it.p] || ""}`;
   else cat = it.kind === "cafe" ? "카페" : "놀거리";
   const bar = it.kind === "place" && it.dist != null ? `도보 약 ${walkMin(it.dist)}분 (직선)` : (it.t || []).slice(0, 3).join(" · ") || cat;
@@ -913,7 +921,7 @@ function courseHTML(wins, near, kinds) {
       .map((w, i) => {
         const L = mapLinks(w, near);
         return `<li style="--l: var(--art-${STAGE[kinds[i]].l})"><span class="course__dot" aria-hidden="true"></span><div class="course__body">
-          <div class="course__k">${i + 1}코스 · ${STAGE[kinds[i]].n}${w.kind === "place" ? ` · ${esc(w.c)}` : ""}</div>
+          <div class="course__k">${i + 1}코스 · ${STAGE[kinds[i]].n}${w.kind === "place" ? ` · ${esc(kindOf(w))}` : ""}</div>
           <div class="course__n">${esc(w.n)}</div>
           <div class="course__links">
             <a class="btn btn--outline btn--sm" href="${L.kakao}" target="_blank" rel="noopener">카카오맵</a>
@@ -952,7 +960,7 @@ function renderResult() {
       ? `${near ? `${esc(near)} 근처에서 만나요` : "오늘 모임은 여기로!"}`
       : `${near ? `${esc(near)} 근처 · ` : ""}오늘 점심은 이걸로!`;
   const badges = [
-    w.kind === "place" ? w.c : w.g,
+    w.kind === "place" ? kindOf(w) : w.g,
     w.kind === "place" && w.dist != null ? `${fmtDist(w.dist)} (직선)` : null,
     w.kind === "menu" ? PRICE_LABEL[w.p] : null,
     G.vote === "phone" ? "다같이 투표" : G.vote === "link" && !guest ? "링크 투표 합산" : null,
@@ -1010,7 +1018,7 @@ async function loadNearbyFor(w) {
         const L = mapLinks(p);
         return `<a class="place" href="${p.url || L.route || L.kakao}" target="_blank" rel="noopener">
           <span class="place__e">${p.e}</span>
-          <span class="place__t"><span class="place__n">${esc(p.n)}</span><span class="place__s">${esc(p.c)}${p.dist != null ? ` · ${fmtDist(p.dist)} (직선)` : ""}</span></span>
+          <span class="place__t"><span class="place__n">${esc(p.n)}</span><span class="place__s">${esc(kindOf(p))}${p.dist != null ? ` · ${fmtDist(p.dist)} (직선)` : ""}</span></span>
           <span class="place__go">${p.url ? "상세" : "길찾기"} ›</span></a>`;
       })
       .join("")}</div>`;

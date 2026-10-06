@@ -155,8 +155,9 @@ function kakaoCall(kakao, method, arg, opts, pages = 2) {
 
 function kakaoToItem(d) {
   const parts = String(d.category_name || "").split(">").map((s) => s.trim());
+  // 카카오 분류: "음식점 > 일식 > 초밥,롤 > (체인 이름)". 맨 끝은 체인 이름일 때가 많아(육대장·로띠번) 세 번째 칸까지만 씀(2026-10-06)
   const g = parts[1] || parts[0] || "음식점";
-  const c = parts[parts.length - 1] || g;
+  const c = parts[2] || g;
   return {
     key: `kakao-${d.id}`,
     kind: "place",
