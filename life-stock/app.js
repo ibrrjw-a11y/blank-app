@@ -28,7 +28,8 @@ import * as E from "./engine.js";
 import { flap, odometer, kinetic, tween, springEase, wait } from "./fx.js";
 import { createLineChart, createCandleChart, sparkline, palette, alpha } from "./chart.js";
 import { SAJU_LIFE, SAJU_TITLE, SAJU_REL, SAJU_H, SAJU_L } from "./saju_life.js";   // 2026-10-06 생활 풀이(짐작과 진짜와 같은 문장)
-import { RELS, BANK, FILL, BAND, fill as fillLine } from "./ma_bank.js";            // 2026-10-06 M&A 궁합 생활 장면
+import { RELS, BANK, FILL, BAND, fill as fillLine } from "./ma_bank.js";
+import { readMe, readPair, readingHTML } from "./reading.js";   // 2026-10-06 결과 해석(왜 → 지금 → 그래서)            // 2026-10-06 M&A 궁합 생활 장면
 
 const store = createStore("life-stock");
 const TODAY = E.todayYmd();
@@ -849,6 +850,8 @@ function renderReport() {
   )}</div></div>
       <div><div class="opinion__k">현재주가</div><div class="opinion__v t-num">${won(R.nowPrice)}</div><div class="opinion__s t-num">${TODAY.m}/${TODAY.d} 종가</div></div>
     </div>
+    <h3>한눈에 해석 <span class="t-label-03 t-tertiary">· 왜 이렇게 나왔고, 그래서 어떻게</span></h3>
+    <div class="rd">${readingHTML(readMe(P, R, TODAY), esc)}</div>
     ${lifeHTML()}
     <h3>투자포인트</h3>
     <ol class="points">${R.points.map((p) => `<li><b>${p.title}</b><p>${p.body}</p></li>`).join("")}</ol>
@@ -990,6 +993,7 @@ function maScenesHTML(B, M) {
     .map(([k, v]) => `<button type="button" class="chip" data-marel="${k}" aria-pressed="${k === rel}">${v}</button>`)
     .join("")}</div>
     <p class="ma__band">${esc(BAND[rel][bi])}</p>
+    <div class="rd">${readingHTML(readPair(P, B, M, rel, TODAY), esc)}</div>
     <h3 class="ma__h3">${RELS[rel]}로 같이 있으면</h3>
     <ul class="ma__scene">${lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>`;
 }

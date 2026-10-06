@@ -989,3 +989,10 @@ select.input {
 .ma__h3 { margin: var(--sp-16) 0 var(--sp-8); font: var(--label-01); color: var(--color-text-secondary); }
 .ma__scene { margin: 0; padding-left: 1.1em; display: grid; gap: var(--sp-8); }
 .ma__scene li { font: var(--body-03); line-height: 1.55; }
+/* 결과 해석(왜 → 지금 → 그래서) */
+.rd { display: grid; gap: var(--sp-12); margin: var(--sp-8) 0 var(--sp-16); }
+.rd__p { padding: var(--sp-14, 14px) var(--sp-16); border-radius: var(--r-12); background: var(--color-surface); box-shadow: inset 0 0 0 1px var(--color-border); }
+.rd__p h4 { margin: 0 0 var(--sp-6); font: var(--label-01); color: var(--art-amber, var(--color-warning)); }
+.rd__p p { margin: 0; font: var(--body-03); line-height: 1.65; }
+.rd__p ul { margin: 0; padding-left: 1.1em; display: grid; gap: var(--sp-6); font: var(--body-03); line-height: 1.6; }
+.rd__note { margin: var(--sp-10) 0 0 !important; font: var(--caption-01) !important; color: var(--color-text-tertiary); }
