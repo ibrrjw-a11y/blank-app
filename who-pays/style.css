@@ -1267,7 +1267,7 @@ body.is-playing .site-footer { display: none; }
 }
 
 .gantry__word {
-  font: 400 32px/1 var(--art-font-num);
+  font: 400 clamp(24px, 8.2vw, 32px)/1 var(--art-font-num);
   letter-spacing: 0.05em;
   transform: skewX(var(--art-skew));
 }
@@ -1275,7 +1275,9 @@ body.is-playing .site-footer { display: none; }
 .gantry__label {
   margin-left: auto;
   min-width: 0;
-  font: 800 17px/1.15 var(--font-display);
+  font: 800 clamp(14px, 4.8vw, 21px)/1.15 var(--font-display);   /* 17→최대 21px, 좁은 폰에선 줄여서 한 줄(사용성 2026-10-06) */
+  white-space: nowrap;
+  padding-right: 14px;   /* 오른쪽 체크무늬에 안 가리게 */
   text-align: right;
   transform: skewX(var(--art-skew));
 }

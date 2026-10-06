@@ -173,7 +173,7 @@ body {
 
 .coin-slot:active { transform: scale(0.95, 0.9); transition-duration: var(--dur-fast); }
 
-.coin-slot__text { font: 400 15px/1.15 var(--font-display); }
+.coin-slot__text { font: 400 clamp(15px, 4.4vw, 17px)/1.15 var(--font-display); word-break: keep-all; }   /* 15→17px(사용성 2026-10-06) */
 
 .coin-slot__hole {
   position: relative;
