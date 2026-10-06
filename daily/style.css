@@ -61,6 +61,25 @@ body {
 @keyframes stamp { 0% { transform: scale(2.4) rotate(-20deg); } 70% { transform: scale(0.9) rotate(4deg); } 100% { transform: rotate(-6deg); } }
 .today__note { font: 400 12.5px/18px var(--font-sans); color: var(--ink-3); margin: var(--sp-8) 0 0; }
 
+/* 연속 기록 · 지난 면 보관함 (10-06) */
+.streak { margin: var(--sp-8) 0 0; font: 600 13px/20px var(--font-sans); color: var(--ink-2); }
+.streak b { color: var(--brand); font-family: var(--font-display); font-size: 15px; }
+.arch { margin-top: var(--sp-24); border-top: 3px solid var(--rule); padding-top: var(--sp-8); }
+.arch__title { font: 800 17px/24px var(--font-display); margin: var(--sp-4) 0 var(--sp-6); }
+.arch__list { list-style: none; margin: 0; padding: 0; }
+.arch__row { display: grid; grid-template-columns: 76px 1fr auto; align-items: center; gap: var(--sp-8); padding: var(--sp-8) 0; border-bottom: 1px solid var(--paper-2); }
+.arch__row.is-empty { color: var(--ink-2); }
+.arch__date { display: flex; flex-direction: column; font: 700 13px/18px var(--font-sans); }
+.arch__date small { font: 400 11.5px/16px var(--font-sans); color: var(--ink-2); }
+.arch__cells { display: flex; gap: var(--sp-4); flex-wrap: wrap; }
+.arch__cell { padding: 2px var(--sp-6); border: 1px solid var(--ink-3); font: 600 12px/18px var(--font-sans); color: var(--ink-2); }
+.arch__cell.is-done { border-color: var(--brand); background: var(--brand); color: var(--brand-on); }
+.arch__n { font: 800 15px/1 var(--font-display); }
+.arch__row.is-empty .arch__n { font: 600 12px/1 var(--font-sans); }
+.arch__again { margin: var(--sp-10, 10px) 0 0; font: 600 13px/22px var(--font-sans); }
+.arch__again small { font-weight: 400; color: var(--ink-2); }
+.arch__again a { color: var(--brand); }
+
 /* 쿠폰 */
 .coupon { margin-top: var(--sp-24); border: 2px dashed var(--ink); padding: var(--sp-12) var(--sp-16) var(--sp-16); background: #fffaf0; position: relative; }
 .coupon__cut { position: absolute; top: -12px; left: var(--sp-12); background: var(--paper); padding: 0 var(--sp-6); font: 700 12px/20px var(--font-sans); }
@@ -92,3 +111,4 @@ body {
 
 .rm *, .rm *::before, .rm *::after { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+.arch__none { padding: var(--sp-8) 0; font: 400 13px/20px var(--font-sans); color: var(--ink-2); }

@@ -39,7 +39,7 @@
   <body>
     <main class="paper">
       <header class="mast">
-        <div class="mast__top"><span id="mastDate">----.--.--</span><span>제 1 면</span></div>
+        <div class="mast__top"><span id="mastDate">----.--.--</span><span id="mastNo">제 1 면</span></div>
         <h1 class="mast__title"><span>오</span><span>늘</span><span>의</span> <span>G</span><span>u</span><span>e</span><span>s</span><span>s</span></h1>
         <div class="mast__bot"><span>퍼즐 면 · 다섯 문제</span><span>다음 문제까지 <b id="next">--:--:--</b></span></div>
       </header>
@@ -48,12 +48,19 @@
         <div class="today__head"><span>오늘 푼 칸</span><b id="tally" data-full="0">0 / 5</b></div>
         <div class="board" id="board"></div>
         <p class="today__note">칸을 누르면 그 문제로 갑니다. 풀고 돌아오면 이 면에 저절로 적혀요.</p>
+        <p class="streak" id="streak" hidden></p>
       </section>
 
       <section class="coupon" id="coupon" hidden>
         <div class="coupon__cut"><span>✂</span> 오려서 단톡방에</div>
         <pre class="coupon__text" id="couponText"></pre>
         <button class="coupon__btn" id="shareBtn" type="button">이 쿠폰 보내기</button>
+      </section>
+
+      <section class="arch" aria-label="지난 면 내 기록">
+        <h2 class="arch__title">지난 면 · 내 기록</h2>
+        <ol class="arch__list" id="arch"></ol>
+        <p class="arch__again" id="again"></p>
       </section>
 
       <article class="seo notice">
