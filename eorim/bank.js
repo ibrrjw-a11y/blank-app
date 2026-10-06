@@ -1,0 +1,65 @@
+// 어림짐작 문제 은행 (2026-10-06 v1)
+// 원칙: 답이 한 숫자로 정해지고, 기준이 흔들리지 않는 사실만. 측정·통계처럼 해마다 바뀌는 숫자(인구·물가)는 넣지 않는다.
+// 같은 사실도 기준이 여럿이면(예: 높이 측량 연도) note 에 기준을 적는다. 지은이(Claude)가 적고 별도 점검자가 대조함 → 점검 결과는 guesswhat-web\어림짐작_문제점검_v1.md
+// 10-06 점검 반영: 광역자치단체 수 문제 삭제(2026-07 통합으로 바뀜), 기준 문장 추가, 공인 다른 값은 alt 로 정답 처리, 정답 위치를 자 가운데(40~60%)에서 떼어 고르게 다시 잡음
+// 칸: q 문제 · ans 정답 · unit 단위 · lo/hi 자의 양 끝(정답이 가운데 오지 않게 손으로 정함) · scale lin|log · step 눈금 단위 · cat 분류 · note 기준(있을 때만) · alt 같이 정답으로 받는 공인 값
+export const BANK = [
+  // 연도
+  { id: "hangeul", cat: "연도", q: "훈민정음이 반포된 해는?", ans: 1446, unit: "년", lo: 1250, hi: 1550, scale: "lin", step: 1 },
+  { id: "seoul88", cat: "연도", q: "서울 올림픽이 열린 해는?", ans: 1988, unit: "년", lo: 1976, hi: 2016, scale: "lin", step: 1 },
+  { id: "wc2002", cat: "연도", q: "한국 축구 대표팀이 월드컵 4강에 오른 해는?", ans: 2002, unit: "년", lo: 1984, hi: 2012, scale: "lin", step: 1 },
+  { id: "gyeongbu", cat: "연도", q: "경부고속도로가 처음 전 구간 개통된 해는?", ans: 1970, unit: "년", lo: 1964, hi: 2004, scale: "lin", step: 1 },
+  { id: "iphone", cat: "연도", q: "첫 아이폰이 미국에서 출시된 해는?", ans: 2007, unit: "년", lo: 2001, hi: 2018, scale: "lin", step: 1 },
+  { id: "kakaotalk", cat: "연도", q: "카카오톡 서비스가 시작된 해는?", ans: 2010, unit: "년", lo: 2006, hi: 2019, scale: "lin", step: 1 },
+  { id: "moon", cat: "연도", q: "사람이 처음 달에 발을 디딘 해는?", ans: 1969, unit: "년", lo: 1960, hi: 1995, scale: "lin", step: 1 },
+  { id: "berlin", cat: "연도", q: "베를린 장벽이 무너진 해는?", ans: 1989, unit: "년", lo: 1964, hi: 1994, scale: "lin", step: 1 },
+  { id: "sejong", cat: "연도", q: "세종대왕이 왕위에 오른 해는?", ans: 1418, unit: "년", lo: 1375, hi: 1525, scale: "lin", step: 1 },
+  { id: "liberation", cat: "연도", q: "광복(8·15)이 된 해는?", ans: 1945, unit: "년", lo: 1934, hi: 1964, scale: "lin", step: 1 },
+  { id: "korwar", cat: "연도", q: "6·25 전쟁이 일어난 해는?", ans: 1950, unit: "년", lo: 1934, hi: 1959, scale: "lin", step: 1 },
+  { id: "subway1", cat: "연도", q: "서울 지하철 1호선이 개통한 해는?", ans: 1974, unit: "년", lo: 1964, hi: 1994, scale: "lin", step: 1 },
+  { id: "ktx", cat: "연도", q: "KTX가 처음 운행을 시작한 해는?", ans: 2004, unit: "년", lo: 1990, hi: 2008, scale: "lin", step: 1 },
+  { id: "nobel", cat: "연도", q: "노벨상이 처음 수여된 해는?", ans: 1901, unit: "년", lo: 1870, hi: 1970, scale: "lin", step: 1 },
+  { id: "titanic", cat: "연도", q: "타이타닉호가 침몰한 해는?", ans: 1912, unit: "년", lo: 1894, hi: 1944, scale: "lin", step: 1 },
+  { id: "athens", cat: "연도", q: "첫 근대 올림픽(아테네)이 열린 해는?", ans: 1896, unit: "년", lo: 1835, hi: 1915, scale: "lin", step: 1 },
+  { id: "wright", cat: "연도", q: "라이트 형제가 처음 동력 비행에 성공한 해는?", ans: 1903, unit: "년", lo: 1892, hi: 1952, scale: "lin", step: 1 },
+  { id: "imf", cat: "연도", q: "한국이 IMF에 구제금융을 신청한 해는?", ans: 1997, unit: "년", lo: 1989, hi: 2012, scale: "lin", step: 1 },
+  { id: "won50k", cat: "연도", q: "5만 원권 지폐가 처음 발행된 해는?", ans: 2009, unit: "년", lo: 2001, hi: 2024, scale: "lin", step: 1 },
+  { id: "constitution", cat: "연도", q: "대한민국 헌법이 처음 제정·공포된 해는?", ans: 1948, unit: "년", lo: 1927, hi: 1952, scale: "lin", step: 1 },
+  { id: "harrypotter", cat: "연도", q: "『해리 포터와 마법사의 돌』 원작 소설이 영국에서 처음 나온 해는?", ans: 1997, unit: "년", lo: 1992, hi: 2015, scale: "lin", step: 1 },
+  { id: "youtube", cat: "연도", q: "유튜브가 처음 만들어진(첫 영상이 올라온) 해는?", ans: 2005, unit: "년", lo: 2001, hi: 2017, scale: "lin", step: 1 },
+  { id: "gangnam", cat: "연도", q: "싸이의 '강남스타일'이 나온 해는?", ans: 2012, unit: "년", lo: 2009, hi: 2023, scale: "lin", step: 1 },
+  { id: "bts", cat: "연도", q: "방탄소년단(BTS)이 데뷔한 해는?", ans: 2013, unit: "년", lo: 2008.5, hi: 2021.5, scale: "lin", step: 1 },
+  { id: "cocacola", cat: "연도", q: "코카콜라가 처음 만들어져 팔린 해는?", ans: 1886, unit: "년", lo: 1820, hi: 1900, scale: "lin", step: 1 },
+
+  // 높이·길이·거리
+  { id: "hallasan", cat: "높이", q: "한라산의 높이는?", ans: 1947, unit: "m", lo: 1500, hi: 3500, scale: "lin", step: 1, alt: [1950], note: "현재 공식 1,947m · 예전 표기 1,950m도 정답 처리" },
+  { id: "baekdu", cat: "높이", q: "백두산 최고봉(장군봉)의 높이는? (국토지리정보원 기준)", ans: 2744, unit: "m", lo: 2300, hi: 4300, scale: "lin", step: 1, alt: [2750], note: "국토지리정보원 2,744m · 북한 측정 2,750m도 정답 처리" },
+  { id: "everest", cat: "높이", q: "에베레스트산의 높이는?", ans: 8849, unit: "m", lo: 8000, hi: 12000, scale: "lin", step: 1, note: "2020년 공동 측량 8,848.86m(8,849) · 예전 값 8,848m도 정답 처리", alt: [8848] },
+  { id: "lotte", cat: "높이", q: "서울 롯데월드타워의 높이는?", ans: 555, unit: "m", lo: 140, hi: 640, scale: "lin", step: 1, alt: [554], note: "건축물대장 555m · 세계초고층도시건축학회 554.5m(554)도 정답 처리" },
+  { id: "khalifa", cat: "높이", q: "두바이 부르즈 할리파의 높이는?", ans: 828, unit: "m", lo: 700, hi: 1500, scale: "lin", step: 1, alt: [830], note: "공인 높이 828m · 꼭대기 끝 829.84m(830)도 정답 처리" },
+  { id: "marathon", cat: "길이", q: "마라톤 풀코스의 거리는? (km)", ans: 42.195, unit: "km", lo: 23, hi: 53, scale: "lin", step: 0.001 },
+  { id: "moondist", cat: "거리", q: "지구에서 달까지 평균 거리는? (km)", ans: 384400, unit: "km", lo: 1000, hi: 1000000, scale: "log", step: 100, note: "평균 거리 약 384,400km" },
+  { id: "light", cat: "속도", q: "빛은 1초에 몇 km를 갈까?", ans: 299792, unit: "km", lo: 10000, hi: 100000000, scale: "log", step: 1, note: "진공에서 초속 299,792.458km" },
+  { id: "sound", cat: "속도", q: "공기 중 소리의 속도는 1초에 몇 m? (약 15℃ 기준)", ans: 340, unit: "m", lo: 90, hi: 4000, scale: "log", step: 1, note: "약 15℃ 공기에서 초속 약 340m" },
+  { id: "hoop", cat: "길이", q: "농구 골대(링)의 바닥에서 높이는? (cm)", ans: 305, unit: "cm", lo: 240, hi: 340, scale: "lin", step: 1, note: "10피트 = 304.8cm" },
+  { id: "mile", cat: "단위", q: "1마일은 몇 m일까?", ans: 1609, unit: "m", lo: 1000, hi: 3500, scale: "lin", step: 1, note: "1마일 = 1,609.344m" },
+  { id: "inch", cat: "단위", q: "1인치는 몇 mm일까?", ans: 25.4, unit: "mm", lo: 10, hi: 70, scale: "lin", step: 0.1 },
+  { id: "pyeong", cat: "단위", q: "1평은 몇 ㎡일까? (소수 첫째 자리까지)", ans: 3.3, unit: "㎡", lo: 1, hi: 10, scale: "lin", step: 0.1, note: "1평 ≈ 3.3058㎡" },
+  { id: "geun", cat: "단위", q: "고기 1근은 몇 g으로 칠까?", ans: 600, unit: "g", lo: 400, hi: 1100, scale: "lin", step: 10, note: "고기·한약재 1근은 600g으로 셈(채소 1근은 375g)" },
+  { id: "don", cat: "단위", q: "금 한 돈은 몇 g일까?", ans: 3.75, unit: "g", lo: 2, hi: 11, scale: "lin", step: 0.01 },
+
+  // 개수
+  { id: "piano", cat: "개수", q: "일반 피아노 건반은 모두 몇 개?", ans: 88, unit: "개", lo: 30, hi: 120, scale: "lin", step: 1 },
+  { id: "bones", cat: "개수", q: "어른 몸의 뼈는 보통 몇 개로 셀까?", ans: 206, unit: "개", lo: 120, hi: 420, scale: "lin", step: 1 },
+  { id: "baduk", cat: "개수", q: "정식 19줄 바둑판의 교차점(돌 놓는 자리)은 몇 개?", ans: 361, unit: "개", lo: 20, hi: 470, scale: "lin", step: 1, note: "19 × 19" },
+  { id: "seoulgu", cat: "개수", q: "서울특별시의 자치구는 몇 개?", ans: 25, unit: "개", lo: 14, hi: 44, scale: "lin", step: 1 },
+  { id: "assembly", cat: "개수", q: "대한민국 국회의원 정원은 몇 명?", ans: 300, unit: "명", lo: 220, hi: 570, scale: "lin", step: 1, note: "제22대 국회 기준" },
+  { id: "un", cat: "개수", q: "국제연합(UN) 회원국은 몇 나라?", ans: 193, unit: "개국", lo: 170, hi: 330, scale: "lin", step: 1 },
+  { id: "teeth", cat: "개수", q: "어른 영구치는 사랑니까지 모두 몇 개?", ans: 32, unit: "개", lo: 24, hi: 59, scale: "lin", step: 1 },
+  { id: "chromo", cat: "개수", q: "사람 체세포(보통 세포) 하나의 염색체는 몇 개?", ans: 46, unit: "개", lo: 20, hi: 110, scale: "lin", step: 1, note: "23쌍" },
+  { id: "giraffe", cat: "개수", q: "기린의 목뼈는 몇 개?", ans: 7, unit: "개", lo: 0, hi: 28, scale: "lin", step: 1, note: "사람과 같은 7개" },
+  { id: "cards", cat: "개수", q: "트럼프 카드 한 벌은 조커를 빼고 몇 장?", ans: 52, unit: "장", lo: 34, hi: 84, scale: "lin", step: 1 },
+  { id: "hwatu", cat: "개수", q: "화투 한 목은 보너스 패를 빼고 몇 장?", ans: 48, unit: "장", lo: 14, hi: 54, scale: "lin", step: 1, note: "보너스 패 제외" },
+  { id: "jamo", cat: "개수", q: "한글 기본 자모(자음+모음)는 몇 개?", ans: 24, unit: "개", lo: 14, hi: 49, scale: "lin", step: 1, note: "자음 14 + 모음 10" },
+  { id: "bowling", cat: "개수", q: "볼링 퍼펙트 게임의 점수는?", ans: 300, unit: "점", lo: 240, hi: 640, scale: "lin", step: 1 },
+];

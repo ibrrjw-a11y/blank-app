@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>어림짐작 | 상식 퀴즈 - 정답 대신 범위로 맞히는 오늘의 5문제</title>
+    <meta name="description" content="매일 자정 모두에게 같은 상식 퀴즈 5문제. 보기를 고르지 않고 자의 두 날로 '이 사이'를 집어요. 좁게 집을수록 점수가 커지고, 빗나가면 0점. 가입 없이 무료." />
+    <meta name="keywords" content="상식 퀴즈, 상식퀴즈, 오늘의 퀴즈, 데일리 퀴즈, 숫자 퀴즈, 어림짐작, 추정 퀴즈, 연도 퀴즈, 높이 퀴즈" />
+    <link rel="canonical" href="https://guesswhat.co.kr/eorim/" />
+    <meta name="theme-color" content="#f1ecdf" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="어림짐작 - 정답 대신 범위로 맞히는 상식 퀴즈" />
+    <meta property="og:description" content="좁게 집을수록 점수가 커져요. 오늘의 5문제, 얼마나 자신 있어요?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "어림짐작",
+        "url": "https://guesswhat.co.kr/eorim/",
+        "description": "매일 바뀌는 숫자 상식 5문제를 정답 대신 범위로 맞히는 퀴즈. 좁게 집을수록 점수가 커진다.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="ec">
+      <!-- 첫 화면: 캘리퍼스가 넓게 → 좁게 집고, 바늘이 떨어지며 점수가 커지는 걸 보여 준다 -->
+      <section class="ec-intro" id="intro" data-view="intro">
+        <p class="ec-kick"><span id="introNo">제 – 회</span><span id="introDate"></span></p>
+        <h1 class="ec-title" aria-label="어림짐작"><span>어</span><span>림</span><span>짐</span><span>작</span></h1>
+        <p class="ec-lead">정답 대신 범위를 걸어요. 좁게 집을수록 점수가 커져요.</p>
+
+        <div class="demo" aria-hidden="true">
+          <div class="demo__q">한라산의 높이는?</div>
+          <div class="demo__cal">
+            <div class="demo__beam"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="demo__span"></div>
+            <div class="demo__jaw demo__jaw--a"></div>
+            <div class="demo__jaw demo__jaw--b"></div>
+            <div class="demo__needle"></div>
+          </div>
+          <div class="demo__read"><span class="demo__pts demo__pts--wide">+18</span><span class="demo__pts demo__pts--narrow">+81</span><span class="demo__hit">적중</span></div>
+        </div>
+
+        <button class="ec-go" id="start" type="button"><span class="ec-go__k">MEASURE</span><span id="startLabel">오늘의 5문제 재기</span></button>
+        <p class="ec-next">다음 문제까지 <b id="next">--:--:--</b><span id="streakLine"></span></p>
+      </section>
+
+      <!-- 문제 -->
+      <section class="ec-play" id="play" data-view="play" hidden>
+        <div class="ec-bar"><span id="qNo">1 / 5</span><span class="ec-dots" id="dots"></span><span id="qCat"></span></div>
+        <h2 class="ec-q" id="q"></h2>
+
+        <div class="cal" id="cal">
+          <div class="cal__beam" id="beam"><div class="cal__ticks" id="ticks"></div></div>
+          <div class="cal__span" id="span" aria-hidden="true"></div>
+          <button class="cal__jaw cal__jaw--a" id="jawA" type="button" role="slider" aria-label="범위 시작"><i></i></button>
+          <button class="cal__jaw cal__jaw--b" id="jawB" type="button" role="slider" aria-label="범위 끝"><i></i></button>
+          <div class="cal__needle" id="needle" hidden><b id="needleVal"></b></div>
+        </div>
+
+        <div class="ec-read">
+          <label class="ec-in"><span class="sr">범위 시작</span><input id="inA" inputmode="decimal" autocomplete="off" /></label>
+          <span class="ec-tilde">~</span>
+          <label class="ec-in"><span class="sr">범위 끝</span><input id="inB" inputmode="decimal" autocomplete="off" /></label>
+          <span class="ec-unit" id="unit"></span>
+        </div>
+
+        <div class="ec-pot" id="pot"><span>맞히면</span><b id="potVal">+10</b><span>점</span><i class="ec-pot__bar"><i id="potBar"></i></i></div>
+
+        <div class="ec-stamp" id="stamp" hidden></div>
+        <p class="ec-fact" id="fact" hidden></p>
+        <button class="ec-go" id="bet" type="button"><span class="ec-go__k">LOCK</span><span>이 범위로 걸기</span></button>
+        <button class="ec-go ec-go--ink" id="nextQ" type="button" hidden><span class="ec-go__k">NEXT</span><span id="nextLabel">다음 문제</span></button>
+      </section>
+
+      <!-- 결과 -->
+      <section class="ec-res" id="res" data-view="res" hidden>
+        <p class="ec-kick"><span id="resNo"></span><span id="resDate"></span></p>
+        <div class="ec-total"><b id="total">0</b><span>/ 500점</span></div>
+        <p class="ec-line" id="line"></p>
+        <ol class="ec-rows" id="rows"></ol>
+        <div class="ec-coupon">
+          <pre id="shareText"></pre>
+          <button class="ec-go" id="shareBtn" type="button"><span class="ec-go__k">SEND</span><span>결과 보내기</span></button>
+        </div>
+        <button class="ec-go ec-go--ink" id="practice" type="button"><span class="ec-go__k">AGAIN</span><span>지난 문제로 한 판 더</span></button>
+        <p class="ec-next">다음 문제까지 <b id="next2">--:--:--</b><span id="streakLine2"></span></p>
+      </section>
+
+      <article class="seo ec-doc">
+        <h2>어림짐작 하는 법</h2>
+        <p>매일 자정(한국 시각)에 숫자로 답하는 상식 문제 5개가 새로 나와요. 오늘 들어온 사람은 모두 같은 문제를 풀어요.</p>
+        <p>보기를 고르는 대신 자의 두 날을 움직여 '정답이 이 사이에 있다'는 범위를 걸어요. 정답이 범위 안이면 점수를 받고, 밖이면 0점이에요.</p>
+        <p>점수는 범위가 좁을수록 커져요. 자 전체를 집으면 10점, 한 점으로 딱 맞히면 100점. 넓게 잡으면 안전하고, 좁게 잡으면 크게 먹어요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>정답 하나를 맞히는 퀴즈와 뭐가 다른가요?</summary><p>아는 문제는 좁게, 모르는 문제는 넓게 걸 수 있어요. 그래서 '얼마나 아는지'뿐 아니라 '내가 얼마나 확신하는지'가 점수에 들어가요. 결과 화면에서 좁게 건 문제를 몇 개 맞혔는지 따로 알려 줘요.</p></details>
+        <details><summary>점수는 어떻게 계산하나요?</summary><p>정답이 범위 안에 있으면 100 × (1 − √(집은 폭 ÷ 자 전체 폭))점, 최저 10점이에요. 큰 수를 다루는 자(거리·속도)는 눈금이 10배씩 늘어나는 자라서 폭도 그 눈금으로 재요.</p></details>
+        <details><summary>하루에 한 번만 할 수 있나요?</summary><p>오늘 문제는 하루 한 번 기록돼요. 더 하고 싶으면 '지난 문제로 한 판 더'로 지난 회차 문제를 몇 번이든 풀 수 있어요(연습 판은 기록에 안 남아요).</p></details>
+        <details><summary>정답은 어디서 확인했나요?</summary><p>해마다 바뀌는 숫자(인구·물가 같은 것)는 넣지 않고, 기준이 하나로 정해지는 사실만 골랐어요. 기준이 여럿인 경우는 정답 공개 때 기준을 같이 적어요.</p></details>
+        <details><summary>기록은 어디에 남나요?</summary><p>이 기기의 브라우저에만 남아요. 가입이나 서버 저장은 없어요.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">어림짐작 · 기록은 이 기기에만 남아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
