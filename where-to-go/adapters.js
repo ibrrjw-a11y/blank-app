@@ -198,6 +198,7 @@ export const kakaoAdapter = {
     return docs
       .map(kakaoToItem)
       .filter((x) => kind === "cafe" || !(SNACK.test(x.g) || SNACK.test(x.c)))
+      .filter((x) => kind !== "food" || !/술집|바$|호프|주점|포차/.test(x.g + " " + x.c))   // 점심·데이트 밥에는 술집 빼고, 모임(group)에서만 남김
       .filter((x) => !seen.has(x.n) && seen.add(x.n));
   },
   async keyword({ query, lat, lon, radius = 1500 }) {
