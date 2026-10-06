@@ -10,4 +10,4 @@
 //  4. 제품 설정 → 카카오맵 사용 설정을 켜기
 //
 // JavaScript 키는 브라우저에 노출되는 공개 키예요. 도메인 등록으로만 보호되니 꼭 3번을 해 주세요.
-export const kakaoJsKey = "";
+export const kakaoJsKey = "d8471d4ee17270ca17862a5780613071";   // 2026-10-06 사용자 발급(guesswhat.co.kr 도메인 등록 전제, 공개 키)
