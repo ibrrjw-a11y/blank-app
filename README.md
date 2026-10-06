@@ -34,7 +34,7 @@ docs/BUILD_GUIDE.md             제작 규칙 (디자인 시스템 · 첫 화면
 - 첫 화면은 기능이 실제로 움직이는 쫄깃한 모션. 시작 버튼은 장르 안의 물건. 본문은 실제 계산 예시가 든 장르 문서.
 - 모르는 사람과의 순위 경쟁, 지어낸 통계 금지.
 
-자세한 규칙: [`docs/BUILD_GUIDE.md`](docs/BUILD_GUIDE.md)
+자세한 규칙: [`docs/BUILD_GUIDE.md`](docs/BUILD_GUIDE.md) · 새 채팅으로 옮길 때: [`docs/HANDOFF.md`](docs/HANDOFF.md)
 
 ## 로컬 실행
 
