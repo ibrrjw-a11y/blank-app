@@ -216,18 +216,71 @@ export async function copyText(text) {
 }
 
 // 모바일은 OS 공유 시트(카카오톡 포함), 데스크톱은 링크 복사
-export async function share({ title = document.title, text = "", url = location.href } = {}) {
-  if (navigator.share) {
-    try {
-      await navigator.share({ title, text, url });
-      return "shared";
-    } catch (e) {
-      if (e && e.name === "AbortError") return "cancelled";
-    }
-  }
-  const ok = await copyText(text ? `${text}\n${url}` : url);
-  toast(ok ? "링크를 복사했어요. 단톡방에 붙여넣어 주세요" : "복사에 실패했어요");
-  return ok ? "copied" : "failed";
+/* 링크 보내기 창 (2026-10-06)
+ * 예전엔 바로 기기 공유(navigator.share)를 불렀는데, PC 크롬에서는 윈도우 공유 창이 뜨고 앱 안 브라우저에서는 아무 반응이 없어
+ * "공유가 안 된다"는 말을 들었다. 이제는 항상 링크가 보이는 작은 창을 띄우고, 그 안에서 [링크 복사]·[메시지까지 복사]·[다른 앱으로 보내기]를 고른다.
+ * 복사가 막힌 브라우저에서도 링크 칸을 길게 눌러 직접 복사할 수 있다.
+ * 돌려주는 값: "copied" | "shared" | "cancelled" (예전과 같음) */
+export function share({ title = document.title, text = "", url = location.href } = {}) {
+  return new Promise((resolve) => {
+    document.querySelector(".gw-share")?.remove();
+    const wrap = document.createElement("div");
+    wrap.className = "gw-share";
+    wrap.setAttribute("role", "dialog");
+    wrap.setAttribute("aria-label", "링크 보내기");
+    wrap.innerHTML = `<style>
+.gw-share{position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45);font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif}
+.gw-share__box{width:100%;max-width:440px;margin:0 8px 8px;padding:18px 16px calc(16px + env(safe-area-inset-bottom));border-radius:20px;background:#fff;color:#141414;box-shadow:0 20px 60px rgba(0,0,0,.35);animation:gwsh .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes gwsh{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.gw-share__head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font:800 17px/1.3 "Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;letter-spacing:-.02em}
+.gw-share__x{width:36px;height:36px;border:0;border-radius:50%;background:#f1efe9;color:#141414;font:700 18px/1 "Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;cursor:pointer}
+.gw-share__msg{margin:0 0 10px;font:500 13.5px/1.5 "Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;color:#5c5850;word-break:keep-all}
+.gw-share__url{width:100%;box-sizing:border-box;padding:12px;border:1.5px solid #141414;border-radius:12px;font:500 14px/1.3 ui-monospace,Consolas,monospace;color:#141414;background:#faf8f3}
+.gw-share__row{display:grid;gap:8px;margin-top:12px}
+.gw-share__row button{min-height:50px;border-radius:14px;border:1.5px solid #141414;background:#fff;color:#141414;font:800 15px/1 "Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;cursor:pointer}
+.gw-share__row .pri{background:#ff4b2b;border-color:#ff4b2b;color:#fff}
+.gw-share__done{min-height:20px;margin:10px 0 0;text-align:center;font:700 13px/1.4 "Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;color:#1f8a4c}
+@media (prefers-reduced-motion:reduce){.gw-share__box{animation:none}}
+</style>
+<div class="gw-share__box">
+  <div class="gw-share__head"><span></span><button class="gw-share__x" type="button" aria-label="닫기">✕</button></div>
+  <p class="gw-share__msg"></p>
+  <input class="gw-share__url" readonly aria-label="보낼 링크" />
+  <div class="gw-share__row">
+    <button class="pri" type="button" data-a="link">링크 복사</button>
+    ${text ? '<button type="button" data-a="all">메시지까지 복사</button>' : ""}
+    ${navigator.share ? '<button type="button" data-a="native">카카오톡 등 다른 앱으로 보내기</button>' : ""}
+  </div>
+  <p class="gw-share__done" aria-live="polite"></p>
+</div>`;
+    wrap.querySelector(".gw-share__head span").textContent = title.length > 30 ? "링크 보내기" : title || "링크 보내기";
+    wrap.querySelector(".gw-share__msg").textContent = text || "이 링크를 친구에게 보내 주세요.";
+    const inp = wrap.querySelector(".gw-share__url");
+    inp.value = url;
+    inp.addEventListener("focus", () => inp.select());
+    let result = "cancelled";
+    const close = () => { wrap.remove(); removeEventListener("keydown", onKey); resolve(result); };
+    const onKey = (e) => { if (e.key === "Escape") close(); };
+    addEventListener("keydown", onKey);
+    wrap.addEventListener("click", (e) => { if (e.target === wrap) close(); });
+    wrap.querySelector(".gw-share__x").addEventListener("click", close);
+    const done = wrap.querySelector(".gw-share__done");
+    wrap.querySelectorAll("[data-a]").forEach((b) =>
+      b.addEventListener("click", async () => {
+        const a = b.dataset.a;
+        if (a === "native") {
+          try { await navigator.share({ title, text, url }); result = "shared"; close(); }
+          catch (e) { if (!e || e.name !== "AbortError") done.textContent = "이 브라우저에서는 바로 보내기가 안 돼요. 링크 복사를 눌러 주세요."; }
+          return;
+        }
+        const ok = await copyText(a === "all" ? `${text}\n${url}` : url);
+        if (ok) { result = "copied"; done.textContent = a === "all" ? "메시지와 링크를 복사했어요. 단톡방에 붙여넣어 주세요" : "링크를 복사했어요. 단톡방에 붙여넣어 주세요"; setTimeout(close, 1100); }
+        else { done.textContent = "복사가 막혀 있어요. 위 링크 칸을 길게 눌러 직접 복사해 주세요."; inp.focus(); }
+      })
+    );
+    document.body.appendChild(wrap);
+    wrap.querySelector("[data-a='link']").focus();
+  });
 }
 
 // 결과 이미지를 공유 시트로 보내고, 안 되면 저장

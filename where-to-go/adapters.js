@@ -88,15 +88,15 @@ export const overpassAdapter = {
   async nearby({ lat, lon, radius = 800, kind = "food" }) {
     const am = (AMENITIES[kind] || AMENITIES.food).join("|");
     const q = `[out:json][timeout:6];nwr["amenity"~"^(${am})$"]["name"](around:${Math.round(radius)},${lat.toFixed(5)},${lon.toFixed(5)});out center 150;`;
-    const json = await fetchWithTimeout(
-      "https://overpass-api.de/api/interpreter",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "data=" + encodeURIComponent(q),
-      },
-      6000
-    );
+    // 무료 서버는 바쁘면 거절하므로 다른 서버로 한 번 더(2026-10-06). 각 5초
+    let json = null;
+    for (const host of ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter"]) {
+      try {
+        json = await fetchWithTimeout(host, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) }, 5000);
+        if (json && Array.isArray(json.elements)) break;
+      } catch { json = null; }
+    }
+    if (!json) throw new Error("overpass unavailable");
     const seen = new Set();
     return (json.elements || [])
       .map((el) => osmToItem(el, { lat, lon }))

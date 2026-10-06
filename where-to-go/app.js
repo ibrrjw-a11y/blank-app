@@ -52,7 +52,7 @@ const S = {
     { name: "나", loc: null },
     { name: "친구", loc: null },
   ],
-  source: prefs.source === "place" ? "place" : "menu",
+  source: prefs.source === "menu" ? "menu" : "place",   // 기본은 근처 식당. 메뉴 먼저는 직접 고를 때만
   radius: prefs.radius || 800,
   prices: new Set(),
   tags: new Set(),
@@ -347,15 +347,15 @@ function blockSource() {
   const loc = searchLoc();
   const placeOn = S.source === "place" && loc;
   let hint;
-  if (!loc) hint = S.mode === "group" ? "중간지점이 정해지면 근처 실제 가게로도 할 수 있어요." : "위치를 고르면 근처 실제 가게로도 할 수 있어요.";
+  if (!loc) hint = S.mode === "group" ? "중간지점이 정해지면 그 근처 식당으로 월드컵을 해요. 그 전엔 메뉴 종류로 골라요." : "위치를 고르면 근처 식당으로 월드컵을 해요. 그 전엔 메뉴 종류로 골라요.";
   else if (placeOn)
     hint = `${S.kakao ? "카카오 장소 검색" : "OpenStreetMap"}에서 ${esc(locLabel(loc))} 반경 안의 실제 ${S.mode === "date" ? "식당·카페" : "가게"}를 불러와요. 못 불러오면 메뉴 종류로 바뀌어요.${S.mode === "date" ? " 놀거리는 내장 목록에서 뽑아요." : ""}`;
-  else hint = "김치찌개, 라멘처럼 메뉴 종류로 겨뤄요. 우승하면 지도에서 근처 가게를 찾아줘요.";
+  else hint = "김치찌개, 라멘처럼 메뉴부터 고르고, 우승한 메뉴를 파는 근처 가게를 찾아줘요.";
   return `<div class="card card--flat block">
     <div class="block__title"><h3>후보는 어디서 뽑아요?</h3></div>
     <div class="seg">
-      <button data-act="source" data-v="menu" aria-pressed="${!placeOn}">메뉴 종류로</button>
-      <button data-act="source" data-v="place" aria-pressed="${!!placeOn}" ${loc ? "" : "disabled"}>근처 실제 가게</button>
+      <button data-act="source" data-v="place" aria-pressed="${!!placeOn}" ${loc ? "" : "disabled"}>근처 식당으로</button>
+      <button data-act="source" data-v="menu" aria-pressed="${!placeOn}">메뉴 먼저 고르기</button>
     </div>
     ${
       placeOn
@@ -465,9 +465,9 @@ async function prepareStage() {
       st.source = r.source;
       notes.push(`${r.source === "kakao" ? "카카오 장소 검색" : "OpenStreetMap"}에서 ${locLabel(loc)} 반경 ${fmtDist(S.radius / 1000)} 안의 가게 ${r.items.length}곳 중에서 뽑았어요`);
     } else if (r.source === "failed") {
-      notes.push("근처 가게 정보를 불러오지 못해서 메뉴 종류로 골라요");
+      notes.push("⚠ 근처 식당 정보를 불러오지 못했어요(지도 서버가 바쁘거나 연결이 느려요). 대신 메뉴로 고르고, 우승 메뉴를 파는 근처 가게를 찾아 드릴게요.");
     } else {
-      notes.push(`반경 안에서 찾은 가게가 ${r.items.length}곳뿐이라 메뉴 종류로 골라요`);
+      notes.push(`⚠ 반경 안에서 찾은 식당이 ${r.items.length}곳뿐이라 메뉴로 골라요. 반경을 넓히면 식당으로 할 수 있어요.`);
     }
   }
   if (!base) {
@@ -524,7 +524,7 @@ function stageSteps() {
     .join("")}</div>`;
 }
 
-const notesHTML = (notes) => (notes?.length ? `<div class="notices">${notes.map((n) => `<div class="notice">${esc(n)}</div>`).join("")}</div>` : "");
+const notesHTML = (notes) => (notes?.length ? `<div class="notices">${notes.map((n) => `<div class="notice${n.startsWith("⚠") ? " notice--warn" : ""}">${esc(n.replace(/^⚠\s*/, ""))}</div>`).join("")}</div>` : "");
 
 /* ---------- 거부권 (발차 안내판) ---------- */
 function renderVeto(flipTurn = false) {
