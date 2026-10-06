@@ -1,12 +1,13 @@
 // 배포 도메인 일괄 교체 (canonical, og:url, sitemap 등)
+import { fileURLToPath } from "node:url";
 // 사용: node scripts/set-domain.mjs https://내도메인.com
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const next = (process.argv[2] || "").replace(/\/+$/, "");
 if (!/^https?:\/\/[^/]+$/.test(next)) {
-  console.error("사용법: node scripts/set-domain.mjs https://example.com");
+  console.error("사용법: node scripts/set-domain.mjs https://guesswhat.co.kr");
   process.exit(1);
 }
 

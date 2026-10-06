@@ -22,6 +22,22 @@ import { TOOLS, toolByPath } from "./sites.js";
 // 사이트 루트 URL (kit.js 는 /shared/ 에 있으므로 한 단계 위)
 export const ROOT_URL = new URL("../", import.meta.url).href;
 
+/* ---------- Guess What 표시 (2026-10-06 통합) ----------
+ * 모든 페이지 맨 위에 작은 'Guess What?' 한 줄과 첫 화면 가는 길 하나만 붙인다.
+ * 색은 각 사이트 테마의 글자 색을 그대로 따라가서 장르 디자인을 깨지 않게 한다. 경로 표시·카테고리 칩은 넣지 않는다. */
+(function guessWhatMark() {
+  const put = () => {
+    if (document.querySelector(".gw-mark")) return;
+    const a = document.createElement("a");
+    a.className = "gw-mark";
+    a.href = ROOT_URL;
+    a.innerHTML = 'Guess What<b>?</b><span>다른 맞히기</span>';
+    document.body.prepend(a);
+  };
+  if (document.body) put();
+  else addEventListener("DOMContentLoaded", put, { once: true });
+})();
+
 // 현재 페이지의 도구 경로 (예: "ddanjit/zoom"). 루트·카테고리 페이지면 ""
 export function currentPath() {
   const rel = decodeURIComponent(location.href.slice(ROOT_URL.length).split(/[?#]/)[0]);

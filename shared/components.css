@@ -574,3 +574,10 @@ textarea.input {
     transition-duration: 1ms !important;
   }
 }
+
+/* Guess What 표시 (kit.js 가 맨 위에 넣음). 각 사이트 글자 색을 따라가고 배경은 투명 */
+.gw-mark { display: flex; align-items: center; gap: var(--sp-6, 6px); max-width: 480px; margin: 0 auto; padding: var(--sp-8) var(--sp-16);
+  font: 800 13px/20px var(--font-sans); color: var(--color-text); text-decoration: none; position: relative; z-index: 5; min-height: 36px; }
+.gw-mark b { color: var(--brand, var(--color-primary)); font-weight: 900; }
+.gw-mark span { margin-left: auto; font: 600 12px/20px var(--font-sans); color: var(--color-text-secondary); }
+.gw-mark span::after { content: " →"; }

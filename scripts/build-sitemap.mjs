@@ -1,10 +1,11 @@
 // sitemap.xml + robots.txt 생성
+import { fileURLToPath } from "node:url";
 // 사용: node scripts/build-sitemap.mjs
 // 도메인은 site.config.json 의 domain 값을 쓴다.
 import fs from "node:fs";
 import path from "node:path";
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { domain } = JSON.parse(fs.readFileSync(path.join(root, "site.config.json"), "utf8"));
 const SKIP = new Set(["shared", "scripts", "docs", "_template", "node_modules", ".git"]);
 

@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /_template/
 
-Sitemap: https://example.com/sitemap.xml
+Sitemap: https://guesswhat.co.kr/sitemap.xml

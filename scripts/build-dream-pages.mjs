@@ -13,7 +13,7 @@ import { prepare, interpret, rulesFor, josa, opt, pillar } from "../dream-saju/e
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = path.join(ROOT, "dream-saju");
-const ORIGIN = "https://example.com";
+const ORIGIN = "https://guesswhat.co.kr";
 const BASE = `${ORIGIN}/dream-saju/`;
 const data = prepare(JSON.parse(fs.readFileSync(path.join(SITE, "dreams.json"), "utf8")));
 const UPDATED = data.updated;

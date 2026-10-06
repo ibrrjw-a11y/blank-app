@@ -1,4 +1,5 @@
 // 사이트별 공유 미리보기 이미지(og.png, 1200x630) 생성
+import { fileURLToPath } from "node:url";
 // 사용: node scripts/build-og.mjs
 // 각 사이트 style.css 의 --brand 색과 sites.js 의 이름/설명/이모지를 사용한다.
 import { createRequire } from "node:module";
@@ -13,7 +14,7 @@ try {
   playwright = require("/opt/node22/lib/node_modules/playwright");
 }
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const { SITES } = await import(path.join(root, "shared/sites.js"));
 
 function brandOf(slug) {

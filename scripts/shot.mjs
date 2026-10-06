@@ -1,4 +1,5 @@
 // 모바일 화면 스크린샷 도구 (검증용)
+import { fileURLToPath } from "node:url";
 // 사용: node scripts/shot.mjs <slug> [출력경로] [대기ms] [스크립트]
 //   예) node scripts/shot.mjs who-pays /tmp/who.png 2500
 //   예) node scripts/shot.mjs who-pays /tmp/who-app.png 800 "document.querySelector('#start').click()"
@@ -16,7 +17,7 @@ try {
   playwright = require("/opt/node22/lib/node_modules/playwright");
 }
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [slug = "", out = `/tmp/shot-${slug || "hub"}.png`, wait = "2500", ...rest] = process.argv.slice(2);
 const script = rest.join(" ");
 

@@ -1,5 +1,6 @@
 // 전체 카테고리와 도구 목록. 홈, 카테고리 페이지, 각 페이지 상단 경로·하단 추천이 모두 이 목록을 쓴다.
 // path 는 루트 기준 폴더 경로 (끝에 / 없음). 기능 하나 = 페이지 하나.
+// Guess What 통합(2026-10-06): 1 to 50 · 탑 쌓기 · 2048 · 만나이 계산기는 컨셉과 멀어 목록에서 뺌(폴더는 남김).
 
 export const CATEGORIES = [
   { id: "pick", path: "pick", name: "추첨·내기", short: "추첨", desc: "룰렛, 사다리타기, 제비뽑기, 팀 나누기", keyword: "룰렛 돌리기 · 사다리타기 · 제비뽑기" },
@@ -37,15 +38,11 @@ export const TOOLS = [
   { path: "ddanjit/town", cat: "game", name: "오늘의 동네", desc: "거리·방향 힌트로 시군구 맞히기" },
   { path: "ddanjit/price", cat: "game", name: "그때 그 가격", desc: "옛날 물가 맞히기" },
   { path: "ddanjit/timeline", cat: "game", name: "추억 연대기", desc: "출시 연도 순서 맞히기" },
-  { path: "one-to-fifty", cat: "game", name: "1 to 50", desc: "숫자 순서대로 빨리 누르기" },
-  { path: "stack-tower", cat: "game", name: "탑 쌓기", desc: "타이밍 맞춰 블록 쌓기" },
-  { path: "merge-2048", cat: "game", name: "2048", desc: "숫자 합치기 퍼즐" },
   { path: "brain-age", cat: "game", name: "뇌 나이 측정소", desc: "미니게임 5개로 재는 뇌 나이" },
 
   // 생활 계산기
   { path: "salary-live/net-pay", cat: "calc", name: "연봉 실수령액 계산기", desc: "2026년 4대보험·세금 반영" },
   { path: "salary-live", cat: "calc", name: "실시간 월급 카운터", desc: "지금 이 순간 버는 돈" },
-  { path: "life-progress/age", cat: "calc", name: "만나이 계산기", desc: "만 나이·연 나이·살아온 날" },
   { path: "life-progress", cat: "calc", name: "인생 진행률", desc: "내 인생을 4,000칸으로" },
 
   // 커플·친구
