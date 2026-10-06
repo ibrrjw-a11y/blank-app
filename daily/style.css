@@ -88,7 +88,7 @@ body {
 #more .more-sites__grid { display: grid; gap: 0; }
 #more .more-sites__item { display: block; padding: var(--sp-10, 10px) 0; border-bottom: 1px solid var(--paper-2); color: var(--ink); text-decoration: none; }
 #more .more-sites__name { font: 700 15px/20px var(--font-sans); display: block; }
-#more .more-sites__desc { font: 400 12.5px/18px var(--font-sans); color: var(--ink-3); }
+#more .more-sites__desc { font: 400 12.5px/18px var(--font-sans); color: var(--ink-2); } /* 10-06: 대비 2.4 */
 
 .rm *, .rm *::before, .rm *::after { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }

@@ -256,7 +256,7 @@ a {
 
 .field__help {
   font: var(--caption-01);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary); /* 10-06 화면 점검: tertiary 는 밝은 바탕에서 대비 2.2 로 흐렸음 */
 }
 
 .input {
@@ -540,7 +540,7 @@ textarea.input {
 .site-footer {
   padding: var(--sp-24) 0 calc(var(--sp-32) + var(--safe-bottom));
   font: var(--caption-01);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary); /* 10-06 화면 점검: 바닥 안내(주의 문구)가 여러 페이지에서 대비 1.8~2.3 으로 거의 안 보였음 */
   text-align: center;
 }
 

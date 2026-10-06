@@ -991,7 +991,7 @@ body.is-playing .site-footer { display: none; }
   color: var(--color-on-primary);
 }
 
-.rank.is-loser .rank__pos { background: var(--art-ink); color: var(--color-on-primary); }
+.rank.is-loser .rank__pos { background: var(--art-ink); color: var(--color-primary); } /* 10-06: 노랑·초록 테마에서 검은 칸에 검은 숫자라 1등 숫자가 안 보였음 */
 .rank.is-loser .rank__sub,
 .rank.is-loser .rank__name small { color: var(--color-on-primary); }
 
@@ -1489,6 +1489,8 @@ body.is-playing .site-footer { display: none; }
   transform: skewX(var(--art-skew));
   transition: transform var(--dur-slow) var(--art-spring);
 }
+/* 10-06 화면 점검: 실시간 4종 페이지는 번호 칸(nx__slot) 없이 그려져서 이름이 좁은 첫 칸(4.6em)에 끼어 세 줄로 깨지고 설명은 잘렸음 → 번호 칸 없으면 한 칸으로 */
+#more .more-sites__item:not(:has(.nx__slot)) { grid-template-columns: minmax(0, 1fr); }
 #more .more-sites__item:nth-child(2) { margin-left: var(--sp-12); }
 #more .more-sites__item:nth-child(3) { margin-left: var(--sp-24); }
 #more .more-sites__item:active { transform: skewX(var(--art-skew)) translateX(var(--sp-6)); transition-duration: var(--dur-fast); }
@@ -1851,11 +1853,14 @@ body.is-playing .site-footer { display: none; }
 :root[data-mode="dodge"] { --brand: #8bd450; --brand-pressed: #6fb53a; --brand-on: #141414; }
 :root[data-mode="bomb"] { --brand: #ff8a3d; --brand-pressed: #e06d22; }
 .lv-stage { position: relative; aspect-ratio: 4 / 5; overflow: hidden; }
+/* 10-06 화면 점검: 실시간 4종(오리·풍선·폭탄·똥) 제목이 그림 아래에 딱 붙고(중계 자막과 맞닿음), 한 줄 제목인데 두 줄 높이를 잡아 아래가 비던 것 */
+.lv-h1 { min-height: 0; margin-top: var(--sp-16); }
 .lv { position: absolute; inset: 0; }
 .lv__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lv__cap { position: absolute; left: var(--sp-12); right: var(--sp-12); bottom: var(--sp-12); margin: 0; padding: var(--sp-6) var(--sp-10, 10px);
   background: rgba(10, 11, 13, 0.82); color: #fff; font: 800 15px/22px var(--font-sans); border-left: 4px solid var(--brand); pointer-events: none; min-height: 22px; }
 .lv__cap:empty { display: none; }
+.lv__cap--top { top: var(--sp-12); bottom: auto; } /* 똥 피하기: 바닥 이름을 가리지 않게 */
 .lv__cap.is-pop { animation: lv-cap 0.35s cubic-bezier(.34, 1.56, .64, 1); }
 @keyframes lv-cap { from { transform: translateX(-14px) skewX(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
 .lv-icon { font-size: 22px; line-height: 1; }

@@ -101,7 +101,7 @@ body {
   margin-top: var(--sp-4);
   font: 600 13px/1 var(--font-display);
   letter-spacing: 0.3em;
-  color: var(--art-felt-line);
+  color: rgba(243, 234, 210, 0.82); /* 10-06: 초록 바탕에 진초록 글씨(대비 1.9) → 크림색 */
 }
 
 .felt__arc {
@@ -1053,8 +1053,8 @@ body {
 }
 #more .more-sites__item:active { background: rgba(227, 179, 65, 0.12); }
 #more .more-sites__name { color: var(--art-cream); font: 800 17px/1.3 var(--font-display); }
-#more .more-sites__desc { color: rgba(243, 234, 210, 0.62); font: var(--caption-01); opacity: 1; }
-.site-footer { color: var(--art-felt-line); }
+#more .more-sites__desc { color: rgba(243, 234, 210, 0.78); font: var(--caption-01); opacity: 1; }
+.site-footer { color: rgba(243, 234, 210, 0.72); } /* 10-06: 대비 1.8 → 크림색 */
 
 /* 펠트에 인쇄된 자리 */
 .spot {

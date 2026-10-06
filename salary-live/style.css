@@ -395,7 +395,7 @@ body {
   top: 50%;
   transform: translateY(-50%);
   font: var(--body-03);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary); /* 10-06: 대비 2.3 */
   pointer-events: none;
 }
 .input { border-radius: var(--r-6); }

@@ -34,6 +34,9 @@ function makeStage(stage, label) {
     clear() {
       ro.disconnect();
     },
+    capTop() {
+      cap.classList.add("lv__cap--top");
+    },
   };
 }
 
@@ -72,6 +75,34 @@ function finishRows(players, orderSafeToLoser, loserIdx, labelOf) {
 
 function nameFont(tk, px, w = 700) {
   return `${w} ${px}px ${tk.display}`;
+}
+
+// 캔버스 이름표 공통(10-06 화면 점검): 화면 좌표에 고정 크기로 그리고, 테두리로 바탕과 떼고, 겹치면 dir 방향(-1 위, 1 아래)으로 한 줄씩 비켜 놓는다
+// offsets 를 주면 그 순서대로 자리를 시험한다(예: 풀밭 두 줄이 차면 머리 위로)
+function placeLabels(ctx, tk, labels, { size = 12, step = 14, dir = -1, maxRows = 3, offsets = null, fill = "#fff", stroke = "rgba(0,0,0,.7)" } = {}) {
+  ctx.save();
+  ctx.font = nameFont(tk, size, 800);
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.lineJoin = "round";
+  const placed = [];
+  const list = [...labels].sort((a, b) => (dir < 0 ? b.y - a.y : a.y - b.y) || a.x - b.x);
+  const cw = ctx.canvas.clientWidth || ctx.canvas.width;
+  for (const l0 of list) {
+    const tw = ctx.measureText(l0.name).width + 6;
+    const l = { ...l0, x: Math.min(cw - tw / 2, Math.max(tw / 2, l0.x)) }; // 화면 가장자리에서 이름이 잘리지 않게
+    const tries = offsets || Array.from({ length: maxRows }, (_, r) => r * dir * step);
+    const free = (yy) => !placed.some((p) => Math.abs(p.x - l.x) < (p.w + tw) / 2 && Math.abs(p.y - yy) < step);
+    let y = l.y + (tries.find((o) => free(l.y + o)) ?? tries[tries.length - 1]);
+    placed.push({ x: l.x, y, w: tw });
+    ctx.globalAlpha = l.dim ? 0.5 : 1;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 3.5;
+    ctx.strokeText(l.name, l.x, y);
+    ctx.fillStyle = fill;
+    ctx.fillText(l.name, l.x, y);
+  }
+  ctx.restore();
 }
 
 /* ========== 1. 풍선 터뜨리기 ========== */
@@ -363,20 +394,25 @@ export function startDuck({ stage, tray, players, rule = "last", penalty, onDone
       ctx.fillStyle = players[d.i].color;
       ctx.fillRect(-12, 6, 24, 4);
       ctx.restore();
-      ctx.fillStyle = "#fff";
-      ctx.font = nameFont(tk, 11, 800);
-      ctx.textAlign = "center";
-      ctx.fillText(players[d.i].name, d.x, d.y - 18);
     }
     ctx.restore();
+    // 이름표(10-06 화면 점검): 강 좌표에 그리면 화면 축소 비율만큼 글씨가 8px대로 작아지고, 오리끼리 붙으면 이름이 겹쳤다.
+    // → 화면 좌표에서 13px 고정 + 진한 테두리(파란 물 위에서도 읽히게) + 겹치면 위아래로 비켜 놓기
+    placeLabels(ctx, tk, ducks.map((d) => ({ name: players[d.i].name, x: d.x * k, y: (d.y - top) * k - 16 * k - 4 })).filter((l) => l.y > -10 && l.y < h + 20), {
+      size: 13, step: 15, dir: -1, maxRows: 4, fill: "#fff", stroke: "rgba(8,30,48,.85)",
+    });
     // 남은 거리
     const lead = ducks[order[0]];
-    ctx.fillStyle = "rgba(0,0,0,.45)";
-    ctx.fillRect(8, 8, 120, 26);
-    ctx.fillStyle = "#fff";
-    ctx.font = nameFont(tk, 12, 800);
+    // 남은 거리 칸: 글씨가 작고 바탕이 옅어 물결에 묻혔음(10-06) → 14px, 바탕 진하게, 칸 폭은 글자에 맞춤
+    const dist = `결승까지 ${Math.max(0, Math.round(LEN - lead.y))}m`;
+    ctx.font = nameFont(tk, 14, 800);
     ctx.textAlign = "left";
-    ctx.fillText(`결승까지 ${Math.max(0, Math.round(LEN - lead.y))}m`, 16, 26);
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(6,20,32,.78)";
+    ctx.fillRect(8, 8, ctx.measureText(dist).width + 20, 28);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(dist, 18, 22);
+    ctx.textBaseline = "alphabetic";
   }
   return { stop: () => (stop(), S.clear()) };
 }
@@ -388,6 +424,7 @@ export function startDodge({ stage, tray, players, rule = "last", penalty, onDon
   const n = players.length;
   const rand = seededRandom(randomSeed());
   const S = makeStage(stage, "똥 피하기 화면");
+  S.capTop?.(); // 이름이 바닥에 있어 자막이 이름을 가렸음(10-06) → 자막을 위로
   const AW = 360;
   const spot = [...Array(n).keys()].sort(() => rand() - 0.5);
   const guys = players.map((p, i) => ({ i, x: 20 + ((spot[i] + 0.5) / n) * (AW - 40), vx: 0, tx: 0, think: 0, out: false, outAt: 0 }));
@@ -492,12 +529,13 @@ export function startDodge({ stage, tray, players, rule = "last", penalty, onDon
       ctx.fill();
       ctx.fillRect(-7, -2, 14, 18);
       ctx.restore();
-      ctx.fillStyle = g.out ? "rgba(20,20,20,.45)" : "#141414";
-      ctx.font = nameFont(tk, 11, 800);
-      ctx.textAlign = "center";
-      ctx.fillText(players[g.i].name, g.x, groundY + 22);
     }
     ctx.restore();
+    // 이름표(10-06 화면 점검): 붙어 선 사람들 이름이 한 줄에 겹쳐 까맣게 뭉개졌음 → 화면 좌표 12px + 겹치면 아랫줄로 비켜 놓기(풀밭 두 줄, 넘치면 머리 위)
+    const ox = (w - AW * k) / 2, oy = h - 640 * k;
+    placeLabels(ctx, tk, guys.map((g) => ({ name: players[g.i].name, x: ox + g.x * k, y: oy + (groundY + 20) * k, dim: g.out })), {
+      step: 13, offsets: [0, 13, -52 * k - 13, -52 * k - 26, -52 * k - 39, -52 * k - 52, -52 * k - 65], fill: "#141414", stroke: "rgba(255,255,255,.75)",
+    });
   }
   return { stop: () => (stop(), S.clear()) };
 }

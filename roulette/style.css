@@ -169,7 +169,8 @@ body {
   padding: var(--sp-2) var(--sp-8);
   background: var(--art-red);
   color: #fff;
-  font: 400 15px/22px var(--font-display);
+  font: 400 16px/22px var(--font-display);
+  text-shadow: 1px 1px 0 var(--art-ink); /* 10-06: 빨강 위 흰 글씨가 얇아 흐렸음 */
   border: 3px solid var(--art-ink);
   border-bottom: 0;
 }

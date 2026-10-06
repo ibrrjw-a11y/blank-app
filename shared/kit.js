@@ -2,6 +2,7 @@
 // 서버 없이 동작하는 것이 기본 원칙: 상태 공유는 URL, 개인 기록은 localStorage.
 import { TOOLS, toolByPath } from "./sites.js";
 import { startUX } from "./ux.js";   // 2026-10-06 ⓘ 설명 접기·시작 단추 안내
+import { mountCoupang } from "./cp.js"; // 2026-10-06 쿠팡 파트너스 배너(모든 도구 공통)
 
 /* ---------- 페이지 이동 시 항상 맨 위에서 시작 ----------
  * 다른 페이지로 넘어왔을 때 이전 스크롤 위치가 복원되며 아래에서 시작하던 문제를 막는다.
@@ -607,3 +608,6 @@ export function countUp(el, to, { from = 0, duration = 1200, format = (n) => fmt
 /* ---------- 사용성 공용 장치 시작 (2026-10-06) ---------- */
 if (document.readyState === "loading") addEventListener("DOMContentLoaded", startUX, { once: true });
 else startUX();
+// 배너는 화면이 다 그려진 뒤(이것도 해보기가 붙은 뒤) 넣는다
+if (document.readyState === "complete") setTimeout(mountCoupang, 300);
+else addEventListener("load", () => setTimeout(mountCoupang, 300), { once: true });

@@ -502,6 +502,8 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    // 이름표가 서로 겹치면(출발선·한데 몰릴 때) 위로 한 칸씩 비켜 놓는다(10-06 화면 점검: '정다온'과 '민수'가 겹쳐 '정다온 1수'로 보였음)
+    const tagSpots = [];
     marbles.forEach((m, i) => {
       const [x, y] = toScreen(m.x, m.y);
       if (y < -20 || y > h + 20) return;
@@ -509,7 +511,9 @@ export function startRace({ stage, tray: trayEl, recEl, players, rule, penalty, 
       const label = isD ? `${penaltyEmoji(penalty)} ${players[i].name}` : players[i].name;
       ctx.font = `700 ${isD ? 12 : 11}px ${CANVAS_FONT}`;
       const tw = ctx.measureText(label).width + 12;
-      const ly = y - m.r * s - 12;
+      let ly = y - m.r * s - 12;
+      for (let r = 0; r < 3 && tagSpots.some((p) => Math.abs(p.x - x) < (p.w + tw) / 2 + 2 && Math.abs(p.y - ly) < 19); r++) ly -= 20;
+      tagSpots.push({ x, y: ly, w: tw });
       roundRect(ctx, x - tw / 2, ly - 9, tw, 18, 9);
       ctx.fillStyle = isD ? tk.brand : "rgba(8,9,12,0.62)";
       ctx.fill();
