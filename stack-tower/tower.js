@@ -7,6 +7,9 @@ export const BH = 28;
 export const BASE_W = 200;
 const G = 2600; // 중력 (월드 단위/s²)
 const PERFECT = 5; // 이 이하로 어긋나면 딱 맞음
+// 안개 층(2026-10-07 차별점, 사용자 "그대로 구현하지 말고 차별성"): FOG_EVERY 층마다 블록이 한 번 끝까지 갔다 돌아오면 안개에 가려진다.
+// 트롤리·줄·훅까지 함께 가려 위치 단서를 없앤다 → 앞에서 본 속도와 박자로 '감으로' 맞히기
+export const FOG_EVERY = 4;
 const HANG = 120; // 매달린 블록이 탑 꼭대기 위로 떠 있는 높이
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -133,7 +136,7 @@ export class Tower {
     const w = this.top.w;
     const fromLeft = f % 2 === 0;
     this.speed = Math.min(360, 150 + f * 6.5);
-    this.cur = { x: fromLeft ? -w * 0.4 : WW - w * 0.6, w, dir: fromLeft ? 1 : -1, y: this.topY + HANG, drop: 0 };
+    this.cur = { x: fromLeft ? -w * 0.4 : WW - w * 0.6, w, dir: fromLeft ? 1 : -1, y: this.topY + HANG, drop: 0, fog: !this.demo && (f + 1) % FOG_EVERY === 0, bounces: 0, hide: false };
     // 데모: 일부러 조금씩 어긋나게 놓는다
     if (this.demo) this.aim = [0, 0, 7, -12, 0, 16, -5, 0, 22][f % 9] * (Math.random() > 0.5 ? 1 : -1);
   }
@@ -141,7 +144,7 @@ export class Tower {
   drop() {
     if (this.over || this.falling || !this.cur) return false;
     const c = this.cur;
-    this.falling = { x: c.x, w: c.w, y: c.y, vy: -160 };
+    this.falling = { x: c.x, w: c.w, y: c.y, vy: -160, fog: c.fog };
     this.cur = null;
     return true;
   }
@@ -150,6 +153,7 @@ export class Tower {
     const f = this.falling;
     const t = this.top;
     this.falling = null;
+    if (f.fog) this.fogTry = (this.fogTry || 0) + 1;
     const L = Math.max(f.x, t.x);
     const R = Math.min(f.x + f.w, t.x + t.w);
     const ov = R - L;
@@ -161,6 +165,7 @@ export class Tower {
       return;
     }
     const diff = f.x - t.x;
+    if (f.fog) this.fogOk = (this.fogOk || 0) + 1;
     let placed;
     if (Math.abs(diff) <= PERFECT) {
       this.streak++;
@@ -213,9 +218,11 @@ export class Tower {
       if (c.x < min) {
         c.x = min;
         c.dir = 1;
+        if (c.fog && ++c.bounces >= 1) c.hide = true;
       } else if (c.x > max) {
         c.x = max;
         c.dir = -1;
+        if (c.fog && ++c.bounces >= 1) c.hide = true;
       }
       c.y = lerp(c.y, this.topY + HANG, 1 - Math.exp(-dt * 8));
       if (this.demo && !this.over) {
@@ -227,7 +234,7 @@ export class Tower {
       }
     }
     // 크레인 트롤리가 블록을 따라 움직인다
-    const tx = c ? c.x + c.w / 2 : this.falling ? this.falling.x + this.falling.w / 2 : this.trolleyX;
+    const tx = c ? (c.hide ? this.trolleyX : c.x + c.w / 2) : this.falling ? this.falling.x + this.falling.w / 2 : this.trolleyX; // 안개 중엔 트롤리를 멈춰 단서를 없앰
     this.trolleyX = lerp(this.trolleyX, tx, 1 - Math.exp(-dt * 14));
 
     const f = this.falling;
@@ -533,6 +540,7 @@ export class Tower {
     }
     ctx.stroke();
     if (this.over) return;
+    if (this.cur?.hide) return this.drawFog();
     // 트롤리 + 와이어 + 훅
     const tx = this.sx(this.trolleyX);
     ctx.fillStyle = c.ink;
@@ -573,6 +581,25 @@ export class Tower {
     }
   }
 }
+
+// 안개: 매달린 블록·트롤리·줄이 다니는 띠를 통째로 가림
+Tower.prototype.drawFog = function () {
+  const { ctx, c } = this;
+  const s = this.s;
+  const top = 26 * s;
+  const bottom = this.sy(this.cur.y) + 6 * s;
+  const g = ctx.createLinearGradient(0, top, 0, bottom);
+  g.addColorStop(0, "rgba(235,238,242,0.92)");
+  g.addColorStop(1, "rgba(235,238,242,0.97)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, top, this.cw, Math.max(0, bottom - top));
+  ctx.fillStyle = c.ink;
+  ctx.globalAlpha = 0.55 + 0.25 * Math.sin(this.t * 4);
+  ctx.font = `${28 * s}px ${c.font}`;
+  ctx.textAlign = "center";
+  ctx.fillText("? 안개 층 · 감으로 떨어뜨려요", this.cw / 2, (top + bottom) / 2 + 10 * s);
+  ctx.globalAlpha = 1;
+};
 
 // 공유 이미지: 내 탑 실루엣
 export function drawSilhouette(ctx, blocks, W, H, c, { floors, title = "", sub = "" }) {

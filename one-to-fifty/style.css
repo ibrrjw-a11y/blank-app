@@ -917,3 +917,14 @@ body.is-playing {
   .call[open] .call__grille,
   .seo.notice .call p { animation: none; }
 }
+
+/* ? 버튼(2026-10-07): 1초 보이고 뒤집힌 버튼 */
+.key.is-q .key__n { display: inline-block; color: #f2a43a; animation: q150 1.6s ease-in-out infinite; }
+.key.is-q { animation: q150flip 0.35s ease-out; }
+@keyframes q150 { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) scale(1.08); } }
+@keyframes q150flip { 0% { transform: rotateY(90deg); } 100% { transform: none; } }
+.qfloat { position: absolute; right: 8px; top: -14px; z-index: 5; padding: 2px 8px; border-radius: 999px; font: 800 13px/1.4 var(--font-sans, sans-serif); color: #fff; pointer-events: none; animation: qfl 1s ease-out forwards; }
+.qfloat.is-good { background: #2f8a3e; } .qfloat.is-bad { background: #c23b2a; }
+@keyframes qfl { 0% { transform: translateY(6px); opacity: 0; } 20% { transform: none; opacity: 1; } 100% { transform: translateY(-18px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .key.is-q .key__n, .key.is-q, .qfloat { animation: none; } }
+.indicator { position: relative; }

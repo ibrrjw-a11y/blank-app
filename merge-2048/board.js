@@ -1,4 +1,6 @@
 // 2048 규칙 + 나무 타일 렌더러. 첫 화면 데모와 실제 게임이 같은 코드를 쓴다.
+// 차별점(2026-10-07, 사용자 "그대로 구현하지 말고 차별성"): '? 타일' — 새 타일 중 일부는 숫자가 옹이 속에 숨음.
+// 같은 숫자를 만나 합쳐질 때 정체가 드러나고, ? 가 낀 합치기는 점수 두 배. 저장 때는 숨은 타일을 음수로 적음
 export const SIZE = 4;
 const DIRS = {
   left: [0, -1],
@@ -8,7 +10,8 @@ const DIRS = {
 };
 
 let uid = 1;
-const tile = (v, r, c) => ({ id: uid++, v, r, c });
+const tile = (v, r, c, h = false) => ({ id: uid++, v, r, c, h });
+export const HIDDEN_RATE = 0.15; // 새 타일이 ? 로 나올 확률
 
 export class Game {
   constructor(rand = Math.random) {
@@ -19,6 +22,7 @@ export class Game {
   reset() {
     this.cells = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
     this.score = 0;
+    this.q = 0; // ? 타일 맞힌(합친) 횟수
     this.won = false;
     this.over = false;
     this.spawn();
@@ -27,11 +31,12 @@ export class Game {
 
   // [[v|0,...]] 형태로 저장/복원
   toGrid() {
-    return this.cells.map((row) => row.map((t) => (t ? t.v : 0)));
+    return this.cells.map((row) => row.map((t) => (t ? (t.h ? -t.v : t.v) : 0)));
   }
-  load(grid, score = 0) {
-    this.cells = grid.map((row, r) => row.map((v, c) => (v ? tile(v, r, c) : null)));
+  load(grid, score = 0, q = 0) {
+    this.cells = grid.map((row, r) => row.map((v, c) => (v ? tile(Math.abs(v), r, c, v < 0) : null)));
     this.score = score;
+    this.q = q;
     this.over = !this.canMove();
   }
 
@@ -53,7 +58,8 @@ export class Game {
     if (!e.length) return null;
     const [r, c] = e[Math.floor(this.rand() * e.length)];
     // 90% 는 2, 10% 는 4
-    const t = tile(this.rand() < 0.9 ? 2 : 4, r, c);
+    const v = this.rand() < 0.9 ? 2 : 4;
+    const t = tile(v, r, c, this.rand() < HIDDEN_RATE);
     this.cells[r][c] = t;
     return t;
   }
@@ -71,7 +77,7 @@ export class Game {
   // 이동 결과를 미리 계산 (데모 AI 용, 상태는 바꾸지 않음)
   peek(dir) {
     const g = new Game(this.rand);
-    g.load(this.toGrid(), this.score);
+    g.load(this.toGrid(), this.score, this.q);
     const res = g.move(dir, { spawn: false });
     return res;
   }
@@ -86,6 +92,7 @@ export class Game {
     const removed = [];
     let moved = false;
     let gained = 0;
+    let qHits = 0;
     for (const r of rows) {
       for (const c of cols) {
         const t = this.cells[r][c];
@@ -108,10 +115,13 @@ export class Game {
             t.r = tr;
             t.c = tc;
             removed.push(t);
+            const q = o.h || t.h;
             o.v *= 2;
+            o.h = false; // 합쳐지면 정체가 드러남
             merged.add(o.id);
             merges.push(o);
-            gained += o.v;
+            gained += q ? o.v * 2 : o.v; // ? 가 낀 합치기는 두 배
+            if (q) qHits++;
             moved = true;
             if (o.v === 2048) this.won = true;
             nr = null;
@@ -130,9 +140,10 @@ export class Game {
     }
     if (!moved) return { moved: false };
     this.score += gained;
+    this.q += qHits;
     const born = spawn ? this.spawn() : null;
     this.over = !this.canMove();
-    return { moved: true, gained, merges, removed, born };
+    return { moved: true, gained, merges, removed, born, qHits };
   }
 }
 
@@ -169,10 +180,11 @@ export class BoardView {
     n.style.setProperty("--c", t.c);
   }
 
-  label(n, v) {
-    n.dataset.v = v > 2048 ? "big" : v;
-    n.dataset.d = String(v).length;
-    n.num.textContent = v;
+  label(n, v, h = false) {
+    n.dataset.v = h ? "q" : v > 2048 ? "big" : v;
+    n.dataset.d = h ? 1 : String(v).length;
+    n.num.textContent = h ? "?" : v;
+    n.classList.toggle("is-q", h);
   }
 
   clearGhosts() {
@@ -187,7 +199,7 @@ export class BoardView {
     for (const t of game.tiles) {
       const n = this.node(t);
       live.add(t.id);
-      this.label(n, t.v);
+      this.label(n, t.v, t.h);
       this.place(n, t);
       n.classList.remove("is-merged", "is-late");
       if (pop) {
@@ -241,7 +253,7 @@ export class BoardView {
     }
     if (res.born) {
       const n = this.node(res.born);
-      this.label(n, res.born.v);
+      this.label(n, res.born.v, res.born.h);
       this.place(n, res.born);
       n.classList.add("is-new", "is-late");
     }

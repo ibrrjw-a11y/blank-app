@@ -619,3 +619,10 @@ body.is-playing .site-footer { display: none; }
 .more-sites__desc { margin-top: var(--sp-4); color: var(--art-burn); opacity: 0.9; font-weight: 600; }
 .site-footer { color: var(--art-burn); opacity: 0.7; }
 .board-wrap:has(.endcard:not([hidden])) + .play__hint { visibility: hidden; }
+
+/* ? 타일(2026-10-07): 숫자가 옹이 속에 숨은 타일. 짙은 나무 + 흔들리는 ? */
+.tile.is-q { --wood: #6b4226; --edge: #3d2412; --depth: 4px; }
+.tile.is-q .tile__face { color: #ffe7b8; }
+.tile.is-q b { display: inline-block; animation: q2048 1.8s ease-in-out infinite; }
+@keyframes q2048 { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) scale(1.08); } }
+@media (prefers-reduced-motion: reduce) { .tile.is-q b { animation: none; } }

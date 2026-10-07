@@ -194,8 +194,10 @@ function drop() {
   game.drop();
 }
 
+let lastFog = { ok: 0, try: 0 };
 function finish(floors) {
   if (!game) return;
+  lastFog = { ok: game.fogOk || 0, try: game.fogTry || 0 };
   lastBlocks = game.blocks.map((b) => ({ x: b.x, w: b.w, y: b.y }));
   const prevBest = store.get("best", 0);
   const list = [...runs(), { f: floors, d: todayKey(), at: Date.now() }].slice(-60);
@@ -239,6 +241,7 @@ function renderResult({ floors, isBest, prevBest }) {
       <div><dt>내 최고</dt><dd>${best}층</dd></div>
       <div><dt>오늘</dt><dd>${today}판</dd></div>
       <div><dt>연속 출근</dt><dd>${st}일</dd></div>
+      <div><dt>안개 층</dt><dd>${lastFog.ok}/${lastFog.try}</dd></div>
     </dl>
     ${vs}
     <div class="log__bars" aria-label="최근 ${recent.length}판 층수">
@@ -358,6 +361,8 @@ function init() {
     drop();
   });
   document.addEventListener("visibilitychange", onVisibility);
+// 롤 큐: 다른 창(게임 클라이언트)으로 넘어가도 멈춤(2026-10-07)
+addEventListener("blur", () => { if (game && game.running) { game.stop(); $("#pause").hidden = false; } });
   let rt;
   window.addEventListener("resize", () => {
     clearTimeout(rt);

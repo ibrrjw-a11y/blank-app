@@ -227,7 +227,7 @@ function enterPlay(fresh = false) {
   const save = store.get("save");
   S.game = new Game();
   if (!fresh && save && !save.over && Array.isArray(save.grid) && save.grid.length === SIZE) {
-    S.game.load(save.grid, save.score || 0);
+    S.game.load(save.grid, save.score || 0, save.q || 0);
     S.prev = save.prev || null;
     S.undoUsed = !!save.undoUsed;
     S.keepGoing = !!save.keepGoing;
@@ -250,7 +250,7 @@ function enterPlay(fresh = false) {
 
 function persist() {
   const g = S.game;
-  store.set("save", { grid: g.toGrid(), score: g.score, prev: S.prev, undoUsed: S.undoUsed, keepGoing: S.keepGoing, over: g.over });
+  store.set("save", { grid: g.toGrid(), score: g.score, q: g.q, prev: S.prev, undoUsed: S.undoUsed, keepGoing: S.keepGoing, over: g.over });
 }
 
 function updateHud(gained = 0) {
@@ -261,7 +261,7 @@ function updateHud(gained = 0) {
   $("#best").textContent = num(best);
   if (gained) {
     const p = $("#plus");
-    p.textContent = `+${gained}`;
+    p.textContent = S.lastQ ? `+${gained} ?맞힘` : `+${gained}`;
     pulse(p, "is-on");
   }
   const u = $("#undo");
@@ -272,8 +272,9 @@ function updateHud(gained = 0) {
 function move(dir) {
   const g = S.game;
   if (!g || g.over || !$("#endcard").hidden) return;
-  const before = { grid: g.toGrid(), score: g.score };
+  const before = { grid: g.toGrid(), score: g.score, q: g.q };
   const res = g.move(dir);
+  S.lastQ = res.qHits || 0;
   S.view.apply(res);
   if (!res.moved) {
     haptic(4);
@@ -299,7 +300,7 @@ function move(dir) {
 
 function undo() {
   if (S.undoUsed || !S.prev) return;
-  S.game.load(S.prev.grid, S.prev.score);
+  S.game.load(S.prev.grid, S.prev.score, S.prev.q || 0);
   S.undoUsed = true;
   S.prev = null;
   S.view.sync(S.game, { pop: false });
@@ -334,7 +335,7 @@ function showEnd(kind) {
     <div class="endcard__box">
       <p class="endcard__k">${kind === "won" ? "완성" : "더 밀 곳이 없어요"}</p>
       <p class="endcard__big">${kind === "won" ? "2048" : num(g.score)}<small>${kind === "won" ? "" : "점"}</small></p>
-      <p class="endcard__sub">${kind === "won" ? `지금 ${num(g.score)}점 · 계속 밀어서 4096도 가능해요` : `가장 큰 나무 ${g.max} · 내 최고 ${num(best)}점${g.score >= best ? " (갱신)" : ""}`}</p>
+      <p class="endcard__sub">${kind === "won" ? `지금 ${num(g.score)}점 · 계속 밀어서 4096도 가능해요` : `가장 큰 나무 ${g.max} · ? 타일 ${g.q}번 맞힘 · 내 최고 ${num(best)}점${g.score >= best ? " (갱신)" : ""}`}</p>
       ${vs}
       <label class="endcard__name"><span>도전장에 쓸 이름</span><input class="input" id="myName" maxlength="10" placeholder="예: 민지" autocomplete="nickname" /></label>
       <div class="endcard__btns">

@@ -69,6 +69,24 @@ const sfx = {
   },
 };
 
+/* ---------- ? 버튼(2026-10-07 차별점) ----------
+ * 사용자 "그대로 구현하지 말고 차별성": 버튼 몇 개가 1초만 숫자를 보여 주고 '?'로 뒤집힌다(처음 25개 중 5개, 26~50이 새로 뜰 때 5개 중 1개꼴).
+ * 위치를 기억해 맞게 누르면 0.5초를 빼 주고, 차례가 아닌 ? 를 누르면 1초가 더해지고 숫자가 드러난다 — 'Guess What' 기억 맞히기 */
+export const Q_FIRST = 5, Q_SECOND_RATE = 0.2, Q_SHOW_MS = 1000, Q_BONUS = 500, Q_PENALTY = 1000;
+function hideLater(i, v, gen) {
+  setTimeout(() => {
+    if (gen !== G.gen || G.phase !== "run" || G.vals[i] !== v) return;
+    G.hid.add(i);
+    setKey(G.keys[i], v, G.keys[i].el.dataset.layer, true);
+  }, Q_SHOW_MS);
+}
+function floatTime(text, kind) {
+  const el = document.createElement("b");
+  el.className = `qfloat is-${kind}`; el.textContent = text;
+  $("#timeSeg").parentElement.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
 /* ---------- 버튼 만들기 ---------- */
 function buildKeys(board, mini = false) {
   board.innerHTML = range(0, N - 1)
@@ -77,10 +95,11 @@ function buildKeys(board, mini = false) {
   return [...board.querySelectorAll(".key")].map((el) => ({ el, n: el.firstElementChild }));
 }
 
-function setKey(k, v, layer) {
-  k.n.textContent = v ? String(v) : "";
+function setKey(k, v, layer, hidden = false) {
+  k.n.textContent = v ? (hidden ? "?" : String(v)) : "";
   k.el.dataset.layer = layer;
-  k.el.setAttribute("aria-label", v ? `${v}` : "꺼진 버튼");
+  k.el.classList.toggle("is-q", !!(v && hidden));
+  k.el.setAttribute("aria-label", v ? (hidden ? "숨은 버튼" : `${v}`) : "꺼진 버튼");
 }
 
 function pulse(el, cls) {
@@ -326,6 +345,9 @@ function begin(gen) {
   G.keys.forEach((k, i) => setKey(k, G.vals[i], 1));
   G.next = 1;
   G.split = 0;
+  G.hid = new Set(); G.adj = 0; G.qHit = 0; G.qMiss = 0;
+  // 처음 25개 중 6 이상인 버튼 5개를 1초 뒤 ? 로
+  shuffle(range(0, N - 1).filter((i) => G.vals[i] >= 6)).slice(0, Q_FIRST).forEach((i) => hideLater(i, G.vals[i], gen));
   G.phase = "run";
   G.t0 = performance.now();
   $("#board").classList.add("is-live");
@@ -335,7 +357,7 @@ function begin(gen) {
   cancelAnimationFrame(G.raf);
   const loop = (now) => {
     if (G.phase !== "run") return;
-    if (!G.paused) G.seg.set(fmtTime(now - G.t0));
+    if (!G.paused) G.seg.set(fmtTime(Math.max(0, now - G.t0 + G.adj)));
     G.raf = requestAnimationFrame(loop);
   };
   G.raf = requestAnimationFrame(loop);
@@ -354,6 +376,19 @@ function press(i) {
   const k = G.keys[i];
   const v = G.vals[i];
   if (!v) return;
+  if (G.hid.has(i)) {
+    G.hid.delete(i);
+    if (v !== G.next) {
+      // 차례가 아닌 ? : 1초 더하고 숫자를 드러냄
+      G.adj += Q_PENALTY; G.qMiss++; G.misses++;
+      setKey(k, v, k.el.dataset.layer, false);
+      pulse(k.el, "is-miss"); sfx.miss(); haptic(30);
+      floatTime("+1.00", "bad");
+      return;
+    }
+    G.adj -= Q_BONUS; G.qHit++;
+    floatTime("−0.50", "good");
+  }
   if (v !== G.next) {
     G.misses++;
     pulse(k.el, "is-miss");
@@ -364,6 +399,7 @@ function press(i) {
   if (G.next <= 25) {
     G.vals[i] = G.second[i];
     setKey(k, G.vals[i], 2);
+    if (Math.random() < Q_SECOND_RATE) hideLater(i, G.vals[i], G.gen);
   } else {
     G.vals[i] = 0;
     setKey(k, 0, 0);
@@ -388,7 +424,7 @@ function endGame() {
 }
 
 async function finish(now) {
-  const ms = Math.round(now - G.t0);
+  const ms = Math.max(0, Math.round(now - G.t0 + G.adj));
   G.phase = "done";
   cancelAnimationFrame(G.raf);
   G.seg.set(fmtTime(ms));
@@ -486,6 +522,7 @@ function renderResult({ ms, split, misses, isBest, prevBest }) {
       <div><dt>1~25</dt><dd>${sec(split)}<small>초</small></dd></div>
       <div><dt>26~50</dt><dd>${sec(ms - split)}<small>초</small></dd></div>
       <div><dt>헛누름</dt><dd>${misses}<small>번</small></dd></div>
+      <div><dt>? 맞힘</dt><dd>${G.qHit}<small>/${G.qHit + G.qMiss}</small></dd></div>
       <div><dt>내 최고</dt><dd>${sec(best)}<small>초</small></dd></div>
       <div><dt>오늘</dt><dd>${today}<small>판</small></dd></div>
       <div><dt>연속</dt><dd>${st}<small>일</small></dd></div>
@@ -685,6 +722,7 @@ function init() {
   $("#quit").onclick = enterIntro;
   $("#pause").onclick = resume;
   document.addEventListener("visibilitychange", onVisibility);
+  addEventListener("blur", () => { if (G.phase === "run" && !G.paused) { G.paused = true; G.pausedAt = performance.now(); $("#pause").hidden = false; $("#board").classList.add("is-covered"); } });
   enterIntro();
 }
 
