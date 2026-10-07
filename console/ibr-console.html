@@ -253,7 +253,8 @@ if(!VIEWS.some(v=>v[0]===S.view))S.view='home';
 function objs(key){const v=S.raw[key];if(!v||!v.length)return [];const h=v[0];const kc=KEYCOL[key];return v.slice(1).map((r,i)=>{const o={_row:i+2};h.forEach((k,j)=>o[k]=r[j]??'');return o}).filter(o=>!kc||String(o[kc]).trim()!=='')}
 function list(key){const v=S.raw[key]||[];return v.slice(1).map(r=>r[0]).filter(Boolean)}
 const people=()=>objs('people').filter(p=>p['상태']!=='퇴사').map(p=>p['이름']);
-const brandNames=()=>objs('brands').map(b=>b['브랜드']);
+const excluded=()=>new Set(objs('brands').filter(b=>b['상태']==='제외').map(b=>b['브랜드']));
+const brandNames=()=>objs('brands').filter(b=>b['상태']!=='제외').map(b=>b['브랜드']);
 const workflows=()=>[...new Set(objs('playbook').map(p=>p['워크플로우']).filter(Boolean))];
 const brandOf=n=>objs('brands').find(b=>b['브랜드']===n);
 const pbItem=(wf,no)=>objs('playbook').find(p=>p['워크플로우']===wf&&String(p['순서'])===String(no));
@@ -488,8 +489,8 @@ function vEvents(){
 
 function monthPicker(){return `<label class="fld">월<input id="fMonth" type="month" value="${S.month}"></label>`}
 const monNo=m=>String(+String(m).slice(5));
-const salesOf=m=>objs('sales').filter(r=>String(+r['정산월'])===monNo(m));
-const adsOf=m=>objs('ads').filter(r=>String(+r['월'])===monNo(m));
+const salesOf=m=>{const x=excluded();return objs('sales').filter(r=>String(+r['정산월'])===monNo(m)&&!x.has(r['브랜드']))};
+const adsOf=m=>{const x=excluded();return objs('ads').filter(r=>String(+r['월'])===monNo(m)&&!x.has(r['브랜드']))};
 /* fixed cost is entered per month; a month without rows carries the latest earlier month forward */
 function fixedFor(m){
   const all=objs('fixed').filter(r=>/^\d{4}-\d{2}$/.test(String(r['월'])));
@@ -551,7 +552,7 @@ function vBrands(){
   if(S.brandSel){const b=brandOf(S.brandSel);if(b)return vBrand(b);S.brandSel=null}
   const ot=openTasks(),as=objs('assets'),gs=chkGroups();
   return `<div class="filters"><button class="btn primary" data-act="newBrand" type="button">새 브랜드 시작</button><span class="sync">새 브랜드를 만들면 온보딩 체크리스트가 담당자와 마감일까지 자동으로 만들어집니다.</span></div>
-  <div class="brands">${objs('brands').map(b=>{const n=b['브랜드'];const items=gs.filter(g=>g.brand===n).flatMap(g=>g.items);const d=items.filter(i=>CHK_DONE.has(i['상태'])).length;const late=items.filter(i=>!CHK_DONE.has(i['상태'])&&(dday(i['마감일'])??0)<0).length;
+  <div class="brands">${objs('brands').filter(b=>b['상태']!=='제외').map(b=>{const n=b['브랜드'];const items=gs.filter(g=>g.brand===n).flatMap(g=>g.items);const d=items.filter(i=>CHK_DONE.has(i['상태'])).length;const late=items.filter(i=>!CHK_DONE.has(i['상태'])&&(dday(i['마감일'])??0)<0).length;
     return `<button class="bcard" data-act="brand" data-b="${esc(n)}" type="button"><span style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(n)}</b>${b['상태']?`<span class="pill ${b['상태']==='운영중'?'ok':b['상태']==='중단'?'':'warn'}">${esc(b['상태'])}</span>`:''}</span><span class="sync">${esc(b['한줄소개']||b['판매법인']||'브랜드북 미작성')}</span>${items.length?progBar(d,items.length):''}<span class="stats"><span><b>${num(b['판매구성수'])}</b>판매구성</span><span><b>${ot.filter(t=>t['브랜드']===n).length}</b>진행업무</span><span><b class="${late?'neg':''}">${late}</b>지연 체크</span></span></button>`}).join('')||'<p class="empty">브랜드 탭이 비어 있습니다.</p>'}</div>`;
 }
 function bookField(b,k){const v=String(b[k]||'').trim();return `<div class="f"><span>${k}</span>${v?(/^https?:\/\//.test(v)?`<p><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></p>`:`<p>${esc(v)}</p>`):'<p class="miss">미작성</p>'}</div>`}
