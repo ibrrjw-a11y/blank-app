@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>날개 퍼덕 | 플래피 버드처럼 기둥 틈 지나가기 - 어려운 원터치 게임</title>
+    <meta name="description" content="누르면 퍼덕, 놓으면 뚝. 기둥 틈을 지나가는 플래피 버드류 원터치 게임. 갈수록 틈이 좁아지고 빨라져요. 같은 하늘로 도전장, 매일 오늘의 하늘. 창을 내리면 멈춰요." />
+    <meta name="keywords" content="플래피 버드, 날개 퍼덕 게임, 원터치 게임, 기둥 피하기 게임, 어려운 게임, 롤 큐 미니게임" />
+    <link rel="canonical" href="https://guesswhat.co.kr/flappy/" />
+    <meta name="theme-color" content="#4ec0e9" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="날개 퍼덕 - 기둥 몇 개 지나갈까" />
+    <meta property="og:description" content="같은 하늘로 이겨 봐." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="../shared/arcade.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "날개 퍼덕",
+  "url": "https://guesswhat.co.kr/flappy/",
+  "description": "누르면 퍼덕, 놓으면 뚝. 기둥 틈을 지나가는 플래피 버드류 원터치 게임. 갈수록 틈이 좁아지고 빨라져요. 같은 하늘로 도전장, 매일 오늘의 하늘. 창을 내리면 멈춰요.",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+  </head>
+  <body>
+    <main class="ar">
+      <section class="ar-v" id="intro">
+        <div class="ar-hero" aria-hidden="true"><div class="hero" id="hero"></div></div>
+        <h1 class="ar-title">날개 퍼덕</h1>
+        <p class="ar-lead">누르면 퍼덕, 놓으면 떨어져요. 기둥 틈으로만 지나가요.</p>
+        <div class="ar-chal" id="chal" hidden></div>
+        <div class="ar-btns">
+          <button class="ar-go" id="playDaily" type="button"><span class="ar-go__k" id="todayNo">오늘</span><span>오늘의 하늘 · 모두 같은 기둥</span></button>
+          <button class="ar-go ar-go--sub" id="playRandom" type="button"><span class="ar-go__k">새 하늘</span><span>아무 하늘로 한 판</span></button>
+        </div>
+        <p class="ar-rec" id="rec"></p>
+      </section>
+
+      <section class="ar-v" id="play" hidden>
+        <div class="ar-hud">
+          <b class="ar-score" id="score">0</b>
+          <span class="ar-tip">누르면 퍼덕</span>
+          <button class="ar-pause" id="pauseBtn" type="button" aria-label="멈춤">Ⅱ</button>
+        </div>
+        <div class="ar-stage">
+          <canvas id="cv" width="360" height="560" aria-label="날개 퍼덕 놀이판"></canvas>
+          <b class="ar-count" id="count" hidden>3</b>
+          <div class="ar-pausebox" id="pause" hidden>
+            <b>멈춤</b><span></span>
+            <button class="ar-go" id="resume" type="button"><span class="ar-go__k">계속</span><span>이어서 하기</span></button>
+          </div>
+        </div>
+        <p class="ar-keys">PC는 스페이스·↑ 키</p>
+      </section>
+
+      <section class="ar-v" id="res" hidden>
+        <div class="ar-card">
+          <span class="ar-card__k" id="resKind"></span>
+          <p class="ar-card__n"><b id="total">0</b>개</p>
+          <span class="ar-card__why" id="resWhy"></span>
+          <span class="ar-card__x" id="resExtra"></span>
+        </div>
+        <p class="ar-line" id="resLine"></p>
+        <div class="ar-coupon"><pre id="shareText"></pre>
+          <button class="ar-go" id="shareBtn" type="button"><span class="ar-go__k">도전장</span><span>같은 하늘로 친구 부르기</span></button>
+        </div>
+        <div class="ar-btns">
+          <button class="ar-go ar-go--sub" id="again" type="button"><span class="ar-go__k">다시</span><span>같은 하늘 한 번 더</span></button>
+          <button class="ar-go ar-go--sub" id="newOne" type="button"><span class="ar-go__k">새 하늘</span><span>다른 하늘로</span></button>
+        </div>
+      </section>
+
+      <article class="seo ar-doc">
+        <h2>날개 퍼덕 하는 법</h2>
+        <p>화면을 누를 때마다 새가 위로 퍼덕 올라가고, 가만히 있으면 떨어져요. 위아래 기둥 사이 틈으로만 지나가요. 땅이나 기둥에 닿으면 끝이에요.</p><p>기둥을 지날수록 틈이 좁아지고(168px → 118px) 빨라져요. PC에서는 스페이스나 ↑ 키로 퍼덕여요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>도전장은 어떻게 보내요?</summary><p>끝난 화면에서 '같은 하늘로 친구 부르기'를 누르면 내 점수와 판 번호가 담긴 링크가 나가요. 친구는 똑같은 판으로 해요.</p></details>
+        <details><summary>큐 잡혀서 나갔다 와도 돼요?</summary><p>돼요. 다른 창으로 넘어가거나 화면을 내리면 바로 멈추고, '계속'을 누르면 이어져요.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">날개 퍼덕 · 기록은 이 기기에만 남아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

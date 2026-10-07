@@ -1,0 +1,13 @@
+/* 막대 다리 — 장르: 노을 · 검은 기둥 · 빨간 머리띠 닌자
+ * 움직임: 첫 화면 막대가 자라다 넘어져 다리가 되고 다음 기둥으로 건너감 */
+:root {
+  --ar-bg: #fff1e3; --ar-fg: #2b1d14; --ar-sub: #6b5040; --ar-panel: #fffaf3; --ar-line: #2b1d14; --ar-edge: #2b1d14;
+  --ar-accent: #e2312b; --ar-accent-ink: #fff6ee; --ar-bad: #c0281f; --ar-veil: rgba(43, 29, 20, 0.9);
+  --ar-hero: linear-gradient(#ffb88c, #ffe8cc); --ar-ratio: 360 / 560;
+  --color-bg: var(--ar-bg); --color-text: var(--ar-fg); --color-text-secondary: var(--ar-sub); color-scheme: light;
+}
+.hero { position: absolute; inset: 0; background: linear-gradient(#2b1d14, #2b1d14) 40px 130px / 70px 70px no-repeat, linear-gradient(#2b1d14, #2b1d14) 230px 130px / 40px 70px no-repeat, linear-gradient(#e2312b, #e2312b) 245px 130px / 10px 5px no-repeat; }
+.hero::before { content: ""; position: absolute; left: 108px; top: 130px; width: 4px; height: 128px; margin-top: -128px; background: #3a2a1e; transform-origin: bottom center; animation: sk-stick 3s infinite; }
+@keyframes sk-stick { 0% { transform: scaleY(0); } 35% { transform: scaleY(1); } 45%, 100% { transform: rotate(90deg); } }
+.hero::after { content: ""; position: absolute; left: 90px; top: 104px; width: 16px; height: 26px; background: linear-gradient(#e2312b 0 5px, #1f1f1f 5px); border-radius: 3px; animation: sk-walk 3s infinite; }
+@keyframes sk-walk { 0%, 50% { transform: none; } 80%, 100% { transform: translateX(148px); } }

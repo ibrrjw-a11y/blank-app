@@ -1,0 +1,17 @@
+/* 날개 퍼덕 — 장르: 낮 하늘 · 초록 기둥 · 노란 새
+ * 움직임: 첫 화면 기둥이 흘러가고 새가 퍼덕이며 틈을 지나감 */
+:root {
+  --ar-bg: #e6f6fb; --ar-fg: #14313d; --ar-sub: #3f5f6b; --ar-panel: #ffffff; --ar-line: #14313d; --ar-edge: #14313d;
+  --ar-accent: #ffd23f; --ar-accent-ink: #2b2005; --ar-accent-text: #b8860b; --ar-bad: #d8322a; --ar-veil: rgba(20, 49, 61, 0.9);
+  --ar-hero: linear-gradient(#4ec0e9, #bfeaf5); --ar-ratio: 360 / 560;
+  --color-bg: var(--ar-bg); --color-text: var(--ar-fg); --color-text-secondary: var(--ar-sub); color-scheme: light;
+}
+.hero { position: absolute; inset: 0; }
+.hero::before { content: ""; position: absolute; top: 0; bottom: 0; left: 100%; width: 520px; background:
+  linear-gradient(#5cbf2a, #5cbf2a) 0 0 / 46px 60px no-repeat, linear-gradient(#5cbf2a, #5cbf2a) 0 140px / 46px 60px no-repeat,
+  linear-gradient(#5cbf2a, #5cbf2a) 180px 0 / 46px 100px no-repeat, linear-gradient(#5cbf2a, #5cbf2a) 180px 180px / 46px 20px no-repeat,
+  linear-gradient(#5cbf2a, #5cbf2a) 360px 0 / 46px 30px no-repeat, linear-gradient(#5cbf2a, #5cbf2a) 360px 110px / 46px 90px no-repeat;
+  animation: fp-scroll 4.5s linear infinite; }
+@keyframes fp-scroll { to { transform: translateX(-980px); } }
+.hero::after { content: ""; position: absolute; left: 30%; top: 80px; width: 30px; height: 24px; border: 2px solid #3a2a0a; border-radius: 50%; background: radial-gradient(circle at 70% 30%, #1b1b1b 0 2px, #fff 3px 6px, transparent 7px), #ffd23f; animation: fp-bob 0.9s ease-in-out infinite; }
+@keyframes fp-bob { 0%, 100% { transform: translateY(14px) rotate(14deg); } 30% { transform: translateY(-16px) rotate(-18deg); } }

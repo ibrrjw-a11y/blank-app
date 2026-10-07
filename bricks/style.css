@@ -1,0 +1,15 @@
+/* 벽돌깨기 — 장르: 밤 오락실 · 남색 판 · 무지개 벽돌 · 빛나는 공
+ * 움직임: 첫 화면 공이 튀며 벽돌 줄 사이를 오감 */
+:root {
+  --ar-bg: #0b0f26; --ar-fg: #f5f6ff; --ar-sub: #b3b9db; --ar-panel: #161c42; --ar-line: #48dbfb; --ar-edge: #000;
+  --ar-accent: #48dbfb; --ar-accent-ink: #06202a; --ar-bad: #ff8a9a; --ar-veil: rgba(11, 15, 38, 0.92);
+  --ar-hero: #0e1230; --ar-ratio: 360 / 560;
+  --color-bg: var(--ar-bg); --color-text: var(--ar-fg); --color-text-secondary: var(--ar-sub); color-scheme: dark;
+}
+.hero { position: absolute; inset: 0; background:
+  repeating-linear-gradient(90deg, transparent 0 4px, #ff5d73 4px 44px) 0 24px / 100% 14px no-repeat,
+  repeating-linear-gradient(90deg, transparent 0 4px, #feca57 4px 44px) 0 42px / 100% 14px no-repeat,
+  repeating-linear-gradient(90deg, transparent 0 4px, #1dd1a1 4px 44px) 0 60px / 100% 14px no-repeat,
+  linear-gradient(#f5f6ff, #f5f6ff) 50% 176px / 70px 8px no-repeat; }
+.hero::after { content: ""; position: absolute; left: 50%; top: 160px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px #9fe8ff; animation: bk-ball 1.6s linear infinite; }
+@keyframes bk-ball { 0% { transform: translate(0, 0); } 25% { transform: translate(90px, -80px); } 50% { transform: translate(20px, -84px); } 75% { transform: translate(-90px, -40px); } 100% { transform: translate(0, 0); } }
