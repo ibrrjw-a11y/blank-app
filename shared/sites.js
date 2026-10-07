@@ -43,6 +43,8 @@ export const TOOLS = [
   { path: "daily", cat: "game", name: "오늘의 Guess", desc: "그림·동네·가격·연도·비율 하루 5문제" },
   { path: "eorim", cat: "game", name: "어림짐작", desc: "정답 대신 범위로 맞히는 상식 퀴즈" },
   { path: "apple", cat: "game", name: "사과 게임", desc: "합이 10이 되게 묶는 2분 게임" },
+  { path: "baseball", cat: "game", name: "숫자 야구", desc: "숫자 세 개를 9회 안에 맞히기" },
+  { path: "mole", cat: "game", name: "규칙 두더지", desc: "10초마다 규칙이 바뀌는 두더지 잡기" },
   { path: "merge-2048", cat: "game", name: "2048", desc: "나무 타일 숫자 합치기" },
   { path: "one-to-fifty", cat: "game", name: "1 to 50", desc: "1부터 50까지 순서대로 누르기" },
   { path: "stack-tower", cat: "game", name: "탑 쌓기", desc: "크레인 블록, 몇 층까지" },
