@@ -213,8 +213,8 @@ textarea{min-height:80px;resize:vertical}
 <script>
 const SID='16LBlBvCVxNsTs5EG8eds-2Y16ZNtjZTj-_qZLoeRhLs';
 const SV='Google Sheets';
-const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:R",playbook:"'플레이북'!A1:J",checks:"'체크리스트'!A1:M",tasks:"'업무'!A1:N",events:"'일정'!A1:L",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",sales:"'매출집계'!A1:I",ads:"'광고집계'!A1:E",conf:"'설정'!A1:B5",stores:"'스토어'!A1:F",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",corps:"'판매법인'!A1:A",sku:"'SKU'!A1:E",combos:"'판매구성'!A1:H",prices:"'가격표'!A1:E",chopts:"'채널옵션'!A1:K"};
-const KEYCOL={people:'이름',brands:'브랜드',playbook:'항목',checks:'항목',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'채널',sales:'브랜드',ads:'브랜드',stores:'스토어',sku:'SKU코드',combos:'구성코드',prices:'구성코드',chopts:'구성코드'};
+const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:R",playbook:"'플레이북'!A1:J",checks:"'체크리스트'!A1:M",tasks:"'업무'!A1:N",events:"'일정'!A1:L",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",sales:"'매출집계'!A1:I",ads:"'광고집계'!A1:E",fixed:"'고정비'!A1:F",stores:"'스토어'!A1:F",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",corps:"'판매법인'!A1:A",sku:"'SKU'!A1:E",combos:"'판매구성'!A1:H",prices:"'가격표'!A1:E",chopts:"'채널옵션'!A1:K"};
+const KEYCOL={people:'이름',brands:'브랜드',playbook:'항목',checks:'항목',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'채널',sales:'브랜드',ads:'브랜드',fixed:'금액',stores:'스토어',sku:'SKU코드',combos:'구성코드',prices:'구성코드',chopts:'구성코드'};
 const BOOK=['한줄소개','타깃고객','핵심메시지','톤앤매너','금지표현','가격원칙','주력채널','경쟁브랜드','공식몰','인스타그램'];
 const SHEETS={
   checks:{name:'체크리스트',cols:['체크ID','브랜드','워크플로우','대상','순서','단계','항목','담당자','마감일','상태','완료일','산출물링크','메모']},
@@ -222,6 +222,7 @@ const SHEETS={
   events:{name:'일정',cols:['일정ID','일정명','유형','브랜드','판매채널','거래처','시작일','종료일','담당자','상태','적용가격정책','내용'],prefix:'E',auto:['적용가격정책']},
   assets:{name:'브랜드에셋',cols:['에셋ID','브랜드','유형','에셋명','링크','버전','구성코드','담당자','등록일','상태'],prefix:'A'},
   people:{name:'담당자',cols:['이름','이메일','역할','상태']},
+  fixed:{name:'고정비',cols:['월','항목','판매법인','브랜드','금액','메모']},
   brands:{name:'브랜드',cols:['브랜드','판매법인','브랜드매니저','상태','에셋폴더','SKU수','판매구성수',...BOOK],auto:['SKU수','판매구성수']}
 };
 const TASK_ST=['대기','진행중','검토','보류','완료'];
@@ -386,6 +387,7 @@ const FORMS={
   tasks:[['업무명','text',1,'wide'],['브랜드','sel:brands'],['판매채널','sel:channels'],['담당자','sel:people'],['요청자','sel:people'],['시작일','date'],['마감일','date'],['상태','list:'+TASK_ST.join(',')],['우선순위','list:긴급,높음,보통,낮음'],['연결일정','sel:eventsId','','wide'],['내용','area','','wide']],
   events:[['일정명','text',1,'wide'],['유형','list:'+EV_TYPES.join(','),1],['브랜드','sel:brands'],['판매채널','sel:channels'],['거래처','sel:partners'],['시작일','date',1],['종료일','date'],['담당자','sel:people'],['상태','list:예정,진행중,완료,취소'],['내용','area','','wide']],
   assets:[['에셋명','text',1,'wide'],['브랜드','sel:brands',1],['유형','list:로고,BI가이드,상세페이지,제품컷,연출컷,영상,패키지도면,인증서,성분표,카피,기타',1],['링크','url','','wide'],['버전','text'],['구성코드','text'],['담당자','sel:people'],['상태','list:사용중,구버전,폐기']],
+  fixed:[['월','month',1],['항목','list:인건비,임대료,물류고정,시스템·구독,외주·대행,기타,합계',1],['금액','number',1],['판매법인','sel:corps'],['브랜드','sel:brands'],['메모','text','','wide']],
   people:[['이름','text',1],['이메일','text'],['역할','list:대표,브랜드매니저,MD,마케터,디자이너,콘텐츠,CS,물류,재무,기타'],['상태','list:재직,휴직,퇴사']],
   brands:[['판매법인','sel:corps'],['브랜드매니저','sel:people'],['상태','list:운영중,런칭예정,중단'],['주력채널','text'],['한줄소개','text','','wide'],['타깃고객','area','','wide'],['핵심메시지','area','','wide'],['톤앤매너','area','','wide'],['금지표현','area','','wide'],['가격원칙','area','','wide'],['경쟁브랜드','text','','wide'],['공식몰','url'],['인스타그램','url'],['에셋폴더','url','','wide']],
   newBrand:[['브랜드','text',1],['상태','list:런칭예정,운영중,중단'],['판매법인','sel:corps'],['브랜드매니저','sel:people'],['온보딩 시작일','date',1,'wide']],
@@ -488,7 +490,16 @@ function monthPicker(){return `<label class="fld">월<input id="fMonth" type="mo
 const monNo=m=>String(+String(m).slice(5));
 const salesOf=m=>objs('sales').filter(r=>String(+r['정산월'])===monNo(m));
 const adsOf=m=>objs('ads').filter(r=>String(+r['월'])===monNo(m));
-const fixedCost=()=>{const r=(S.raw.conf||[]).find(x=>x[0]==='고정비(월)');return r?num(r[1]):0};
+/* fixed cost is entered per month; a month without rows carries the latest earlier month forward */
+function fixedFor(m){
+  const all=objs('fixed').filter(r=>/^\d{4}-\d{2}$/.test(String(r['월'])));
+  let rows=all.filter(r=>r['월']===m),from=m;
+  if(!rows.length){const prev=[...new Set(all.map(r=>r['월']))].filter(x=>x<m).sort().pop();if(prev){rows=all.filter(r=>r['월']===prev);from=prev}}
+  const total=rows.reduce((a,r)=>a+num(r['금액']),0);
+  const direct=k=>rows.filter(r=>r['브랜드']===k).reduce((a,r)=>a+num(r['금액']),0);
+  const common=rows.filter(r=>!r['브랜드']).reduce((a,r)=>a+num(r['금액']),0);
+  return {rows,from,carried:rows.length>0&&from!==m,total,direct,common};
+}
 function vSettle(){
   const m=S.month;const rows=objs('settle').filter(s=>s['월']===m);
   const have=new Set(rows.map(r=>r['채널']));
@@ -524,13 +535,16 @@ function trendSvg(){
 }
 function vClose(){
   const rows=closeData(S.month,S.grp);const T=k=>rows.reduce((a,r)=>a+r[k],0);
-  const pct=(a,b)=>b?(a/b*100).toFixed(1)+'%':'';const fc=fixedCost();const op=T('profit')-fc;
+  const pct=(a,b)=>b?(a/b*100).toFixed(1)+'%':'';const fx=fixedFor(S.month);const fc=fx.total;const op=T('profit')-fc;
+  const byBrand=S.grp==='브랜드';const totRev=T('rev');
+  rows.forEach(r=>{r.fix=byBrand?fx.direct(r.k)+(totRev?fx.common*r.rev/totRev:0):0;r.op=r.profit-r.fix});
   return `<div class="filters">${monthPicker()}<div class="seg" role="group" aria-label="묶음 기준">${['브랜드','세부유형','채널'].map(g=>`<button type="button" data-act="grp" data-g="${g}" aria-pressed="${S.grp===g}">${g}별</button>`).join('')}</div><span class="sync">사방넷 수집·광고비 API·수기입력이 적재된 매출결산 시트 기준</span></div>
-  <div class="kpis">${kpi('매출',won(T('rev')),won(T('qty'))+'개')}${kpi('원가',won(T('cost')),pct(T('cost'),T('rev')))}${kpi('수수료 + 배송비',won(T('fee')+T('ship')),pct(T('fee')+T('ship'),T('rev')))}${kpi('광고비',won(T('ad')),'VAT 제외 · '+pct(T('ad'),T('rev')))}${kpi('매출이익',won(T('profit')),'이익률 '+pct(T('profit'),T('rev')),T('profit')<0?'alert':'')}${kpi('영업이익',won(op),'고정비 '+won(fc)+' 차감',op<0?'alert':'')}</div>
-  <section class="panel"><header><h2>${S.grp}별 손익</h2><span class="sync">매출이익 = 매출 − 원가 − 수수료 − 배송비 − 광고비</span></header><div class="tbl-wrap"><table><thead><tr><th>${S.grp}</th><th class="r">수량</th><th class="r">매출</th><th class="r">원가</th><th class="r">수수료</th><th class="r">배송비</th><th class="r">광고비</th><th class="r">매출이익</th><th class="r">이익률</th></tr></thead>
-  <tbody>${rows.length?rows.map(r=>`<tr${S.grp==='브랜드'&&brandOf(r.k)?` class="click" data-act="brand" data-b="${esc(r.k)}" tabindex="0"`:''}><td>${esc(r.k)}</td><td class="r num">${won(r.qty)}</td><td class="r num">${won(r.rev)}</td><td class="r num">${won(r.cost)}</td><td class="r num">${won(r.fee)}</td><td class="r num">${won(r.ship)}</td><td class="r num">${won(r.ad)}</td><td class="r num ${r.profit<0?'neg':''}">${won(r.profit)}</td><td class="r num">${pct(r.profit,r.rev)}</td></tr>`).join(''):`<tr><td colspan="9" class="empty">${S.month} 매출 데이터가 없습니다. 사방넷 수집이 매출결산 시트에 적재되면 자동으로 채워집니다.</td></tr>`}</tbody>
-  ${rows.length?`<tfoot><tr><td>합계</td><td class="r num">${won(T('qty'))}</td><td class="r num">${won(T('rev'))}</td><td class="r num">${won(T('cost'))}</td><td class="r num">${won(T('fee'))}</td><td class="r num">${won(T('ship'))}</td><td class="r num">${won(T('ad'))}</td><td class="r num">${won(T('profit'))}</td><td class="r num">${pct(T('profit'),T('rev'))}</td></tr></tfoot>`:''}</table></div></section>
-  <section class="panel chart"><header><h2>최근 6개월</h2><span class="legend"><span><i style="background:var(--ink)"></i>매출</span><span><i style="background:var(--ok)"></i>매출이익</span></span></header><div class="body">${trendSvg()}</div></section>`;
+  <div class="kpis">${kpi('매출',won(T('rev')),won(T('qty'))+'개')}${kpi('원가',won(T('cost')),pct(T('cost'),T('rev')))}${kpi('수수료 + 배송비',won(T('fee')+T('ship')),pct(T('fee')+T('ship'),T('rev')))}${kpi('광고비',won(T('ad')),'VAT 제외 · '+pct(T('ad'),T('rev')))}${kpi('매출이익',won(T('profit')),'이익률 '+pct(T('profit'),T('rev')),T('profit')<0?'alert':'')}${kpi('영업이익',won(op),'고정비 '+won(fc)+(fx.carried?' ('+(+fx.from.slice(5))+'월 값)':fx.rows.length?'':' 미입력'),op<0?'alert':(!fx.rows.length||fx.carried?'caution':''))}</div>
+  <section class="panel"><header><h2>${S.grp}별 손익</h2><span class="sync">매출이익 = 매출 − 원가 − 수수료 − 배송비 − 광고비</span></header><div class="tbl-wrap"><table><thead><tr><th>${S.grp}</th><th class="r">수량</th><th class="r">매출</th><th class="r">원가</th><th class="r">수수료</th><th class="r">배송비</th><th class="r">광고비</th><th class="r">매출이익</th><th class="r">이익률</th>${byBrand?'<th class="r">고정비 배분</th><th class="r">영업이익</th>':''}</tr></thead>
+  <tbody>${rows.length?rows.map(r=>`<tr${S.grp==='브랜드'&&brandOf(r.k)?` class="click" data-act="brand" data-b="${esc(r.k)}" tabindex="0"`:''}><td>${esc(r.k)}</td><td class="r num">${won(r.qty)}</td><td class="r num">${won(r.rev)}</td><td class="r num">${won(r.cost)}</td><td class="r num">${won(r.fee)}</td><td class="r num">${won(r.ship)}</td><td class="r num">${won(r.ad)}</td><td class="r num ${r.profit<0?'neg':''}">${won(r.profit)}</td><td class="r num">${pct(r.profit,r.rev)}</td>${byBrand?`<td class="r num">${won(r.fix)}</td><td class="r num ${r.op<0?'neg':''}">${won(r.op)}</td>`:''}</tr>`).join(''):`<tr><td colspan="11" class="empty">${S.month} 매출 데이터가 없습니다. 사방넷 수집이 매출결산 시트에 적재되면 자동으로 채워집니다.</td></tr>`}</tbody>
+  ${rows.length?`<tfoot><tr><td>합계</td><td class="r num">${won(T('qty'))}</td><td class="r num">${won(T('rev'))}</td><td class="r num">${won(T('cost'))}</td><td class="r num">${won(T('fee'))}</td><td class="r num">${won(T('ship'))}</td><td class="r num">${won(T('ad'))}</td><td class="r num">${won(T('profit'))}</td><td class="r num">${pct(T('profit'),T('rev'))}</td>${byBrand?`<td class="r num">${won(fc)}</td><td class="r num">${won(op)}</td>`:''}</tr></tfoot>`:''}</table></div>${byBrand?'<p class="sync" style="padding:0 16px 12px;margin:0">고정비 배분 = 브랜드 지정 고정비 + 공통 고정비 × 매출 비중</p>':''}</section>
+  <div class="grid2"><section class="panel"><header><h2>${+S.month.slice(5)}월 고정비</h2><span style="display:flex;gap:6px">${fx.carried||!fx.rows.length?`<button class="btn sm" data-act="copyFixed" type="button" ${fx.rows.length?'':'disabled'}>${fx.rows.length?(+fx.from.slice(5))+'월 값 복사':'복사할 달 없음'}</button>`:''}<button class="btn sm" data-act="newFixed" type="button">추가</button></span></header><div class="body">${fx.carried?`<p class="banner" style="margin:0">${S.month} 고정비가 없어 ${fx.from} 값을 그대로 쓰고 있습니다. 이번 달 금액이 다르면 복사 후 수정하세요.</p>`:''}${fx.rows.length?fx.rows.map(r=>`<button class="item" data-act="fixed" data-row="${r._row}" type="button"><span class="pill">${esc(r['항목'])}</span><span style="min-width:0"><span class="t">${esc(r['브랜드']||r['판매법인']||'공통')}</span><br><span class="m">${esc(r['메모']||'')}</span></span><span class="num">${won(num(r['금액']))}</span></button>`).join(''):'<p class="empty">입력된 고정비가 없습니다. 항목별로 금액을 넣으면 영업이익이 계산됩니다.</p>'}</div></section>
+  <section class="panel chart"><header><h2>최근 6개월</h2><span class="legend"><span><i style="background:var(--ink)"></i>매출</span><span><i style="background:var(--ok)"></i>매출이익</span></span></header><div class="body">${trendSvg()}</div></section></div>`;
 }
 
 function vBrands(){
@@ -639,6 +653,10 @@ document.addEventListener('click',e=>{
     case 'chkEdit':{const c=findRow('checks',row);if(c)openForm('checks',c,c['항목'],c._row);break}
     case 'chkToggle':{const c=findRow('checks',row);if(!c)break;const done=CHK_DONE.has(c['상태']);
       guarded(async()=>{await writeRange(`'체크리스트'!J${row}:K${row}`,[done?['미착수','']:['완료',ymd(new Date())]]);await load(['checks'],true)},done?'완료 표시를 해제했습니다':'완료했습니다');break}
+    case 'newFixed':openForm('fixed',{월:S.month,항목:'인건비'},'고정비 추가');break;
+    case 'fixed':{const f=findRow('fixed',row);if(f)openForm('fixed',f,(f['월']===S.month?'':f['월']+' ')+'고정비 수정',f._row);break}
+    case 'copyFixed':{const fx=fixedFor(S.month);if(!fx.carried)break;const rows=fx.rows.map(r=>[S.month,r['항목'],r['판매법인'],r['브랜드'],num(r['금액']),r['메모']]);
+      guarded(async()=>{const r0=await nextRow('고정비');await writeRange(`'고정비'!A${r0}:F${r0+rows.length-1}`,rows);await load(['fixed'],true)},fx.from+' 고정비 '+rows.length+'건을 '+S.month+'로 복사했습니다');break}
     case 'newPerson':openForm('people',{상태:'재직'},'담당자 추가');break;
     case 'person':{const p=findRow('people',row);if(p)openForm('people',p,'담당자 수정',p._row);break}
     case 'savePay':{const pay=document.getElementById('pay_'+row).value.trim();const d=document.getElementById('pd_'+row).value;
