@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>단어 야구 | 두 글자 단어를 자음·모음 S·B로 맞히기 - 친구 단어로 도전</title>
+    <meta name="description" content="숨은 두 글자 단어를 10번 안에 맞히는 단어 야구. 칸마다 색을 알려 주지 않고, 글자마다 자음·모음이 몇 개 맞았는지(S·B)만 알려 줘요. 오늘의 단어, 친구가 낸 단어 링크, 자모 메모판. 무료·설치 없음." />
+    <meta name="keywords" content="단어 야구, 단어 맞히기 게임, 한글 단어 게임, 자음 모음 게임, 꼬들 비슷한 게임, 한글 워들, 롤 큐 미니게임" />
+    <link rel="canonical" href="https://guesswhat.co.kr/word-baseball/" />
+    <meta name="theme-color" content="#f6efdc" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="단어 야구 - 두 글자 단어, 자음·모음 S·B로 맞히기" />
+    <meta property="og:description" content="친구가 낸 두 글자, 몇 번 만에 맞혀요?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "단어 야구",
+        "url": "https://guesswhat.co.kr/word-baseball/",
+        "description": "숨은 두 글자 단어를 10번 안에 맞히는 게임. 글자마다 자음·모음이 몇 개 맞았는지(S·B)만 알려 준다. 오늘의 단어, 친구가 낸 단어 링크.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="wb">
+      <section class="wb-v" id="intro">
+        <div class="wsheet wsheet--hero" aria-hidden="true">
+          <div class="cells"><span class="cell" id="heroA">?</span><span class="cell" id="heroB">?</span></div>
+          <div class="jamo-fly" id="heroJamo"></div>
+          <p class="stamp" id="heroStamp">1S 1B</p>
+        </div>
+        <h1 class="wb-title">단어 야구</h1>
+        <p class="wb-lead">두 글자 단어를 10번 안에 맞혀요. 글자마다 자음·모음이 몇 개 맞았는지만 알려 줘요.</p>
+        <div class="wb-chal" id="chal" hidden></div>
+        <div class="wb-btns">
+          <button class="wb-go" id="playDaily" type="button"><span class="wb-go__k" id="dailyNo">오늘</span><span>오늘의 단어 · 모두 같은 단어</span></button>
+          <button class="wb-go wb-go--sub" id="playRandom" type="button"><span class="wb-go__k">연습</span><span>아무 단어로 한 판</span></button>
+          <button class="wb-go wb-go--sub" id="makeBtn" type="button"><span class="wb-go__k">출제</span><span>내 단어 내서 친구한테 보내기</span></button>
+        </div>
+        <p class="wb-rec" id="rec"></p>
+      </section>
+
+      <section class="wb-v" id="play" hidden>
+        <div class="wsheet">
+          <div class="wsheet__top"><span id="modeLabel">오늘의 단어</span><span id="left">10번 남음</span></div>
+          <div class="ans" id="ans"></div>
+          <ol class="tries" id="tries"></ol>
+        </div>
+        <form class="ask" id="ask" autocomplete="off">
+          <input class="ask__in" id="guess" maxlength="4" placeholder="두 글자" lang="ko" inputmode="text" aria-label="던질 두 글자" />
+          <button class="wb-go ask__go" id="throw" type="submit"><span class="wb-go__k">던지기</span></button>
+        </form>
+        <p class="wb-err" id="err" role="alert" hidden></p>
+        <p class="memo__h">자모 메모판</p>
+        <p class="memo__help" data-info=".memo__h">아래 자음·모음은 내 생각을 적어 두는 칸이에요. 누를 때마다 '아님'(줄 그어 흐리게) → '확실'(초록 동그라미) → 지움 순서로 바뀌어요. 판정이 칸마다 색을 칠해 주지 않으니, 여기에 직접 표시하며 좁혀 가요. 단어마다 따로 저장돼서 큐가 잡혀 나갔다 와도 남아 있어요.</p>
+        <div class="memo" id="memoC"></div>
+        <div class="memo memo--v" id="memoV"></div>
+      </section>
+
+      <section class="wb-v" id="end" hidden>
+        <div class="wsheet wsheet--end">
+          <div class="wsheet__top"><span id="endMode"></span><span id="endTries"></span></div>
+          <div class="cells cells--end" id="ansCells"></div>
+          <p class="stamp stamp--end" id="endStamp"></p>
+        </div>
+        <p class="wb-line" id="endLine"></p>
+        <div class="wb-coupon"><pre id="shareText"></pre>
+          <button class="wb-go" id="shareBtn" type="button"><span class="wb-go__k">공유</span><span>결과 보내기</span></button>
+        </div>
+        <div class="wb-btns">
+          <button class="wb-go wb-go--sub" id="again" type="button"><span class="wb-go__k">연습</span><span>새 단어로 한 판 더</span></button>
+          <button class="wb-go wb-go--sub" id="makeBtn2" type="button"><span class="wb-go__k">출제</span><span>내 단어 내서 친구한테 보내기</span></button>
+        </div>
+      </section>
+
+      <section class="wb-v" id="make" hidden>
+        <div class="wsheet">
+          <div class="wsheet__top"><span>내 단어 내기</span><span>친구 도전</span></div>
+          <label class="wb-lbl" for="mword">낼 단어(한글 두 글자)</label>
+          <input class="ask__in" id="mword" maxlength="4" placeholder="예: 고래" lang="ko" />
+          <label class="wb-lbl" for="byName">내 이름(링크에 보여요)</label>
+          <input class="ask__in" id="byName" maxlength="10" placeholder="예: 민지" autocomplete="nickname" />
+        </div>
+        <button type="button" class="wb-go" id="mshare"><span class="wb-go__k">출제</span><span>링크 보내기</span></button>
+        <p class="wb-err" id="merr" role="alert" hidden></p>
+        <p class="wb-small">링크 안 단어는 섞어서 담아서 주소만 봐서는 안 보여요.</p>
+      </section>
+
+      <article class="seo wb-doc">
+        <h2>단어 야구 하는 법</h2>
+        <p>두 글자 단어가 숨어 있어요. 아무 두 글자나 던지면 글자마다 결과가 나와요. 글자를 첫소리·가운뎃소리·받침으로 나눠서, 같은 글자의 같은 자리에 같은 자모가 있으면 스트라이크(S), 자리는 다르지만 정답 어딘가에 있으면 볼(B)이에요. 어느 자모가 맞았는지는 알려 주지 않아요. 10번 안에 맞히면 이겨요.</p>
+        <p>예를 들어 정답이 '고래'일 때 '구름'을 던지면 첫 글자는 ㄱ이 같은 자리라 1S, 둘째 글자는 ㄹ이 첫소리로 같아 1S예요. 위 칸의 점 개수는 정답 각 글자의 자모 수예요(받침이 있으면 3개).</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>ㅘ·ㄲ·ㄳ 같은 건 어떻게 세요?</summary><p>글자 한 자리 단위로 세요. ㅘ는 가운뎃소리 한 개, ㄲ는 첫소리 한 개, ㄳ는 받침 한 개예요. 그래서 정답에 ㅘ가 있을 때 ㅏ를 던지면 맞지 않아요.</p></details>
+        <details><summary>사전에 없는 말도 던질 수 있어요?</summary><p>돼요. 한글 두 글자면 다 받아요. 정답은 누구나 아는 두 글자 낱말 중에서 나와요.</p></details>
+        <details><summary>친구한테 단어를 내려면요?</summary><p>'내 단어 내기'에서 두 글자를 적고 링크를 보내요. 친구는 그 단어를 맞히고, 몇 번 만에 맞혔는지 결과를 다시 보낼 수 있어요.</p></details>
+        <details><summary>중간에 나가도 돼요?</summary><p>돼요. 시간 제한이 없고, 던진 기록과 메모는 이 기기에 남아 다시 열면 이어서 해요.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">단어 야구 · 기록은 이 기기에만 남아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

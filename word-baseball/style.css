@@ -1,0 +1,109 @@
+/* 단어 야구 — 장르: 원고지 · 미색 종이 · 붉은 칸줄 · 빨간 도장 · 초록(S)·노랑(B) 점
+ * 움직임: 첫 화면 자모(ㄱ ㅗ ㄹ ㅐ…)가 흩어져 날아와 두 칸에 모이고 결과 도장이 쾅 / 던지면 새 줄이 아래서 올라오고 점이 하나씩 켜짐 / 맞히면 정답 글자가 차례로 뒤집히고 '맞힘' 도장 */
+:root {
+  --paper: #f6efdc;
+  --paper-2: #efe4c6;
+  --grid: #d9837a;
+  --grid-2: #c45a50;
+  --ink: #2b2420;
+  --stamp: #c8322a;
+  --s: #2f9a4a;
+  --b: #e2a812;
+  --color-bg: var(--paper);
+  --color-text: var(--ink);
+  --color-text-secondary: #6a5a4a;
+  color-scheme: light;
+}
+html, body { background: var(--paper); color: var(--ink); }
+body { background-image: linear-gradient(rgba(217, 131, 122, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(217, 131, 122, 0.12) 1px, transparent 1px); background-size: 28px 28px; }
+.wb { max-width: 980px; margin: 0 auto; padding: 0 16px 40px; }
+.wb-v { max-width: 460px; margin: 0 auto; padding-top: 14px; }
+
+/* 원고지 판 */
+.wsheet { position: relative; padding: 12px 14px 16px; border: 2px solid var(--grid-2); border-radius: 6px; background: #fffaf0; box-shadow: 4px 4px 0 var(--grid); }
+.wsheet__top { display: flex; justify-content: space-between; gap: 8px; padding-bottom: 8px; border-bottom: 1.5px solid var(--grid); font: 800 12.5px/18px var(--font-sans); color: var(--grid-2); }
+.cell { display: inline-grid; place-items: center; width: 64px; height: 64px; border: 2px solid var(--grid); background: #fffdf6; font: 900 38px/1 var(--font-sans); color: var(--ink); }
+.cells { display: flex; justify-content: center; gap: 0; margin: 16px 0 8px; }
+.cells .cell + .cell { border-left: 0; }
+.cells--end .cell { width: 78px; height: 78px; font-size: 48px; animation: wb-flip 0.5s cubic-bezier(.34, 1.56, .64, 1) backwards; animation-delay: calc(0.3s + var(--k) * 0.2s); }
+@keyframes wb-flip { 0% { transform: rotateY(90deg); } 100% { transform: none; } }
+
+/* 도장 */
+.stamp { position: absolute; right: 14px; bottom: 12px; margin: 0; padding: 4px 10px; border: 3px solid var(--stamp); border-radius: 8px; color: var(--stamp); font: 900 16px/1.1 var(--font-sans); transform: rotate(-8deg); background: rgba(255, 250, 240, 0.85); }
+.stamp.is-fresh { animation: wb-stamp 0.45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes wb-stamp { 0% { transform: rotate(-8deg) scale(2.2); opacity: 0; } 100% { transform: rotate(-8deg); opacity: 1; } }
+.stamp--end { position: static; display: table; margin: 4px auto 0; font-size: 26px; padding: 6px 16px; }
+.stamp--end.is-lose { color: #6a5a4a; border-color: #6a5a4a; }
+
+/* 첫 화면 자모 날리기 */
+.wsheet--hero { min-height: 140px; }
+.jamo-fly { position: absolute; inset: 0; pointer-events: none; }
+.jamo-fly i { position: absolute; left: calc(50% - 64px + var(--i) * 64px + 22px); top: 50px; font: 900 18px/1 var(--font-sans); font-style: normal; color: var(--grid-2); opacity: 0; }
+.jamo-fly.is-go i { animation: wb-fly 0.7s cubic-bezier(.3, .8, .4, 1) backwards; animation-delay: var(--d); }
+@keyframes wb-fly { 0% { opacity: 1; transform: translate(calc((var(--r) - 1) * 70px + (var(--i) - 0.5) * 90px), calc(-40px + var(--r) * 50px)) rotate(-30deg); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(var(--r) * 6px - 6px), 0) scale(0.5); } }
+
+/* 정답 칸(자모 수 점) · 던진 줄 */
+.ans { display: flex; justify-content: center; margin: 12px 0 6px; }
+.ans__c { display: grid; justify-items: center; gap: 4px; }
+.ans__c + .ans__c .cell { border-left: 0; }
+.ans .cell { color: var(--grid); }
+.pips { display: flex; gap: 3px; min-height: 9px; }
+.pips i { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #b9a88f; background: transparent; }
+.pips i.s { background: var(--s); border-color: var(--s); }
+.pips i.b { background: var(--b); border-color: var(--b); }
+.tries { display: grid; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.try { display: grid; grid-template-columns: 22px 1fr 1fr; align-items: center; gap: 8px; padding: 6px 4px; border-top: 1px dashed var(--grid); }
+.try.is-new { animation: wb-row 0.35s cubic-bezier(.2, .9, .3, 1.2) backwards; }
+@keyframes wb-row { from { transform: translateY(14px); opacity: 0; } }
+.try.is-new .pips i { animation: wb-pip 0.25s backwards; animation-delay: calc(0.3s + var(--k, 0) * 0.15s); }
+@keyframes wb-pip { from { transform: scale(0); } }
+.try__n { font: 800 13px/1 var(--font-sans); color: var(--color-text-secondary); text-align: right; }
+.try__c { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; }
+.try__c .cell { grid-row: 1 / 3; width: 42px; height: 42px; font-size: 24px; }
+.try__c em { font: 800 13px/1 var(--font-sans); font-style: normal; color: var(--ink); }
+
+/* 입력 */
+.ask { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
+.ask__in { width: 100%; height: 54px; padding: 0 14px; border: 2px solid var(--ink); border-radius: 12px; background: #fffdf6; color: var(--ink); font: 800 22px/1 var(--font-sans); letter-spacing: 0.2em; box-sizing: border-box; }
+.ask__in:focus { outline: none; border-color: var(--stamp); box-shadow: 0 0 0 3px rgba(200, 50, 42, 0.18); }
+.ask__go { width: auto; min-height: 54px; }
+#make .ask__in { margin-top: 6px; letter-spacing: 0.05em; font-size: 18px; }
+
+/* 메모판 */
+.memo__h { display: flex; align-items: center; margin: 16px 0 0; font: 800 13px/22px var(--font-sans); color: var(--color-text-secondary); }
+.memo__help { margin: 4px 0 0; font: 600 13px/19px var(--font-sans); color: var(--color-text-secondary); }
+.memo { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; margin-top: 6px; }
+.memo--v { grid-template-columns: repeat(11, 1fr); }
+.memo__d { height: 34px; padding: 0; border: 1.5px solid var(--grid); border-radius: 6px; background: #fffdf6; color: var(--ink); font: 800 15px/1 var(--font-sans); cursor: pointer; }
+.memo__d.m1 { color: #b9a88f; text-decoration: line-through; border-color: #e3d6bd; background: transparent; }
+.memo__d.m2 { border: 2px solid var(--s); color: var(--s); border-radius: 50%; }
+
+/* 단추 */
+.wb-title { margin: 18px 0 0; font: 900 44px/1.05 var(--font-sans); letter-spacing: -0.04em; }
+.wb-lead { margin: 8px 0 0; font: 600 15px/23px var(--font-sans); word-break: keep-all; }
+.wb-chal { display: grid; gap: 6px; margin-top: 16px; padding: 12px 14px 14px; border: 2px dashed var(--stamp); border-radius: 10px; background: #fffaf0; font: 600 14px/21px var(--font-sans); }
+.wb-chal b { font: 900 19px/1.2 var(--font-sans); color: var(--stamp); }
+.wb-btns { display: grid; gap: 10px; margin-top: 16px; }
+.wb-go { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 58px; padding: 0 16px; border: 2px solid var(--ink); border-radius: 12px; background: var(--stamp); color: #fffaf0; box-shadow: 0 5px 0 var(--ink); font: 800 16px/1.2 var(--font-sans); text-align: left; cursor: pointer; transition: transform 0.12s cubic-bezier(.34, 1.56, .64, 1), box-shadow 0.12s; }
+.wb-go:active { transform: translateY(5px); box-shadow: 0 0 0 var(--ink); }
+.wb-go__k { padding: 6px 9px; border-radius: 8px; background: rgba(255, 255, 255, 0.18); font: 900 14px/1 var(--font-sans); white-space: nowrap; }
+.wb-go--sub { background: #fffaf0; color: var(--ink); }
+.wb-go--sub .wb-go__k { background: var(--paper-2); color: var(--grid-2); }
+#mshare { margin-top: 14px; }
+.wb-rec { margin: 12px 0 0; font: 700 14px/20px var(--font-sans); color: var(--color-text-secondary); }
+.wb-err { margin: 10px 0 0; text-align: center; font: 800 14px/20px var(--font-sans); color: var(--stamp); }
+.wb-lbl { display: block; margin-top: 12px; font: 800 13px/18px var(--font-sans); color: var(--color-text-secondary); }
+.wb-small { margin: 10px 0 0; font: 600 13px/19px var(--font-sans); color: var(--color-text-secondary); }
+
+/* 끝 */
+.wb-line { margin: 14px 0 0; font: 700 15px/22px var(--font-sans); word-break: keep-all; }
+.wb-coupon { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border: 2px dashed var(--grid); border-radius: 10px; background: #fffaf0; }
+.wb-coupon pre { margin: 0; white-space: pre-wrap; font: 600 13px/20px var(--font-sans); color: var(--color-text-secondary); }
+
+.wb-doc { max-width: 640px; margin: 40px auto 0; }
+.wb-doc h2 { font: 900 20px/1.3 var(--font-sans); }
+.wb-doc p, .wb-doc summary { font: 500 14.5px/23px var(--font-sans); color: var(--color-text-secondary); }
+.wb-doc summary { color: var(--ink); font-weight: 700; cursor: pointer; }
+
+.rm *, .rm *::before, .rm *::after { animation: none !important; transition: none !important; }
+@media (max-width: 380px) { .try__c .cell { width: 36px; height: 36px; font-size: 20px; } .memo__d { font-size: 13px; } }
