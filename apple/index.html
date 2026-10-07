@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>사과 게임 | 합이 10 사과 묶기 - 큐 기다리며 2분 미니게임</title>
-    <meta name="description" content="숫자 사과를 네모로 묶어 합이 10이면 따는 2분 사과게임. 색으로만 힌트를 주는 숨은 사과(?)를 맞히면 보너스. 창을 내리면 시간이 멈춰 롤 큐 기다리며 하기 좋고, 같은 판으로 도전장도 보내요." />
+    <meta name="description" content="숫자 사과를 네모로 묶어 합이 10이면 따는 2분 사과게임. 따면 위 사과가 떨어지고 새 사과가 채워져 판이 계속 바뀌어요. 창을 내리면 시간이 멈춰 롤 큐 기다리며 하기 좋고, 같은 판으로 도전장도 보내요." />
     <meta name="keywords" content="사과게임, 사과 게임, 합 10 게임, 숫자 사과, 롤 큐 미니게임, 큐 기다릴 때 게임, 웹 미니게임, 2분 게임" />
     <link rel="canonical" href="https://guesswhat.co.kr/apple/" />
     <meta name="theme-color" content="#e9d6b0" />
@@ -34,8 +34,8 @@
       <section class="ap-v" id="intro" data-view="intro">
         <p class="ap-kick"><span>FRUIT CRATE · 2분</span><span id="todayNo">오늘의 판 #–</span></p>
         <h1 class="ap-title"><span>사과</span><b>게임</b></h1>
-        <p class="ap-lead">합이 10이 되게 묶어 사과를 따요. ? 사과는 색으로 맞혀서 걸어요.</p>
-        <div class="demo" id="demo" aria-hidden="true"></div>
+        <p class="ap-lead">합이 10이 되게 묶어 사과를 따면, 위 사과가 툭 떨어지고 새 사과가 채워져요.</p>
+        <div class="demo" aria-hidden="true"><div class="demo__crate"><div class="board board--demo" id="demoBoard"></div></div></div>
         <div class="ap-chal" id="chal" hidden></div>
         <div class="ap-btns">
           <button class="ap-go" id="playDaily" type="button"><span class="ap-go__k">오늘의 판</span><span>모두 같은 판으로 시작</span></button>
@@ -63,7 +63,7 @@
 
       <section class="ap-v" id="res" data-view="res" hidden>
         <p class="ap-kick"><span id="resKind"></span><span>2분 결과</span></p>
-        <div class="ap-total"><b id="total">0</b><span>점</span></div>
+        <div class="ap-total"><b id="total">0</b><span>개</span></div>
         <p class="ap-line" id="resLine"></p>
         <div class="ap-coupon"><pre id="shareText"></pre>
           <button class="ap-go" id="shareBtn" type="button"><span class="ap-go__k">도전장</span><span>같은 판으로 보내기</span></button>
@@ -76,15 +76,15 @@
 
       <article class="seo ap-doc">
         <h2>사과 게임 하는 법</h2>
-        <p>상자에 1부터 9까지 숫자가 적힌 사과 170개가 있어요. 손가락이나 마우스로 네모를 그려 안에 든 숫자 합이 정확히 10이 되면 그 사과들을 따요. 2분 동안 많이 딸수록 이겨요.</p>
-        <p>빈칸(이미 딴 자리)은 0으로 쳐서 멀리 떨어진 사과끼리도 묶을 수 있어요.</p>
-        <h2>숨은 사과(?)</h2>
-        <p>열에 하나쯤은 숫자가 ?로 가려진 사과예요. 색이 힌트예요: 초록 1~3, 노랑 4~6, 주황 7~9. ?가 든 네모는 합계가 '6+?'처럼 보여요. 맞혀서 합 10을 만들면 숨은 사과 하나에 2점을 더 주고, 틀리면 숫자가 드러나고 3초를 잃어요. 점수는 딴 사과 수에 숨은 사과 보너스를 더한 거예요.</p>
+        <p>상자에 1부터 9까지 숫자가 적힌 사과가 가득 있어요(가로 10 · 세로 17). 손가락이나 마우스로 네모를 그려 안에 든 숫자 합이 정확히 10이 되면 그 사과들을 따요. 2분 동안 많이 딸수록 이겨요.</p>
+        <p>네모 안 숫자를 모두 더해 정확히 10이면 따져요. 9와 1처럼 둘도, 1·2·3·4처럼 여럿도 돼요.</p>
+        <h2>떨어지는 사과</h2>
+        <p>사과를 따면 그 위에 있던 사과들이 빈자리로 떨어지고, 맨 위에서 새 사과가 채워져요. 판이 계속 바뀌어서 떨어지면서 새로 10이 맞춰지기도 하고, 판이 막히지 않아 2분 동안 계속 딸 수 있어요. 새 사과는 판마다 정해진 순서로 나와서, 같은 판이면 누구에게나 똑같이 떨어져요.</p>
         <h2>자주 묻는 질문</h2>
         <details><summary>롤 큐 잡혔을 때 어떻게 돼요?</summary><p>다른 창으로 넘어가거나 화면을 내리면 시간이 바로 멈춰요. 돌아와서 '계속'을 누르면 남은 시간부터 이어서 해요.</p></details>
         <details><summary>오늘의 판은 뭐예요?</summary><p>매일 자정(한국 시각)에 바뀌는, 모두에게 같은 판이에요. 친구와 같은 판으로 몇 개 땄는지 비교할 수 있어요.</p></details>
         <details><summary>도전장은 어떻게 보내요?</summary><p>끝나고 '같은 판으로 보내기'를 누르면, 내가 푼 판과 내 점수가 담긴 링크가 만들어져요. 받은 친구는 똑같은 판으로 도전해요.</p></details>
-        <details><summary>판이 막히면요?</summary><p>더 묶을 수 있는 네모가 없으면 시간이 남아도 거기서 끝나요.</p></details>
+        <details><summary>판이 막히면요?</summary><p>드물게 묶을 네모가 하나도 없으면 상자를 흔들어 새 사과로 다시 채워요. 같은 판이면 흔든 결과도 똑같아요.</p></details>
       </article>
 
       <nav id="more" aria-label="다른 놀이"></nav>
