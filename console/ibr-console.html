@@ -89,7 +89,7 @@ label.fld>*{color:var(--fg);font-size:14px;font-weight:400}
 .card .t{font-weight:600;line-height:1.35}
 .card .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
 .who{display:inline-flex;align-items:center;gap:4px}
-.av{width:20px;height:20px;border-radius:50%;background:var(--ink-soft);color:var(--ink);font-size:10px;font-weight:700;display:inline-grid;place-items:center}
+.av{width:26px;height:26px;flex:none;letter-spacing:-.04em;border-radius:50%;background:var(--ink-soft);color:var(--ink);font-size:10px;font-weight:700;display:inline-grid;place-items:center}
 .tbl-wrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
@@ -191,6 +191,55 @@ textarea{min-height:80px;resize:vertical}
   .dbody{grid-template-columns:1fr}
   .cal .day{min-height:64px}
   .cal .ev{font-size:10px}
+}
+/* layout polish */
+.app{background:var(--surface)}
+.main{background:var(--bg);border-left:1px solid var(--line)}
+.rail{border-right:0;align-self:start;top:0}
+#view{display:flex;flex-direction:column;gap:16px;min-width:0}
+#banner:empty{display:none}
+.filters{gap:8px 10px;align-items:flex-end}
+.filters>.sync{align-self:center;flex:1 1 220px;min-width:0}
+.filters .legend{align-self:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;line-height:1.2}
+.btn.sm{min-height:28px}
+.filters select,.filters input,.cal-head .btn{height:36px}
+.seg{height:36px} .seg button{display:inline-flex;align-items:center}
+.cal-head{flex-wrap:wrap}
+.item>*:nth-child(2){min-width:0;overflow:hidden}
+.item .t{display:inline-block;max-width:100%;vertical-align:bottom}
+td.empty{padding:14px 12px;text-align:center}
+.prog{min-width:140px}
+.bhead{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.bhead h2{margin:0 4px 0 6px;font-size:20px;letter-spacing:-.02em}
+.gh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.gh .m{margin-left:0!important}
+.gh .btn{margin-left:auto}
+.grp td{padding-top:10px;padding-bottom:10px}
+.dbody{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dbody label.fld>input,.dbody label.fld>select,.dbody label.fld>textarea{width:100%}
+.dbody label.fld>input,.dbody label.fld>select{height:36px}
+.kpi{min-width:0} .kpi .v{overflow-wrap:anywhere}
+td.empty.sm{padding:8px 12px;text-align:left}
+.panel>header{flex-wrap:wrap}
+.panel>header h2{white-space:nowrap}
+.cal{min-width:0}
+.cal .day{overflow:hidden}
+@media (max-width:760px){
+  .main{border-left:0}
+  .cal .day{min-height:56px;padding:2px}
+  .cal .ev{font-size:10px;padding:0 2px}
+  .cal .dn{font-size:10px}
+  .cal .ev{padding:0 3px}
+  .cal .dow{padding:4px}
+  .rail{padding:6px 12px;gap:0;border-bottom:1px solid var(--line)}
+  .brand-mark{display:none}
+  .topbar h1{font-size:19px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .kpi{padding:12px}
+  .kpi .v{font-size:18px}
+  .dbody{grid-template-columns:1fr}
+  .filters>.sync{flex-basis:100%}
 }
 @media (prefers-reduced-motion:no-preference){.card,.bcard,.btn{transition:border-color .15s}}
 </style>
@@ -506,8 +555,8 @@ function vEvents(){
   for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const on=evs.filter(e=>{const [s,en]=evRange(e);return s&&s<=d&&en>=d});
     cells+=`<div class="day ${d.getMonth()!==mo-1?'out':''} ${+d===t0?'today':''}" data-act="dayNew" data-date="${ymd(d)}"><span class="dn">${d.getDate()}</span>${on.slice(0,3).map(e=>`<button class="ev ${SALES_TYPES.has(e['유형'])?'sales':''} ${e['상태']==='완료'||e['상태']==='취소'?'done':''}" data-act="event" data-row="${e._row}" type="button" title="${esc(e['일정명'])}">${esc(e['일정명'])}</button>`).join('')}${on.length>3?`<span class="more">+${on.length-3}</span>`:''}</div>`}
   const monthEvs=evs.filter(e=>{const [s,en]=evRange(e);return s&&(ymd(s).slice(0,7)===S.calMonth||(en&&ymd(en).slice(0,7)===S.calMonth))}).sort((a,b)=>evRange(a)[0]-evRange(b)[0]);
-  return `<div class="filters"><div class="cal-head"><button class="btn sm" data-act="calPrev" type="button" aria-label="이전 달">‹</button><b class="num">${y}.${pad(mo)}</b><button class="btn sm" data-act="calNext" type="button" aria-label="다음 달">›</button><button class="btn sm" data-act="calToday" type="button">이번 달</button></div><button class="btn primary" data-act="newEvent" type="button">새 일정</button><span class="legend"><span><i style="background:var(--sales-bg);border:1px solid var(--sales)"></i>판매 행사</span><span><i style="background:var(--ops-bg);border:1px solid var(--ops)"></i>운영 일정</span></span></div>
-  <div class="tbl-wrap"><div class="cal" style="min-width:560px">${['일','월','화','수','목','금','토'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div></div>
+  return `<div class="filters"><div class="cal-head"><button class="btn sm" data-act="calPrev" type="button" aria-label="이전 달">‹</button><b class="num">${y}.${pad(mo)}</b><button class="btn sm" data-act="calNext" type="button" aria-label="다음 달">›</button><button class="btn sm" data-act="calToday" type="button">이번 달</button></div><button class="btn primary" data-act="newEvent" type="button">새 일정</button><span class="legend"><span><i style="background:var(--sales)"></i>판매 행사</span><span><i style="background:var(--ops)"></i>운영 일정</span></span></div>
+  <div class="cal">${['일','월','화','수','목','금','토'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div>
   <section class="panel"><header><h2>${mo}월 일정 목록</h2><span class="sync">${monthEvs.length}건</span></header><div class="body">${monthEvs.length?monthEvs.map(evItem).join(''):'<p class="empty">이 달에 잡힌 일정이 없습니다. 달력의 날짜를 누르면 그 날짜로 일정을 추가합니다.</p>'}</div></section>`;
 }
 
@@ -536,7 +585,7 @@ function vSettle(){
   <section class="panel"><div class="tbl-wrap"><table><thead><tr><th>채널</th><th>세부유형</th><th class="r">수량</th><th class="r">매출</th><th class="r">수수료</th><th class="r">정산예정액</th><th class="r">실입금액</th><th>입금일</th><th class="r">차이</th><th>상태</th><th></th></tr></thead>
   <tbody>${rows.length?rows.map(r=>`<tr><td>${esc(r['채널'])}</td><td>${esc(r['세부유형'])}</td><td class="r num">${won(num(r['수량']))}</td><td class="r num">${won(num(r['매출']))}</td><td class="r num">${won(num(r['수수료']))}</td><td class="r num">${won(num(r['정산예정액']))}</td>
     <td class="r"><input class="num" id="pay_${r._row}" inputmode="numeric" value="${r['실입금액']?num(r['실입금액']):''}" aria-label="실입금액"></td><td><input id="pd_${r._row}" type="date" value="${pd(r['입금일'])?ymd(pd(r['입금일'])):''}" aria-label="입금일"></td>
-    <td class="r num ${num(r['차이'])<0?'neg':''}">${r['차이']?won(num(r['차이'])):''}</td><td><span class="pill ${st(r['상태'])}">${esc(r['상태'])}</span></td><td><button class="btn sm" data-act="savePay" data-row="${r._row}" type="button">저장</button></td></tr>`).join(''):`<tr><td colspan="11" class="empty">${m} 정산 행이 없습니다. 위 버튼으로 매출이 있는 채널의 정산 행을 만드세요.</td></tr>`}</tbody>
+    <td class="r num ${num(r['차이'])<0?'neg':''}">${r['차이']?won(num(r['차이'])):''}</td><td>${r['상태']?`<span class="pill ${st(r['상태'])}">${esc(r['상태'])}</span>`:''}</td><td><button class="btn sm" data-act="savePay" data-row="${r._row}" type="button">저장</button></td></tr>`).join(''):`<tr><td colspan="11" class="empty">${m} 정산 행이 없습니다. 위 버튼으로 매출이 있는 채널의 정산 행을 만드세요.</td></tr>`}</tbody>
   ${rows.length?`<tfoot><tr><td colspan="3">합계</td><td class="r num">${won(tot('매출'))}</td><td class="r num">${won(tot('수수료'))}</td><td class="r num">${won(tot('정산예정액'))}</td><td class="r num">${won(tot('실입금액'))}</td><td></td><td class="r num">${won(tot('차이'))}</td><td colspan="2"></td></tr></tfoot>`:''}</table></div></section>`;
 }
 function closeData(m,grp){
@@ -590,7 +639,7 @@ function vBrands(){
   <div class="kpis">${kpi('운영 브랜드',rows.filter(r=>r.b['상태']==='운영중').length,'전체 '+rows.length)}${kpi('판매 스토어 연결',T('st'),'브랜드×스토어')}${kpi('진행 중 광고',T('ad'),'광고연결 기준')}${kpi(+m.slice(5)+'월 매출',won(T('rev')),'광고비 '+won(T('adv')))}</div>
   <section class="panel"><header><h2>브랜드 전체 현황</h2><span class="sync">${+m.slice(5)}월 · 매출은 사방넷 집계, 광고비는 API 집계</span></header><div class="tbl-wrap"><table>
   <thead><tr><th>브랜드</th><th>상태</th><th>판매법인</th><th>BM</th><th class="r">스토어</th><th class="r">판매옵션</th><th class="r">진행 광고</th><th class="r">매출</th><th class="r">광고비</th><th class="r">ROAS</th><th>체크리스트</th></tr></thead>
-  <tbody>${rows.map(r=>`<tr class="click" tabindex="0" data-act="brand" data-b="${esc(r.n)}"><td><b>${esc(r.n)}</b></td><td>${r.b['상태']?`<span class="pill ${r.b['상태']==='운영중'?'ok':r.b['상태']==='중단'?'':'warn'}">${esc(r.b['상태'])}</span>`:''}</td><td>${esc(r.b['판매법인']||'')}</td><td>${esc(r.b['브랜드매니저']||'')}</td><td class="r num">${r.st||'<span class="neg">0</span>'}</td><td class="r num">${r.op}</td><td class="r num">${r.ad}</td><td class="r num">${r.rev?won(r.rev):''}</td><td class="r num">${r.adv?won(r.adv):''}</td><td class="r num">${r.roas?Math.round(r.roas*100)+'%':''}</td><td>${r.items.length?progBar(r.d,r.items.length)+(r.late?` <span class="pill bad">지연 ${r.late}</span>`:''):'<span class="sync">없음</span>'}</td></tr>`).join('')||'<tr><td colspan="11" class="empty">브랜드 탭이 비어 있습니다.</td></tr>'}</tbody></table></div></section>`;
+  <tbody>${rows.map(r=>`<tr class="click" tabindex="0" data-act="brand" data-b="${esc(r.n)}"><td><b>${esc(r.n)}</b></td><td>${r.b['상태']?`<span class="pill ${r.b['상태']==='운영중'?'ok':r.b['상태']==='중단'?'':'warn'}">${esc(r.b['상태'])}</span>`:''}</td><td>${esc(r.b['판매법인']||'')}</td><td>${esc(r.b['브랜드매니저']||'')}</td><td class="r num">${r.st||'<span class="neg">0</span>'}</td><td class="r num">${r.op}</td><td class="r num">${r.ad}</td><td class="r num">${r.rev?won(r.rev):''}</td><td class="r num">${r.adv?won(r.adv):''}</td><td class="r num">${r.roas?Math.round(r.roas*100)+'%':''}</td><td>${r.items.length?`<span style="display:inline-flex;gap:8px;align-items:center">${progBar(r.d,r.items.length)}${r.late?`<span class="pill bad">지연 ${r.late}</span>`:''}</span>`:'<span class="sync">없음</span>'}</td></tr>`).join('')||'<tr><td colspan="11" class="empty">브랜드 탭이 비어 있습니다.</td></tr>'}</tbody></table></div></section>`;
 }
 function bookField(b,k){const v=String(b[k]||'').trim();return `<div class="f"><span>${k}</span>${v?(/^https?:\/\//.test(v)?`<p><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></p>`:`<p>${esc(v)}</p>`):'<p class="miss">미작성</p>'}</div>`}
 function vChecklist(g){
@@ -607,7 +656,7 @@ const BTABS=[['over','개요'],['sell','판매'],['ads','광고'],['perf','실�
 function vBrand(b){
   const n=b['브랜드'];const tab=S.btab||'over';
   const body=({over:bOver,sell:bSell,ads:bAds,perf:bPerf,ops:bOps})[tab](b,n);
-  return `<div class="filters"><button class="btn" data-act="brandBack" type="button">← 브랜드 전체</button><b style="font-size:17px">${esc(n)}</b>${b['상태']?`<span class="pill">${esc(b['상태'])}</span>`:''}<span class="pill">${esc(b['판매법인']||'판매법인 미지정')}</span><span class="pill">BM ${esc(b['브랜드매니저']||'미지정')}</span></div>
+  return `<div class="bhead"><button class="btn" data-act="brandBack" type="button">← 브랜드 전체</button><h2>${esc(n)}</h2>${b['상태']?`<span class="pill">${esc(b['상태'])}</span>`:''}<span class="pill">${esc(b['판매법인']||'판매법인 미지정')}</span><span class="pill">BM ${esc(b['브랜드매니저']||'미지정')}</span></div>
   <div class="tabs" role="tablist">${BTABS.map(([k,l])=>`<button role="tab" type="button" data-act="btab" data-t="${k}" aria-selected="${k===tab}">${l}</button>`).join('')}</div>${body}`;
 }
 function bOver(b,n){
@@ -626,8 +675,8 @@ function bSell(b,n){
   const optRow=o=>`<tr class="click" tabindex="0" data-act="chopt" data-row="${o._row}"><td class="wrap">${esc(o['구성명']||o['구성코드'])}</td><td>${esc(o['판매형태']||'일반')}</td><td>${esc([o['거래처'],o['진행자']].filter(Boolean).join(' · '))}</td><td>${esc(o['적용가격정책'])}</td><td class="r num">${o['판매가']?won(num(o['판매가'])):'<span class="neg">가격 없음</span>'}</td><td class="r num">${pct(o['수수료율'])}</td><td class="r num">${o['정산가']?won(num(o['정산가'])):''}</td><td class="r num ${num(o['마진'])<0?'neg':''}">${pct(o['마진율'])}</td><td>${o['상태']?`<span class="pill ${o['상태']==='판매중'?'ok':'warn'}">${esc(o['상태'])}</span>`:''}</td></tr>`;
   const groups=names.map(sn=>{const x=bc.find(y=>y['스토어']===sn),st=sm.get(sn)||{},os=opts.filter(o=>(o['스토어']||'')===sn);
     const pg=st['정산원천']==='PG정산서'&&!sp.some(p=>p['스토어']===sn&&p['구분']==='정산금');
-    const head=sn?`<tr class="grp"><td colspan="9">${esc(sn)}<span class="m">${esc([st['판매채널'],st['판매법인'],st['거래방식'],st['정산원천'],st['PG사']].filter(Boolean).join(' · '))}</span>${x?` <span class="pill ${x['상태']==='운영중'?'ok':'warn'}">${esc(x['상태']||'상태 미정')}</span> <button class="btn sm" data-act="bchan" data-row="${x._row}" type="button">수정</button>`:' <span class="pill warn">브랜드채널 미연결</span>'}${pg?' <span class="pill warn">정산경로 없음</span>':''}</td></tr>`:`<tr class="grp"><td colspan="9"><span class="neg">스토어 미지정</span><span class="m">채널옵션에서 스토어를 골라 주세요</span></td></tr>`;
-    return head+(os.length?os.map(optRow).join(''):`<tr><td colspan="9" class="empty">이 스토어에 등록된 판매 옵션이 없습니다.</td></tr>`)}).join('');
+    const head=sn?`<tr class="grp"><td colspan="9"><div class="gh"><span>${esc(sn)}</span><span class="m">${esc([st['판매채널'],st['판매법인'],st['거래방식'],st['정산원천'],st['PG사']].filter(Boolean).join(' · '))}</span>${x?`<span class="pill ${x['상태']==='운영중'?'ok':'warn'}">${esc(x['상태']||'상태 미정')}</span>`:'<span class="pill warn">브랜드채널 미연결</span>'}${pg?'<span class="pill warn">정산경로 없음</span>':''}${x?`<button class="btn sm" data-act="bchan" data-row="${x._row}" type="button">연결 수정</button>`:''}</div></td></tr>`:`<tr class="grp"><td colspan="9"><div class="gh"><span class="neg">스토어 미지정</span><span class="m">채널옵션에서 스토어를 골라 주세요</span></div></td></tr>`;
+    return head+(os.length?os.map(optRow).join(''):`<tr><td colspan="9" class="empty sm">판매 옵션 없음 <button class="btn sm" data-act="newChopt" data-s="${esc(sn)}" type="button">이 스토어에 옵션 추가</button></td></tr>`)}).join('');
   const cb=objs('combos').filter(c=>c['브랜드']===n),pm=new Map(objs('prices').map(p=>[p['구성코드'],p]));
   const pols=((S.raw.prices||[[]])[0]||[]).slice(3).filter(Boolean).filter(k=>cb.some(c=>num((pm.get(c['구성코드'])||{})[k])>0));
   return `<div class="filters"><button class="btn primary" data-act="newChopt" type="button">판매 옵션 추가</button><button class="btn" data-act="newBchan" type="button">스토어 연결</button><span class="sync">어디서(스토어) · 어떤 형식으로(거래방식·판매형태·진행자) · 얼마에(가격정책→판매가) 파는지</span></div>
@@ -739,7 +788,7 @@ document.addEventListener('click',e=>{
     case 'brandBack':S.brandSel=null;render();break;
     case 'btab':S.btab=el.dataset.t;ls.set('btab',S.btab);render();break;
     case 'chopt':{const o=findRow('chopts',row);if(o)openForm('chopts',o,'판매 옵션 수정',o._row,saveChopt);break}
-    case 'newChopt':openForm('chopts',{상태:'판매중',판매형태:'일반'},S.brandSel+' 판매 옵션 추가',null,saveChopt);break;
+    case 'newChopt':openForm('chopts',{상태:'판매중',판매형태:'일반',스토어:el.dataset.s||''},S.brandSel+' 판매 옵션 추가',null,saveChopt);break;
     case 'bchan':{const x=findRow('bchan',row);if(x)openForm('bchan',x,x['스토어']+' 연결 수정',x._row);break}
     case 'newBchan':openForm('bchan',{브랜드:S.brandSel,상태:'운영중',시작일:ymd(new Date())},S.brandSel+' 스토어 연결');break;
     case 'adlink':{const x=findRow('adlinks',row);if(x)openForm('adlinks',x,x['광고지면']+' 광고 수정',x._row);break}
