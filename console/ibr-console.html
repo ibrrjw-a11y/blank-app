@@ -139,6 +139,38 @@ textarea{min-height:80px;resize:vertical}
 .asset a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;font-size:13px}
 .dl dt{color:var(--muted)} .dl dd{margin:0;overflow-wrap:anywhere}
+.bar{height:6px;border-radius:3px;background:var(--sunk);overflow:hidden;min-width:60px}
+.bar>i{display:block;height:100%;background:var(--ok)}
+.prog{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.prog .bar{flex:1}
+.wf{display:flex;flex-direction:column;gap:2px}
+.stage{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.03em;padding:10px 0 4px;border-bottom:1px solid var(--line)}
+.chk{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px dashed var(--line)}
+.chk:last-child{border-bottom:0}
+.box{all:unset;box-sizing:border-box;cursor:pointer;width:22px;height:22px;border:2px solid var(--line);border-radius:5px;display:grid;place-items:center;margin-top:1px;color:var(--on-ink);font-size:13px;font-weight:700}
+.box:hover{border-color:var(--ok)}
+.box:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.box[aria-pressed="true"]{background:var(--ok);border-color:var(--ok)}
+.box.na{background:var(--sunk);border-color:var(--line);color:var(--muted)}
+.chk .t{font-weight:500}
+.chk.done .t{color:var(--muted);text-decoration:line-through}
+.chk .no{font-family:var(--f-num);font-size:12px;color:var(--muted);margin-right:6px}
+.chk .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted);margin-top:3px}
+.chk details{margin-top:4px;font-size:13px;color:var(--muted)}
+.chk details summary{cursor:pointer;font-size:12px;width:max-content}
+.chk details p{margin:4px 0 0;max-width:65ch}
+.book{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.book .f{display:flex;flex-direction:column;gap:3px}
+.book .f span{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.book .f p{margin:0;white-space:pre-wrap;max-width:65ch}
+.book .f p.miss{color:var(--warn)}
+.lede{font-size:17px;font-weight:600;line-height:1.45;margin:0;text-wrap:balance}
+.gitem{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.gitem:last-child{border-bottom:0}
+.gitem .no{font-family:var(--f-num);color:var(--muted);font-size:13px;padding-top:1px}
+.gitem h4{margin:0 0 4px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.gitem p{margin:0 0 6px;max-width:65ch}
+.gitem .meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted)}
 @media (max-width:760px){
   .app{grid-template-columns:1fr}
   .rail{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;align-items:center;padding:8px 12px;gap:12px;z-index:5;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto}
@@ -181,20 +213,23 @@ textarea{min-height:80px;resize:vertical}
 <script>
 const SID='16LBlBvCVxNsTs5EG8eds-2Y16ZNtjZTj-_qZLoeRhLs';
 const SV='Google Sheets';
-const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:G",tasks:"'업무'!A1:N",events:"'일정'!A1:L",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",costs:"'비용'!A1:G",orders:"'주문'!A1:T",stores:"'스토어'!A1:F",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",corps:"'판매법인'!A1:A"};
-const KEYCOL={people:'이름',brands:'브랜드',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'스토어',costs:'금액',orders:'결제금액',stores:'스토어'};
+const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:R",playbook:"'플레이북'!A1:J",checks:"'체크리스트'!A1:M",tasks:"'업무'!A1:N",events:"'일정'!A1:L",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",costs:"'비용'!A1:G",orders:"'주문'!A1:T",stores:"'스토어'!A1:F",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",corps:"'판매법인'!A1:A",sku:"'SKU'!A1:E",combos:"'판매구성'!A1:H",prices:"'가격표'!A1:E",chopts:"'채널옵션'!A1:K"};
+const KEYCOL={people:'이름',brands:'브랜드',playbook:'항목',checks:'항목',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'스토어',costs:'금액',orders:'결제금액',stores:'스토어',sku:'SKU코드',combos:'구성코드',prices:'구성코드',chopts:'구성코드'};
+const BOOK=['한줄소개','타깃고객','핵심메시지','톤앤매너','금지표현','가격원칙','주력채널','경쟁브랜드','공식몰','인스타그램'];
 const SHEETS={
+  checks:{name:'체크리스트',cols:['체크ID','브랜드','워크플로우','대상','순서','단계','항목','담당자','마감일','상태','완료일','산출물링크','메모']},
   tasks:{name:'업무',cols:['업무ID','업무명','브랜드','판매채널','담당자','요청자','시작일','마감일','상태','우선순위','연결일정','내용','등록일'],prefix:'T'},
   events:{name:'일정',cols:['일정ID','일정명','유형','브랜드','판매채널','거래처','시작일','종료일','담당자','상태','적용가격정책','내용'],prefix:'E',auto:['적용가격정책']},
   assets:{name:'브랜드에셋',cols:['에셋ID','브랜드','유형','에셋명','링크','버전','구성코드','담당자','등록일','상태'],prefix:'A'},
   people:{name:'담당자',cols:['이름','이메일','역할','상태']},
-  brands:{name:'브랜드',cols:['브랜드','판매법인','브랜드매니저','상태','에셋폴더']},
+  brands:{name:'브랜드',cols:['브랜드','판매법인','브랜드매니저','상태','에셋폴더','SKU수','판매구성수',...BOOK],auto:['SKU수','판매구성수']},
   costs:{name:'비용',cols:['월','판매법인','브랜드','항목','금액','광고지면','메모']}
 };
 const TASK_ST=['대기','진행중','검토','보류','완료'];
 const EV_TYPES=['라이브','공동구매','브랜드위크','원데이특가','홈쇼핑방송','신상품출시','프로모션','촬영','입고','미팅','정산','기타'];
 const SALES_TYPES=new Set(['라이브','공동구매','브랜드위크','원데이특가','홈쇼핑방송','신상품출시','프로모션']);
-const VIEWS=[['home','홈'],['tasks','업무'],['events','일정'],['settle','정산'],['close','결산'],['brands','브랜드'],['people','담당자']];
+const VIEWS=[['home','홈'],['brands','브랜드'],['guide','길라잡이'],['tasks','업무'],['events','일정'],['settle','정산'],['close','결산'],['people','담당자']];
+const CHK_DONE=new Set(['완료','해당없음']);
 
 const ls={get(k){try{return localStorage.getItem('ibr.'+k)}catch(e){return null}},set(k,v){try{localStorage.setItem('ibr.'+k,v)}catch(e){}}};
 const pad=n=>String(n).padStart(2,'0');
@@ -212,13 +247,85 @@ function dday(due){const d=pd(due);if(!d)return null;return Math.round((d-today(
 function ddPill(due,done){if(done)return '';const d=dday(due);if(d==null)return '';const t=d<0?'D+'+(-d):d===0?'D-day':'D-'+d;return `<span class="pill num ${d<0?'bad':d<=2?'warn':''}">${t}</span>`}
 function monthAdd(m,k){const [y,mo]=m.split('-').map(Number);const d=new Date(y,mo-1+k,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)}
 
-const S={mcp:null,raw:{},err:{},fatal:null,loaded:false,view:(location.hash||'').slice(1)||ls.get('view')||'home',me:ls.get('me')||'',month:thisMonth(),calMonth:thisMonth(),grp:'브랜드',f:{brand:'',person:'',q:''},brandSel:null,syncedAt:null,busy:false};
+const S={wf:'',mcp:null,raw:{},err:{},fatal:null,loaded:false,view:(location.hash||'').slice(1)||ls.get('view')||'home',me:ls.get('me')||'',month:thisMonth(),calMonth:thisMonth(),grp:'브랜드',f:{brand:'',person:'',q:''},brandSel:null,syncedAt:null,busy:false};
 if(!VIEWS.some(v=>v[0]===S.view))S.view='home';
 
 function objs(key){const v=S.raw[key];if(!v||!v.length)return [];const h=v[0];const kc=KEYCOL[key];return v.slice(1).map((r,i)=>{const o={_row:i+2};h.forEach((k,j)=>o[k]=r[j]??'');return o}).filter(o=>!kc||String(o[kc]).trim()!=='')}
 function list(key){const v=S.raw[key]||[];return v.slice(1).map(r=>r[0]).filter(Boolean)}
 const people=()=>objs('people').filter(p=>p['상태']!=='퇴사').map(p=>p['이름']);
 const brandNames=()=>objs('brands').map(b=>b['브랜드']);
+const workflows=()=>[...new Set(objs('playbook').map(p=>p['워크플로우']).filter(Boolean))];
+const brandOf=n=>objs('brands').find(b=>b['브랜드']===n);
+const pbItem=(wf,no)=>objs('playbook').find(p=>p['워크플로우']===wf&&String(p['순서'])===String(no));
+function assignee(role,brand){
+  if(role==='브랜드매니저')return (brand&&brand['브랜드매니저'])||'';
+  const p=objs('people').find(x=>x['역할']===role&&x['상태']!=='퇴사');return p?p['이름']:'';
+}
+/* automatic checks: read the master sheets and tell whether an onboarding step is already reflected there */
+function autoCheck(key,n){
+  const b=brandOf(n)||{};
+  const sk=objs('sku').filter(s=>s['브랜드']===n);
+  const cb=objs('combos').filter(c=>c['브랜드']===n);const codes=new Set(cb.map(c=>c['구성코드']));
+  const as=objs('assets').filter(a=>a['브랜드']===n&&a['상태']!=='폐기');const hasA=(...t)=>as.some(a=>t.includes(a['유형']));
+  const ev=t=>objs('events').some(e=>e['브랜드']===n&&e['유형']===t);
+  const all=(arr,f)=>{const ok=arr.filter(f).length;return {ok:arr.length>0&&ok===arr.length,note:ok+'/'+arr.length}};
+  const filled=(...k)=>({ok:k.every(x=>String(b[x]||'').trim()),note:k.filter(x=>String(b[x]||'').trim()).length+'/'+k.length});
+  switch(key){
+    case 'BRAND_INFO':return filled('판매법인');
+    case 'BRAND_BM':return filled('브랜드매니저');
+    case 'BRANDBOOK':return filled('한줄소개','타깃고객','핵심메시지','톤앤매너');
+    case 'BRAND_BAN':return filled('금지표현');
+    case 'BRAND_PRICE_RULE':return filled('가격원칙');
+    case 'BRAND_CHANNEL':return filled('주력채널');
+    case 'EVENT_MEETING':return {ok:ev('미팅'),note:''};
+    case 'EVENT_LAUNCH':return {ok:ev('신상품출시'),note:''};
+    case 'SKU':return {ok:sk.length>0,note:sk.length+'개'};
+    case 'SKU_COST':return all(sk,s=>num(s['원가(VAT포함)'])>0);
+    case 'COMBO':return {ok:cb.length>0,note:cb.length+'개'};
+    case 'COMBO_LINES':return all(cb,c=>num(c['구성품수'])>0);
+    case 'PRICE':{const pm=new Map(objs('prices').map(p=>[p['구성코드'],p]));return all(cb,c=>{const p=pm.get(c['구성코드']);return p&&num(p['소비자가격'])>0&&num(p['상시할인가'])>0})}
+    case 'ASSET_LOGO':return {ok:hasA('로고','BI가이드'),note:''};
+    case 'ASSET_PHOTO':return {ok:hasA('제품컷','연출컷'),note:''};
+    case 'ASSET_DETAIL':return {ok:hasA('상세페이지'),note:''};
+    case 'ASSET_CERT':return {ok:hasA('인증서','성분표'),note:''};
+    case 'CHOPT':{const k=objs('chopts').filter(o=>codes.has(o['구성코드'])).length;return {ok:k>0,note:k+'개'}}
+    case 'SBN':return all(cb,c=>String(c['사방넷코드']||'').trim());
+    case 'ORDER_ANY':{const k=objs('orders').filter(o=>o['브랜드']===n).length;return {ok:k>0,note:k+'건'}}
+  }
+  return null;
+}
+function autoPill(wf,no,n){
+  const p=pbItem(wf,no);const key=p&&p['자동확인'];if(!key)return '';const r=autoCheck(key,n);if(!r)return '';
+  return `<span class="pill ${r.ok?'ok':'warn'}" title="마스터 시트 기준 자동 확인">${r.ok?'시트 반영됨':'시트 미반영'}${r.note?' '+esc(r.note):''}</span>`;
+}
+function chkGroups(n){
+  const g=new Map();objs('checks').filter(c=>!n||c['브랜드']===n).forEach(c=>{const k=c['브랜드']+'|'+c['워크플로우']+'|'+(c['대상']||'');if(!g.has(k))g.set(k,{brand:c['브랜드'],wf:c['워크플로우'],target:c['대상']||'',items:[]});g.get(k).items.push(c)});
+  return [...g.values()].map(x=>({...x,done:x.items.filter(i=>CHK_DONE.has(i['상태'])).length,late:x.items.filter(i=>!CHK_DONE.has(i['상태'])&&(dday(i['마감일'])??0)<0).length}));
+}
+const progBar=(d,t)=>`<span class="prog"><span class="bar"><i style="width:${t?Math.round(d/t*100):0}%"></i></span><span class="num">${d}/${t}</span></span>`;
+async function createChecklist(brandName,wf,target,start,brandRec){
+  const items=objs('playbook').filter(p=>p['워크플로우']===wf);
+  if(!items.length)throw {code:'tool_error',message:wf+' 플레이북 항목이 없습니다'};
+  if(chkGroups(brandName).some(g=>g.wf===wf&&g.target===(target||'')))throw {code:'dup'};
+  const b=brandRec||brandOf(brandName);const s=pd(start)||today();const base=uid('C');
+  const rows=items.map((p,i)=>{const due=new Date(s);due.setDate(due.getDate()+num(p['기한(일)']));
+    return [base+'-'+pad(i+1),brandName,wf,target||'',String(p['순서']),p['단계'],p['항목'],assignee(p['담당역할'],b),ymd(due),'미착수','','',''];});
+  const r0=await nextRow('체크리스트');
+  await writeRange(`'체크리스트'!A${r0}:M${r0+rows.length-1}`,rows);
+  await load(['checks'],true);
+}
+function startWF(rec){
+  guarded(async()=>{try{await createChecklist(rec['브랜드'],rec['워크플로우'],rec['대상'],rec['시작일'])}catch(e){if(e&&e.code==='dup'){toast('같은 브랜드·워크플로우·대상의 체크리스트가 이미 있습니다');throw {code:'silent'}}throw e}
+    S.view='brands';S.brandSel=rec['브랜드'];},rec['워크플로우']+' 체크리스트를 만들었습니다');
+}
+function newBrand(rec){
+  const n=rec['브랜드'];if(brandNames().includes(n)){toast(n+' 브랜드가 이미 있습니다');return}
+  guarded(async()=>{const r=await nextRow('브랜드');
+    await writeRange(`'브랜드'!A${r}:E${r}`,[[n,rec['판매법인']||'',rec['브랜드매니저']||'',rec['상태']||'런칭예정','']]);
+    await load(['brands'],true);
+    await createChecklist(n,'브랜드 온보딩','',rec['온보딩 시작일'],{브랜드매니저:rec['브랜드매니저']});
+    S.view='brands';S.brandSel=n;},n+' 브랜드와 온보딩 체크리스트를 만들었습니다');
+}
 
 function errMsg(e){switch(e&&e.code){
   case 'server_not_connected':return 'Google Sheets 커넥터가 연결되어 있지 않습니다. claude.ai 설정 → 커넥터에서 Google Sheets를 추가한 뒤 새로고침하세요.';
@@ -269,24 +376,27 @@ function setSync(t){document.getElementById('sync').textContent=t}
 async function guarded(fn,okMsg){
   if(S.busy)return;S.busy=true;setSync('저장 중');
   try{await fn();toast(okMsg||'저장했습니다');render()}
-  catch(e){toast(e&&e.code==='server_unavailable'?'응답이 없어 저장 여부를 확인하지 못했습니다. 새로고침 후 시트에서 확인하세요.':errMsg(e))}
+  catch(e){if(e&&e.code==='silent')return;toast(e&&e.code==='server_unavailable'?'응답이 없어 저장 여부를 확인하지 못했습니다. 새로고침 후 시트에서 확인하세요.':errMsg(e))}
   finally{S.busy=false;stamp()}
 }
 function stamp(){setSync(S.syncedAt?'동기화 '+pad(S.syncedAt.getHours())+':'+pad(S.syncedAt.getMinutes()):'시트 연결 중')}
 
 /* ---------- dialog forms ---------- */
-const OPT={brands:()=>brandNames(),people:()=>people(),channels:()=>list('channels'),partners:()=>list('partners'),corps:()=>list('corps')};
+const OPT={workflows:()=>workflows(),brands:()=>brandNames(),people:()=>people(),channels:()=>list('channels'),partners:()=>list('partners'),corps:()=>list('corps')};
 const FORMS={
   tasks:[['업무명','text',1,'wide'],['브랜드','sel:brands'],['판매채널','sel:channels'],['담당자','sel:people'],['요청자','sel:people'],['시작일','date'],['마감일','date'],['상태','list:'+TASK_ST.join(',')],['우선순위','list:긴급,높음,보통,낮음'],['연결일정','sel:eventsId','','wide'],['내용','area','','wide']],
   events:[['일정명','text',1,'wide'],['유형','list:'+EV_TYPES.join(','),1],['브랜드','sel:brands'],['판매채널','sel:channels'],['거래처','sel:partners'],['시작일','date',1],['종료일','date'],['담당자','sel:people'],['상태','list:예정,진행중,완료,취소'],['내용','area','','wide']],
   assets:[['에셋명','text',1,'wide'],['브랜드','sel:brands',1],['유형','list:로고,BI가이드,상세페이지,제품컷,연출컷,영상,패키지도면,인증서,성분표,카피,기타',1],['링크','url','','wide'],['버전','text'],['구성코드','text'],['담당자','sel:people'],['상태','list:사용중,구버전,폐기']],
   people:[['이름','text',1],['이메일','text'],['역할','list:대표,브랜드매니저,MD,마케터,디자이너,콘텐츠,CS,물류,재무,기타'],['상태','list:재직,휴직,퇴사']],
-  brands:[['판매법인','sel:corps'],['브랜드매니저','sel:people'],['상태','list:운영중,런칭예정,중단'],['에셋폴더','url','','wide']],
+  brands:[['판매법인','sel:corps'],['브랜드매니저','sel:people'],['상태','list:운영중,런칭예정,중단'],['주력채널','text'],['한줄소개','text','','wide'],['타깃고객','area','','wide'],['핵심메시지','area','','wide'],['톤앤매너','area','','wide'],['금지표현','area','','wide'],['가격원칙','area','','wide'],['경쟁브랜드','text','','wide'],['공식몰','url'],['인스타그램','url'],['에셋폴더','url','','wide']],
+  newBrand:[['브랜드','text',1],['상태','list:런칭예정,운영중,중단'],['판매법인','sel:corps'],['브랜드매니저','sel:people'],['온보딩 시작일','date',1,'wide']],
+  checks:[['담당자','sel:people'],['마감일','date'],['상태','list:미착수,진행중,완료,해당없음'],['완료일','date'],['산출물링크','url','','wide'],['메모','area','','wide']],
+  startwf:[['브랜드','sel:brands',1],['워크플로우','sel:workflows',1],['대상','text','','wide'],['시작일','date',1]],
   costs:[['월','month',1],['항목','list:광고비,물류비,포장재,촬영·제작,인건비,샘플·증정,기타',1],['판매법인','sel:corps'],['브랜드','sel:brands'],['금액','number',1],['광고지면','text'],['메모','text','','wide']]
 };
 let DLG=null;
-function openForm(key,rec,title,row){
-  DLG={key,row,rec:{...rec}};
+function openForm(key,rec,title,row,onSave){
+  DLG={key,row,rec:{...rec},onSave};
   document.getElementById('dtitle').textContent=title;
   const body=document.getElementById('dbody');
   body.innerHTML=FORMS[key].map(([k,t,req,cls],i)=>{
@@ -305,10 +415,10 @@ function openForm(key,rec,title,row){
   document.getElementById('dlg').showModal();
 }
 document.getElementById('dform').addEventListener('submit',ev=>{
-  ev.preventDefault();if(!DLG)return;const {key,row,rec}=DLG;
+  ev.preventDefault();if(!DLG)return;const {key,row,rec,onSave}=DLG;
   const fd=new FormData(ev.target);for(const [k,v] of fd.entries())rec[k]=String(v).trim();
   document.getElementById('dlg').close();
-  guarded(()=>saveRecord(key,rec,row));
+  if(onSave)onSave(rec);else guarded(()=>saveRecord(key,rec,row));
 });
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>document.getElementById('dlg').close()));
 
@@ -329,7 +439,15 @@ function vHome(){
   const upcoming=objs('events').filter(e=>{const [s,en]=evRange(e);return s&&en>=t0&&s<=t7&&e['상태']!=='취소'}).sort((a,b)=>evRange(a)[0]-evRange(b)[0]);
   const mine=S.me?openTasks().filter(t=>t['담당자']===S.me):openTasks().filter(t=>{const d=dday(t['마감일']);return d!=null&&d<=3});
   mine.sort((a,b)=>(dday(a['마감일'])??999)-(dday(b['마감일'])??999));
-  return `<div class="kpis">
+  const openChk=objs('checks').filter(c=>!CHK_DONE.has(c['상태']));
+  const myChk=(S.me?openChk.filter(c=>c['담당자']===S.me):openChk.filter(c=>(dday(c['마감일'])??99)<=3)).sort((a,b)=>(dday(a['마감일'])??999)-(dday(b['마감일'])??999));
+  const groups=chkGroups().filter(g=>g.done<g.items.length);
+  const chkItem=c=>`<button class="item" data-act="brand" data-b="${esc(c['브랜드'])}" type="button"><span class="av">${initials(c['담당자'])}</span><span style="min-width:0"><span class="t">${esc(c['항목'])}</span><br><span class="m">${esc([c['브랜드'],c['워크플로우'],c['대상']].filter(Boolean).join(' · '))}</span></span>${ddPill(c['마감일'])}</button>`;
+  const flow=`<div class="grid2">
+    <section class="panel"><header><h2>진행 중인 워크플로우</h2><button class="btn sm" data-act="newBrand" type="button">새 브랜드 시작</button></header><div class="body">${groups.length?groups.map(g=>`<button class="item" data-act="brand" data-b="${esc(g.brand)}" type="button"><span class="pill">${esc(g.wf)}</span><span style="min-width:0"><span class="t">${esc(g.brand)}${g.target?' · '+esc(g.target):''}</span><br>${progBar(g.done,g.items.length)}</span>${g.late?`<span class="pill bad num">지연 ${g.late}</span>`:''}</button>`).join(''):'<p class="empty">진행 중인 워크플로우가 없습니다. 새 브랜드가 들어오면 "새 브랜드 시작"으로 온보딩 체크리스트를 만드세요.</p>'}</div></section>
+    <section class="panel"><header><h2>${S.me?esc(S.me)+'님 체크 항목':'마감 3일 이내 체크 항목'}</h2></header><div class="body">${myChk.length?myChk.slice(0,12).map(chkItem).join(''):`<p class="empty">${S.me?'할 체크 항목이 없습니다.':'왼쪽 아래에서 내 이름을 고르면 내 항목만 보입니다.'}</p>`}</div></section>
+  </div>`;
+  return flow+`<div class="kpis">
     ${kpi('이번 달 매출',won(rev),od.length+'건 · '+m)}
     ${kpi('정산 예정액',won(exp),'수수료 차감 후')}
     ${kpi('미입금 정산',unpaid.length+'건',won(unpaid.reduce((a,s)=>a+num(s['정산예정액']),0))+'원',unpaid.length?'caution':'')}
@@ -421,21 +539,43 @@ function vClose(){
 }
 
 function vBrands(){
-  if(S.brandSel){const b=objs('brands').find(x=>x['브랜드']===S.brandSel);if(b)return vBrand(b);S.brandSel=null}
-  const ot=openTasks(),as=objs('assets');
-  return `<div class="brands">${objs('brands').map(b=>{const n=b['브랜드'];return `<button class="bcard" data-act="brand" data-b="${esc(n)}" type="button"><span style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(n)}</b>${b['상태']?`<span class="pill ${b['상태']==='운영중'?'ok':b['상태']==='중단'?'':'warn'}">${esc(b['상태'])}</span>`:''}</span><span class="m sync">${esc(b['판매법인']||'판매법인 미지정')}${b['브랜드매니저']?' · '+esc(b['브랜드매니저']):''}</span><span class="stats"><span><b>${num(b['판매구성수'])}</b>판매구성</span><span><b>${ot.filter(t=>t['브랜드']===n).length}</b>진행업무</span><span><b>${as.filter(a=>a['브랜드']===n&&a['상태']!=='폐기').length}</b>에셋</span></span></button>`}).join('')||'<p class="empty">브랜드 탭이 비어 있습니다.</p>'}</div>`;
+  if(S.brandSel){const b=brandOf(S.brandSel);if(b)return vBrand(b);S.brandSel=null}
+  const ot=openTasks(),as=objs('assets'),gs=chkGroups();
+  return `<div class="filters"><button class="btn primary" data-act="newBrand" type="button">새 브랜드 시작</button><span class="sync">새 브랜드를 만들면 온보딩 체크리스트가 담당자와 마감일까지 자동으로 만들어집니다.</span></div>
+  <div class="brands">${objs('brands').map(b=>{const n=b['브랜드'];const items=gs.filter(g=>g.brand===n).flatMap(g=>g.items);const d=items.filter(i=>CHK_DONE.has(i['상태'])).length;const late=items.filter(i=>!CHK_DONE.has(i['상태'])&&(dday(i['마감일'])??0)<0).length;
+    return `<button class="bcard" data-act="brand" data-b="${esc(n)}" type="button"><span style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(n)}</b>${b['상태']?`<span class="pill ${b['상태']==='운영중'?'ok':b['상태']==='중단'?'':'warn'}">${esc(b['상태'])}</span>`:''}</span><span class="sync">${esc(b['한줄소개']||b['판매법인']||'브랜드북 미작성')}</span>${items.length?progBar(d,items.length):''}<span class="stats"><span><b>${num(b['판매구성수'])}</b>판매구성</span><span><b>${ot.filter(t=>t['브랜드']===n).length}</b>진행업무</span><span><b class="${late?'neg':''}">${late}</b>지연 체크</span></span></button>`}).join('')||'<p class="empty">브랜드 탭이 비어 있습니다.</p>'}</div>`;
+}
+function bookField(b,k){const v=String(b[k]||'').trim();return `<div class="f"><span>${k}</span>${v?(/^https?:\/\//.test(v)?`<p><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></p>`:`<p>${esc(v)}</p>`):'<p class="miss">미작성</p>'}</div>`}
+function vChecklist(g){
+  const stages=[...new Set(g.items.map(i=>i['단계']))];
+  return `<section class="panel"><header><h2>${esc(g.wf)}${g.target?' · '+esc(g.target):''}</h2><span style="min-width:140px">${progBar(g.done,g.items.length)}</span></header><div class="body wf">${stages.map(st=>`<div class="stage">${esc(st)}</div>${g.items.filter(i=>i['단계']===st).map(i=>{const done=CHK_DONE.has(i['상태']);const p=pbItem(g.wf,i['순서']);
+    return `<div class="chk ${done?'done':''}"><button class="box ${i['상태']==='해당없음'?'na':''}" data-act="chkToggle" data-row="${i._row}" aria-pressed="${done}" aria-label="${esc(i['항목'])} 완료 표시" type="button">${i['상태']==='해당없음'?'–':done?'✓':''}</button>
+    <div style="min-width:0"><span class="t"><span class="no">${esc(i['순서'])}</span>${esc(i['항목'])}</span>
+    <div class="meta"><span class="who"><span class="av">${initials(i['담당자'])}</span>${esc(i['담당자']||(p?p['담당역할']+' 미배정':'미배정'))}</span>${done?`<span>${esc(i['상태'])} ${esc(i['완료일']||'')}</span>`:ddPill(i['마감일'])}${i['상태']==='진행중'?'<span class="pill warn">진행중</span>':''}${g.wf==='브랜드 온보딩'?autoPill(g.wf,i['순서'],g.brand):''}${i['산출물링크']&&/^https?:\/\//.test(i['산출물링크'])?`<a href="${esc(i['산출물링크'])}" target="_blank" rel="noopener">산출물</a>`:''}</div>
+    ${p&&p['기준·방법']?`<details><summary>하는 방법</summary><p>${esc(p['기준·방법'])}${p['산출물']?' <b>→ '+esc(p['산출물'])+'</b>':''}</p></details>`:''}${i['메모']?`<p class="sync" style="margin:4px 0 0">${esc(i['메모'])}</p>`:''}</div>
+    <button class="btn sm" data-act="chkEdit" data-row="${i._row}" type="button">편집</button></div>`}).join('')}`).join('')}</div></section>`;
 }
 function vBrand(b){
   const n=b['브랜드'];const as=objs('assets').filter(a=>a['브랜드']===n);
   const types=[...new Set(as.map(a=>a['유형']||'기타'))];
   const ts=openTasks().filter(t=>t['브랜드']===n);
   const evs=objs('events').filter(e=>e['브랜드']===n&&(evRange(e)[1]||0)>=today()).sort((a,c)=>evRange(a)[0]-evRange(c)[0]);
-  const link=u=>/^https?:\/\//.test(u)?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`:esc(u);
-  return `<div class="filters"><button class="btn" data-act="brandBack" type="button">← 브랜드 목록</button><button class="btn" data-act="brandEdit" data-row="${b._row}" type="button">브랜드 정보 수정</button><button class="btn primary" data-act="newAsset" data-b="${esc(n)}" type="button">에셋 등록</button></div>
-  <div class="grid2"><section class="panel"><header><h2>${esc(n)}</h2>${b['상태']?`<span class="pill">${esc(b['상태'])}</span>`:''}</header><div class="body"><dl class="dl"><dt>판매법인</dt><dd>${esc(b['판매법인']||'미지정')}</dd><dt>브랜드매니저</dt><dd>${esc(b['브랜드매니저']||'미지정')}</dd><dt>에셋폴더</dt><dd>${b['에셋폴더']?link(b['에셋폴더']):'미지정'}</dd><dt>SKU</dt><dd class="num">${num(b['SKU수'])}</dd><dt>판매구성</dt><dd class="num">${num(b['판매구성수'])}</dd></dl></div></section>
-  <section class="panel"><header><h2>브랜드 에셋</h2><span class="sync">${as.length}건</span></header><div class="body">${types.length?types.map(t=>`<div class="asset-group"><h4>${esc(t)}</h4>${as.filter(a=>(a['유형']||'기타')===t).map(a=>`<div class="asset"><span style="min-width:0;display:flex;flex-direction:column">${a['링크']&&/^https?:\/\//.test(a['링크'])?`<a href="${esc(a['링크'])}" target="_blank" rel="noopener">${esc(a['에셋명'])}</a>`:esc(a['에셋명'])}<span class="m sync">${esc([a['버전'],a['구성코드'],a['담당자']].filter(Boolean).join(' · '))}</span></span><span style="display:flex;gap:6px;align-items:center">${a['상태']&&a['상태']!=='사용중'?`<span class="pill">${esc(a['상태'])}</span>`:''}<button class="btn sm" data-act="asset" data-row="${a._row}" type="button">수정</button></span></div>`).join('')}</div>`).join(''):'<p class="empty">등록된 에셋이 없습니다. 로고, 상세페이지, 제품컷의 드라이브 링크를 등록하세요.</p>'}</div></section></div>
-  <div class="grid2"><section class="panel"><header><h2>진행 업무</h2><button class="btn sm" data-act="newTask" data-b="${esc(n)}" type="button">추가</button></header><div class="body">${ts.length?ts.map(taskItem).join(''):'<p class="empty">진행 중인 업무가 없습니다.</p>'}</div></section>
-  <section class="panel"><header><h2>예정 일정</h2><button class="btn sm" data-act="newEvent" data-b="${esc(n)}" type="button">추가</button></header><div class="body">${evs.length?evs.slice(0,10).map(evItem).join(''):'<p class="empty">예정된 일정이 없습니다.</p>'}</div></section></div>`;
+  const gs=chkGroups(n).sort((a,c)=>(a.done===a.items.length)-(c.done===c.items.length));
+  return `<div class="filters"><button class="btn" data-act="brandBack" type="button">← 브랜드 목록</button><button class="btn" data-act="brandEdit" data-row="${b._row}" type="button">브랜드북 수정</button><button class="btn primary" data-act="startWF" data-b="${esc(n)}" type="button">워크플로우 시작</button><button class="btn" data-act="newAsset" data-b="${esc(n)}" type="button">에셋 등록</button></div>
+  <section class="panel"><header><h2>${esc(n)} 브랜드북</h2><span style="display:flex;gap:6px;flex-wrap:wrap">${b['상태']?`<span class="pill">${esc(b['상태'])}</span>`:''}<span class="pill">${esc(b['판매법인']||'판매법인 미지정')}</span><span class="pill">BM ${esc(b['브랜드매니저']||'미지정')}</span></span></header>
+  <div class="body" style="gap:16px">${b['한줄소개']?`<p class="lede">${esc(b['한줄소개'])}</p>`:'<p class="lede" style="color:var(--warn)">한줄소개가 아직 없습니다. 브랜드북 수정에서 전 직원이 같은 문장으로 말할 소개를 적어 주세요.</p>'}
+  <div class="book">${['타깃고객','핵심메시지','톤앤매너','금지표현','가격원칙','주력채널','경쟁브랜드','공식몰','인스타그램'].map(k=>bookField(b,k)).join('')}<div class="f"><span>상품</span><p class="num">SKU ${num(b['SKU수'])} · 판매구성 ${num(b['판매구성수'])}</p></div></div></div></section>
+  ${gs.length?gs.map(vChecklist).join(''):`<section class="panel"><div class="body"><p class="empty">이 브랜드에 만들어진 체크리스트가 없습니다. "워크플로우 시작"에서 브랜드 온보딩을 고르면 플레이북 순서대로 항목이 만들어집니다.</p></div></section>`}
+  <div class="grid2"><section class="panel"><header><h2>브랜드 에셋</h2><span class="sync">${as.length}건${b['에셋폴더']&&/^https?:\/\//.test(b['에셋폴더'])?` · <a href="${esc(b['에셋폴더'])}" target="_blank" rel="noopener">폴더</a>`:''}</span></header><div class="body">${types.length?types.map(t=>`<div class="asset-group"><h4>${esc(t)}</h4>${as.filter(a=>(a['유형']||'기타')===t).map(a=>`<div class="asset"><span style="min-width:0;display:flex;flex-direction:column">${a['링크']&&/^https?:\/\//.test(a['링크'])?`<a href="${esc(a['링크'])}" target="_blank" rel="noopener">${esc(a['에셋명'])}</a>`:esc(a['에셋명'])}<span class="sync">${esc([a['버전'],a['구성코드'],a['담당자']].filter(Boolean).join(' · '))}</span></span><span style="display:flex;gap:6px;align-items:center">${a['상태']&&a['상태']!=='사용중'?`<span class="pill">${esc(a['상태'])}</span>`:''}<button class="btn sm" data-act="asset" data-row="${a._row}" type="button">수정</button></span></div>`).join('')}</div>`).join(''):'<p class="empty">등록된 에셋이 없습니다. 로고, 상세페이지, 제품컷의 드라이브 링크를 등록하세요.</p>'}</div></section>
+  <section class="panel"><header><h2>진행 업무 · 예정 일정</h2><span style="display:flex;gap:6px"><button class="btn sm" data-act="newTask" data-b="${esc(n)}" type="button">업무</button><button class="btn sm" data-act="newEvent" data-b="${esc(n)}" type="button">일정</button></span></header><div class="body">${ts.map(taskItem).join('')}${evs.slice(0,8).map(evItem).join('')}${!ts.length&&!evs.length?'<p class="empty">진행 업무와 예정 일정이 없습니다.</p>':''}</div></section></div>`;
+}
+function vGuide(){
+  const wfs=workflows();if(!S.wf||!wfs.includes(S.wf))S.wf=wfs[0]||'';
+  const items=objs('playbook').filter(p=>p['워크플로우']===S.wf);const stages=[...new Set(items.map(i=>i['단계']))];
+  const running=chkGroups().filter(g=>g.wf===S.wf&&g.done<g.items.length);
+  return `<div class="filters"><div class="seg" role="group" aria-label="워크플로우">${wfs.map(w=>`<button type="button" data-act="wf" data-w="${esc(w)}" aria-pressed="${w===S.wf}">${esc(w)}</button>`).join('')}</div>${S.wf?`<button class="btn primary" data-act="startWF" data-w="${esc(S.wf)}" type="button">이 워크플로우 시작</button>`:''}</div>
+  ${running.length?`<div class="banner"><span>진행 중: ${running.map(g=>esc(g.brand+(g.target?' · '+g.target:''))+' '+g.done+'/'+g.items.length).join(', ')}</span></div>`:''}
+  ${items.length?stages.map(st=>`<section class="panel"><header><h2>${esc(st)}</h2><span class="sync">${items.filter(i=>i['단계']===st).length}개 항목</span></header><div class="body" style="gap:0">${items.filter(i=>i['단계']===st).map(i=>`<div class="gitem"><span class="no">${esc(i['순서'])}</span><div><h4>${esc(i['항목'])}<span class="pill">${esc(i['담당역할'])}</span>${i['필수']==='N'?'<span class="pill">선택</span>':''}${i['자동확인']?'<span class="pill ok">시트 자동 확인</span>':''}</h4><p>${esc(i['기준·방법'])}</p><div class="meta">${i['산출물']?`<span>산출물 · ${esc(i['산출물'])}</span>`:''}<span class="num">시작 +${num(i['기한(일)'])}일</span></div></div></div>`).join('')}</div></section>`).join(''):'<section class="panel"><div class="body"><p class="empty">플레이북 탭이 비어 있습니다.</p></div></section>'}`;
 }
 
 function vPeople(){
@@ -450,7 +590,8 @@ function vPeople(){
 /* ---------- render ---------- */
 function render(){
   const late=openTasks().filter(t=>(dday(t['마감일'])??0)<0).length;
-  document.getElementById('nav').innerHTML=VIEWS.map(([k,l])=>`<button type="button" data-view="${k}"${S.view===k?' aria-current="page"':''}>${l}${k==='tasks'&&late?`<span class="cnt">${late}</span>`:''}</button>`).join('');
+  const lateChk=objs('checks').filter(c=>!CHK_DONE.has(c['상태'])&&(dday(c['마감일'])??0)<0).length;
+  document.getElementById('nav').innerHTML=VIEWS.map(([k,l])=>`<button type="button" data-view="${k}"${S.view===k?' aria-current="page"':''}>${l}${k==='tasks'&&late?`<span class="cnt">${late}</span>`:''}${k==='brands'&&lateChk?`<span class="cnt">${lateChk}</span>`:''}</button>`).join('');
   document.getElementById('vtitle').textContent=VIEWS.find(v=>v[0]===S.view)[1];
   const me=document.getElementById('me');const ps=people();
   me.innerHTML='<option value="">선택 안 함</option>'+ps.map(p=>`<option${p===S.me?' selected':''}>${esc(p)}</option>`).join('');
@@ -460,7 +601,7 @@ function render(){
   else if(partial.length){ban.innerHTML=`<div class="banner"><span>${partial.map(k=>RANGES[k].split('!')[0]).join(', ')} 탭을 불러오지 못했습니다. ${esc(errMsg(S.err[partial[0]]))}</span><button class="btn sm" data-act="reload" type="button">다시 시도</button></div>`}
   else ban.innerHTML='';
   if(!S.loaded&&!S.fatal){view.innerHTML=`<div class="kpis">${['이번 달 매출','정산 예정액','미입금 정산','마감 지난 업무','미매칭 주문'].map(k=>kpi(k,'—','시트에서 불러오는 중')).join('')}</div><section class="panel"><div class="body"><p class="empty">상품 마스터 시트의 업무·일정·정산·주문 탭을 읽고 있습니다. 처음 열면 Google Sheets 사용 허용을 묻습니다.</p></div></section>`;stamp();return}
-  view.innerHTML=({home:vHome,tasks:vTasks,events:vEvents,settle:vSettle,close:vClose,brands:vBrands,people:vPeople})[S.view]();
+  view.innerHTML=({home:vHome,guide:vGuide,tasks:vTasks,events:vEvents,settle:vSettle,close:vClose,brands:vBrands,people:vPeople})[S.view]();
   stamp();
 }
 
@@ -494,11 +635,17 @@ document.addEventListener('click',e=>{
     case 'grp':S.grp=el.dataset.g;render();break;
     case 'newCost':openForm('costs',{월:S.month},'비용 입력');break;
     case 'cost':{const c=findRow('costs',row);if(c)openForm('costs',c,'비용 수정',c._row);break}
-    case 'brand':S.brandSel=el.dataset.b;render();break;
+    case 'brand':S.brandSel=el.dataset.b;S.view='brands';ls.set('view','brands');render();break;
     case 'brandBack':S.brandSel=null;render();break;
-    case 'brandEdit':{const b=findRow('brands',row);if(b)openForm('brands',b,b['브랜드']+' 정보',b._row);break}
+    case 'brandEdit':{const b=findRow('brands',row);if(b)openForm('brands',b,b['브랜드']+' 브랜드북',b._row);break}
     case 'newAsset':openForm('assets',{브랜드:el.dataset.b||'',상태:'사용중',담당자:S.me},'에셋 등록');break;
     case 'asset':{const x=findRow('assets',row);if(x)openForm('assets',x,'에셋 수정',x._row);break}
+    case 'newBrand':openForm('newBrand',{상태:'런칭예정','온보딩 시작일':ymd(new Date())},'새 브랜드 시작',null,newBrand);break;
+    case 'startWF':openForm('startwf',{브랜드:el.dataset.b||S.brandSel||'',워크플로우:el.dataset.w||'브랜드 온보딩',시작일:ymd(new Date())},'워크플로우 시작',null,startWF);break;
+    case 'wf':S.wf=el.dataset.w;render();break;
+    case 'chkEdit':{const c=findRow('checks',row);if(c)openForm('checks',c,c['항목'],c._row);break}
+    case 'chkToggle':{const c=findRow('checks',row);if(!c)break;const done=CHK_DONE.has(c['상태']);
+      guarded(async()=>{await writeRange(`'체크리스트'!J${row}:K${row}`,[done?['미착수','']:['완료',ymd(new Date())]]);await load(['checks'],true)},done?'완료 표시를 해제했습니다':'완료했습니다');break}
     case 'newPerson':openForm('people',{상태:'재직'},'담당자 추가');break;
     case 'person':{const p=findRow('people',row);if(p)openForm('people',p,'담당자 수정',p._row);break}
     case 'savePay':{const pay=document.getElementById('pay_'+row).value.trim();const d=document.getElementById('pd_'+row).value;
