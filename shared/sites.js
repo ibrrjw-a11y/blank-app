@@ -62,6 +62,7 @@ export const TOOLS = [
 
   // 커플·친구
   { path: "name-match", cat: "together", name: "단톡방 궁합표", desc: "이름 N명 전원 이름궁합" },
+  { path: "group-saju", cat: "together", name: "우리 모임 사주", desc: "친구들 특징과 모임 궁합을 생일로" },
   { path: "where-to-go", cat: "together", name: "어디가?", desc: "메뉴·장소 월드컵과 중간지점" },
 ];
 

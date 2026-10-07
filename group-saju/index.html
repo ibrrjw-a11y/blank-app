@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>우리 모임 사주 | 친구 단체 궁합 - 친구들 특징과 모임 궁합을 생일로</title>
+    <meta name="description" content="친구들 생년월일만 넣으면 각자 어떤 사람인지, 이 모임과 얼마나 잘 맞는지, 찰떡 짝까지 사주로 풀어 줘요. 단톡방 친구 2~12명, 가입 없이 무료." />
+    <meta name="keywords" content="모임 사주, 단체 궁합, 친구 궁합, 그룹 궁합, 사주 궁합, 단톡방 궁합, 친구 사주, 오행 궁합" />
+    <link rel="canonical" href="https://guesswhat.co.kr/group-saju/" />
+    <meta name="theme-color" content="#efe6d2" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="우리 모임 사주 - 친구들 특징과 모임 궁합" />
+    <meta property="og:description" content="생일만 넣으면 각자 어떤 사람이고 이 모임과 얼마나 맞는지 보여 줘요." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "우리 모임 사주",
+        "url": "https://guesswhat.co.kr/group-saju/",
+        "description": "친구 2~12명의 생년월일로 각자의 특징과 모임 궁합, 찰떡 짝을 사주 오행으로 풀어 주는 단체 궁합 놀이.",
+        "applicationCategory": "EntertainmentApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="gs">
+      <!-- 첫 화면 -->
+      <section class="gs-v" id="intro" data-view="intro">
+        <p class="gs-kick"><span>天象 · 모임 별자리</span><span>오행 다섯 별</span></p>
+        <h1 class="gs-title"><span class="gs-title__s">우리 모임</span><span class="gs-title__b">사주</span></h1>
+        <p class="gs-lead">친구들 생일만 넣으면 각자 어떤 사람이고, 이 모임과 얼마나 맞는지 보여 줘요.</p>
+        <div class="chart chart--demo" id="demoChart" aria-hidden="true"></div>
+        <button class="gs-go" id="start" type="button"><i class="gs-seal">合</i><span>우리 모임 사주 보기</span></button>
+      </section>
+
+      <!-- 입력 -->
+      <section class="gs-v" id="input" data-view="input" hidden>
+        <p class="gs-kick"><span>1 · 별 모으기</span><span id="cnt">0 / 12명</span></p>
+        <label class="gs-lbl" for="gname">모임 이름</label>
+        <input class="gs-in" id="gname" maxlength="16" placeholder="예: 고딩 6인방" autocomplete="off" />
+        <div class="gs-rowhead"><span>이름</span><span>생년월일</span><span>음력</span><span></span></div>
+        <ol class="gs-rows" id="rows"></ol>
+        <div class="gs-sub"><button type="button" id="addRow">+ 한 명 더</button><button type="button" id="example">예시로 채우기</button></div>
+        <p class="gs-err" id="err" role="alert" hidden></p>
+        <button class="gs-go" id="toGuess" type="button"><i class="gs-seal">星</i><span>다 넣었어요</span></button>
+        <p class="gs-small">생일은 이 기기 안에서만 계산하고 저장해요. 태어난 시간은 받지 않아요.</p>
+      </section>
+
+      <!-- 먼저 찍기 -->
+      <section class="gs-v" id="guess" data-view="guess" hidden>
+        <p class="gs-kick"><span>2 · 먼저 찍기</span><span>맞혀 봐</span></p>
+        <h2 class="gs-q">이 모임과 제일 <b>찰떡</b>인 사람은?</h2>
+        <div class="gs-chips" id="chips"></div>
+        <button class="gs-skip" id="skip" type="button">안 찍고 바로 보기</button>
+      </section>
+
+      <!-- 결과 -->
+      <section class="gs-v" id="res" data-view="res" hidden>
+        <div class="gs-from" id="from" hidden></div>
+        <p class="gs-kick"><span id="resName"></span><span id="resCnt"></span></p>
+        <div class="chart" id="chart"></div>
+        <ul class="gs-legend" id="legend"></ul>
+        <div class="gs-lines" id="glines"></div>
+        <div class="gs-hit" id="hit" hidden></div>
+        <h2 class="gs-h">한 명씩, 그리고 모임과의 궁합</h2>
+        <ol class="gs-cards" id="cards"></ol>
+        <div class="gs-pairs" id="pairs"></div>
+        <div class="gs-share" id="shareBox">
+          <pre id="shareText"></pre>
+          <button class="gs-go" id="shareBtn" type="button"><i class="gs-seal">送</i><span>단톡방에 보내기</span></button>
+        </div>
+        <div class="gs-sub gs-sub--end"><button type="button" id="edit">사람 고치기</button><button type="button" id="mine" hidden>우리 모임도 해 보기</button></div>
+      </section>
+
+      <article class="seo gs-doc">
+        <h2>우리 모임 사주 보는 법</h2>
+        <p>친구들의 생년월일로 태어난 해·달·날의 세 기둥을 세우고, 여섯 글자에 담긴 다섯 기운(목·화·토·금·수)을 셉니다. 태어난 날의 기운(일간)으로 그 사람의 결을 보고, 모임 전체에 어떤 기운이 넘치고 비는지를 봅니다.</p>
+        <p>모임 궁합은 '나를 뺀 나머지 친구들'의 대표 기운과 내 기운이 서로 살려 주는지, 다잡는지로 보고, 모임에 비어 있는 기운을 내가 채워 주면 점수가 올라갑니다.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>태어난 시간은 왜 안 받나요?</summary><p>친구 생일은 알아도 태어난 시간까지 아는 경우는 드물어서, 시간 없이 세 기둥(여섯 글자)으로만 봅니다. 그래서 개인 사주를 자세히 보는 것보다는 모임 안의 결을 가볍게 보는 놀이예요.</p></details>
+        <details><summary>점수가 낮으면 안 맞는다는 뜻인가요?</summary><p>아니에요. 점수가 낮은 사람은 모임에 없는 결을 가져오는 사람이라 '새 바람을 넣는 사이'로 읽어요. 같은 결끼리만 모이면 편하지만 같은 데서 같이 막히거든요.</p></details>
+        <details><summary>친구 생일이 다른 사람에게 보이나요?</summary><p>아니요. 생일은 이 기기 안에서만 계산해요. 보내기 링크에는 생일이 아니라 계산된 기운만 담겨요.</p></details>
+        <details><summary>음력 생일도 되나요?</summary><p>이름 옆 '음력'에 체크하면 양력으로 바꿔서 계산해요. 윤달은 아직 따로 고르지 못해요.</p></details>
+        <details><summary>재미로 보는 건가요?</summary><p>네. 전통 오행 해석을 친구 사이 장면으로 옮긴 놀이예요. 관계를 판단하는 근거로 쓰지 말아 주세요.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">우리 모임 사주 · 재미로 보는 놀이예요 · 생일은 이 기기에서만 계산해요</footer>
+    </main>
+    <script src="../shared/vendor/lunar.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
