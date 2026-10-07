@@ -213,13 +213,13 @@ textarea{min-height:80px;resize:vertical}
 <script>
 const SID='16LBlBvCVxNsTs5EG8eds-2Y16ZNtjZTj-_qZLoeRhLs';
 const SV='Google Sheets';
-const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:R",playbook:"'플레이북'!A1:J",checks:"'체크리스트'!A1:M",tasks:"'업무'!A1:N",events:"'일정'!A1:L",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",sales:"'매출집계'!A1:I",ads:"'광고집계'!A1:E",fixed:"'고정비'!A1:F",stores:"'스토어'!A1:J",bchan:"'브랜드채널'!A1:F",adlinks:"'광고연결'!A1:G",setpath:"'정산경로'!A1:E",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",corps:"'판매법인'!A1:A",sku:"'SKU'!A1:E",combos:"'판매구성'!A1:H",prices:"'가격표'!A1:E",chopts:"'채널옵션'!A1:K"};
+const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:R",playbook:"'플레이북'!A1:J",checks:"'체크리스트'!A1:M",tasks:"'업무'!A1:N",events:"'일정'!A1:M",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",sales:"'매출집계'!A1:I",ads:"'광고집계'!A1:E",fixed:"'고정비'!A1:F",stores:"'스토어'!A1:J",bchan:"'브랜드채널'!A1:F",adlinks:"'광고연결'!A1:G",setpath:"'정산경로'!A1:E",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",hosts:"'진행자'!A1:A",corps:"'판매법인'!A1:A",sku:"'SKU'!A1:E",combos:"'판매구성'!A1:H",prices:"'가격표'!A1:E",chopts:"'채널옵션'!A1:L"};
 const KEYCOL={people:'이름',brands:'브랜드',playbook:'항목',checks:'항목',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'채널',sales:'브랜드',ads:'브랜드',fixed:'금액',stores:'스토어',bchan:'스토어',adlinks:'광고지면',setpath:'스토어',sku:'SKU코드',combos:'구성코드',prices:'구성코드',chopts:'구성코드'};
 const BOOK=['한줄소개','타깃고객','핵심메시지','톤앤매너','금지표현','가격원칙','주력채널','경쟁브랜드','공식몰','인스타그램'];
 const SHEETS={
   checks:{name:'체크리스트',cols:['체크ID','브랜드','워크플로우','대상','순서','단계','항목','담당자','마감일','상태','완료일','산출물링크','메모']},
   tasks:{name:'업무',cols:['업무ID','업무명','브랜드','판매채널','담당자','요청자','시작일','마감일','상태','우선순위','연결일정','내용','등록일'],prefix:'T'},
-  events:{name:'일정',cols:['일정ID','일정명','유형','브랜드','판매채널','거래처','시작일','종료일','담당자','상태','적용가격정책','내용'],prefix:'E',auto:['적용가격정책']},
+  events:{name:'일정',cols:['일정ID','일정명','유형','브랜드','판매채널','거래처','진행자','시작일','종료일','담당자','상태','적용가격정책','내용'],prefix:'E',auto:['적용가격정책']},
   assets:{name:'브랜드에셋',cols:['에셋ID','브랜드','유형','에셋명','링크','버전','구성코드','담당자','등록일','상태'],prefix:'A'},
   people:{name:'담당자',cols:['이름','이메일','역할','상태']},
   fixed:{name:'고정비',cols:['월','항목','판매법인','브랜드','금액','메모']},
@@ -385,10 +385,10 @@ async function guarded(fn,okMsg){
 function stamp(){setSync(S.syncedAt?'동기화 '+pad(S.syncedAt.getHours())+':'+pad(S.syncedAt.getMinutes()):'시트 연결 중')}
 
 /* ---------- dialog forms ---------- */
-const OPT={workflows:()=>workflows(),brands:()=>brandNames(),people:()=>people(),channels:()=>list('channels'),partners:()=>list('partners'),corps:()=>list('corps')};
+const OPT={workflows:()=>workflows(),brands:()=>brandNames(),people:()=>people(),channels:()=>list('channels'),partners:()=>list('partners'),hosts:()=>list('hosts'),corps:()=>list('corps')};
 const FORMS={
   tasks:[['업무명','text',1,'wide'],['브랜드','sel:brands'],['판매채널','sel:channels'],['담당자','sel:people'],['요청자','sel:people'],['시작일','date'],['마감일','date'],['상태','list:'+TASK_ST.join(',')],['우선순위','list:긴급,높음,보통,낮음'],['연결일정','sel:eventsId','','wide'],['내용','area','','wide']],
-  events:[['일정명','text',1,'wide'],['유형','list:'+EV_TYPES.join(','),1],['브랜드','sel:brands'],['판매채널','sel:channels'],['거래처','sel:partners'],['시작일','date',1],['종료일','date'],['담당자','sel:people'],['상태','list:예정,진행중,완료,취소'],['내용','area','','wide']],
+  events:[['일정명','text',1,'wide'],['유형','list:'+EV_TYPES.join(','),1],['브랜드','sel:brands'],['판매채널','sel:channels'],['거래처','sel:partners'],['진행자','sel:hosts'],['시작일','date',1],['종료일','date'],['담당자','sel:people'],['상태','list:예정,진행중,완료,취소'],['내용','area','','wide']],
   assets:[['에셋명','text',1,'wide'],['브랜드','sel:brands',1],['유형','list:로고,BI가이드,상세페이지,제품컷,연출컷,영상,패키지도면,인증서,성분표,카피,기타',1],['링크','url','','wide'],['버전','text'],['구성코드','text'],['담당자','sel:people'],['상태','list:사용중,구버전,폐기']],
   fixed:[['월','month',1],['항목','list:인건비,임대료,물류고정,시스템·구독,외주·대행,기타,합계',1],['금액','number',1],['판매법인','sel:corps'],['브랜드','sel:brands'],['메모','text','','wide']],
   people:[['이름','text',1],['이메일','text'],['역할','list:대표,브랜드매니저,MD,마케터,디자이너,콘텐츠,CS,물류,재무,기타'],['상태','list:재직,휴직,퇴사']],
@@ -430,7 +430,7 @@ function kpi(k,v,s,cls){return `<div class="kpi ${cls||''}"><span class="k">${k}
 function openTasks(){return objs('tasks').filter(t=>t['상태']!=='완료'&&t['상태']!=='보류')}
 function evRange(e){const s=pd(e['시작일']);const en=pd(e['종료일'])||s;return [s,en]}
 function taskItem(t){return `<button class="item" data-act="task" data-row="${t._row}" type="button"><span class="av">${initials(t['담당자'])}</span><span style="min-width:0"><span class="t">${esc(t['업무명'])}</span><br><span class="m">${esc([t['브랜드'],t['판매채널'],t['상태']].filter(Boolean).join(' · '))}</span></span>${ddPill(t['마감일'],t['상태']==='완료')}</button>`}
-function evItem(e){const [s]=evRange(e);return `<button class="item" data-act="event" data-row="${e._row}" type="button"><span class="date-tag">${s?pad(s.getMonth()+1)+'.'+pad(s.getDate()):''}</span><span style="min-width:0"><span class="t">${esc(e['일정명'])}</span><br><span class="m">${esc([e['브랜드'],e['판매채널'],e['담당자']].filter(Boolean).join(' · '))}</span></span><span class="pill ${SALES_TYPES.has(e['유형'])?'sales':'ops'}">${esc(e['유형']||'일정')}</span></button>`}
+function evItem(e){const [s]=evRange(e);return `<button class="item" data-act="event" data-row="${e._row}" type="button"><span class="date-tag">${s?pad(s.getMonth()+1)+'.'+pad(s.getDate()):''}</span><span style="min-width:0"><span class="t">${esc(e['일정명'])}</span><br><span class="m">${esc([e['브랜드'],e['판매채널'],e['진행자'],e['담당자']].filter(Boolean).join(' · '))}</span></span><span class="pill ${SALES_TYPES.has(e['유형'])?'sales':'ops'}">${esc(e['유형']||'일정')}</span></button>`}
 
 function vHome(){
   const m=thisMonth();const cd=closeData(m,'브랜드');const T=k=>cd.reduce((a,r)=>a+r[k],0);
