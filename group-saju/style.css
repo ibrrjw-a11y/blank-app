@@ -160,3 +160,44 @@ body {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .ch-node, .ch-bead { opacity: 1; } .ch-gen { stroke-dashoffset: 0; } .ch-ctrl { opacity: 0.45; }
 }
+
+/* ---------- v3: 깊은 층 ---------- */
+/* 카드 안 깊은 풀이(기질·센 기운·귀인·올해) */
+.gs-deep { margin: 10px 0 0; padding: 8px 0 0; border-top: 1px dashed var(--line); display: grid; gap: 6px; }
+.gs-deep div { display: grid; grid-template-columns: 58px 1fr; gap: 8px; align-items: baseline; }
+.gs-deep dt { font: 800 12px/18px var(--font-display); color: var(--c); }
+.gs-deep dd { margin: 0; font: 400 13.5px/20px var(--font-sans); word-break: keep-all; }
+.gs-deep dd b { margin-right: 4px; }
+/* 삼합국 삼각형 */
+.ch-tri { fill: rgba(184, 137, 42, 0.12); stroke: #b8892a; stroke-width: 1.8; stroke-linejoin: round; stroke-dasharray: 600; stroke-dashoffset: 600; opacity: 0; }
+.chart.is-on .ch-tri { animation: gs-tri 1.2s ease-out forwards; animation-delay: calc(2.6s + var(--k) * 0.4s); }
+@keyframes gs-tri { 0% { opacity: 1; } 100% { opacity: 1; stroke-dashoffset: 0; } }
+/* 사이 지도 */
+.gs-gridnote { margin: 0 0 8px; font: 400 12.5px/19px var(--font-sans); color: var(--muk-2); }
+.gs-gridnote b { font-family: var(--font-display); }
+.k-hap { color: #b8892a; } .k-chung { color: var(--seal); }
+.gs-gridwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.gs-grid { border-collapse: collapse; margin: 0 auto; }
+.gs-grid th { font: 700 11px/1.1 var(--font-sans); color: var(--muk); padding: 2px; white-space: nowrap; }
+.gs-grid thead th, .gs-grid tr:first-child th { vertical-align: bottom; height: 30px; }
+.gs-grid tr:first-child th span { display: inline-block; writing-mode: vertical-rl; text-orientation: upright; letter-spacing: -1px; }
+.gs-grid th[scope="row"] { text-align: right; padding-right: 6px; }
+.gs-grid td { padding: 2px; }
+.gs-grid td.is-self { background: repeating-linear-gradient(45deg, transparent 0 4px, rgba(31, 27, 22, 0.08) 4px 6px); }
+.gs-cell { display: grid; place-items: center; width: var(--cw, 38px); height: var(--cw, 38px); border: 1.5px solid var(--muk); background: #fffaf0; color: var(--muk); font: 800 16px/1 var(--font-display); cursor: pointer; padding: 0; animation: gs-pop 0.4s cubic-bezier(.34, 1.56, .64, 1) backwards; animation-delay: calc(0.3s + var(--d)); }
+.gs-grid--m .gs-cell { --cw: 32px; font-size: 14px; }
+.gs-grid--s .gs-cell { --cw: 24px; font-size: 12px; border-width: 1px; }
+.gs-cell.is-hot { background: #b8892a; color: #fff8ec; }
+.gs-cell.is-warm { background: #f1dfb4; }
+.gs-cell.is-cold { background: #f4d6cf; color: var(--seal); }
+.gs-cell.is-on { outline: 3px solid var(--seal); outline-offset: 1px; position: relative; z-index: 1; }
+#pairPick:not(:empty) { margin-top: 10px; }
+#pairPick .gs-pair { animation: gs-unroll 0.4s ease-out; }
+.gs-pair small { display: block; margin-top: 6px; font: 400 12px/18px var(--font-sans); color: var(--muk-2); }
+.gs-pair.is-rough h3 { color: #8a5a2b; }
+.gs-pair.is-best h3 { color: #b8892a; }
+.rm .ch-tri { opacity: 1; stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) { .ch-tri { opacity: 1; stroke-dashoffset: 0; } }
+@media (max-width: 360px) { .gs-grid--m .gs-cell { --cw: 27px; font-size: 13px; } .gs-grid--s .gs-cell { --cw: 18px; font-size: 10px; } .gs-grid--s td { padding: 1px; } .gs-grid th { font-size: 10px; } }
+.gs-cell.is-two { font-size: 0.62em; letter-spacing: -1px; }
+.gs-grid--s .gs-cell.is-two { font-size: 7px; letter-spacing: -1.5px; }
