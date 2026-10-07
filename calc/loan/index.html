@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>대출 이자 계산기 | 원리금균등·원금균등·만기일시 총이자 비교</title>
+    <meta name="description" content="빌린 돈, 연 금리, 기간, 갚는 방식으로 매달 갚을 돈과 총이자를 계산해요. 원리금균등·원금균등·만기일시 세 가지. 결과 전에 총이자를 먼저 짐작해 보기." />
+    <meta name="keywords" content="대출 이자 계산기, 원리금균등 계산기, 원금균등, 만기일시상환, 대출 총이자" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/loan/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="대출 이자 계산기 — 먼저 짐작해 보고 계산" />
+    <meta property="og:description" content="이 대출, 총이자 얼마일 것 같아?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <style>:root{--ac:#c0392b}</style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "대출 이자 계산기",
+  "url": "https://guesswhat.co.kr/calc/loan/",
+  "description": "빌린 돈, 연 금리, 기간, 갚는 방식으로 매달 갚을 돈과 총이자를 계산해요. 원리금균등·원금균등·만기일시 세 가지. 결과 전에 총이자를 먼저 짐작해 보기.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 먼저 짐작해 봐</span>
+        <h1 class="cc-title">대출 이자 계산기</h1>
+        <p class="cc-lead">빌린 돈과 금리, 기간을 넣고 갚는 방식을 골라요. 다 갚을 때까지 내는 이자가 얼마일지 먼저 짐작해 봐요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <form id="cform" onsubmit="return false"></form>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="cgo" type="button">짐작하고 결과 보기</button>
+      </section>
+      <section class="cc-v" id="cguess" hidden>
+        <div class="cg">
+          <span class="cg-k">?</span>
+          <p class="cg-q" id="gq"></p>
+          <p class="cg-v" id="gv"></p>
+          <input id="guess" type="range" aria-label="짐작 값" />
+          <button class="cc-go" id="gok" type="button">이걸로 짐작!</button>
+          <button class="cg-skip" id="gskip" type="button">짐작 없이 바로 보기</button>
+        </div>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <div class="rg" id="rguess" hidden></div>
+          <div id="rrows"></div>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">친구도 짐작시키기</button>
+          <button class="cc-go cc-go--sub" id="cagain" type="button">숫자 바꿔 보기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>대출 이자 계산기 계산 방법</h2>
+        <p>원리금균등은 매달 같은 금액을 내요. 원금균등은 원금을 똑같이 나눠 갚아 처음에 많이 내고 점점 줄어요. 만기일시는 이자만 내다가 끝에 원금을 한 번에 갚아요.</p><p>총이자는 만기일시가 가장 많고, 원금균등이 가장 적어요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>중도상환수수료도 계산되나요?</summary><p>아니요. 은행마다 달라서 넣지 않았어요.</p></details>
+        <details><summary>계산 결과를 믿어도 되나요?</summary><p>법령과 정부 고시의 2026년 값으로 계산해요. 근거는 결과 아래 '계산 근거'에 있어요. 다만 회사 규정·개인 사정에 따라 실제 금액은 달라질 수 있어 참고용으로 써 주세요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">대출 이자 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

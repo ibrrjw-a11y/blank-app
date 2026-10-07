@@ -72,6 +72,18 @@ export const TOOLS = [
   { path: "salary-live/net-pay", cat: "calc", name: "연봉 실수령액 계산기", desc: "2026년 4대보험·세금 반영" },
   { path: "salary-live", cat: "calc", name: "실시간 월급 카운터", desc: "지금 이 순간 버는 돈" },
   { path: "life-progress", cat: "calc", name: "인생 진행률", desc: "내 인생을 4,000칸으로" },
+  { path: "calc/weekly-holiday", cat: "calc", name: "주휴수당 계산기", desc: "시급·주 시간으로 주휴수당, 먼저 짐작" },
+  { path: "calc/hourly-monthly", cat: "calc", name: "시급 → 월급 계산기", desc: "주휴 포함 월급 + 최저임금 비교" },
+  { path: "calc/annual-leave", cat: "calc", name: "연차 계산기", desc: "입사일로 내 연차 며칠" },
+  { path: "calc/vat", cat: "calc", name: "부가세 계산기", desc: "가격 속 숨은 부가세 10%" },
+  { path: "calc/savings", cat: "calc", name: "예금·적금 이자 계산기", desc: "세금 떼고 받는 이자·만기 금액" },
+  { path: "calc/loan", cat: "calc", name: "대출 이자 계산기", desc: "갚는 방식별 총이자 비교" },
+  { path: "calc/severance", cat: "calc", name: "퇴직금 계산기", desc: "평균임금 30일분 × 근속연수" },
+  { path: "calc/unemployment", cat: "calc", name: "실업급여 계산기", desc: "하루 얼마·며칠·총액" },
+  { path: "calc/parental-leave", cat: "calc", name: "육아휴직 급여 계산기", desc: "달마다 상한, 총 얼마" },
+  { path: "calc/jeonse-monthly", cat: "calc", name: "전세 vs 월세 계산기", desc: "한 달 실제 비용 비교" },
+  { path: "calc/gift-tax", cat: "calc", name: "증여세 계산기", desc: "가족끼리 세금 없이 얼마까지" },
+  { path: "calc/insta-engagement", cat: "calc", name: "인스타 참여율 계산기", desc: "좋아요·댓글 ÷ 팔로워" },
 
   // 커플·친구
   { path: "name-match", cat: "together", name: "단톡방 궁합표", desc: "이름 N명 전원 이름궁합" },

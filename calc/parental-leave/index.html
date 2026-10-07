@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>육아휴직 급여 계산기 2026 | 월별 상한 250·200·160만 원 — 총 얼마?</title>
+    <meta name="description" content="월 통상임금과 휴직 개월 수로 2025년 개정 기준 육아휴직 급여를 달마다 계산해요. 1~3개월 상한 250만, 4~6개월 200만, 7개월부터 80%·160만. 먼저 짐작해 보기." />
+    <meta name="keywords" content="육아휴직 급여 계산기, 육아휴직 급여, 육아휴직 상한액, 2026 육아휴직, 육아휴직 급여 인상" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/parental-leave/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="육아휴직 급여 계산기 — 먼저 짐작해 보고 계산" />
+    <meta property="og:description" content="육아휴직 급여, 총 얼마일까?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <style>:root{--ac:#e0607e}</style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "육아휴직 급여 계산기",
+  "url": "https://guesswhat.co.kr/calc/parental-leave/",
+  "description": "월 통상임금과 휴직 개월 수로 2025년 개정 기준 육아휴직 급여를 달마다 계산해요. 1~3개월 상한 250만, 4~6개월 200만, 7개월부터 80%·160만. 먼저 짐작해 보기.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 먼저 짐작해 봐</span>
+        <h1 class="cc-title">육아휴직 급여 계산기</h1>
+        <p class="cc-lead">월 통상임금과 쉬는 개월 수를 넣어요. 다 합쳐 얼마일지 먼저 짐작해 봐요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <form id="cform" onsubmit="return false"></form>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="cgo" type="button">짐작하고 결과 보기</button>
+      </section>
+      <section class="cc-v" id="cguess" hidden>
+        <div class="cg">
+          <span class="cg-k">?</span>
+          <p class="cg-q" id="gq"></p>
+          <p class="cg-v" id="gv"></p>
+          <input id="guess" type="range" aria-label="짐작 값" />
+          <button class="cc-go" id="gok" type="button">이걸로 짐작!</button>
+          <button class="cg-skip" id="gskip" type="button">짐작 없이 바로 보기</button>
+        </div>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <div class="rg" id="rguess" hidden></div>
+          <div id="rrows"></div>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">친구도 짐작시키기</button>
+          <button class="cc-go cc-go--sub" id="cagain" type="button">숫자 바꿔 보기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>육아휴직 급여 계산기 계산 방법</h2>
+        <p>1~3개월은 통상임금 100%(상한 250만 원), 4~6개월은 100%(상한 200만 원), 7개월부터는 80%(상한 160만 원)예요. 하한은 70만 원이에요.</p><p>2025년부터 급여 일부를 복직 뒤에 주던 사후지급이 없어져 쉬는 동안 전액을 받아요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>부부가 같이 쓰면요?</summary><p>&#x27;6+6 부모육아휴직제&#x27;로 첫 6개월 상한이 더 올라가요. 달마다 상한이 달라 이 계산기에는 아직 넣지 않았어요. 고용24에서 확인해 주세요.</p></details>
+        <details><summary>계산 결과를 믿어도 되나요?</summary><p>법령과 정부 고시의 2026년 값으로 계산해요. 근거는 결과 아래 '계산 근거'에 있어요. 다만 회사 규정·개인 사정에 따라 실제 금액은 달라질 수 있어 참고용으로 써 주세요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">육아휴직 급여 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

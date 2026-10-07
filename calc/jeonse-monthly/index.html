@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>전세 월세 비교 계산기 | 한 달에 실제로 드는 돈 — 대출 이자·기회비용까지</title>
+    <meta name="description" content="전세금·전세대출 금리, 월세 보증금·월세, 내 돈을 예금했을 때 금리로 한 달·2년 실제 비용을 비교해요. 어느 쪽이 쌀지 먼저 짐작해 보기." />
+    <meta name="keywords" content="전세 월세 비교, 전세 월세 계산기, 전세 대출 이자 계산, 월세 전환 비교, 전월세 비교" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/jeonse-monthly/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="전세 vs 월세 계산기 — 먼저 짐작해 보고 계산" />
+    <meta property="og:description" content="전세 vs 월세, 어느 쪽이 쌀까?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <style>:root{--ac:#8a5a2b}</style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "전세 vs 월세 계산기",
+  "url": "https://guesswhat.co.kr/calc/jeonse-monthly/",
+  "description": "전세금·전세대출 금리, 월세 보증금·월세, 내 돈을 예금했을 때 금리로 한 달·2년 실제 비용을 비교해요. 어느 쪽이 쌀지 먼저 짐작해 보기.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 먼저 짐작해 봐</span>
+        <h1 class="cc-title">전세 vs 월세 계산기</h1>
+        <p class="cc-lead">전세와 월세 조건을 넣으면 한 달에 실제로 드는 돈을 비교해요. 어느 쪽이 얼마나 쌀지 먼저 짐작해 봐요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <form id="cform" onsubmit="return false"></form>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="cgo" type="button">짐작하고 결과 보기</button>
+      </section>
+      <section class="cc-v" id="cguess" hidden>
+        <div class="cg">
+          <span class="cg-k">?</span>
+          <p class="cg-q" id="gq"></p>
+          <p class="cg-v" id="gv"></p>
+          <input id="guess" type="range" aria-label="짐작 값" />
+          <button class="cc-go" id="gok" type="button">이걸로 짐작!</button>
+          <button class="cg-skip" id="gskip" type="button">짐작 없이 바로 보기</button>
+        </div>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <div class="rg" id="rguess" hidden></div>
+          <div id="rrows"></div>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">친구도 짐작시키기</button>
+          <button class="cc-go cc-go--sub" id="cagain" type="button">숫자 바꿔 보기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>전세 vs 월세 계산기 계산 방법</h2>
+        <p>전세의 한 달 비용 = 전세대출 이자 + 내 돈(전세금 − 대출)을 예금했으면 받았을 이자(기회비용)예요. 월세의 한 달 비용 = 월세 + 보증금의 기회비용이에요.</p><p>관리비·중개수수료·세금은 넣지 않았어요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>기회비용이 뭐예요?</summary><p>전세금으로 묶인 내 돈을 예금에 넣었다면 받았을 이자예요. 실제로 나가는 돈은 아니지만 비교할 때는 같이 봐야 해요.</p></details>
+        <details><summary>계산 결과를 믿어도 되나요?</summary><p>법령과 정부 고시의 2026년 값으로 계산해요. 근거는 결과 아래 '계산 근거'에 있어요. 다만 회사 규정·개인 사정에 따라 실제 금액은 달라질 수 있어 참고용으로 써 주세요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">전세 vs 월세 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

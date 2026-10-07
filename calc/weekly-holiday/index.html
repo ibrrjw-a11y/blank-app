@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>주휴수당 계산기 2026 | 시급·주 근무시간으로 바로 — 먼저 짐작해 보기</title>
+    <meta name="description" content="시급과 1주 근무시간만 넣으면 2026년 기준 주휴수당과 한 달 환산액을 계산해요. 주 15시간 미만·결근이면 0원. 계산 전에 얼마일지 먼저 짐작해 보고 친구와 비교도 돼요." />
+    <meta name="keywords" content="주휴수당 계산기, 주휴수당 계산, 알바 주휴수당, 주휴수당 조건, 2026 주휴수당" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/weekly-holiday/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="주휴수당 계산기 — 먼저 짐작해 보고 계산" />
+    <meta property="og:description" content="알바 주휴수당, 얼마일 것 같아?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <style>:root{--ac:#2f6fdb}</style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "주휴수당 계산기",
+  "url": "https://guesswhat.co.kr/calc/weekly-holiday/",
+  "description": "시급과 1주 근무시간만 넣으면 2026년 기준 주휴수당과 한 달 환산액을 계산해요. 주 15시간 미만·결근이면 0원. 계산 전에 얼마일지 먼저 짐작해 보고 친구와 비교도 돼요.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 먼저 짐작해 봐</span>
+        <h1 class="cc-title">주휴수당 계산기</h1>
+        <p class="cc-lead">시급과 일주일에 일하는 시간을 넣어요. 결과 전에 얼마일지 먼저 짐작해 봐요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <form id="cform" onsubmit="return false"></form>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="cgo" type="button">짐작하고 결과 보기</button>
+      </section>
+      <section class="cc-v" id="cguess" hidden>
+        <div class="cg">
+          <span class="cg-k">?</span>
+          <p class="cg-q" id="gq"></p>
+          <p class="cg-v" id="gv"></p>
+          <input id="guess" type="range" aria-label="짐작 값" />
+          <button class="cc-go" id="gok" type="button">이걸로 짐작!</button>
+          <button class="cg-skip" id="gskip" type="button">짐작 없이 바로 보기</button>
+        </div>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <div class="rg" id="rguess" hidden></div>
+          <div id="rrows"></div>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">친구도 짐작시키기</button>
+          <button class="cc-go cc-go--sub" id="cagain" type="button">숫자 바꿔 보기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>주휴수당 계산기 계산 방법</h2>
+        <p>1주 소정근로시간이 15시간 이상이고 그 주에 약속한 날을 다 나왔으면(개근) 주휴수당이 생겨요. 계산은 (1주 근로시간 ÷ 40) × 8 × 시급이고, 40시간을 넘게 일해도 8시간분까지만 쳐요.</p><p>5명 미만 사업장에도 똑같이 적용돼요. 한 달 환산액은 1년 52.14주를 12로 나눈 4.345주로 곱해요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>주 15시간이 안 되면요?</summary><p>주휴수당이 생기지 않아요. 14시간 59분이어도 마찬가지예요.</p></details><details><summary>결근하면요?</summary><p>그 주에 약속한 근무일 중 하루라도 빠지면 그 주 주휴수당은 없어요. 지각·조퇴는 결근이 아니에요.</p></details>
+        <details><summary>계산 결과를 믿어도 되나요?</summary><p>법령과 정부 고시의 2026년 값으로 계산해요. 근거는 결과 아래 '계산 근거'에 있어요. 다만 회사 규정·개인 사정에 따라 실제 금액은 달라질 수 있어 참고용으로 써 주세요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">주휴수당 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

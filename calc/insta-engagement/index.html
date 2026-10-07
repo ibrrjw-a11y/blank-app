@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>인스타 참여율 계산기 | 좋아요·댓글 ÷ 팔로워 — 내 계정 반응률</title>
+    <meta name="description" content="팔로워 수와 최근 게시물 평균 좋아요·댓글로 인스타그램 참여율을 계산해요. 친구 계정과 누가 높은지 비교도. 결과 전에 먼저 짐작해 보기." />
+    <meta name="keywords" content="인스타 참여율 계산기, 인스타그램 참여율, 인게이지먼트 계산, 인스타 반응률, 팔로워 참여율" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/insta-engagement/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="인스타 참여율 계산기 — 먼저 짐작해 보고 계산" />
+    <meta property="og:description" content="내 인스타 참여율, 몇 % 같아?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <style>:root{--ac:#c13584}</style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "인스타 참여율 계산기",
+  "url": "https://guesswhat.co.kr/calc/insta-engagement/",
+  "description": "팔로워 수와 최근 게시물 평균 좋아요·댓글로 인스타그램 참여율을 계산해요. 친구 계정과 누가 높은지 비교도. 결과 전에 먼저 짐작해 보기.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 먼저 짐작해 봐</span>
+        <h1 class="cc-title">인스타 참여율 계산기</h1>
+        <p class="cc-lead">팔로워 수와 최근 게시물 평균 좋아요·댓글을 넣어요. 몇 %일지 먼저 짐작해 봐요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <form id="cform" onsubmit="return false"></form>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="cgo" type="button">짐작하고 결과 보기</button>
+      </section>
+      <section class="cc-v" id="cguess" hidden>
+        <div class="cg">
+          <span class="cg-k">?</span>
+          <p class="cg-q" id="gq"></p>
+          <p class="cg-v" id="gv"></p>
+          <input id="guess" type="range" aria-label="짐작 값" />
+          <button class="cc-go" id="gok" type="button">이걸로 짐작!</button>
+          <button class="cg-skip" id="gskip" type="button">짐작 없이 바로 보기</button>
+        </div>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <div class="rg" id="rguess" hidden></div>
+          <div id="rrows"></div>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">친구도 짐작시키기</button>
+          <button class="cc-go cc-go--sub" id="cagain" type="button">숫자 바꿔 보기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>인스타 참여율 계산기 계산 방법</h2>
+        <p>참여율 = (평균 좋아요 + 평균 댓글) ÷ 팔로워 × 100 이에요.</p><p>업계 평균은 조사마다 달라서 보여 주지 않아요. 내 지난달과 비교하거나 친구 계정과 비교해 보세요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>몇 개 게시물로 평균을 내요?</summary><p>최근 게시물 9~12개 정도의 평균을 넣으면 들쭉날쭉함이 줄어요.</p></details>
+        <details><summary>계산 결과를 믿어도 되나요?</summary><p>법령과 정부 고시의 2026년 값으로 계산해요. 근거는 결과 아래 '계산 근거'에 있어요. 다만 회사 규정·개인 사정에 따라 실제 금액은 달라질 수 있어 참고용으로 써 주세요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">인스타 참여율 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

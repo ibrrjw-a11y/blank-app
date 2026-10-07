@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>연차 계산기 2026 | 입사일로 내 연차 며칠? — 1년 미만 월차까지</title>
+    <meta name="description" content="입사일과 기준일로 근로기준법 제60조에 따라 발생한 연차를 계산해요. 1년 미만 매달 1일, 1년 이상 15일, 2년마다 1일 더해 최대 25일. 5인 미만은 연차 규정이 없어요." />
+    <meta name="keywords" content="연차 계산기, 연차 계산, 연차 발생 기준, 1년 미만 연차, 입사일 기준 연차" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/annual-leave/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="연차 계산기 — 먼저 짐작해 보고 계산" />
+    <meta property="og:description" content="내 연차, 며칠일 것 같아?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <style>:root{--ac:#7a4fd6}</style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "연차 계산기",
+  "url": "https://guesswhat.co.kr/calc/annual-leave/",
+  "description": "입사일과 기준일로 근로기준법 제60조에 따라 발생한 연차를 계산해요. 1년 미만 매달 1일, 1년 이상 15일, 2년마다 1일 더해 최대 25일. 5인 미만은 연차 규정이 없어요.",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "inLanguage": "ko",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 먼저 짐작해 봐</span>
+        <h1 class="cc-title">연차 계산기</h1>
+        <p class="cc-lead">입사일을 넣으면 지금 내 연차가 며칠인지 계산해요. 먼저 짐작해 봐요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <form id="cform" onsubmit="return false"></form>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="cgo" type="button">짐작하고 결과 보기</button>
+      </section>
+      <section class="cc-v" id="cguess" hidden>
+        <div class="cg">
+          <span class="cg-k">?</span>
+          <p class="cg-q" id="gq"></p>
+          <p class="cg-v" id="gv"></p>
+          <input id="guess" type="range" aria-label="짐작 값" />
+          <button class="cc-go" id="gok" type="button">이걸로 짐작!</button>
+          <button class="cg-skip" id="gskip" type="button">짐작 없이 바로 보기</button>
+        </div>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <div class="rg" id="rguess" hidden></div>
+          <div id="rrows"></div>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">친구도 짐작시키기</button>
+          <button class="cc-go cc-go--sub" id="cagain" type="button">숫자 바꿔 보기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>연차 계산기 계산 방법</h2>
+        <p>1년 미만이면 한 달 개근할 때마다 1일씩, 최대 11일이 생겨요. 1년을 채우면 15일이 생기고, 3년차부터 2년마다 1일씩 늘어 최대 25일이에요.</p><p>입사일 기준으로 계산해요. 회사가 회계연도(1월 1일) 기준으로 주는 경우 날짜가 달라질 수 있어요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>5명 미만 회사는요?</summary><p>근로기준법의 연차 규정이 적용되지 않아요. 회사 규정에 따라요.</p></details><details><summary>출근율 80% 미만이면요?</summary><p>1년 이상 근무자는 출근율 80% 이상일 때 15일이 생겨요. 이 계산은 80% 이상이라고 보고 계산해요.</p></details>
+        <details><summary>계산 결과를 믿어도 되나요?</summary><p>법령과 정부 고시의 2026년 값으로 계산해요. 근거는 결과 아래 '계산 근거'에 있어요. 다만 회사 규정·개인 사정에 따라 실제 금액은 달라질 수 있어 참고용으로 써 주세요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">연차 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
