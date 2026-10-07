@@ -1,0 +1,520 @@
+<title>IBR 운영 콘솔</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: operations console — fixed nav rail + working pane; numbers in mono, state carried by pills and stripes */
+:root{
+  --bg:#F2F4F8; --surface:#FFFFFF; --sunk:#E8ECF3; --line:#D6DCE6;
+  --fg:#16203A; --muted:#5A6580; --ink:#1F3864; --ink-soft:#E3E9F4; --on-ink:#FFFFFF;
+  --ok:#2C7A57; --ok-bg:#E2F2EA; --warn:#A8670F; --warn-bg:#FBEFD9; --bad:#B8362F; --bad-bg:#F9E2E0;
+  --sales:#3B5FA8; --sales-bg:#E2E9F7; --ops:#6B6F7E; --ops-bg:#ECEDF1;
+  --f-ui:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#172036; --sunk:#111A2C; --line:#2A3654;
+  --fg:#E6EAF3; --muted:#9AA5BE; --ink:#8FB0E8; --ink-soft:#1E2B48; --on-ink:#0F1524;
+  --ok:#6FCB9C; --ok-bg:#16352A; --warn:#E7B159; --warn-bg:#3A2C12; --bad:#F08A82; --bad-bg:#3D1C1B;
+  --sales:#9DB7EE; --sales-bg:#1F2D4D; --ops:#AEB3C2; --ops-bg:#232B3E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#172036; --sunk:#111A2C; --line:#2A3654;
+  --fg:#E6EAF3; --muted:#9AA5BE; --ink:#8FB0E8; --ink-soft:#1E2B48; --on-ink:#0F1524;
+  --ok:#6FCB9C; --ok-bg:#16352A; --warn:#E7B159; --warn-bg:#3A2C12; --bad:#F08A82; --bad-bg:#3D1C1B;
+  --sales:#9DB7EE; --sales-bg:#1F2D4D; --ops:#AEB3C2; --ops-bg:#232B3E; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-ui);font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--ink)}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.app{display:grid;grid-template-columns:208px minmax(0,1fr);min-height:100%}
+.rail{background:var(--surface);border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:20px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh}
+.brand-mark{display:flex;flex-direction:column;gap:2px;padding:0 8px}
+.brand-mark b{font-size:16px;letter-spacing:-.01em}
+.brand-mark span{font-size:11px;color:var(--muted);letter-spacing:.04em}
+nav{display:flex;flex-direction:column;gap:2px}
+nav button{all:unset;cursor:pointer;padding:9px 12px;border-radius:6px;color:var(--muted);font-weight:500;display:flex;justify-content:space-between;align-items:center}
+nav button:hover{background:var(--sunk);color:var(--fg)}
+nav button[aria-current="page"]{background:var(--ink-soft);color:var(--ink);font-weight:600}
+nav button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+nav .cnt{font-family:var(--f-num);font-size:11px;background:var(--bad-bg);color:var(--bad);padding:0 6px;border-radius:9px}
+.rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding:0 8px;font-size:12px;color:var(--muted)}
+.main{min-width:0;padding-block:20px 48px;padding-inline:clamp(16px,3vw,32px);display:flex;flex-direction:column;gap:20px}
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.topbar h1{font-size:22px;margin:0;letter-spacing:-.02em;text-wrap:balance}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,.card:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.btn[disabled]{opacity:.5;cursor:default}
+select,input,textarea{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 9px;min-width:0}
+label.fld{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:500}
+label.fld>*{color:var(--fg);font-size:14px;font-weight:400}
+.sync{font-size:12px;color:var(--muted)}
+.banner{border:1px solid var(--warn);background:var(--warn-bg);color:var(--fg);border-radius:var(--r);padding:12px 14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.banner.bad{border-color:var(--bad);background:var(--bad-bg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.kpi .k{font-size:12px;color:var(--muted);font-weight:500}
+.kpi .v{font-family:var(--f-num);font-size:22px;font-weight:500;letter-spacing:-.02em}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.alert{border-color:var(--bad)} .kpi.alert .v{color:var(--bad)}
+.kpi.caution .v{color:var(--warn)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;min-width:0}
+.panel>header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.panel>header h2{font-size:14px;margin:0}
+.panel .body{padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.empty{color:var(--muted);font-size:13px;padding:8px 0}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%}
+.item:last-child{border-bottom:0}
+.item .t{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .m{font-size:12px;color:var(--muted)}
+.date-tag{font-family:var(--f-num);font-size:12px;color:var(--muted);min-width:44px}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap;background:var(--sunk);color:var(--muted)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
+.pill.sales{background:var(--sales-bg);color:var(--sales)} .pill.ops{background:var(--ops-bg);color:var(--ops)}
+.pill.num{font-family:var(--f-num);font-weight:500}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.board{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.col{background:var(--sunk);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.col>h3{margin:0;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;padding:0 2px;letter-spacing:.03em}
+.card{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.card:hover{border-color:var(--ink)}
+.card.p-긴급{border-left-color:var(--bad)} .card.p-높음{border-left-color:var(--warn)} .card.p-보통{border-left-color:var(--sales)}
+.card .t{font-weight:600;line-height:1.35}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.who{display:inline-flex;align-items:center;gap:4px}
+.av{width:20px;height:20px;border-radius:50%;background:var(--ink-soft);color:var(--ink);font-size:10px;font-weight:700;display:inline-grid;place-items:center}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:12px;color:var(--muted);font-weight:600;background:var(--sunk);position:sticky;top:0}
+td.r,th.r{text-align:right}
+tfoot td{font-weight:600;border-top:2px solid var(--line)}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--sunk)}
+td input{width:120px;padding:4px 6px}
+.neg{color:var(--bad)}
+.cal-head{display:flex;gap:8px;align-items:center}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.cal .dow{font-size:11px;color:var(--muted);padding:6px 8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--sunk);font-weight:600}
+.cal .day{min-height:96px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;display:flex;flex-direction:column;gap:3px;cursor:pointer;min-width:0;background:var(--surface)}
+.cal .day.out{background:var(--sunk);opacity:.6}
+.cal .day .dn{font-family:var(--f-num);font-size:11px;color:var(--muted)}
+.cal .day.today .dn{color:var(--on-ink);background:var(--ink);border-radius:9px;padding:0 6px;align-self:flex-start}
+.ev{all:unset;cursor:pointer;font-size:11px;padding:1px 5px;border-radius:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--ops-bg);color:var(--ops)}
+.ev.sales{background:var(--sales-bg);color:var(--sales)}
+.ev.done{text-decoration:line-through;opacity:.6}
+.more{font-size:11px;color:var(--muted)}
+.brands{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.bcard{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px}
+.bcard:hover{border-color:var(--ink)} .bcard:focus-visible{outline:2px solid var(--ink)}
+.bcard b{font-size:15px}
+.bcard .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:11px;color:var(--muted)}
+.bcard .stats span b{display:block;font-family:var(--f-num);font-size:15px;color:var(--fg);font-weight:500}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:6px 12px;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
+.seg button:focus-visible{outline:2px solid var(--ink)}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+dialog{border:1px solid var(--line);border-radius:12px;padding:0;background:var(--surface);color:var(--fg);width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 48px)}
+dialog::backdrop{background:rgba(10,16,30,.45)}
+dialog form{display:flex;flex-direction:column;max-height:calc(100vh - 48px)}
+dialog header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+dialog header h2{margin:0;font-size:16px}
+.dbody{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:auto}
+.dbody .wide{grid-column:1/-1}
+.dfoot{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+textarea{min-height:80px;resize:vertical}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:13px;z-index:20;max-width:calc(100vw - 32px)}
+.asset-group{display:flex;flex-direction:column;gap:4px}
+.asset-group h4{margin:6px 0 2px;font-size:12px;color:var(--muted)}
+.asset{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line)}
+.asset a{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;font-size:13px}
+.dl dt{color:var(--muted)} .dl dd{margin:0;overflow-wrap:anywhere}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  .rail{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;align-items:center;padding:8px 12px;gap:12px;z-index:5;border-right:0;border-bottom:1px solid var(--line);overflow-x:auto}
+  .brand-mark span,.rail-foot{display:none}
+  nav{flex-direction:row}
+  nav button{padding:7px 10px;white-space:nowrap}
+  .dbody{grid-template-columns:1fr}
+  .cal .day{min-height:64px}
+  .cal .ev{font-size:10px}
+}
+@media (prefers-reduced-motion:no-preference){.card,.bcard,.btn{transition:border-color .15s}}
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand-mark"><b>IBR 운영 콘솔</b><span>상품 마스터 연동</span></div>
+    <nav id="nav"></nav>
+    <div class="rail-foot">
+      <label class="fld">나<select id="me"></select></label>
+      <a id="sheetLink" target="_blank" rel="noopener">원본 시트 열기</a>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <h1 id="vtitle">홈</h1>
+      <div class="tools"><span class="sync" id="sync">시트 연결 중</span><button class="btn" id="refresh" type="button">새로고침</button></div>
+    </div>
+    <div id="banner"></div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<dialog id="dlg"><form id="dform" method="dialog">
+  <header><h2 id="dtitle"></h2><button class="btn sm" type="button" data-close>닫기</button></header>
+  <div class="dbody" id="dbody"></div>
+  <div class="dfoot"><button class="btn" type="button" data-close>취소</button><button class="btn primary" id="dsave" type="submit">저장</button></div>
+</form></dialog>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const SID='16LBlBvCVxNsTs5EG8eds-2Y16ZNtjZTj-_qZLoeRhLs';
+const SV='Google Sheets';
+const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:G",tasks:"'업무'!A1:N",events:"'일정'!A1:L",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",costs:"'비용'!A1:G",orders:"'주문'!A1:T",stores:"'스토어'!A1:F",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",corps:"'판매법인'!A1:A"};
+const KEYCOL={people:'이름',brands:'브랜드',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'스토어',costs:'금액',orders:'결제금액',stores:'스토어'};
+const SHEETS={
+  tasks:{name:'업무',cols:['업무ID','업무명','브랜드','판매채널','담당자','요청자','시작일','마감일','상태','우선순위','연결일정','내용','등록일'],prefix:'T'},
+  events:{name:'일정',cols:['일정ID','일정명','유형','브랜드','판매채널','거래처','시작일','종료일','담당자','상태','적용가격정책','내용'],prefix:'E',auto:['적용가격정책']},
+  assets:{name:'브랜드에셋',cols:['에셋ID','브랜드','유형','에셋명','링크','버전','구성코드','담당자','등록일','상태'],prefix:'A'},
+  people:{name:'담당자',cols:['이름','이메일','역할','상태']},
+  brands:{name:'브랜드',cols:['브랜드','판매법인','브랜드매니저','상태','에셋폴더']},
+  costs:{name:'비용',cols:['월','판매법인','브랜드','항목','금액','광고지면','메모']}
+};
+const TASK_ST=['대기','진행중','검토','보류','완료'];
+const EV_TYPES=['라이브','공동구매','브랜드위크','원데이특가','홈쇼핑방송','신상품출시','프로모션','촬영','입고','미팅','정산','기타'];
+const SALES_TYPES=new Set(['라이브','공동구매','브랜드위크','원데이특가','홈쇼핑방송','신상품출시','프로모션']);
+const VIEWS=[['home','홈'],['tasks','업무'],['events','일정'],['settle','정산'],['close','결산'],['brands','브랜드'],['people','담당자']];
+
+const ls={get(k){try{return localStorage.getItem('ibr.'+k)}catch(e){return null}},set(k,v){try{localStorage.setItem('ibr.'+k,v)}catch(e){}}};
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const thisMonth=()=>ymd(new Date()).slice(0,7);
+const pd=s=>{const m=/^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(String(s||'').replace(/\./g,'-').replace(/\s/g,''));return m?new Date(+m[1],+m[2]-1,+m[3]):null};
+const num=s=>{if(s==null||s==='')return 0;const v=Number(String(s).replace(/[,\s원₩%]/g,''));return isFinite(v)?v:0};
+const won=n=>Math.round(n).toLocaleString('ko-KR');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const colL=i=>{let s='';i++;while(i){const r=(i-1)%26;s=String.fromCharCode(65+r)+s;i=Math.floor((i-1)/26)}return s};
+const initials=n=>esc(String(n||'?').slice(-2));
+const uid=p=>p+'-'+ymd(new Date()).slice(2).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,5).toUpperCase();
+function dday(due){const d=pd(due);if(!d)return null;return Math.round((d-today())/864e5)}
+function ddPill(due,done){if(done)return '';const d=dday(due);if(d==null)return '';const t=d<0?'D+'+(-d):d===0?'D-day':'D-'+d;return `<span class="pill num ${d<0?'bad':d<=2?'warn':''}">${t}</span>`}
+function monthAdd(m,k){const [y,mo]=m.split('-').map(Number);const d=new Date(y,mo-1+k,1);return d.getFullYear()+'-'+pad(d.getMonth()+1)}
+
+const S={mcp:null,raw:{},err:{},fatal:null,loaded:false,view:(location.hash||'').slice(1)||ls.get('view')||'home',me:ls.get('me')||'',month:thisMonth(),calMonth:thisMonth(),grp:'브랜드',f:{brand:'',person:'',q:''},brandSel:null,syncedAt:null,busy:false};
+if(!VIEWS.some(v=>v[0]===S.view))S.view='home';
+
+function objs(key){const v=S.raw[key];if(!v||!v.length)return [];const h=v[0];const kc=KEYCOL[key];return v.slice(1).map((r,i)=>{const o={_row:i+2};h.forEach((k,j)=>o[k]=r[j]??'');return o}).filter(o=>!kc||String(o[kc]).trim()!=='')}
+function list(key){const v=S.raw[key]||[];return v.slice(1).map(r=>r[0]).filter(Boolean)}
+const people=()=>objs('people').filter(p=>p['상태']!=='퇴사').map(p=>p['이름']);
+const brandNames=()=>objs('brands').map(b=>b['브랜드']);
+
+function errMsg(e){switch(e&&e.code){
+  case 'server_not_connected':return 'Google Sheets 커넥터가 연결되어 있지 않습니다. claude.ai 설정 → 커넥터에서 Google Sheets를 추가한 뒤 새로고침하세요.';
+  case 'needs_reauth':return 'Google Sheets 연결이 만료되었습니다. claude.ai 설정 → 커넥터에서 다시 연결하세요.';
+  case 'selection_required':return '연결된 Google Sheets 계정이 여러 개입니다. 사용할 계정을 고른 뒤 새로고침하세요.';
+  case 'not_in_manifest':return '이 페이지에서 Google Sheets 사용이 허용되지 않았습니다. 페이지 권한에서 Google Sheets를 허용하세요.';
+  case 'blocked_by_policy':case 'approval_required':return '조직 정책으로 Google Sheets 호출이 막혀 있습니다. 관리자에게 문의하세요.';
+  case 'tool_error':return '시트가 요청을 거절했습니다. 시트 접근 권한을 확인하세요. ('+(e.message||'')+')';
+  case 'server_unavailable':return 'Google Sheets가 응답하지 않습니다. 잠시 뒤 새로고침하세요.';
+  case 'not_granted':case 'capability_disabled':case 'capability_removed':return '이 화면에서는 시트 연결을 쓸 수 없습니다. claude.ai에서 페이지를 열어 주세요.';
+  default:return '시트를 불러오지 못했습니다. ('+((e&&e.code)||'알 수 없는 오류')+')';
+}}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function getRange(range,fresh){
+  const call=()=>S.mcp.callTool(SV,'get_values',{spreadsheetId:SID,range},{cache:fresh?{refresh:true,staleTime:0}:{staleTime:15000}});
+  let r;try{r=await call()}catch(e){if(e&&e.retryable){await sleep((e.retryAfterMs||600)+Math.random()*600);r=await call()}else throw e}
+  let p=r.payload;if(typeof p==='string'){try{p=JSON.parse(p)}catch(e){p={}}}
+  return (p&&p.values)||[];
+}
+async function load(keys,fresh){
+  const res=await Promise.allSettled(keys.map(k=>getRange(RANGES[k],fresh)));
+  res.forEach((r,i)=>{const k=keys[i];if(r.status==='fulfilled'){S.raw[k]=r.value;delete S.err[k]}else S.err[k]=r.reason});
+  S.syncedAt=new Date();S.loaded=true;
+}
+async function loadAll(fresh){
+  if(!S.mcp)return;setSync('불러오는 중');
+  const keys=Object.keys(RANGES);
+  if(!S.loaded){await load([keys[0]],fresh);const e=S.err[keys[0]];if(e&&!e.retryable&&e.code!=='tool_error'){S.fatal=errMsg(e);render();return}}
+  await load(S.loaded?keys:keys.slice(1),fresh);
+  const errs=Object.values(S.err);
+  S.fatal=errs.length===keys.length?errMsg(errs[0]):null;
+  render();
+}
+async function writeRange(range,values){
+  await S.mcp.callTool(SV,'update_values',{spreadsheetId:SID,range,values},{cache:false});
+  try{await S.mcp.invalidate(SV,'get_values')}catch(e){}
+}
+async function nextRow(sheet){const v=await getRange(`'${sheet}'!A1:A`,true);return v.length+1}
+async function saveRecord(key,o,row){
+  const sp=SHEETS[key];const auto=new Set(sp.auto||[]);
+  if(!row){if(sp.prefix&&!o[sp.cols[0]])o[sp.cols[0]]=uid(sp.prefix);if(sp.cols.includes('등록일')&&!o['등록일'])o['등록일']=ymd(new Date());row=await nextRow(sp.name)}
+  const vals=sp.cols.map(c=>auto.has(c)?null:(o[c]??''));
+  await writeRange(`'${sp.name}'!A${row}:${colL(sp.cols.length-1)}${row}`,[vals]);
+  await load([key],true);
+}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2600)}
+function setSync(t){document.getElementById('sync').textContent=t}
+async function guarded(fn,okMsg){
+  if(S.busy)return;S.busy=true;setSync('저장 중');
+  try{await fn();toast(okMsg||'저장했습니다');render()}
+  catch(e){toast(e&&e.code==='server_unavailable'?'응답이 없어 저장 여부를 확인하지 못했습니다. 새로고침 후 시트에서 확인하세요.':errMsg(e))}
+  finally{S.busy=false;stamp()}
+}
+function stamp(){setSync(S.syncedAt?'동기화 '+pad(S.syncedAt.getHours())+':'+pad(S.syncedAt.getMinutes()):'시트 연결 중')}
+
+/* ---------- dialog forms ---------- */
+const OPT={brands:()=>brandNames(),people:()=>people(),channels:()=>list('channels'),partners:()=>list('partners'),corps:()=>list('corps')};
+const FORMS={
+  tasks:[['업무명','text',1,'wide'],['브랜드','sel:brands'],['판매채널','sel:channels'],['담당자','sel:people'],['요청자','sel:people'],['시작일','date'],['마감일','date'],['상태','list:'+TASK_ST.join(',')],['우선순위','list:긴급,높음,보통,낮음'],['연결일정','sel:eventsId','','wide'],['내용','area','','wide']],
+  events:[['일정명','text',1,'wide'],['유형','list:'+EV_TYPES.join(','),1],['브랜드','sel:brands'],['판매채널','sel:channels'],['거래처','sel:partners'],['시작일','date',1],['종료일','date'],['담당자','sel:people'],['상태','list:예정,진행중,완료,취소'],['내용','area','','wide']],
+  assets:[['에셋명','text',1,'wide'],['브랜드','sel:brands',1],['유형','list:로고,BI가이드,상세페이지,제품컷,연출컷,영상,패키지도면,인증서,성분표,카피,기타',1],['링크','url','','wide'],['버전','text'],['구성코드','text'],['담당자','sel:people'],['상태','list:사용중,구버전,폐기']],
+  people:[['이름','text',1],['이메일','text'],['역할','list:대표,브랜드매니저,MD,마케터,디자이너,콘텐츠,CS,물류,재무,기타'],['상태','list:재직,휴직,퇴사']],
+  brands:[['판매법인','sel:corps'],['브랜드매니저','sel:people'],['상태','list:운영중,런칭예정,중단'],['에셋폴더','url','','wide']],
+  costs:[['월','month',1],['항목','list:광고비,물류비,포장재,촬영·제작,인건비,샘플·증정,기타',1],['판매법인','sel:corps'],['브랜드','sel:brands'],['금액','number',1],['광고지면','text'],['메모','text','','wide']]
+};
+let DLG=null;
+function openForm(key,rec,title,row){
+  DLG={key,row,rec:{...rec}};
+  document.getElementById('dtitle').textContent=title;
+  const body=document.getElementById('dbody');
+  body.innerHTML=FORMS[key].map(([k,t,req,cls],i)=>{
+    const id='f_'+key+'_'+i;const v=rec[k]??'';const rq=req?' required':'';
+    let ctl;
+    if(t==='area')ctl=`<textarea id="${id}" name="${esc(k)}"${rq}>${esc(v)}</textarea>`;
+    else if(t.startsWith('list:')||t.startsWith('sel:')){
+      let opts;if(t==='sel:eventsId')opts=objs('events').map(e=>[e['일정ID'],e['일정명']+' · '+(e['시작일']||'')]);
+      else opts=(t.startsWith('list:')?t.slice(5).split(','):OPT[t.slice(4)]()).map(x=>[x,x]);
+      if(v&&!opts.some(o=>o[0]===v))opts.unshift([v,v]);
+      ctl=`<select id="${id}" name="${esc(k)}"${rq}><option value=""></option>${opts.map(([a,b])=>`<option value="${esc(a)}"${a===v?' selected':''}>${esc(b)}</option>`).join('')}</select>`;
+    }else{const ty={text:'text',date:'date',url:'url',number:'number',month:'month'}[t];const val=t==='number'?String(num(v)||''):t==='date'?(pd(v)?ymd(pd(v)):''):v;
+      ctl=`<input id="${id}" name="${esc(k)}" type="${ty}" value="${esc(val)}"${rq}${t==='number'?' inputmode="numeric" step="1"':''}>`}
+    return `<label class="fld ${cls||''}">${esc(k)}${req?' *':''}${ctl}</label>`;
+  }).join('');
+  document.getElementById('dlg').showModal();
+}
+document.getElementById('dform').addEventListener('submit',ev=>{
+  ev.preventDefault();if(!DLG)return;const {key,row,rec}=DLG;
+  const fd=new FormData(ev.target);for(const [k,v] of fd.entries())rec[k]=String(v).trim();
+  document.getElementById('dlg').close();
+  guarded(()=>saveRecord(key,rec,row));
+});
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>document.getElementById('dlg').close()));
+
+/* ---------- views ---------- */
+function kpi(k,v,s,cls){return `<div class="kpi ${cls||''}"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s||''}</span></div>`}
+function openTasks(){return objs('tasks').filter(t=>t['상태']!=='완료'&&t['상태']!=='보류')}
+function evRange(e){const s=pd(e['시작일']);const en=pd(e['종료일'])||s;return [s,en]}
+function taskItem(t){return `<button class="item" data-act="task" data-row="${t._row}" type="button"><span class="av">${initials(t['담당자'])}</span><span style="min-width:0"><span class="t">${esc(t['업무명'])}</span><br><span class="m">${esc([t['브랜드'],t['판매채널'],t['상태']].filter(Boolean).join(' · '))}</span></span>${ddPill(t['마감일'],t['상태']==='완료')}</button>`}
+function evItem(e){const [s]=evRange(e);return `<button class="item" data-act="event" data-row="${e._row}" type="button"><span class="date-tag">${s?pad(s.getMonth()+1)+'.'+pad(s.getDate()):''}</span><span style="min-width:0"><span class="t">${esc(e['일정명'])}</span><br><span class="m">${esc([e['브랜드'],e['판매채널'],e['담당자']].filter(Boolean).join(' · '))}</span></span><span class="pill ${SALES_TYPES.has(e['유형'])?'sales':'ops'}">${esc(e['유형']||'일정')}</span></button>`}
+
+function vHome(){
+  const m=thisMonth();const od=objs('orders').filter(o=>o['월']===m);
+  const rev=od.reduce((a,o)=>a+num(o['결제금액']),0),exp=od.reduce((a,o)=>a+num(o['정산금액']),0);
+  const unm=objs('orders').filter(o=>o['매칭']&&o['매칭']!=='정상').length;
+  const unpaid=objs('settle').filter(s=>s['상태']==='미입금');
+  const late=openTasks().filter(t=>{const d=dday(t['마감일']);return d!=null&&d<0});
+  const t0=today(),t7=new Date(+t0+7*864e5);
+  const upcoming=objs('events').filter(e=>{const [s,en]=evRange(e);return s&&en>=t0&&s<=t7&&e['상태']!=='취소'}).sort((a,b)=>evRange(a)[0]-evRange(b)[0]);
+  const mine=S.me?openTasks().filter(t=>t['담당자']===S.me):openTasks().filter(t=>{const d=dday(t['마감일']);return d!=null&&d<=3});
+  mine.sort((a,b)=>(dday(a['마감일'])??999)-(dday(b['마감일'])??999));
+  return `<div class="kpis">
+    ${kpi('이번 달 매출',won(rev),od.length+'건 · '+m)}
+    ${kpi('정산 예정액',won(exp),'수수료 차감 후')}
+    ${kpi('미입금 정산',unpaid.length+'건',won(unpaid.reduce((a,s)=>a+num(s['정산예정액']),0))+'원',unpaid.length?'caution':'')}
+    ${kpi('마감 지난 업무',late.length+'건',late.length?'담당자 확인 필요':'모두 일정 내',late.length?'alert':'')}
+    ${kpi('미매칭 주문',unm+'건',unm?'채널옵션·스토어 매핑 필요':'모두 매칭됨',unm?'alert':'')}
+  </div>
+  <div class="grid2">
+    <section class="panel"><header><h2>다가오는 7일 일정</h2><button class="btn sm" data-act="newEvent" type="button">일정 추가</button></header><div class="body">${upcoming.length?upcoming.map(evItem).join(''):'<p class="empty">7일 안에 잡힌 일정이 없습니다.</p>'}</div></section>
+    <section class="panel"><header><h2>${S.me?esc(S.me)+'님 업무':'마감 3일 이내 업무'}</h2><button class="btn sm" data-act="newTask" type="button">업무 추가</button></header><div class="body">${mine.length?mine.slice(0,12).map(taskItem).join(''):`<p class="empty">${S.me?'진행 중인 업무가 없습니다.':'왼쪽 아래에서 내 이름을 고르면 내 업무만 보입니다.'}</p>`}</div></section>
+  </div>`;
+}
+
+function vTasks(){
+  const f=S.f;let ts=objs('tasks');
+  if(f.brand)ts=ts.filter(t=>t['브랜드']===f.brand);
+  if(f.person)ts=ts.filter(t=>t['담당자']===f.person);
+  if(f.q){const q=f.q.toLowerCase();ts=ts.filter(t=>(t['업무명']+' '+t['내용']).toLowerCase().includes(q))}
+  const by=s=>ts.filter(t=>(t['상태']||'대기')===s).sort((a,b)=>(dday(a['마감일'])??999)-(dday(b['마감일'])??999));
+  const card=t=>`<button class="card p-${esc(t['우선순위'])}" data-act="task" data-row="${t._row}" type="button"><span class="t">${esc(t['업무명'])}</span><span class="meta">${t['브랜드']?`<span class="pill">${esc(t['브랜드'])}</span>`:''}${t['판매채널']?esc(t['판매채널']):''}</span><span class="meta"><span class="who"><span class="av">${initials(t['담당자'])}</span>${esc(t['담당자']||'미배정')}</span>${ddPill(t['마감일'],t['상태']==='완료')}</span></button>`;
+  return `<div class="filters">
+    <label class="fld">브랜드<select id="fBrand"><option value="">전체</option>${brandNames().map(b=>`<option${b===f.brand?' selected':''}>${esc(b)}</option>`).join('')}</select></label>
+    <label class="fld">담당자<select id="fPerson"><option value="">전체</option>${people().map(p=>`<option${p===f.person?' selected':''}>${esc(p)}</option>`).join('')}</select></label>
+    <label class="fld">검색<input id="fQ" type="search" value="${esc(f.q)}" placeholder="업무명, 내용"></label>
+    <button class="btn primary" data-act="newTask" type="button">새 업무</button>
+  </div>
+  <div class="board">${TASK_ST.map(s=>{const l=by(s);const shown=s==='완료'?l.slice(-20):l;return `<div class="col"><h3>${s}<span class="num">${l.length}</span></h3>${shown.map(card).join('')||'<p class="empty">없음</p>'}</div>`}).join('')}</div>`;
+}
+
+function vEvents(){
+  const [y,mo]=S.calMonth.split('-').map(Number);const first=new Date(y,mo-1,1);const start=new Date(first);start.setDate(1-first.getDay());
+  const evs=objs('events');const t0=+today();let cells='';
+  for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const on=evs.filter(e=>{const [s,en]=evRange(e);return s&&s<=d&&en>=d});
+    cells+=`<div class="day ${d.getMonth()!==mo-1?'out':''} ${+d===t0?'today':''}" data-act="dayNew" data-date="${ymd(d)}"><span class="dn">${d.getDate()}</span>${on.slice(0,3).map(e=>`<button class="ev ${SALES_TYPES.has(e['유형'])?'sales':''} ${e['상태']==='완료'||e['상태']==='취소'?'done':''}" data-act="event" data-row="${e._row}" type="button" title="${esc(e['일정명'])}">${esc(e['일정명'])}</button>`).join('')}${on.length>3?`<span class="more">+${on.length-3}</span>`:''}</div>`}
+  const monthEvs=evs.filter(e=>{const [s,en]=evRange(e);return s&&(ymd(s).slice(0,7)===S.calMonth||(en&&ymd(en).slice(0,7)===S.calMonth))}).sort((a,b)=>evRange(a)[0]-evRange(b)[0]);
+  return `<div class="filters"><div class="cal-head"><button class="btn sm" data-act="calPrev" type="button" aria-label="이전 달">‹</button><b class="num">${y}.${pad(mo)}</b><button class="btn sm" data-act="calNext" type="button" aria-label="다음 달">›</button><button class="btn sm" data-act="calToday" type="button">이번 달</button></div><button class="btn primary" data-act="newEvent" type="button">새 일정</button><span class="legend"><span><i style="background:var(--sales-bg);border:1px solid var(--sales)"></i>판매 행사</span><span><i style="background:var(--ops-bg);border:1px solid var(--ops)"></i>운영 일정</span></span></div>
+  <div class="tbl-wrap"><div class="cal" style="min-width:560px">${['일','월','화','수','목','금','토'].map(d=>`<div class="dow">${d}</div>`).join('')}${cells}</div></div>
+  <section class="panel"><header><h2>${mo}월 일정 목록</h2><span class="sync">${monthEvs.length}건</span></header><div class="body">${monthEvs.length?monthEvs.map(evItem).join(''):'<p class="empty">이 달에 잡힌 일정이 없습니다. 달력의 날짜를 누르면 그 날짜로 일정을 추가합니다.</p>'}</div></section>`;
+}
+
+function monthPicker(){return `<label class="fld">월<input id="fMonth" type="month" value="${S.month}"></label>`}
+function vSettle(){
+  const m=S.month;const rows=objs('settle').filter(s=>s['월']===m);
+  const have=new Set(rows.map(r=>r['스토어']));
+  const ordStores=[...new Set(objs('orders').filter(o=>o['월']===m&&o['스토어']).map(o=>o['스토어']))].filter(s=>!have.has(s));
+  const st=s=>s==='일치'?'ok':s==='차이'?'bad':'warn';
+  const tot=k=>rows.reduce((a,r)=>a+num(r[k]),0);
+  return `<div class="filters">${monthPicker()}${ordStores.length?`<button class="btn primary" data-act="addSettle" type="button">주문 있는 스토어 ${ordStores.length}곳 정산 행 추가</button>`:''}</div>
+  ${ordStores.length?`<div class="banner"><span>${esc(ordStores.join(', '))} 스토어는 ${m} 주문이 있지만 정산 행이 없습니다.</span></div>`:''}
+  <section class="panel"><div class="tbl-wrap"><table><thead><tr><th>스토어</th><th>판매채널</th><th>판매법인</th><th class="r">주문</th><th class="r">매출</th><th class="r">정산예정액</th><th class="r">실입금액</th><th>입금일</th><th class="r">차이</th><th>상태</th><th></th></tr></thead>
+  <tbody>${rows.length?rows.map(r=>`<tr><td>${esc(r['스토어'])}</td><td>${esc(r['판매채널'])}</td><td>${esc(r['판매법인'])}</td><td class="r num">${esc(r['주문건수'])}</td><td class="r num">${won(num(r['매출']))}</td><td class="r num">${won(num(r['정산예정액']))}</td>
+    <td class="r"><input class="num" id="pay_${r._row}" inputmode="numeric" value="${r['실입금액']?num(r['실입금액']):''}" aria-label="실입금액"></td><td><input id="pd_${r._row}" type="date" value="${pd(r['입금일'])?ymd(pd(r['입금일'])):''}" aria-label="입금일"></td>
+    <td class="r num ${num(r['차이'])<0?'neg':''}">${r['차이']?won(num(r['차이'])):''}</td><td><span class="pill ${st(r['상태'])}">${esc(r['상태'])}</span></td><td><button class="btn sm" data-act="savePay" data-row="${r._row}" type="button">저장</button></td></tr>`).join(''):`<tr><td colspan="11" class="empty">${m} 정산 행이 없습니다. 주문 탭에 사방넷 주문을 붙여넣으면 스토어별로 행을 추가할 수 있습니다.</td></tr>`}</tbody>
+  ${rows.length?`<tfoot><tr><td colspan="4">합계</td><td class="r num">${won(tot('매출'))}</td><td class="r num">${won(tot('정산예정액'))}</td><td class="r num">${won(tot('실입금액'))}</td><td></td><td class="r num">${won(tot('차이'))}</td><td colspan="2"></td></tr></tfoot>`:''}</table></div></section>`;
+}
+
+function closeData(m,grp){
+  const key={브랜드:'브랜드',판매법인:'판매법인',판매채널:'판매채널'}[grp];
+  const g={};const add=(k)=>g[k]=g[k]||{k,rev:0,cost:0,settle:0,exp:0,n:0};
+  objs('orders').filter(o=>o['월']===m).forEach(o=>{const k=o[key]||'미매칭';const r=add(k);r.rev+=num(o['결제금액']);r.cost+=num(o['원가']);r.settle+=num(o['정산금액']);r.n++});
+  if(grp!=='판매채널')objs('costs').filter(c=>c['월']===m).forEach(c=>{const k=c[key]||'공통';add(k).exp+=num(c['금액'])});
+  return Object.values(g).map(r=>({...r,fee:r.rev-r.settle,profit:r.settle-r.cost-r.exp})).sort((a,b)=>b.rev-a.rev);
+}
+function trendSvg(){
+  const ms=[];for(let i=5;i>=0;i--)ms.push(monthAdd(S.month,-i));
+  const d=ms.map(m=>{const r=closeData(m,'브랜드');return {m,rev:r.reduce((a,x)=>a+x.rev,0),p:r.reduce((a,x)=>a+x.profit,0)}});
+  if(d.every(x=>!x.rev&&!x.p))return '<p class="empty">최근 6개월 주문 데이터가 없습니다.</p>';
+  const max=Math.max(1,...d.map(x=>Math.max(x.rev,x.p)));const minP=Math.min(0,...d.map(x=>x.p));
+  const W=600,H=200,L=56,B=26,T=12,cw=(W-L-8)/6;const span=max-minP;const y=v=>T+(H-T-B)*(1-(v-minP)/span);
+  const ticks=[minP,(max+minP)/2,max].map(v=>Math.round(v/1e4)*1e4);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="최근 6개월 매출과 공헌이익">
+  ${ticks.map(v=>`<line x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-dasharray="3 3"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${v>=1e8?(v/1e8).toFixed(1)+'억':Math.round(v/1e4).toLocaleString('ko-KR')+'만'}</text>`).join('')}
+  <line x1="${L}" x2="${W-8}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)"/>
+  ${d.map((x,i)=>{const cx=L+cw*i+cw/2;const bw=cw*.3;const cur=x.m===S.month;return `<rect x="${cx-bw-1}" y="${Math.min(y(x.rev),y(0))}" width="${bw}" height="${Math.abs(y(0)-y(x.rev))}" fill="var(--ink)" opacity="${cur?1:.55}"/><rect x="${cx+1}" y="${Math.min(y(x.p),y(0))}" width="${bw}" height="${Math.abs(y(0)-y(x.p))}" fill="${x.p<0?'var(--bad)':'var(--ok)'}" opacity="${cur?1:.55}"/><text x="${cx}" y="${H-8}" text-anchor="middle" font-size="11" fill="${cur?'var(--fg)':'var(--muted)'}" font-family="IBM Plex Mono,monospace">${x.m.slice(2).replace('-','.')}</text>`}).join('')}
+  </svg>`;
+}
+function vClose(){
+  const rows=closeData(S.month,S.grp);const T=k=>rows.reduce((a,r)=>a+r[k],0);
+  const unm=objs('orders').filter(o=>o['월']===S.month&&o['매칭']!=='정상').length;
+  const costs=objs('costs').filter(c=>c['월']===S.month);
+  const pct=(a,b)=>b?(a/b*100).toFixed(1)+'%':'';
+  return `<div class="filters">${monthPicker()}<div class="seg" role="group" aria-label="묶음 기준">${['브랜드','판매법인','판매채널'].map(g=>`<button type="button" data-act="grp" data-g="${g}" aria-pressed="${S.grp===g}">${g}별</button>`).join('')}</div><button class="btn" data-act="newCost" type="button">비용 입력</button></div>
+  ${unm?`<div class="banner bad"><span>${S.month} 주문 중 ${unm}건이 상품 또는 스토어와 연결되지 않아 원가가 빠져 있습니다. 주문 탭의 매칭 열을 확인하세요.</span></div>`:''}
+  <div class="kpis">${kpi('매출',won(T('rev')),T('n')+'건')}${kpi('수수료',won(T('fee')),pct(T('fee'),T('rev'))+' of 매출')}${kpi('상품원가',won(T('cost')),pct(T('cost'),T('rev')))}${kpi('비용',won(T('exp')),costs.length+'건 입력')}${kpi('공헌이익',won(T('profit')),'이익률 '+pct(T('profit'),T('rev')),T('profit')<0?'alert':'')}</div>
+  <section class="panel"><header><h2>${S.grp}별 손익</h2><span class="sync">공헌이익 = 정산액 − 상품원가 − 비용</span></header><div class="tbl-wrap"><table><thead><tr><th>${S.grp}</th><th class="r">주문</th><th class="r">매출</th><th class="r">수수료</th><th class="r">정산액</th><th class="r">상품원가</th><th class="r">비용</th><th class="r">공헌이익</th><th class="r">이익률</th></tr></thead>
+  <tbody>${rows.length?rows.map(r=>`<tr><td>${esc(r.k)}</td><td class="r num">${r.n}</td><td class="r num">${won(r.rev)}</td><td class="r num">${won(r.fee)}</td><td class="r num">${won(r.settle)}</td><td class="r num">${won(r.cost)}</td><td class="r num">${won(r.exp)}</td><td class="r num ${r.profit<0?'neg':''}">${won(r.profit)}</td><td class="r num">${pct(r.profit,r.rev)}</td></tr>`).join(''):`<tr><td colspan="9" class="empty">${S.month} 주문과 비용이 없습니다. 주문 탭에 사방넷 주문을 붙여넣고, 비용은 위 버튼으로 입력하세요.</td></tr>`}</tbody>
+  ${rows.length?`<tfoot><tr><td>합계</td><td class="r num">${T('n')}</td><td class="r num">${won(T('rev'))}</td><td class="r num">${won(T('fee'))}</td><td class="r num">${won(T('settle'))}</td><td class="r num">${won(T('cost'))}</td><td class="r num">${won(T('exp'))}</td><td class="r num">${won(T('profit'))}</td><td class="r num">${pct(T('profit'),T('rev'))}</td></tr></tfoot>`:''}</table></div></section>
+  <div class="grid2"><section class="panel chart"><header><h2>최근 6개월</h2><span class="legend"><span><i style="background:var(--ink)"></i>매출</span><span><i style="background:var(--ok)"></i>공헌이익</span></span></header><div class="body">${trendSvg()}</div></section>
+  <section class="panel"><header><h2>${S.month} 비용</h2><button class="btn sm" data-act="newCost" type="button">추가</button></header><div class="body">${costs.length?costs.map(c=>`<button class="item" data-act="cost" data-row="${c._row}" type="button"><span class="pill">${esc(c['항목'])}</span><span style="min-width:0"><span class="t">${esc(c['브랜드']||c['판매법인']||'공통')}</span><br><span class="m">${esc(c['메모']||c['광고지면']||'')}</span></span><span class="num">${won(num(c['금액']))}</span></button>`).join(''):'<p class="empty">입력된 비용이 없습니다.</p>'}</div></section></div>`;
+}
+
+function vBrands(){
+  if(S.brandSel){const b=objs('brands').find(x=>x['브랜드']===S.brandSel);if(b)return vBrand(b);S.brandSel=null}
+  const ot=openTasks(),as=objs('assets');
+  return `<div class="brands">${objs('brands').map(b=>{const n=b['브랜드'];return `<button class="bcard" data-act="brand" data-b="${esc(n)}" type="button"><span style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(n)}</b>${b['상태']?`<span class="pill ${b['상태']==='운영중'?'ok':b['상태']==='중단'?'':'warn'}">${esc(b['상태'])}</span>`:''}</span><span class="m sync">${esc(b['판매법인']||'판매법인 미지정')}${b['브랜드매니저']?' · '+esc(b['브랜드매니저']):''}</span><span class="stats"><span><b>${num(b['판매구성수'])}</b>판매구성</span><span><b>${ot.filter(t=>t['브랜드']===n).length}</b>진행업무</span><span><b>${as.filter(a=>a['브랜드']===n&&a['상태']!=='폐기').length}</b>에셋</span></span></button>`}).join('')||'<p class="empty">브랜드 탭이 비어 있습니다.</p>'}</div>`;
+}
+function vBrand(b){
+  const n=b['브랜드'];const as=objs('assets').filter(a=>a['브랜드']===n);
+  const types=[...new Set(as.map(a=>a['유형']||'기타'))];
+  const ts=openTasks().filter(t=>t['브랜드']===n);
+  const evs=objs('events').filter(e=>e['브랜드']===n&&(evRange(e)[1]||0)>=today()).sort((a,c)=>evRange(a)[0]-evRange(c)[0]);
+  const link=u=>/^https?:\/\//.test(u)?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`:esc(u);
+  return `<div class="filters"><button class="btn" data-act="brandBack" type="button">← 브랜드 목록</button><button class="btn" data-act="brandEdit" data-row="${b._row}" type="button">브랜드 정보 수정</button><button class="btn primary" data-act="newAsset" data-b="${esc(n)}" type="button">에셋 등록</button></div>
+  <div class="grid2"><section class="panel"><header><h2>${esc(n)}</h2>${b['상태']?`<span class="pill">${esc(b['상태'])}</span>`:''}</header><div class="body"><dl class="dl"><dt>판매법인</dt><dd>${esc(b['판매법인']||'미지정')}</dd><dt>브랜드매니저</dt><dd>${esc(b['브랜드매니저']||'미지정')}</dd><dt>에셋폴더</dt><dd>${b['에셋폴더']?link(b['에셋폴더']):'미지정'}</dd><dt>SKU</dt><dd class="num">${num(b['SKU수'])}</dd><dt>판매구성</dt><dd class="num">${num(b['판매구성수'])}</dd></dl></div></section>
+  <section class="panel"><header><h2>브랜드 에셋</h2><span class="sync">${as.length}건</span></header><div class="body">${types.length?types.map(t=>`<div class="asset-group"><h4>${esc(t)}</h4>${as.filter(a=>(a['유형']||'기타')===t).map(a=>`<div class="asset"><span style="min-width:0;display:flex;flex-direction:column">${a['링크']&&/^https?:\/\//.test(a['링크'])?`<a href="${esc(a['링크'])}" target="_blank" rel="noopener">${esc(a['에셋명'])}</a>`:esc(a['에셋명'])}<span class="m sync">${esc([a['버전'],a['구성코드'],a['담당자']].filter(Boolean).join(' · '))}</span></span><span style="display:flex;gap:6px;align-items:center">${a['상태']&&a['상태']!=='사용중'?`<span class="pill">${esc(a['상태'])}</span>`:''}<button class="btn sm" data-act="asset" data-row="${a._row}" type="button">수정</button></span></div>`).join('')}</div>`).join(''):'<p class="empty">등록된 에셋이 없습니다. 로고, 상세페이지, 제품컷의 드라이브 링크를 등록하세요.</p>'}</div></section></div>
+  <div class="grid2"><section class="panel"><header><h2>진행 업무</h2><button class="btn sm" data-act="newTask" data-b="${esc(n)}" type="button">추가</button></header><div class="body">${ts.length?ts.map(taskItem).join(''):'<p class="empty">진행 중인 업무가 없습니다.</p>'}</div></section>
+  <section class="panel"><header><h2>예정 일정</h2><button class="btn sm" data-act="newEvent" data-b="${esc(n)}" type="button">추가</button></header><div class="body">${evs.length?evs.slice(0,10).map(evItem).join(''):'<p class="empty">예정된 일정이 없습니다.</p>'}</div></section></div>`;
+}
+
+function vPeople(){
+  const ps=objs('people');const ot=openTasks();
+  return `<div class="filters"><button class="btn primary" data-act="newPerson" type="button">담당자 추가</button></div>
+  <section class="panel"><div class="tbl-wrap"><table><thead><tr><th>이름</th><th>역할</th><th>상태</th><th>이메일</th><th class="r">진행 업무</th><th class="r">마감 지남</th><th class="r">담당 브랜드</th></tr></thead><tbody>
+  ${ps.length?ps.map(p=>{const mine=ot.filter(t=>t['담당자']===p['이름']);const late=mine.filter(t=>(dday(t['마감일'])??0)<0).length;const br=objs('brands').filter(b=>b['브랜드매니저']===p['이름']).length;
+    return `<tr class="click" data-act="person" data-row="${p._row}" tabindex="0"><td><span class="who"><span class="av">${initials(p['이름'])}</span>${esc(p['이름'])}</span></td><td>${esc(p['역할'])}</td><td>${p['상태']?`<span class="pill ${p['상태']==='재직'?'ok':''}">${esc(p['상태'])}</span>`:''}</td><td>${esc(p['이메일'])}</td><td class="r num">${mine.length}</td><td class="r">${late?`<span class="pill bad num">${late}</span>`:'<span class="num">0</span>'}</td><td class="r num">${br}</td></tr>`}).join(''):'<tr><td colspan="7" class="empty">아직 담당자가 없습니다. 담당자를 추가하면 업무·일정·브랜드에 배정할 수 있습니다.</td></tr>'}
+  </tbody></table></div></section>`;
+}
+
+/* ---------- render ---------- */
+function render(){
+  const late=openTasks().filter(t=>(dday(t['마감일'])??0)<0).length;
+  document.getElementById('nav').innerHTML=VIEWS.map(([k,l])=>`<button type="button" data-view="${k}"${S.view===k?' aria-current="page"':''}>${l}${k==='tasks'&&late?`<span class="cnt">${late}</span>`:''}</button>`).join('');
+  document.getElementById('vtitle').textContent=VIEWS.find(v=>v[0]===S.view)[1];
+  const me=document.getElementById('me');const ps=people();
+  me.innerHTML='<option value="">선택 안 함</option>'+ps.map(p=>`<option${p===S.me?' selected':''}>${esc(p)}</option>`).join('');
+  const ban=document.getElementById('banner');const view=document.getElementById('view');
+  const partial=Object.keys(S.err).filter(k=>!S.fatal);
+  if(S.fatal){ban.innerHTML=`<div class="banner bad"><span>${esc(S.fatal)}</span><button class="btn sm" data-act="reload" type="button">다시 시도</button></div>`}
+  else if(partial.length){ban.innerHTML=`<div class="banner"><span>${partial.map(k=>RANGES[k].split('!')[0]).join(', ')} 탭을 불러오지 못했습니다. ${esc(errMsg(S.err[partial[0]]))}</span><button class="btn sm" data-act="reload" type="button">다시 시도</button></div>`}
+  else ban.innerHTML='';
+  if(!S.loaded&&!S.fatal){view.innerHTML=`<div class="kpis">${['이번 달 매출','정산 예정액','미입금 정산','마감 지난 업무','미매칭 주문'].map(k=>kpi(k,'—','시트에서 불러오는 중')).join('')}</div><section class="panel"><div class="body"><p class="empty">상품 마스터 시트의 업무·일정·정산·주문 탭을 읽고 있습니다. 처음 열면 Google Sheets 사용 허용을 묻습니다.</p></div></section>`;stamp();return}
+  view.innerHTML=({home:vHome,tasks:vTasks,events:vEvents,settle:vSettle,close:vClose,brands:vBrands,people:vPeople})[S.view]();
+  stamp();
+}
+
+/* ---------- events ---------- */
+document.getElementById('sheetLink').href='https://docs.google.com/spreadsheets/d/'+SID+'/edit';
+document.getElementById('nav').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;S.view=b.dataset.view;ls.set('view',S.view);if(S.view!=='brands')S.brandSel=null;render()});
+document.getElementById('me').addEventListener('change',e=>{S.me=e.target.value;ls.set('me',S.me);render()});
+document.getElementById('refresh').addEventListener('click',()=>loadAll(true));
+const findRow=(key,row)=>objs(key).find(o=>o._row===+row);
+document.addEventListener('change',e=>{const t=e.target;
+  if(t.id==='fBrand'){S.f.brand=t.value;render()}
+  if(t.id==='fPerson'){S.f.person=t.value;render()}
+  if(t.id==='fMonth'&&t.value){S.month=t.value;render()}
+});
+document.addEventListener('input',e=>{if(e.target.id==='fQ'){S.f.q=e.target.value;const pos=e.target.selectionStart;render();const q=document.getElementById('fQ');if(q){q.focus();q.setSelectionRange(pos,pos)}}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr[data-act]'))e.target.click()});
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el||el.closest('dialog'))return;
+  if(el.classList.contains('day')&&e.target.closest('.ev'))return;
+  const a=el.dataset.act,row=el.dataset.row;
+  switch(a){
+    case 'reload':S.fatal=null;loadAll(true);break;
+    case 'task':{const t=findRow('tasks',row);if(t)openForm('tasks',t,'업무 수정',t._row);break}
+    case 'newTask':openForm('tasks',{상태:'대기',우선순위:'보통',요청자:S.me,담당자:S.me,브랜드:el.dataset.b||S.f.brand||'',시작일:ymd(new Date())},'새 업무');break;
+    case 'event':{const v=findRow('events',row);if(v)openForm('events',v,'일정 수정',v._row);break}
+    case 'newEvent':openForm('events',{상태:'예정',담당자:S.me,브랜드:el.dataset.b||'',시작일:ymd(new Date())},'새 일정');break;
+    case 'dayNew':openForm('events',{상태:'예정',담당자:S.me,시작일:el.dataset.date},'새 일정');break;
+    case 'calPrev':S.calMonth=monthAdd(S.calMonth,-1);render();break;
+    case 'calNext':S.calMonth=monthAdd(S.calMonth,1);render();break;
+    case 'calToday':S.calMonth=thisMonth();render();break;
+    case 'grp':S.grp=el.dataset.g;render();break;
+    case 'newCost':openForm('costs',{월:S.month},'비용 입력');break;
+    case 'cost':{const c=findRow('costs',row);if(c)openForm('costs',c,'비용 수정',c._row);break}
+    case 'brand':S.brandSel=el.dataset.b;render();break;
+    case 'brandBack':S.brandSel=null;render();break;
+    case 'brandEdit':{const b=findRow('brands',row);if(b)openForm('brands',b,b['브랜드']+' 정보',b._row);break}
+    case 'newAsset':openForm('assets',{브랜드:el.dataset.b||'',상태:'사용중',담당자:S.me},'에셋 등록');break;
+    case 'asset':{const x=findRow('assets',row);if(x)openForm('assets',x,'에셋 수정',x._row);break}
+    case 'newPerson':openForm('people',{상태:'재직'},'담당자 추가');break;
+    case 'person':{const p=findRow('people',row);if(p)openForm('people',p,'담당자 수정',p._row);break}
+    case 'savePay':{const pay=document.getElementById('pay_'+row).value.trim();const d=document.getElementById('pd_'+row).value;
+      guarded(async()=>{await writeRange(`'정산'!H${row}:I${row}`,[[pay===''?'':num(pay),d]]);await load(['settle'],true)},'입금 내역을 저장했습니다');break}
+    case 'addSettle':{const m=S.month;const have=new Set(objs('settle').filter(s=>s['월']===m).map(s=>s['스토어']));
+      const add=[...new Set(objs('orders').filter(o=>o['월']===m&&o['스토어']).map(o=>o['스토어']))].filter(s=>!have.has(s));
+      guarded(async()=>{const r0=await nextRow('정산');await writeRange(`'정산'!A${r0}:B${r0+add.length-1}`,add.map(s=>[m,s]));await load(['settle'],true)},add.length+'개 스토어 정산 행을 추가했습니다');break}
+  }
+});
+setInterval(()=>{if(document.visibilityState==='visible'&&!document.getElementById('dlg').open&&!S.busy&&S.mcp&&!S.fatal)loadAll(false)},90000);
+
+(async function boot(){
+  render();
+  const use=window.claude&&window.claude.use;
+  S.mcp=use?await window.claude.use('mcp').catch(()=>null):null;
+  if(!S.mcp){S.fatal='이 화면에서는 시트 연결을 쓸 수 없습니다. claude.ai에 로그인한 상태에서 이 페이지를 열어 주세요.';render();return}
+  await loadAll(false);
+})();
+</script>
