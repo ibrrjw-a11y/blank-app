@@ -116,6 +116,17 @@ td input{width:120px;padding:4px 6px}
 .bcard b{font-size:15px}
 .bcard .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:11px;color:var(--muted)}
 .bcard .stats span b{display:block;font-family:var(--f-num);font-size:15px;color:var(--fg);font-weight:500}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{all:unset;cursor:pointer;padding:9px 14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--ink)}
+.grp td{background:var(--ink-soft);font-weight:600}
+.grp td .m{font-weight:400;color:var(--muted);font-size:12px;margin-left:8px}
+td.wrap{white-space:normal;min-width:220px;max-width:360px}
+.tl{position:relative;height:14px;min-width:180px;background:var(--sunk);border-radius:3px}
+.tl i{position:absolute;top:2px;bottom:2px;border-radius:2px;background:var(--ink)}
+.tl i.done{background:var(--line)} .tl i.plan{background:var(--warn)}
+.tl b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--bad)}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
 .seg button{all:unset;cursor:pointer;padding:6px 12px;font-size:13px;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink)}
@@ -213,8 +224,8 @@ textarea{min-height:80px;resize:vertical}
 <script>
 const SID='16LBlBvCVxNsTs5EG8eds-2Y16ZNtjZTj-_qZLoeRhLs';
 const SV='Google Sheets';
-const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:R",playbook:"'플레이북'!A1:J",checks:"'체크리스트'!A1:M",tasks:"'업무'!A1:N",events:"'일정'!A1:M",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",sales:"'매출집계'!A1:I",ads:"'광고집계'!A1:E",fixed:"'고정비'!A1:F",stores:"'스토어'!A1:J",bchan:"'브랜드채널'!A1:F",adlinks:"'광고연결'!A1:G",setpath:"'정산경로'!A1:E",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",hosts:"'진행자'!A1:A",corps:"'판매법인'!A1:A",sku:"'SKU'!A1:E",combos:"'판매구성'!A1:H",prices:"'가격표'!A1:E",chopts:"'채널옵션'!A1:L"};
-const KEYCOL={people:'이름',brands:'브랜드',playbook:'항목',checks:'항목',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'채널',sales:'브랜드',ads:'브랜드',fixed:'금액',stores:'스토어',bchan:'스토어',adlinks:'광고지면',setpath:'스토어',sku:'SKU코드',combos:'구성코드',prices:'구성코드',chopts:'구성코드'};
+const RANGES={people:"'담당자'!A1:F",brands:"'브랜드'!A1:R",playbook:"'플레이북'!A1:J",checks:"'체크리스트'!A1:M",tasks:"'업무'!A1:N",events:"'일정'!A1:M",assets:"'브랜드에셋'!A1:J",settle:"'정산'!A1:K",sales:"'매출집계'!A1:I",ads:"'광고집계'!A1:E",fixed:"'고정비'!A1:F",stores:"'스토어'!A1:J",bchan:"'브랜드채널'!A1:F",adlinks:"'광고연결'!A1:H",slots:"'광고지면'!A1:I",accts:"'광고계정'!A1:F",trade:"'거래방식'!A1:A",forms:"'판매형태'!A1:A",setpath:"'정산경로'!A1:E",channels:"'판매채널'!A1:A",partners:"'거래처'!A1:A",hosts:"'진행자'!A1:A",corps:"'판매법인'!A1:A",sku:"'SKU'!A1:E",combos:"'판매구성'!A1:H",prices:"'가격표'!A1:L",chopts:"'채널옵션'!A1:U"};
+const KEYCOL={people:'이름',brands:'브랜드',playbook:'항목',checks:'항목',tasks:'업무명',events:'일정명',assets:'에셋명',settle:'채널',sales:'브랜드',ads:'브랜드',fixed:'금액',stores:'스토어',bchan:'스토어',adlinks:'광고지면',slots:'지면',accts:'매체사',setpath:'스토어',sku:'SKU코드',combos:'구성코드',prices:'구성코드',chopts:'구성코드'};
 const BOOK=['한줄소개','타깃고객','핵심메시지','톤앤매너','금지표현','가격원칙','주력채널','경쟁브랜드','공식몰','인스타그램'];
 const SHEETS={
   checks:{name:'체크리스트',cols:['체크ID','브랜드','워크플로우','대상','순서','단계','항목','담당자','마감일','상태','완료일','산출물링크','메모']},
@@ -223,6 +234,9 @@ const SHEETS={
   assets:{name:'브랜드에셋',cols:['에셋ID','브랜드','유형','에셋명','링크','버전','구성코드','담당자','등록일','상태'],prefix:'A'},
   people:{name:'담당자',cols:['이름','이메일','역할','상태']},
   fixed:{name:'고정비',cols:['월','항목','판매법인','브랜드','금액','메모']},
+  chopts:{name:'채널옵션',cols:['스토어','판매채널','거래방식','판매형태','거래처','진행자','구성코드','구성명','가격정책 지정','적용가격정책','쇼핑몰상품코드','쇼핑몰옵션명','사방넷코드','판매가','구성원가','수수료율','정산가','마진','마진율','매핑대상','상태'],auto:['판매채널','구성명','적용가격정책','사방넷코드','판매가','구성원가','수수료율','정산가','마진','마진율','매핑대상']},
+  bchan:{name:'브랜드채널',cols:['브랜드','스토어','판매채널','판매법인','상태','시작일'],auto:['판매채널','판매법인']},
+  adlinks:{name:'광고연결',cols:['브랜드','스토어','광고지면','광고계정','상태','시작일','종료일','월예산']},
   brands:{name:'브랜드',cols:['브랜드','판매법인','브랜드매니저','상태','에셋폴더','SKU수','판매구성수',...BOOK],auto:['SKU수','판매구성수']}
 };
 const TASK_ST=['대기','진행중','검토','보류','완료'];
@@ -385,7 +399,12 @@ async function guarded(fn,okMsg){
 function stamp(){setSync(S.syncedAt?'동기화 '+pad(S.syncedAt.getHours())+':'+pad(S.syncedAt.getMinutes()):'시트 연결 중')}
 
 /* ---------- dialog forms ---------- */
-const OPT={workflows:()=>workflows(),brands:()=>brandNames(),people:()=>people(),channels:()=>list('channels'),partners:()=>list('partners'),hosts:()=>list('hosts'),corps:()=>list('corps')};
+const OPT={workflows:()=>workflows(),brands:()=>brandNames(),people:()=>people(),channels:()=>list('channels'),partners:()=>list('partners'),hosts:()=>list('hosts'),stores:()=>objs('stores').filter(x=>x['운영여부']!=='운영중단').map(x=>x['스토어']),
+  bstores:()=>{const b=objs('bchan').filter(x=>x['브랜드']===S.brandSel).map(x=>x['스토어']);return b.length?b:objs('stores').map(x=>x['스토어'])},
+  bcombos:()=>objs('combos').filter(c=>c['브랜드']===S.brandSel).map(c=>[c['구성코드'],c['구성코드']+' · '+c['구성명']]),
+  policies:()=>((S.raw.prices||[[]])[0]||[]).slice(3).filter(Boolean),trade:()=>list('trade'),forms:()=>list('forms'),
+  slots:()=>objs('slots').map(x=>[x['지면'],[x['매체사'],x['매체'],x['지면']].filter(Boolean).join(' · ')]),
+  accts:()=>objs('accts').filter(a=>a['광고계정ID']).map(a=>[a['광고계정ID'],a['매체사']+' '+a['광고계정ID']+' · '+(a['결제법인']||'')]),corps:()=>list('corps')};
 const FORMS={
   tasks:[['업무명','text',1,'wide'],['브랜드','sel:brands'],['판매채널','sel:channels'],['담당자','sel:people'],['요청자','sel:people'],['시작일','date'],['마감일','date'],['상태','list:'+TASK_ST.join(',')],['우선순위','list:긴급,높음,보통,낮음'],['연결일정','sel:eventsId','','wide'],['내용','area','','wide']],
   events:[['일정명','text',1,'wide'],['유형','list:'+EV_TYPES.join(','),1],['브랜드','sel:brands'],['판매채널','sel:channels'],['거래처','sel:partners'],['진행자','sel:hosts'],['시작일','date',1],['종료일','date'],['담당자','sel:people'],['상태','list:예정,진행중,완료,취소'],['내용','area','','wide']],
@@ -395,6 +414,9 @@ const FORMS={
   brands:[['판매법인','sel:corps'],['브랜드매니저','sel:people'],['상태','list:운영중,런칭예정,중단'],['주력채널','text'],['한줄소개','text','','wide'],['타깃고객','area','','wide'],['핵심메시지','area','','wide'],['톤앤매너','area','','wide'],['금지표현','area','','wide'],['가격원칙','area','','wide'],['경쟁브랜드','text','','wide'],['공식몰','url'],['인스타그램','url'],['에셋폴더','url','','wide']],
   newBrand:[['브랜드','text',1],['상태','list:런칭예정,운영중,중단'],['판매법인','sel:corps'],['브랜드매니저','sel:people'],['온보딩 시작일','date',1,'wide']],
   checks:[['담당자','sel:people'],['마감일','date'],['상태','list:미착수,진행중,완료,해당없음'],['완료일','date'],['산출물링크','url','','wide'],['메모','area','','wide']],
+  chopts:[['스토어','sel:bstores',1,'wide'],['구성코드','sel:bcombos',1,'wide'],['거래방식','sel:trade'],['판매형태','sel:forms'],['거래처','sel:partners'],['진행자','sel:hosts'],['가격정책 지정','sel:policies'],['상태','list:판매중,품절,판매중지'],['쇼핑몰상품코드','text'],['쇼핑몰옵션명','text','','wide']],
+  bchan:[['스토어','sel:stores',1,'wide'],['상태','list:운영중,판매중단,운영중단,시작전',1],['시작일','date']],
+  adlinks:[['광고지면','sel:slots',1,'wide'],['스토어','sel:bstores',1,'wide'],['광고계정','sel:accts'],['상태','list:집행중,중단',1],['시작일','date'],['종료일','date'],['월예산','number']],
   startwf:[['브랜드','sel:brands',1],['워크플로우','sel:workflows',1],['대상','text','','wide'],['시작일','date',1]]
 };
 let DLG=null;
@@ -408,7 +430,7 @@ function openForm(key,rec,title,row,onSave){
     if(t==='area')ctl=`<textarea id="${id}" name="${esc(k)}"${rq}>${esc(v)}</textarea>`;
     else if(t.startsWith('list:')||t.startsWith('sel:')){
       let opts;if(t==='sel:eventsId')opts=objs('events').map(e=>[e['일정ID'],e['일정명']+' · '+(e['시작일']||'')]);
-      else opts=(t.startsWith('list:')?t.slice(5).split(','):OPT[t.slice(4)]()).map(x=>[x,x]);
+      else opts=(t.startsWith('list:')?t.slice(5).split(','):OPT[t.slice(4)]()).map(x=>Array.isArray(x)?x:[x,x]);
       if(v&&!opts.some(o=>o[0]===v))opts.unshift([v,v]);
       ctl=`<select id="${id}" name="${esc(k)}"${rq}><option value=""></option>${opts.map(([a,b])=>`<option value="${esc(a)}"${a===v?' selected':''}>${esc(b)}</option>`).join('')}</select>`;
     }else{const ty={text:'text',date:'date',url:'url',number:'number',month:'month'}[t];const val=t==='number'?String(num(v)||''):t==='date'?(pd(v)?ymd(pd(v)):''):v;
@@ -550,12 +572,25 @@ function vClose(){
   <section class="panel chart"><header><h2>최근 6개월</h2><span class="legend"><span><i style="background:var(--ink)"></i>매출</span><span><i style="background:var(--ok)"></i>매출이익</span></span></header><div class="body">${trendSvg()}</div></section></div>`;
 }
 
+function brandSum(n,m){
+  const sl=salesOf(m).filter(r=>r['브랜드']===n),ad=adsOf(m).filter(r=>r['브랜드']===n);
+  const rev=sl.reduce((a,r)=>a+num(r['매출']),0),adv=ad.reduce((a,r)=>a+num(r['광고비']),0);
+  return {rev,adv,roas:adv?rev/adv:0};
+}
+function adState(a){const s=pd(a['시작일']),e=pd(a['종료일']),t=today();
+  if(a['상태']==='중단')return ['중단',''];if(s&&s>t)return ['예정','warn'];if(e&&e<t)return ['종료','bad'];return ['진행중','ok']}
 function vBrands(){
   if(S.brandSel){const b=brandOf(S.brandSel);if(b)return vBrand(b);S.brandSel=null}
-  const ot=openTasks(),as=objs('assets'),gs=chkGroups();
-  return `<div class="filters"><button class="btn primary" data-act="newBrand" type="button">새 브랜드 시작</button><span class="sync">새 브랜드를 만들면 온보딩 체크리스트가 담당자와 마감일까지 자동으로 만들어집니다.</span></div>
-  <div class="brands">${objs('brands').filter(b=>b['상태']!=='제외').map(b=>{const n=b['브랜드'];const items=gs.filter(g=>g.brand===n).flatMap(g=>g.items);const d=items.filter(i=>CHK_DONE.has(i['상태'])).length;const late=items.filter(i=>!CHK_DONE.has(i['상태'])&&(dday(i['마감일'])??0)<0).length;
-    return `<button class="bcard" data-act="brand" data-b="${esc(n)}" type="button"><span style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(n)}</b>${b['상태']?`<span class="pill ${b['상태']==='운영중'?'ok':b['상태']==='중단'?'':'warn'}">${esc(b['상태'])}</span>`:''}</span><span class="sync">${esc(b['한줄소개']||b['판매법인']||'브랜드북 미작성')}</span>${items.length?progBar(d,items.length):''}<span class="stats"><span><b>${num(b['판매구성수'])}</b>판매구성</span><span><b>${ot.filter(t=>t['브랜드']===n).length}</b>진행업무</span><span><b class="${late?'neg':''}">${late}</b>지연 체크</span></span></button>`}).join('')||'<p class="empty">브랜드 탭이 비어 있습니다.</p>'}</div>`;
+  const m=thisMonth(),gs=chkGroups(),ch=objs('chopts'),cmap=new Map(objs('combos').map(c=>[c['구성코드'],c['브랜드']]));
+  const rows=objs('brands').filter(b=>b['상태']!=='제외').map(b=>{const n=b['브랜드'];const items=gs.filter(g=>g.brand===n).flatMap(g=>g.items);
+    const st=brandStores(n).length,op=ch.filter(o=>cmap.get(o['구성코드'])===n).length,ad=objs('adlinks').filter(a=>a['브랜드']===n&&adState(a)[0]==='진행중').length;
+    return {b,n,items,d:items.filter(i=>CHK_DONE.has(i['상태'])).length,late:items.filter(i=>!CHK_DONE.has(i['상태'])&&(dday(i['마감일'])??0)<0).length,st,op,ad,...brandSum(n,m)}});
+  const T=k=>rows.reduce((a,r)=>a+r[k],0);
+  return `<div class="filters"><button class="btn primary" data-act="newBrand" type="button">새 브랜드 시작</button><span class="sync">브랜드를 누르면 판매·광고·실적·운영을 한 화면에서 관리합니다.</span></div>
+  <div class="kpis">${kpi('운영 브랜드',rows.filter(r=>r.b['상태']==='운영중').length,'전체 '+rows.length)}${kpi('판매 스토어 연결',T('st'),'브랜드×스토어')}${kpi('진행 중 광고',T('ad'),'광고연결 기준')}${kpi(+m.slice(5)+'월 매출',won(T('rev')),'광고비 '+won(T('adv')))}</div>
+  <section class="panel"><header><h2>브랜드 전체 현황</h2><span class="sync">${+m.slice(5)}월 · 매출은 사방넷 집계, 광고비는 API 집계</span></header><div class="tbl-wrap"><table>
+  <thead><tr><th>브랜드</th><th>상태</th><th>판매법인</th><th>BM</th><th class="r">스토어</th><th class="r">판매옵션</th><th class="r">진행 광고</th><th class="r">매출</th><th class="r">광고비</th><th class="r">ROAS</th><th>체크리스트</th></tr></thead>
+  <tbody>${rows.map(r=>`<tr class="click" tabindex="0" data-act="brand" data-b="${esc(r.n)}"><td><b>${esc(r.n)}</b></td><td>${r.b['상태']?`<span class="pill ${r.b['상태']==='운영중'?'ok':r.b['상태']==='중단'?'':'warn'}">${esc(r.b['상태'])}</span>`:''}</td><td>${esc(r.b['판매법인']||'')}</td><td>${esc(r.b['브랜드매니저']||'')}</td><td class="r num">${r.st||'<span class="neg">0</span>'}</td><td class="r num">${r.op}</td><td class="r num">${r.ad}</td><td class="r num">${r.rev?won(r.rev):''}</td><td class="r num">${r.adv?won(r.adv):''}</td><td class="r num">${r.roas?Math.round(r.roas*100)+'%':''}</td><td>${r.items.length?progBar(r.d,r.items.length)+(r.late?` <span class="pill bad">지연 ${r.late}</span>`:''):'<span class="sync">없음</span>'}</td></tr>`).join('')||'<tr><td colspan="11" class="empty">브랜드 탭이 비어 있습니다.</td></tr>'}</tbody></table></div></section>`;
 }
 function bookField(b,k){const v=String(b[k]||'').trim();return `<div class="f"><span>${k}</span>${v?(/^https?:\/\//.test(v)?`<p><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></p>`:`<p>${esc(v)}</p>`):'<p class="miss">미작성</p>'}</div>`}
 function vChecklist(g){
@@ -568,27 +603,72 @@ function vChecklist(g){
     <button class="btn sm" data-act="chkEdit" data-row="${i._row}" type="button">편집</button></div>`}).join('')}`).join('')}</div></section>`;
 }
 function brandStores(n){return objs('bchan').filter(x=>x['브랜드']===n&&x['상태']!=='운영중단')}
-function storePanel(n){
-  const bs=objs('bchan').filter(x=>x['브랜드']===n);const sm=new Map(objs('stores').map(x=>[x['스토어'],x]));
-  const ads=objs('adlinks').filter(a=>a['브랜드']===n&&a['상태']==='집행중');
-  const body=bs.length?bs.map(x=>{const st=sm.get(x['스토어'])||{};const ad=ads.filter(a=>a['스토어']===x['스토어']).map(a=>a['광고지면']);
-    return `<div class="item" style="cursor:default"><span class="pill${x['상태']&&x['상태']!=='운영중'?' warn':''}">${esc(x['상태']||'상태 미정')}</span><span style="min-width:0"><span class="t">${esc(x['스토어'])}</span><br><span class="m">${esc([x['판매채널'],x['판매법인'],st['거래방식'],st['정산원천'],st['PG사']].filter(Boolean).join(' · '))}</span>${ad.length?`<br><span class="m">광고 ${esc(ad.join(', '))}</span>`:''}</span><span class="m">${ad.length?ad.length+'개 지면':''}</span></div>`}).join(''):'<p class="empty">브랜드채널 탭에 등록된 스토어가 없습니다. 이 브랜드를 파는 스토어를 브랜드×스토어로 등록하세요.</p>';
-  return `<section class="panel"><header><h2>판매 스토어 · 광고</h2><span class="sync">스토어 ${bs.length} · 집행 지면 ${ads.length}</span></header><div class="body">${body}</div></section>`;
-}
+const BTABS=[['over','개요'],['sell','판매'],['ads','광고'],['perf','실적'],['ops','운영']];
 function vBrand(b){
-  const n=b['브랜드'];const as=objs('assets').filter(a=>a['브랜드']===n);
-  const types=[...new Set(as.map(a=>a['유형']||'기타'))];
+  const n=b['브랜드'];const tab=S.btab||'over';
+  const body=({over:bOver,sell:bSell,ads:bAds,perf:bPerf,ops:bOps})[tab](b,n);
+  return `<div class="filters"><button class="btn" data-act="brandBack" type="button">← 브랜드 전체</button><b style="font-size:17px">${esc(n)}</b>${b['상태']?`<span class="pill">${esc(b['상태'])}</span>`:''}<span class="pill">${esc(b['판매법인']||'판매법인 미지정')}</span><span class="pill">BM ${esc(b['브랜드매니저']||'미지정')}</span></div>
+  <div class="tabs" role="tablist">${BTABS.map(([k,l])=>`<button role="tab" type="button" data-act="btab" data-t="${k}" aria-selected="${k===tab}">${l}</button>`).join('')}</div>${body}`;
+}
+function bOver(b,n){
+  const m=thisMonth(),cur=brandSum(n,m),prev=brandSum(n,monthAdd(m,-1));
+  const opts=brandOpts(n),ads=objs('adlinks').filter(a=>a['브랜드']===n);
+  return `<div class="kpis">${kpi('판매 스토어',brandStores(n).length,'운영중단 제외')}${kpi('판매 옵션',opts.length,opts.filter(o=>o['상태']==='판매중').length+'개 판매중')}${kpi('진행 중 광고',ads.filter(a=>adState(a)[0]==='진행중').length,'예정 '+ads.filter(a=>adState(a)[0]==='예정').length)}${kpi(+m.slice(5)+'월 매출',won(cur.rev),'지난달 '+won(prev.rev))}${kpi(+m.slice(5)+'월 광고비',won(cur.adv),cur.roas?'ROAS '+Math.round(cur.roas*100)+'%':'')}</div>
+  <section class="panel"><header><h2>브랜드북</h2><button class="btn sm" data-act="brandEdit" data-row="${b._row}" type="button">수정</button></header>
+  <div class="body" style="gap:16px">${b['한줄소개']?`<p class="lede">${esc(b['한줄소개'])}</p>`:'<p class="lede" style="color:var(--warn)">한줄소개가 아직 없습니다. 전 직원이 같은 문장으로 말할 소개를 적어 주세요.</p>'}
+  <div class="book">${['타깃고객','핵심메시지','톤앤매너','금지표현','가격원칙','주력채널','경쟁브랜드','공식몰','인스타그램'].map(k=>bookField(b,k)).join('')}<div class="f"><span>상품</span><p class="num">SKU ${num(b['SKU수'])} · 판매구성 ${num(b['판매구성수'])}</p></div></div></div></section>`;
+}
+function brandOpts(n){const cm=new Map(objs('combos').map(c=>[c['구성코드'],c['브랜드']]));return objs('chopts').filter(o=>cm.get(o['구성코드'])===n)}
+const pct=v=>{const x=num(v);if(String(v).includes('%'))return x+'%';return v===''||v==null?'':Math.round(x*1000)/10+'%'};
+function bSell(b,n){
+  const bc=objs('bchan').filter(x=>x['브랜드']===n),sm=new Map(objs('stores').map(x=>[x['스토어'],x])),opts=brandOpts(n);
+  const sp=objs('setpath');const names=[...new Set([...bc.map(x=>x['스토어']),...opts.map(o=>o['스토어']||'')])];
+  const optRow=o=>`<tr class="click" tabindex="0" data-act="chopt" data-row="${o._row}"><td class="wrap">${esc(o['구성명']||o['구성코드'])}</td><td>${esc(o['판매형태']||'일반')}</td><td>${esc([o['거래처'],o['진행자']].filter(Boolean).join(' · '))}</td><td>${esc(o['적용가격정책'])}</td><td class="r num">${o['판매가']?won(num(o['판매가'])):'<span class="neg">가격 없음</span>'}</td><td class="r num">${pct(o['수수료율'])}</td><td class="r num">${o['정산가']?won(num(o['정산가'])):''}</td><td class="r num ${num(o['마진'])<0?'neg':''}">${pct(o['마진율'])}</td><td>${o['상태']?`<span class="pill ${o['상태']==='판매중'?'ok':'warn'}">${esc(o['상태'])}</span>`:''}</td></tr>`;
+  const groups=names.map(sn=>{const x=bc.find(y=>y['스토어']===sn),st=sm.get(sn)||{},os=opts.filter(o=>(o['스토어']||'')===sn);
+    const pg=st['정산원천']==='PG정산서'&&!sp.some(p=>p['스토어']===sn&&p['구분']==='정산금');
+    const head=sn?`<tr class="grp"><td colspan="9">${esc(sn)}<span class="m">${esc([st['판매채널'],st['판매법인'],st['거래방식'],st['정산원천'],st['PG사']].filter(Boolean).join(' · '))}</span>${x?` <span class="pill ${x['상태']==='운영중'?'ok':'warn'}">${esc(x['상태']||'상태 미정')}</span> <button class="btn sm" data-act="bchan" data-row="${x._row}" type="button">수정</button>`:' <span class="pill warn">브랜드채널 미연결</span>'}${pg?' <span class="pill warn">정산경로 없음</span>':''}</td></tr>`:`<tr class="grp"><td colspan="9"><span class="neg">스토어 미지정</span><span class="m">채널옵션에서 스토어를 골라 주세요</span></td></tr>`;
+    return head+(os.length?os.map(optRow).join(''):`<tr><td colspan="9" class="empty">이 스토어에 등록된 판매 옵션이 없습니다.</td></tr>`)}).join('');
+  const cb=objs('combos').filter(c=>c['브랜드']===n),pm=new Map(objs('prices').map(p=>[p['구성코드'],p]));
+  const pols=((S.raw.prices||[[]])[0]||[]).slice(3).filter(Boolean).filter(k=>cb.some(c=>num((pm.get(c['구성코드'])||{})[k])>0));
+  return `<div class="filters"><button class="btn primary" data-act="newChopt" type="button">판매 옵션 추가</button><button class="btn" data-act="newBchan" type="button">스토어 연결</button><span class="sync">어디서(스토어) · 어떤 형식으로(거래방식·판매형태·진행자) · 얼마에(가격정책→판매가) 파는지</span></div>
+  <section class="panel"><header><h2>판매 현황</h2><span class="sync">스토어 ${bc.length} · 옵션 ${opts.length}</span></header><div class="tbl-wrap"><table><thead><tr><th>구성</th><th>판매형태</th><th>거래처 · 진행자</th><th>가격정책</th><th class="r">판매가</th><th class="r">수수료</th><th class="r">정산가</th><th class="r">마진율</th><th>상태</th></tr></thead><tbody>${groups||'<tr><td colspan="9" class="empty">연결된 스토어가 없습니다. "스토어 연결"로 이 브랜드를 파는 스토어를 등록하세요.</td></tr>'}</tbody></table></div></section>
+  <section class="panel"><header><h2>가격표</h2><span class="sync">구성 ${cb.length} · 가격은 가격표 탭에서 정책별로 관리</span></header><div class="tbl-wrap"><table><thead><tr><th>구성</th><th class="r">구성원가</th>${pols.map(k=>`<th class="r">${esc(k)}</th>`).join('')}</tr></thead><tbody>${cb.map(c=>{const p=pm.get(c['구성코드'])||{};return `<tr><td class="wrap">${esc(c['구성명'])}</td><td class="r num">${won(num(c['구성원가']))}</td>${pols.map(k=>`<td class="r num">${num(p[k])?won(num(p[k])):''}</td>`).join('')}</tr>`}).join('')||`<tr><td colspan="${2+pols.length}" class="empty">판매구성이 없습니다.</td></tr>`}</tbody></table></div></section>`;
+}
+function bAds(b,n){
+  const ads=objs('adlinks').filter(a=>a['브랜드']===n),sl=new Map(objs('slots').map(x=>[x['지면'],x])),ac=new Map(objs('accts').map(x=>[x['광고계정ID'],x])),sm=new Map(objs('stores').map(x=>[x['스토어'],x]));
+  const t=today(),w0=new Date(t.getFullYear(),t.getMonth()-2,1),w1=new Date(t.getFullYear(),t.getMonth()+4,1),span=w1-w0;
+  const posi=d=>Math.max(0,Math.min(100,(d-w0)/span*100));
+  const tl=a=>{const s=pd(a['시작일'])||w0,e=pd(a['종료일'])||w1;const [st]=adState(a);return `<div class="tl" title="${esc((a['시작일']||'시작일 미정')+' ~ '+(a['종료일']||'종료일 미정'))}"><i class="${st==='종료'||st==='중단'?'done':st==='예정'?'plan':''}" style="left:${posi(s)}%;width:${Math.max(1,posi(e)-posi(s))}%"></i><b style="left:${posi(t)}%"></b></div>`};
+  const order={'진행중':0,'예정':1,'종료':2,'중단':3};
+  const rows=ads.slice().sort((x,y)=>order[adState(x)[0]]-order[adState(y)[0]]).map(a=>{const x=sl.get(a['광고지면'])||{},c=ac.get(String(a['광고계정']))||{},st=sm.get(a['스토어'])||{};const [lab,cls]=adState(a);
+    return `<tr class="click" tabindex="0" data-act="adlink" data-row="${a._row}"><td><span class="pill ${cls}">${lab}</span></td><td><b>${esc(a['광고지면'])}</b><br><span class="sync">${esc([x['매체사'],x['매체']].filter(Boolean).join(' · '))}</span></td><td>${esc(a['스토어'])}<br><span class="sync">${esc(st['판매채널']||'')}</span></td><td>${esc([x['광고유형'],x['광고목적']].filter(Boolean).join(' · '))}<br><span class="sync">${esc([x['구매방식'],x['과금기준'],x['매체형식']].filter(Boolean).join(' · '))}</span></td><td>${esc(a['광고계정']||'')}<br><span class="sync">${esc(c['결제법인']||'')}</span></td><td class="num">${esc(a['시작일']||'—')} ~ ${esc(a['종료일']||'계속')}</td><td>${tl(a)}</td><td class="r num">${num(a['월예산'])?won(num(a['월예산'])):''}</td></tr>`}).join('');
+  const m=thisMonth(),spend=adsOf(m).filter(r=>r['브랜드']===n);const tot=spend.reduce((a,r)=>a+num(r['광고비']),0);
+  return `<div class="filters"><button class="btn primary" data-act="newAdlink" type="button">광고 추가</button><span class="sync">어디에(광고지면) · 어느 스토어로 연결해 · 어떤 형식으로 · 언제부터 언제까지</span></div>
+  <section class="panel"><header><h2>광고 집행</h2><span class="sync">막대: ${+monthAdd(m,-2).slice(5)}월~${+monthAdd(m,3).slice(5)}월, 빨간 선이 오늘</span></header><div class="tbl-wrap"><table><thead><tr><th>상태</th><th>광고지면</th><th>연결 스토어</th><th>형식</th><th>광고계정 · 결제법인</th><th>기간</th><th>타임라인</th><th class="r">월예산</th></tr></thead><tbody>${rows||'<tr><td colspan="8" class="empty">등록된 광고가 없습니다. "광고 추가"로 지면과 연결 스토어를 등록하세요.</td></tr>'}</tbody></table></div></section>
+  <section class="panel"><header><h2>${+m.slice(5)}월 광고비 (API 집계)</h2><span class="sync num">${won(tot)}</span></header><div class="tbl-wrap"><table><thead><tr><th>세부유형</th><th>채널</th><th class="r">광고비</th></tr></thead><tbody>${spend.map(r=>`<tr><td>${esc(r['세부유형'])}</td><td>${esc(r['채널'])}</td><td class="r num">${won(num(r['광고비']))}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">이번 달 집계된 광고비가 없습니다.</td></tr>'}</tbody></table></div></section>`;
+}
+function bPerf(b,n){
+  const m=S.month,sl=salesOf(m).filter(r=>r['브랜드']===n),ad=adsOf(m).filter(r=>r['브랜드']===n);
+  const keys=[...new Set([...sl,...ad].map(r=>r['세부유형']+'|'+r['채널']))];
+  const rows=keys.map(k=>{const [g,c]=k.split('|');const f=r=>r['세부유형']===g&&r['채널']===c;const S1=key=>sl.filter(f).reduce((a,r)=>a+num(r[key]),0);
+    const o={g,c,q:S1('수량'),rev:S1('매출'),cost:S1('원가'),fee:S1('수수료'),ship:S1('배송비'),ad:ad.filter(f).reduce((a,r)=>a+num(r['광고비']),0)};o.p=o.rev-o.cost-o.fee-o.ship-o.ad;return o}).sort((x,y)=>y.rev-x.rev);
+  const T=k=>rows.reduce((a,r)=>a+r[k],0);
+  const months=[...Array(6)].map((_,i)=>monthAdd(m,i-5)),tr=months.map(mm=>({mm,...brandSum(n,mm)}));
+  return `<div class="filters">${monthPicker()}<span class="sync">매출·원가·수수료·배송비는 사방넷 집계, 광고비는 API 집계</span></div>
+  <section class="panel"><header><h2>${+m.slice(5)}월 채널별 실적</h2><span class="sync num">공헌이익 ${won(T('p'))}</span></header><div class="tbl-wrap"><table><thead><tr><th>세부유형</th><th>채널</th><th class="r">수량</th><th class="r">매출</th><th class="r">원가</th><th class="r">수수료</th><th class="r">배송비</th><th class="r">광고비</th><th class="r">공헌이익</th><th class="r">이익률</th></tr></thead>
+  <tbody>${rows.map(r=>`<tr><td>${esc(r.g)}</td><td>${esc(r.c)}</td><td class="r num">${won(r.q)}</td><td class="r num">${won(r.rev)}</td><td class="r num">${won(r.cost)}</td><td class="r num">${won(r.fee)}</td><td class="r num">${won(r.ship)}</td><td class="r num">${won(r.ad)}</td><td class="r num ${r.p<0?'neg':''}">${won(r.p)}</td><td class="r num">${r.rev?Math.round(r.p/r.rev*1000)/10+'%':''}</td></tr>`).join('')||'<tr><td colspan="10" class="empty">이 달 매출·광고비가 없습니다.</td></tr>'}</tbody>
+  ${rows.length?`<tfoot><tr><td colspan="2">합계</td><td class="r num">${won(T('q'))}</td><td class="r num">${won(T('rev'))}</td><td class="r num">${won(T('cost'))}</td><td class="r num">${won(T('fee'))}</td><td class="r num">${won(T('ship'))}</td><td class="r num">${won(T('ad'))}</td><td class="r num ${T('p')<0?'neg':''}">${won(T('p'))}</td><td class="r num">${T('rev')?Math.round(T('p')/T('rev')*1000)/10+'%':''}</td></tr></tfoot>`:''}</table></div></section>
+  <section class="panel"><header><h2>최근 6개월</h2></header><div class="tbl-wrap"><table><thead><tr><th>월</th><th class="r">매출</th><th class="r">광고비</th><th class="r">ROAS</th></tr></thead><tbody>${tr.map(x=>`<tr><td class="num">${x.mm}</td><td class="r num">${won(x.rev)}</td><td class="r num">${won(x.adv)}</td><td class="r num">${x.roas?Math.round(x.roas*100)+'%':''}</td></tr>`).join('')}</tbody></table></div></section>`;
+}
+function bOps(b,n){
+  const as=objs('assets').filter(a=>a['브랜드']===n);const types=[...new Set(as.map(a=>a['유형']||'기타'))];
   const ts=openTasks().filter(t=>t['브랜드']===n);
   const evs=objs('events').filter(e=>e['브랜드']===n&&(evRange(e)[1]||0)>=today()).sort((a,c)=>evRange(a)[0]-evRange(c)[0]);
   const gs=chkGroups(n).sort((a,c)=>(a.done===a.items.length)-(c.done===c.items.length));
-  return `<div class="filters"><button class="btn" data-act="brandBack" type="button">← 브랜드 목록</button><button class="btn" data-act="brandEdit" data-row="${b._row}" type="button">브랜드북 수정</button><button class="btn primary" data-act="startWF" data-b="${esc(n)}" type="button">워크플로우 시작</button><button class="btn" data-act="newAsset" data-b="${esc(n)}" type="button">에셋 등록</button></div>
-  <section class="panel"><header><h2>${esc(n)} 브랜드북</h2><span style="display:flex;gap:6px;flex-wrap:wrap">${b['상태']?`<span class="pill">${esc(b['상태'])}</span>`:''}<span class="pill">${esc(b['판매법인']||'판매법인 미지정')}</span><span class="pill">BM ${esc(b['브랜드매니저']||'미지정')}</span></span></header>
-  <div class="body" style="gap:16px">${b['한줄소개']?`<p class="lede">${esc(b['한줄소개'])}</p>`:'<p class="lede" style="color:var(--warn)">한줄소개가 아직 없습니다. 브랜드북 수정에서 전 직원이 같은 문장으로 말할 소개를 적어 주세요.</p>'}
-  <div class="book">${['타깃고객','핵심메시지','톤앤매너','금지표현','가격원칙','주력채널','경쟁브랜드','공식몰','인스타그램'].map(k=>bookField(b,k)).join('')}<div class="f"><span>상품</span><p class="num">SKU ${num(b['SKU수'])} · 판매구성 ${num(b['판매구성수'])}</p></div>${[thisMonth(),monthAdd(thisMonth(),-1)].map((mm,i)=>{const r=closeData(mm,'브랜드').find(x=>x.k===n);return `<div class="f"><span>${i?'지난달':'이번 달'} 실적 (${+mm.slice(5)}월)</span><p class="num">${r?'매출 '+won(r.rev)+' · 매출이익 '+won(r.profit)+' · 광고비 '+won(r.ad):'매출 없음'}</p></div>`}).join('')}</div></div></section>
-  ${storePanel(n)}
+  return `<div class="filters"><button class="btn primary" data-act="startWF" data-b="${esc(n)}" type="button">워크플로우 시작</button><button class="btn" data-act="newTask" data-b="${esc(n)}" type="button">업무</button><button class="btn" data-act="newEvent" data-b="${esc(n)}" type="button">일정</button><button class="btn" data-act="newAsset" data-b="${esc(n)}" type="button">에셋 등록</button></div>
   ${gs.length?gs.map(vChecklist).join(''):`<section class="panel"><div class="body"><p class="empty">이 브랜드에 만들어진 체크리스트가 없습니다. "워크플로우 시작"에서 브랜드 온보딩을 고르면 플레이북 순서대로 항목이 만들어집니다.</p></div></section>`}
   <div class="grid2"><section class="panel"><header><h2>브랜드 에셋</h2><span class="sync">${as.length}건${b['에셋폴더']&&/^https?:\/\//.test(b['에셋폴더'])?` · <a href="${esc(b['에셋폴더'])}" target="_blank" rel="noopener">폴더</a>`:''}</span></header><div class="body">${types.length?types.map(t=>`<div class="asset-group"><h4>${esc(t)}</h4>${as.filter(a=>(a['유형']||'기타')===t).map(a=>`<div class="asset"><span style="min-width:0;display:flex;flex-direction:column">${a['링크']&&/^https?:\/\//.test(a['링크'])?`<a href="${esc(a['링크'])}" target="_blank" rel="noopener">${esc(a['에셋명'])}</a>`:esc(a['에셋명'])}<span class="sync">${esc([a['버전'],a['구성코드'],a['담당자']].filter(Boolean).join(' · '))}</span></span><span style="display:flex;gap:6px;align-items:center">${a['상태']&&a['상태']!=='사용중'?`<span class="pill">${esc(a['상태'])}</span>`:''}<button class="btn sm" data-act="asset" data-row="${a._row}" type="button">수정</button></span></div>`).join('')}</div>`).join(''):'<p class="empty">등록된 에셋이 없습니다. 로고, 상세페이지, 제품컷의 드라이브 링크를 등록하세요.</p>'}</div></section>
-  <section class="panel"><header><h2>진행 업무 · 예정 일정</h2><span style="display:flex;gap:6px"><button class="btn sm" data-act="newTask" data-b="${esc(n)}" type="button">업무</button><button class="btn sm" data-act="newEvent" data-b="${esc(n)}" type="button">일정</button></span></header><div class="body">${ts.map(taskItem).join('')}${evs.slice(0,8).map(evItem).join('')}${!ts.length&&!evs.length?'<p class="empty">진행 업무와 예정 일정이 없습니다.</p>':''}</div></section></div>`;
+  <section class="panel"><header><h2>진행 업무 · 예정 일정</h2></header><div class="body">${ts.map(taskItem).join('')}${evs.slice(0,8).map(evItem).join('')}${!ts.length&&!evs.length?'<p class="empty">진행 업무와 예정 일정이 없습니다.</p>':''}</div></section></div>`;
 }
 function vGuide(){
   const wfs=workflows();if(!S.wf||!wfs.includes(S.wf))S.wf=wfs[0]||'';
@@ -632,6 +712,7 @@ document.getElementById('nav').addEventListener('click',e=>{const b=e.target.clo
 document.getElementById('me').addEventListener('change',e=>{S.me=e.target.value;ls.set('me',S.me);render()});
 document.getElementById('refresh').addEventListener('click',()=>loadAll(true));
 const findRow=(key,row)=>objs(key).find(o=>o._row===+row);
+function saveChopt(rec){const row=DLG&&DLG.row;if(!rec['거래방식']){const st=objs('stores').find(x=>x['스토어']===rec['스토어']);if(st)rec['거래방식']=st['거래방식']}guarded(()=>saveRecord('chopts',rec,row),'판매 옵션을 저장했습니다')}
 document.addEventListener('change',e=>{const t=e.target;
   if(t.id==='fBrand'){S.f.brand=t.value;render()}
   if(t.id==='fPerson'){S.f.person=t.value;render()}
@@ -654,8 +735,15 @@ document.addEventListener('click',e=>{
     case 'calNext':S.calMonth=monthAdd(S.calMonth,1);render();break;
     case 'calToday':S.calMonth=thisMonth();render();break;
     case 'grp':S.grp=el.dataset.g;render();break;
-    case 'brand':S.brandSel=el.dataset.b;S.view='brands';ls.set('view','brands');render();break;
+    case 'brand':S.brandSel=el.dataset.b;S.btab=S.btab||'over';S.view='brands';ls.set('view','brands');render();break;
     case 'brandBack':S.brandSel=null;render();break;
+    case 'btab':S.btab=el.dataset.t;ls.set('btab',S.btab);render();break;
+    case 'chopt':{const o=findRow('chopts',row);if(o)openForm('chopts',o,'판매 옵션 수정',o._row,saveChopt);break}
+    case 'newChopt':openForm('chopts',{상태:'판매중',판매형태:'일반'},S.brandSel+' 판매 옵션 추가',null,saveChopt);break;
+    case 'bchan':{const x=findRow('bchan',row);if(x)openForm('bchan',x,x['스토어']+' 연결 수정',x._row);break}
+    case 'newBchan':openForm('bchan',{브랜드:S.brandSel,상태:'운영중',시작일:ymd(new Date())},S.brandSel+' 스토어 연결');break;
+    case 'adlink':{const x=findRow('adlinks',row);if(x)openForm('adlinks',x,x['광고지면']+' 광고 수정',x._row);break}
+    case 'newAdlink':openForm('adlinks',{브랜드:S.brandSel,상태:'집행중',시작일:ymd(new Date())},S.brandSel+' 광고 추가');break;
     case 'brandEdit':{const b=findRow('brands',row);if(b)openForm('brands',b,b['브랜드']+' 브랜드북',b._row);break}
     case 'newAsset':openForm('assets',{브랜드:el.dataset.b||'',상태:'사용중',담당자:S.me},'에셋 등록');break;
     case 'asset':{const x=findRow('assets',row);if(x)openForm('assets',x,'에셋 수정',x._row);break}
