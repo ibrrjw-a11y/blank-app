@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>나무꾼 게임 | 가지 피해서 도끼질 - 어려운 순발력 미니게임</title>
+    <meta name="description" content="나무 왼쪽·오른쪽을 번갈아 찍으며 떨어지는 가지를 피하는 나무꾼 게임. 시간 막대는 계속 줄고 점수가 오를수록 더 빨리 줄어요. 같은 나무로 도전장, 매일 오늘의 나무. 창을 내리면 멈춰요." />
+    <meta name="keywords" content="나무꾼 게임, 팀버맨, 도끼질 게임, 나무 베기 게임, 순발력 게임, 롤 큐 미니게임, 웹 미니게임" />
+    <link rel="canonical" href="https://guesswhat.co.kr/timber/" />
+    <meta name="theme-color" content="#8fd3f4" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="나무꾼 - 가지 피해서 몇 번 찍을까" />
+    <meta property="og:description" content="같은 나무로 이겨 봐." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "나무꾼",
+        "url": "https://guesswhat.co.kr/timber/",
+        "description": "나무 양쪽을 번갈아 찍으며 가지를 피하는 순발력 게임. 같은 나무로 도전장을 보낼 수 있다.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="tb">
+      <section class="tb-v" id="intro">
+        <div class="tb-hero" aria-hidden="true">
+          <div class="mini-tree"><i class="br br--l" style="--y:0"></i><i class="br br--r" style="--y:2"></i><i class="br br--l" style="--y:4"></i></div>
+          <div class="mini-man" id="demo" data-side="L"><i class="axe"></i></div>
+        </div>
+        <h1 class="tb-title">나무꾼</h1>
+        <p class="tb-lead">나무 양쪽을 찍으며 가지를 피해요. 시간 막대가 다 줄기 전에 계속 찍어요.</p>
+        <div class="tb-chal" id="chal" hidden></div>
+        <div class="tb-btns">
+          <button class="tb-go" id="playDaily" type="button"><span class="tb-go__k" id="todayNo">오늘</span><span>오늘의 나무 · 모두 같은 가지</span></button>
+          <button class="tb-go tb-go--sub" id="playRandom" type="button"><span class="tb-go__k">새 나무</span><span>아무 나무로 한 판</span></button>
+        </div>
+        <p class="tb-rec" id="rec"></p>
+      </section>
+
+      <section class="tb-v" id="play" hidden>
+        <div class="tb-hud">
+          <b class="tb-score" id="score">0</b>
+          <div class="tb-time"><i id="bar"></i></div>
+          <button class="tb-pause" id="pauseBtn" type="button" aria-label="멈춤">Ⅱ</button>
+        </div>
+        <div class="tb-stage">
+          <canvas id="cv" width="360" height="480" aria-label="나무꾼 놀이판"></canvas>
+          <p class="tb-hint" id="hint">왼쪽·오른쪽을 눌러 찍어요</p>
+          <div class="tb-pausebox" id="pause" hidden>
+            <b>멈춤</b><span></span>
+            <button class="tb-go" id="resume" type="button"><span class="tb-go__k">계속</span><span>이어서 하기</span></button>
+          </div>
+        </div>
+        <div class="tb-pads"><button type="button" id="padL" class="tb-pad">◀ 왼쪽</button><button type="button" id="padR" class="tb-pad">오른쪽 ▶</button></div>
+      </section>
+
+      <section class="tb-v" id="res" hidden>
+        <div class="tb-card">
+          <span class="tb-card__k" id="resKind"></span>
+          <p class="tb-card__n"><b id="total">0</b>번</p>
+          <span class="tb-card__why" id="resWhy"></span>
+        </div>
+        <p class="tb-line" id="resLine"></p>
+        <div class="tb-coupon"><pre id="shareText"></pre>
+          <button class="tb-go" id="shareBtn" type="button"><span class="tb-go__k">도전장</span><span>같은 나무로 친구 부르기</span></button>
+        </div>
+        <div class="tb-btns">
+          <button class="tb-go tb-go--sub" id="again" type="button"><span class="tb-go__k">다시</span><span>같은 나무 한 번 더</span></button>
+          <button class="tb-go tb-go--sub" id="newOne" type="button"><span class="tb-go__k">새 나무</span><span>다른 나무로</span></button>
+        </div>
+      </section>
+
+      <article class="seo tb-doc">
+        <h2>나무꾼 하는 법</h2>
+        <p>나무 왼쪽이나 오른쪽을 누르면 나무꾼이 그쪽으로 서서 한 번 찍어요. 찍을 때마다 나무가 한 칸씩 내려와요. 내 쪽으로 가지가 내려오면 끝이에요. 위에 시간 막대가 계속 줄어드는데, 찍을 때마다 조금씩 차요. 많이 찍을수록 막대가 더 빨리 줄어요.</p>
+        <p>PC에서는 ← → 화살표나 A·D 키로 찍어요. 첫 도끼질부터 시간이 흘러요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>도전장은 어떻게 보내요?</summary><p>끝난 화면에서 '같은 나무로 친구 부르기'를 누르면 내 점수와 나무 번호가 담긴 링크가 나가요. 친구는 가지 순서가 똑같은 나무로 해요.</p></details>
+        <details><summary>큐 잡혀서 나갔다 와도 돼요?</summary><p>돼요. 다른 창으로 넘어가거나 화면을 내리면 바로 멈추고, 돌아와서 '계속'을 누르면 이어져요.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">나무꾼 · 기록은 이 기기에만 남아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
