@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>평수 계산기 | 평 ↔ ㎡ 변환, 공급면적·전용면적, 평수 표</title>
+    <meta name="description" content="평을 넣으면 ㎡, ㎡를 넣으면 평. 1평 = 400/121㎡(약 3.3058㎡) 근거와 아파트 공급·전용면적 차이, 10~60평 표까지." />
+    <meta name="keywords" content="평수 계산기, 평 제곱미터 변환, 평 계산, 제곱미터 평 환산, 전용면적 공급면적, 34평 몇 제곱미터" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/pyeong/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="평수 계산기 — 평 ↔ ㎡ 양방향" />
+    <meta property="og:description" content="우리 집 몇 평? 몇 ㎡? 공급·전용면적 차이까지." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"평수 계산기","url":"https://guesswhat.co.kr/calc/pyeong/","description":"평과 제곱미터(㎡)를 양방향으로 바꾸고, 아파트 공급면적·전용면적 차이와 10~60평 환산표를 보여 주는 평수 계산기.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 넓이</span>
+        <h1 class="cc-title">평수 계산기</h1>
+        <p class="cc-lead">어느 칸이든 넣으면 다른 칸이 바로 바뀌어요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <div class="py-pair">
+          <label class="cf" for="py"><span class="cf-l">평</span><div class="cf-num"><input id="py" inputmode="decimal" autocomplete="off" value="34" /><span>평</span></div></label>
+          <span class="py-eq" aria-hidden="true">=</span>
+          <label class="cf" for="m2"><span class="cf-l">제곱미터</span><div class="cf-num"><input id="m2" inputmode="decimal" autocomplete="off" /><span>㎡</span></div></label>
+        </div>
+        <div class="cf-chips py-chips" id="chips">
+          <button type="button" data-p="18">18평</button><button type="button" data-p="24">24평</button><button type="button" data-p="25">25평</button><button type="button" data-p="32">32평</button><button type="button" data-p="34">34평</button><button type="button" data-m="59">59㎡</button><button type="button" data-m="84">84㎡</button><button type="button" data-m="114">114㎡</button>
+        </div>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <div class="cr py-res" aria-live="polite">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v"><span id="out">—</span><small id="outu"></small></p>
+          <p class="py-sent" id="sent"></p>
+          <details class="cc-basis">
+            <summary>1평 = 400/121㎡ 근거</summary>
+            <table>
+              <thead><tr><th>항목</th><th>내용</th><th>확인</th></tr></thead>
+              <tbody>
+                <tr><td>1평</td><td>400/121㎡ ≈ 3.305785㎡. 한 변이 6자인 정사각형이고, 1자 = 10/33m 라서 (6 × 10/33)² = 400/121</td><td>계산으로 확인</td></tr>
+                <tr><td>사전</td><td>표준국어대사전 '평': 한 평은 여섯 자의 제곱으로 약 3.3058㎡</td><td>확인함</td></tr>
+                <tr><td>법령 원문</td><td>400/121 이라는 숫자가 적힌 법령 조문은 찾지 못했어요. 옛 계량법(법률 제3492호, 1982 시행) 부칙 제49조는 척관법 단위를 대통령령으로 정한다고만 적혀 있고, 그 대통령령 별표 원문은 확인하지 못했어요</td><td>확인 못 함</td></tr>
+                <tr><td>평은 법정 단위인가</td><td>아니에요. 계량에 관한 법률은 법정 단위(㎡) 외 단위 사용을 원칙적으로 막고, 시행령 제9조가 예외(수출품, 선박·항공기·군용품, 연구·개발)만 둡니다. 그래서 공식 문서·분양 광고는 ㎡ 로 적어요</td><td>시행령 사본으로 확인, 현행 원문 대조는 안 함</td></tr>
+              </tbody>
+            </table>
+          </details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="copy" type="button">결과 복사</button>
+          <button class="cc-go cc-go--sub" id="shareBtn" type="button">이 평수 링크 보내기</button>
+        </div>
+
+        <section class="cf py-area">
+          <h2 class="py-h">아파트 공급면적 · 전용면적</h2>
+          <div class="py-stack" aria-hidden="true">
+            <div class="py-s py-s1"><b>전용면적</b><span>현관문 안, 우리 집만 쓰는 곳</span></div>
+            <div class="py-s py-s2"><b>+ 주거공용면적</b><span>계단·복도·엘리베이터</span></div>
+            <div class="py-s py-s3"><b>= 공급면적</b><span>흔히 말하는 '34평형'</span></div>
+            <div class="py-s py-s4"><b>+ 기타공용면적</b><span>주차장·관리사무소 등 → 계약면적</span></div>
+          </div>
+          <ul class="py-ul">
+            <li><b>전용면적</b> 방·거실·주방·화장실처럼 우리 집만 쓰는 넓이. 분양 광고의 '59㎡·84㎡'가 이것이에요.</li>
+            <li><b>공급면적</b> 전용면적에 계단·복도 같은 주거공용면적을 더한 넓이. 'OO평형'은 보통 이 기준이에요.</li>
+            <li><b>발코니</b> 서비스면적이라 전용·공급 어디에도 들어가지 않아요.</li>
+            <li>전용 84㎡ 는 25.41평이지만 공급면적으로는 흔히 32~34평형이라 불러요. 전용 59㎡(17.85평)는 흔히 24~25평형. 단지마다 공용면적이 달라서 정확한 공급면적은 분양 공고·등기부를 보세요.</li>
+          </ul>
+          <p class="py-note">면적 이름의 뜻은 흔히 쓰는 설명이에요. 법령 조문 위치는 따로 확인하지 않았어요.</p>
+        </section>
+
+        <section class="cf py-table-wrap">
+          <h2 class="py-h">자주 찾는 평수 표 (10~60평)</h2>
+          <div class="py-table" id="ptable"></div>
+        </section>
+      </section>
+      <article class="seo cc-doc">
+        <h2>평수 계산 방법</h2>
+        <p>평 → ㎡ 는 평 × 400 ÷ 121, ㎡ → 평 은 ㎡ × 121 ÷ 400 이에요. 어림으로는 평 × 3.3058, ㎡ × 0.3025 와 같아요. 결과는 소수 셋째 자리에서 반올림해 둘째 자리까지 보여 줘요.</p>
+        <p>1평은 한 변이 6자인 정사각형 넓이예요. 1자를 10/33m 로 보면 1평 = 400/121㎡ 가 정확히 나와요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>34평 아파트는 몇 ㎡예요?</summary><p>공급면적 34평은 112.4㎡ 예요. 다만 '34평형' 아파트의 전용면적은 보통 84㎡(25.41평) 안팎이에요. 어느 면적을 말하는지 먼저 보세요.</p></details>
+        <details><summary>1평을 3.3㎡ 로 계산하면 안 되나요?</summary><p>어림으로는 괜찮지만 30평만 넘어도 0.2㎡ 가까이 차이가 나요. 여기서는 400/121 로 정확히 계산해요.</p></details>
+        <details><summary>입력한 숫자가 저장되나요?</summary><p>아니요. '이 평수 링크 보내기'를 누를 때만 숫자가 링크에 들어가요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">평수 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

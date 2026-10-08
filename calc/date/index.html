@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>날짜 계산기 | 디데이·두 날짜 사이 일수·100일 1000일 기념일·평일 수</title>
+    <meta name="description" content="두 날짜 사이 며칠인지, 디데이, 오늘부터 100일·1000일 뒤 날짜, 주말 뺀 평일 수까지 한국 날짜 기준으로 바로 계산해요." />
+    <meta name="keywords" content="날짜 계산기, 디데이 계산기, 일수 계산기, 날짜 사이 일수, 100일 계산기, 1000일 계산, 기념일 계산기, 평일 수 계산" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/date/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="날짜 계산기 — 디데이·며칠 사이·100일 기념일" />
+    <meta property="og:description" content="그날까지 며칠? 100일은 언제?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"날짜 계산기","url":"https://guesswhat.co.kr/calc/date/","description":"두 날짜 사이 일수, 디데이, N일 후·전 날짜와 100일·1000일 기념일, 주말 뺀 평일 수를 한국 날짜 기준으로 계산하는 계산기.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 날짜</span>
+        <h1 class="cc-title">날짜 계산기</h1>
+        <p class="cc-lead">두 날짜 사이 며칠인지, 그날까지 며칠 남았는지, 100일·1000일이 언제인지 한국 날짜 기준으로 계산해요.</p>
+        <div class="tb" role="tablist" id="tabs">
+          <button type="button" data-m="between" class="on">며칠 사이</button>
+          <button type="button" data-m="dday">디데이</button>
+          <button type="button" data-m="add">N일 후·기념일</button>
+          <button type="button" data-m="conv">주·개월 환산</button>
+        </div>
+        <div class="fm" data-mode="between">
+          <div class="dt-two">
+            <label class="cf"><span class="cf-l">시작일</span><input id="b_from" type="date" /></label>
+            <label class="cf"><span class="cf-l">끝날</span><input id="b_to" type="date" /></label>
+          </div>
+          <label class="ck"><input id="b_inc" type="checkbox" /> 시작일도 하루로 세기(시작일·끝날 둘 다 포함)</label>
+          <label class="ck" id="b_holi_w"><input id="b_holi" type="checkbox" /> 평일 수에서 2026년 공휴일도 빼기</label>
+        </div>
+        <div class="fm" data-mode="dday" hidden>
+          <label class="cf"><span class="cf-l">그날</span><input id="d_to" type="date" /><span class="cf-h">오늘(한국 날짜)부터 그날까지 세요. 지난 날짜면 D+로 나와요.</span></label>
+          <label class="cf"><span class="cf-l">이름(선택)</span><input id="d_name" class="dt-txt" maxlength="20" placeholder="예: 수능, 여행, 전역" /></label>
+        </div>
+        <div class="fm" data-mode="add" hidden>
+          <label class="cf"><span class="cf-l">기준일</span><input id="a_base" type="date" /></label>
+          <div class="dt-two">
+            <label class="cf"><span class="cf-l">며칠</span><div class="cf-num"><input id="a_n" inputmode="numeric" value="100" /><span>일</span></div></label>
+            <label class="cf"><span class="cf-l">방향</span><select id="a_dir"><option value="1">뒤(후)</option><option value="-1">앞(전)</option></select></label>
+          </div>
+          <label class="ck"><input id="a_first" type="checkbox" /> 기준일을 1일째로 세기(사귄 날·태어난 날 기념일 방식)</label>
+        </div>
+        <div class="fm" data-mode="conv" hidden>
+          <div class="dt-two">
+            <label class="cf"><span class="cf-l">숫자</span><div class="cf-num"><input id="c_n" inputmode="decimal" value="100" /></div></label>
+            <label class="cf"><span class="cf-l">단위</span><select id="c_u"><option value="d">일</option><option value="w">주</option><option value="m">개월</option><option value="y">년</option></select></label>
+          </div>
+        </div>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="go" type="button">계산하기</button>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <p class="cr-sub" id="rsub"></p>
+          <div id="rrows"></div>
+          <div id="rtable"></div>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">링크 보내기</button>
+          <button class="cc-go cc-go--sub" id="back" type="button">날짜 바꿔 보기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>날짜 계산기 계산 방법</h2>
+        <p>모든 날짜는 한국 날짜(서울 시각) 기준이에요. 두 날짜 사이 일수는 끝날에서 시작일을 뺀 날 수이고, '시작일도 하루로 세기'를 켜면 하루를 더해요. 예를 들어 1월 1일부터 1월 10일까지는 그냥 빼면 9일, 둘 다 포함하면 10일이에요.</p>
+        <p>디데이는 오늘부터 그날까지 남은 날 수예요. 그날이 오늘이면 D-day, 지난 날이면 D+로 지난 날 수를 보여 줘요. 100일·1000일 기념일은 사귄 날이나 태어난 날을 1일째로 세는 경우가 많아서, 그 방식을 고를 수 있게 했어요. 그 방식이면 100일째 = 기준일 + 99일이에요.</p>
+        <p>개월 수는 달력 기준이에요. 1월 31일에서 한 달 뒤처럼 그 달에 같은 날이 없으면 그 달 마지막 날로 봐요. 평일 수는 토요일·일요일을 뺀 날 수예요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>디데이는 오늘을 포함해서 세나요?</summary><p>아니요. 오늘이 10월 8일이고 그날이 10월 10일이면 D-2예요. 대부분의 디데이 표시와 같은 방식이에요.</p></details>
+        <details><summary>100일 기념일은 왜 +99일인가요?</summary><p>사귄 날(또는 태어난 날)을 1일째로 세면 100일째는 99일 뒤예요. 기준일을 0일로 세고 싶으면 '기준일을 1일째로 세기'를 끄면 돼요.</p></details>
+        <details><summary>공휴일도 빼 주나요?</summary><p>평일 수는 토·일만 빼요. 2026년 날짜에 한해서 공식 달력으로 확인한 공휴일을 추가로 뺄 수 있어요. 다른 해의 공휴일은 빼지 않아요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">날짜 계산기 · 입력한 날짜는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

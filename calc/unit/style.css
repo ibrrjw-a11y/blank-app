@@ -1,0 +1,20 @@
+/* 단위 변환기 — 종류 탭 + 값 + 단위 두 개(가운데 바꾸기) + 다른 단위 목록 */
+:root { --ac: #1f6f9c; }
+.un-cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 16px; }
+.un-cats button { min-height: 44px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 800 15px/1 var(--font-sans); cursor: pointer; }
+.un-cats button.on { background: var(--ink); color: #fff; }
+.un-in { margin-top: 12px; }
+.un-in .cf-num input { font-size: 24px; }
+.un-sign { flex: none; width: 44px; height: 44px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; font: 900 18px/1 var(--font-sans); color: var(--ink); cursor: pointer; }
+.un-pick { display: grid; grid-template-columns: 1fr auto 1fr; align-items: end; gap: 6px; margin-top: 10px; }
+.un-pick .cf { padding: 10px 10px; }
+.un-pick select { font-size: 15px; padding: 0 8px; }
+.un-swap { width: 40px; height: 48px; margin-bottom: 10px; border: 2px solid var(--ink); border-radius: 12px; background: var(--card); font: 900 18px/1 var(--font-sans); color: var(--ink); cursor: pointer; }
+.un-res { margin-top: 14px; }
+.un-res .cr-v { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; font-variant-numeric: tabular-nums; word-break: break-all; }
+.un-res .cr-v small { font: 900 20px/1.2 var(--font-sans); color: var(--sub); }
+.un-sub { margin: 16px 0 0; font: 800 13px/1 var(--font-sans); color: var(--sub); }
+#all { display: grid; margin-top: 4px; }
+.un-row { width: 100%; border: 0; border-bottom: 1px dashed var(--line); background: none; color: var(--ink); text-align: left; cursor: pointer; animation: none; font-variant-numeric: tabular-nums; }
+.un-row.on { color: var(--ac); }
+@media (max-width: 380px) { .un-cats button { font-size: 14px; } .un-res .cr-v { font-size: 38px; } }

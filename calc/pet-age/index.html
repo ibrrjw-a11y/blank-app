@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>강아지 나이 계산기 | 고양이 나이 사람 나이 환산 — 출처별로 비교</title>
+    <meta name="description" content="강아지·고양이 나이를 사람 나이로 바꿔요. 2020년 개 노화 연구 공식과 국제고양이보호단체 표 등 출처를 함께 보여 주고 공유 카드도 만들어요." />
+    <meta name="keywords" content="강아지 나이 계산기, 고양이 나이 계산기, 강아지 사람 나이, 고양이 사람 나이, 개 나이 환산, 반려견 나이, 반려묘 나이" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/pet-age/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="우리 집 강아지는 사람으로 치면 몇 살?" />
+    <meta property="og:description" content="강아지·고양이 나이를 사람 나이로, 출처별로" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"강아지·고양이 나이 계산기","url":"https://guesswhat.co.kr/calc/pet-age/","description":"강아지·고양이 나이를 사람 나이로 환산하는 계산기. Wang 외(2020, Cell Systems) 개 노화 공식, 국제고양이보호단체(iCatCare) 고양이 나이 표, 미국수의사회·미국동물병원협회 생애단계를 출처별로 함께 보여 줌.","applicationCategory":"LifestyleApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 반려동물</span>
+        <h1 class="cc-title">강아지·고양이 나이 계산기</h1>
+        <p class="cc-lead">우리 아이 나이를 넣으면 사람으로 치면 몇 살인지 알려 줘요. 계산 방법이 출처마다 달라서 같이 보여 줘요.</p>
+        <div class="fm">
+          <div class="cf"><span class="cf-l">누구인가요?</span><div class="cf-yn" id="kind"><button type="button" data-v="dog" class="on">강아지</button><button type="button" data-v="cat">고양이</button></div></div>
+          <label class="cf"><span class="cf-l">이름(선택 — 카드에 들어가요)</span><input id="pname" class="pa-txt" maxlength="12" placeholder="예: 콩이" autocomplete="off" /></label>
+          <div class="pa-two">
+            <label class="cf"><span class="cf-l">나이</span><div class="cf-num"><input id="py" inputmode="numeric" value="3" /><span>살</span></div></label>
+            <label class="cf"><span class="cf-l">개월</span><div class="cf-num"><input id="pm" inputmode="numeric" value="0" /><span>개월</span></div></label>
+          </div>
+          <label class="cf" id="sizeBox"><span class="cf-l">몸무게(크기)</span><select id="psize">
+            <option value="s">소형 — 약 9kg 미만 (20파운드 미만)</option>
+            <option value="m" selected>중형 — 약 9~23kg (20~50파운드)</option>
+            <option value="l">대형 — 약 23~41kg (50~90파운드)</option>
+            <option value="g">초대형 — 약 41kg 초과 (90파운드 초과)</option>
+          </select><span class="cf-h">미국수의사회의 크기 구분이에요. 원문은 파운드라 킬로그램은 어림값이에요.</span></label>
+        </div>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <button class="cc-go" id="go" type="button">사람 나이로 바꾸기</button>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="pa-card" id="card">
+          <p class="pa-c1" id="c1"></p>
+          <p class="pa-c2"><b id="rval"></b></p>
+          <p class="pa-c3" id="c3"></p>
+        </div>
+        <div class="cr">
+          <p class="cr-h">출처마다 이렇게 달라요</p>
+          <div id="rrows"></div>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <ul id="rnotes"></ul>
+          <details class="cc-basis" id="cbasis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cimg" type="button">카드 이미지 저장·공유</button>
+          <button class="cc-go cc-go--sub" id="cshare" type="button">링크 보내기</button>
+        </div>
+        <button class="cc-go cc-go--sub" id="back" type="button">다시 넣기</button>
+      </section>
+      <article class="seo cc-doc">
+        <h2>강아지·고양이 나이 계산 방법</h2>
+        <p>강아지는 2020년 학술지 Cell Systems 에 실린 Wang 등의 연구 공식 '사람 나이 = 16 × ln(개 나이) + 31'로 계산해요. 래브라도 리트리버의 DNA 변화로 만든 공식이라 다른 견종에는 덜 맞을 수 있고, 1살 미만 강아지에는 쓰지 않았어요. 크기별로 노령기가 언제 시작되는지는 미국수의사회 자료를, 생애 단계는 미국동물병원협회 2019년 지침을 같이 보여 줘요.</p>
+        <p>고양이는 국제고양이보호단체(International Cat Care)의 표를 써요. 처음 2년이 사람 24년이고, 그 뒤로는 1년마다 사람 4년씩 더해요. 표에 없는 개월 수는 앞뒤 칸 사이를 어림했다고 따로 표시해요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>강아지 1살은 사람 7살 아닌가요?</summary><p>'1년 = 7년'은 근거가 약한 통념이에요. 미국수의사회도 개가 1년에 사람 7년씩 나이 들지 않는다고 설명해요. 개는 어릴 때 훨씬 빨리 자라고, 나이가 들수록 천천히 늘어나요.</p></details>
+        <details><summary>출처마다 숫자가 왜 다른가요?</summary><p>어떤 자료는 DNA 변화로, 어떤 자료는 몸의 발달 단계로 맞춰서 기준이 달라요. 그래서 한 숫자만 정답이라고 하지 않고 출처별로 같이 보여 줘요. 건강 상태는 동물병원에서 확인해 주세요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">강아지·고양이 나이 계산기 · 입력한 내용은 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

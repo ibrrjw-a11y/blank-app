@@ -1,0 +1,30 @@
+/* QR코드 만들기 — 입력 탭 3개, 아래에 큰 미리 보기 */
+:root { --ac: #0f7b8a; }
+.qr-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 16px; padding: 4px; border: 2px solid var(--ink); border-radius: 14px; background: var(--card); }
+.qr-tabs button { min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 800 15px/1 var(--font-sans); cursor: pointer; }
+.qr-tabs button.on { background: var(--ink); color: #fff; }
+#qform { display: grid; gap: 10px; margin-top: 12px; }
+.qr-pane { display: grid; gap: 10px; }
+.qr-ta, .qr-in { width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 700 16px/1.4 var(--font-sans); box-sizing: border-box; resize: vertical; }
+.qr-two { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
+.qr-chk { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 4px; font: 700 14px/1.3 var(--font-sans); }
+.qr-chk input { width: 22px; height: 22px; accent-color: var(--ac); }
+.qr-style { padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--card); }
+.qr-style summary { font: 800 15px/1.3 var(--font-sans); cursor: pointer; }
+.qr-style-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.qr-style-grid .cf { padding: 10px; }
+.qr-style-grid input[type="color"] { width: 100%; height: 44px; padding: 2px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; }
+.qr-style-grid input[type="range"] { width: 100%; height: 30px; accent-color: var(--ac); }
+.qr-wide { grid-column: 1 / -1; }
+.qr-out { text-align: center; }
+.qr-out .cr-h { text-align: left; }
+.qr-canvas-wrap { display: grid; place-items: center; margin-top: 10px; padding: 12px; border-radius: 14px; background: repeating-conic-gradient(#efe9dd 0 25%, #f8f4ec 0 50%) 0 0 / 16px 16px; }
+#qrc { width: min(100%, 320px); height: auto; aspect-ratio: 1; image-rendering: pixelated; box-shadow: 0 2px 10px rgba(0, 0, 0, .12); transition: opacity .2s; }
+#qrc.qr-dim { opacity: .2; }
+.qr-meta { margin: 10px 0 0; font: 700 13px/1.4 var(--font-sans); color: var(--sub); }
+.qr-warn { margin: 8px 0 0; padding: 0; list-style: none; text-align: left; }
+.qr-warn li { margin-top: 6px; padding: 8px 10px 8px 26px; position: relative; border-radius: 10px; background: #fff1ec; color: #a8321c; font: 800 13.5px/1.45 var(--font-sans); }
+.qr-warn li::before { content: ""; position: absolute; left: 11px; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: #d6402a; }
+.qr-payload { margin: 8px 0 0; padding: 10px; border-radius: 10px; background: #fff; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; font: 600 12.5px/1.5 ui-monospace, Consolas, monospace; color: var(--ink); }
+.qr-safe { margin: 12px 0 0; font: 700 13.5px/1.5 var(--font-sans); color: var(--sub); text-align: center; word-break: keep-all; }
+@media (max-width: 380px) { .cc-title { font-size: 32px; } .qr-style-grid { grid-template-columns: 1fr; } }

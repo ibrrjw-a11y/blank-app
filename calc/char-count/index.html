@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>글자수 세기 | 공백 포함·제외, 바이트, 자소서 글자수 실시간</title>
+    <meta name="description" content="붙여 넣으면 바로 세요. 공백 포함·제외 글자 수, 바이트(UTF-8·한글 2바이트), 줄·문단 수, 원고지 매수, 자소서 목표 글자 수까지." />
+    <meta name="keywords" content="글자수 세기, 글자수 세기 공백 제외, 자소서 글자수, 바이트 계산, 원고지 매수, 글자 수 세기" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/char-count/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="글자수 세기 — 공백 포함·제외, 바이트, 자소서 목표" />
+    <meta property="og:description" content="붙여 넣으면 바로, 자소서 몇 자 남았는지까지." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"글자수 세기","url":"https://guesswhat.co.kr/calc/char-count/","description":"붙여 넣은 글의 공백 포함·제외 글자 수, 바이트(UTF-8·한글 2바이트), 줄·문단 수, 원고지 매수, 자소서 목표 글자 수를 실시간으로 세어 주는 도구.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 실시간</span>
+        <h1 class="cc-title">글자수 세기</h1>
+        <p class="cc-lead">글을 붙여 넣거나 바로 써요. 치는 대로 바로 세요.</p>
+        <label class="cf ch-box" for="txt"><span class="cf-l">글</span>
+          <textarea id="txt" rows="9" placeholder="여기에 자기소개서나 글을 붙여 넣어요" spellcheck="false"></textarea>
+        </label>
+        <div class="ch-tools">
+          <label class="ch-keep"><input type="checkbox" id="keep" /> 이 기기에 임시 저장</label>
+          <button type="button" class="ch-clear" id="clear">글 지우기</button>
+        </div>
+
+        <div class="cr ch-res" aria-live="polite">
+          <div class="ch-big">
+            <div><span class="cr-h">공백 포함</span><b id="o-with">0</b><small>자</small></div>
+            <div><span class="cr-h">공백 제외</span><b id="o-without">0</b><small>자</small></div>
+          </div>
+          <div class="ch-goal">
+            <div class="ch-goal-h">
+              <span class="cf-l">목표 글자 수</span>
+              <div class="ch-seg" id="gbase" role="group" aria-label="목표 기준">
+                <button type="button" data-v="with" class="on">공백 포함</button><button type="button" data-v="without">공백 제외</button>
+              </div>
+            </div>
+            <div class="cf-chips" id="gchips">
+              <button type="button" data-v="500">500자</button><button type="button" data-v="700">700자</button><button type="button" data-v="1000" class="on">1,000자</button><button type="button" data-v="1500">1,500자</button>
+            </div>
+            <div class="cf-num"><input id="goal" inputmode="numeric" value="1000" aria-label="목표 글자 수 직접 넣기" autocomplete="off" /><span>자</span></div>
+            <div class="ch-bar"><i id="gbar"></i></div>
+            <p class="ch-goal-t" id="gtext"></p>
+          </div>
+          <div id="rrows">
+            <div class="rr"><span>바이트 · UTF-8</span><b id="o-utf8">0</b></div>
+            <div class="rr"><span>바이트 · 한글 2바이트 방식</span><b id="o-b2">0</b></div>
+            <div class="rr"><span>줄 수</span><b id="o-lines">0</b></div>
+            <div class="rr"><span>문단 수</span><b id="o-paras">0</b></div>
+            <div class="rr"><span>원고지(200자) 매수</span><b id="o-mss">0</b></div>
+          </div>
+          <details class="cc-basis">
+            <summary>어떻게 세나요?</summary>
+            <table>
+              <tbody>
+                <tr><td>공백 포함</td><td>보이는 글자 하나를 1자로 셉니다. 띄어쓰기와 줄바꿈도 1자씩 들어가요. 이모지 👨‍👩‍👧 처럼 여러 조각이 붙은 그림 글자도 1자로 셉니다.</td></tr>
+                <tr><td>공백 제외</td><td>띄어쓰기·줄바꿈·탭을 모두 빼고 센 글자 수.</td></tr>
+                <tr><td>UTF-8 바이트</td><td>요즘 웹사이트·문자 저장에 쓰는 방식. 영어·숫자·띄어쓰기 1바이트, 한글 3바이트, 이모지는 보통 4바이트 이상.</td></tr>
+                <tr><td>한글 2바이트 방식</td><td>예전 한글 방식(EUC-KR·완성형)처럼 세는 법. 영어·숫자·띄어쓰기·줄바꿈 1바이트, 그 밖의 글자(한글·한자·기호·이모지 조각)는 2바이트. 문자메시지(SMS 90바이트) 계산이나 오래된 지원 시스템이 이렇게 셉니다. 실제 EUC-KR 은 이모지를 담지 못해요.</td></tr>
+                <tr><td>줄 · 문단</td><td>줄은 줄바꿈으로 나뉜 줄 수(빈 줄 포함). 문단은 빈 줄로 나뉜 덩어리 중 글자가 있는 것.</td></tr>
+                <tr><td>원고지 매수</td><td>공백 포함 글자 수 ÷ 200 을 올림한 어림값. 실제 원고지는 문단 첫 칸 비우기, 줄 끝 처리 때문에 조금 더 나와요.</td></tr>
+              </tbody>
+            </table>
+          </details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="copy" type="button">결과 복사</button>
+          <button class="cc-go cc-go--sub" id="copytxt" type="button">글 복사</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>글자수 세는 방법</h2>
+        <p>공백 포함은 띄어쓰기와 줄바꿈까지 모두 센 수, 공백 제외는 띄어쓰기·줄바꿈·탭을 뺀 수예요. 자기소개서는 회사마다 기준이 달라서 지원서 안내문에 '공백 포함'인지 먼저 보고, 목표 기준을 같게 맞춰 두면 남은 글자 수를 바로 볼 수 있어요.</p>
+        <p>바이트는 두 가지로 보여 줘요. UTF-8 은 한글 한 글자가 3바이트, 한글 2바이트 방식은 2바이트예요. 같은 글이라도 어느 방식인지에 따라 바이트 수가 달라져요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>회사 지원 사이트와 글자 수가 조금 달라요</summary><p>줄바꿈을 2자로 세거나(윈도우 방식), 이모지를 2자 이상으로 세는 곳이 있어요. 여기서는 줄바꿈 1자, 이모지 1자로 셉니다. 차이가 나면 지원 사이트의 숫자를 따르세요.</p></details>
+        <details><summary>내가 쓴 글이 어디에 저장되나요?</summary><p>아니요. 글은 이 화면 안에서만 세고 어디에도 보내지 않아요. '이 기기에 임시 저장'을 켰을 때만 지금 쓰는 브라우저에 남고, 끄면 바로 지워져요.</p></details>
+        <details><summary>문자메시지 90바이트는 어떻게 보나요?</summary><p>'한글 2바이트 방식' 숫자를 보세요. 단문 문자는 보통 90바이트(한글 45자)까지예요. 통신사·앱마다 다를 수 있어요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">글자수 세기 · 입력한 글은 어디에도 보내지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

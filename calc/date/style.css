@@ -1,0 +1,18 @@
+/* 날짜 계산기 — 계산기 공용 모양 위에 모드 탭 + 기념일 표 */
+:root { --ac: #2f8f6b; }
+.tb { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 16px; }
+.tb button { min-height: 44px; padding: 6px 4px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 800 14px/1.2 var(--font-sans); cursor: pointer; word-break: keep-all; }
+.tb button.on { background: var(--ink); color: #fff; }
+.fm { display: grid; gap: 12px; margin-top: 12px; }
+.ck { display: flex; align-items: center; gap: 8px; font: 700 14px/1.4 var(--font-sans); cursor: pointer; }
+.ck input { width: 20px; height: 20px; accent-color: var(--ac); flex: none; }
+.dt-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cr-sub { margin: 6px 0 0; font: 800 15px/1.4 var(--font-sans); color: var(--sub); word-break: keep-all; }
+.an { width: 100%; margin-top: 12px; border-collapse: collapse; font: 600 14px/1.4 var(--font-sans); }
+.an th, .an td { padding: 8px 4px; border-bottom: 1px dashed var(--line); text-align: left; }
+.an td:last-child, .an th:last-child { text-align: right; }
+.an tr.past td { color: var(--sub); }
+.an tr.next td { font-weight: 900; color: var(--ac); }
+.an-h { margin: 16px 0 0; font: 900 16px/1.3 var(--font-sans); }
+.dt-txt { width: 100%; height: 48px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 700 17px/1 var(--font-sans); box-sizing: border-box; }
+.dt-two .cf { min-width: 0; }

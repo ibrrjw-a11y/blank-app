@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>시차 계산기 | 세계 시간·서울 기준 시차·서머타임 자동·회의 시간 맞추기</title>
+    <meta name="description" content="서울 기준 세계 40여 도시의 지금 시각과 시차, 날짜·시간을 다른 도시 시각으로 바꾸기, 두 도시 근무시간 겹치는 회의 시간까지. 서머타임은 자동 반영." />
+    <meta name="keywords" content="시차 계산기, 세계 시간, 세계 시각, 시차 계산, 미국 시차, 뉴욕 시간, 런던 시간, 서머타임, 회의 시간 계산" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/timezone/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="시차 계산기 — 지금 뉴욕은 몇 시?" />
+    <meta property="og:description" content="서울 기준 세계 시각·시차, 회의 시간 맞추기" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"시차 계산기","url":"https://guesswhat.co.kr/calc/timezone/","description":"서울 기준 세계 도시의 현재 시각과 시차, 날짜·시간 변환, 두 도시 근무시간이 겹치는 회의 시간을 서머타임까지 반영해 계산하는 계산기.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 시차</span>
+        <h1 class="cc-title">시차 계산기</h1>
+        <p class="cc-lead">서울 기준으로 세계 도시의 지금 시각과 시차를 보고, 원하는 시각을 다른 도시 시각으로 바꿔요. 서머타임은 자동으로 들어가요.</p>
+        <div class="tb" role="tablist" id="tabs">
+          <button type="button" data-m="now" class="on">지금 세계 시각</button>
+          <button type="button" data-m="conv">시각 바꾸기</button>
+          <button type="button" data-m="meet">회의 시간 맞추기</button>
+        </div>
+        <div class="fm" data-mode="now">
+          <label class="cf"><span class="cf-l">도시 찾기</span><input id="n_q" class="tz-txt" placeholder="예: 뉴욕, 런던, 시드니" autocomplete="off" /></label>
+          <p class="tz-clock" id="n_seoul"></p>
+          <div id="nowlist" class="tz-list"></div>
+        </div>
+        <div class="fm" data-mode="conv" hidden>
+          <label class="cf"><span class="cf-l">이 도시의</span><select id="z_from" class="tz-city"></select></label>
+          <div class="dt-two">
+            <label class="cf"><span class="cf-l">날짜</span><input id="z_date" type="date" /></label>
+            <label class="cf"><span class="cf-l">시각</span><input id="z_time" type="time" value="09:00" /></label>
+          </div>
+          <label class="cf"><span class="cf-l">→ 이 도시로는 몇 시?</span><select id="z_to" class="tz-city"></select></label>
+          <p class="cc-err" id="zerr" role="alert" hidden></p>
+          <button class="cc-go" id="zgo" type="button">바꾸기</button>
+        </div>
+        <div class="fm" data-mode="meet" hidden>
+          <div class="dt-two">
+            <label class="cf"><span class="cf-l">우리 쪽</span><select id="m_a" class="tz-city"></select></label>
+            <label class="cf"><span class="cf-l">상대 쪽</span><select id="m_b" class="tz-city"></select></label>
+          </div>
+          <label class="cf"><span class="cf-l">날짜(우리 쪽 날짜)</span><input id="m_date" type="date" /></label>
+          <div class="dt-two">
+            <label class="cf"><span class="cf-l">우리 근무시간</span><div class="tz-hr"><select id="m_as"></select><span>~</span><select id="m_ae"></select></div></label>
+            <label class="cf"><span class="cf-l">상대 근무시간</span><div class="tz-hr"><select id="m_bs"></select><span>~</span><select id="m_be"></select></div></label>
+          </div>
+          <p class="cc-err" id="merr" role="alert" hidden></p>
+          <button class="cc-go" id="mgo" type="button">겹치는 시간 찾기</button>
+        </div>
+      </section>
+      <section class="cc-v" id="cres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v" id="rval"></p>
+          <p class="cr-sub" id="rsub"></p>
+          <p class="cr-warn" id="rwarn" hidden></p>
+          <div id="rstrip"></div>
+          <div id="rrows"></div>
+          <ul id="rnotes"></ul>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="cshare" type="button">링크 보내기</button>
+          <button class="cc-go cc-go--sub" id="back" type="button">다시 고르기</button>
+        </div>
+      </section>
+      <section class="cc-v">
+        <details class="cc-basis" id="cbasis"></details>
+      </section>
+      <article class="seo cc-doc">
+        <h2>시차 계산 방법</h2>
+        <p>도시마다 국제 표준 시간대 이름(예: 뉴욕 = America/New_York)을 정해 두고, 그 시간대의 시각을 브라우저가 가진 세계 시간대 자료로 계산해요. 그래서 미국·유럽·호주처럼 서머타임이 있는 곳은 그 날짜에 맞는 시차가 자동으로 들어가요.</p>
+        <p>시차는 '서울보다 몇 시간 빠른지·느린지'로 보여 줘요. 한국은 서머타임이 없어서 서울 시각은 늘 세계 표준시보다 9시간 빨라요. 회의 시간 맞추기는 우리 쪽 날짜의 근무시간과 상대 쪽 근무시간이 실제로 겹치는 시간만 찾아요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>미국과 한국 시차는 몇 시간인가요?</summary><p>뉴욕은 서머타임 기간에 서울보다 13시간, 그 밖에는 14시간 느려요. 로스앤젤레스는 16시간·17시간 느려요. 날짜를 넣으면 그날의 시차로 바로 계산해요.</p></details>
+        <details><summary>서머타임 시작·끝나는 날은 어떻게 되나요?</summary><p>시계를 1시간 앞당기는 날에는 사라지는 시각(예: 뉴욕 새벽 2시 30분)이 있고, 되돌리는 날에는 같은 시각이 두 번 있어요. 사라지는 시각을 넣으면 알려 드리고, 두 번 있는 시각은 먼저 오는 쪽으로 계산해요.</p></details>
+        <details><summary>시각이 조금 틀려 보여요.</summary><p>내 기기의 시계가 맞는지 확인해 주세요. 세계 시간대 자료는 브라우저에 들어 있어서, 아주 최근에 나라가 시간 규칙을 바꿨다면 브라우저 업데이트 전까지 반영이 늦을 수 있어요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">시차 계산기 · 고른 도시와 시각은 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

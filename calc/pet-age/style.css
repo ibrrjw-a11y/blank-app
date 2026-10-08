@@ -1,0 +1,12 @@
+/* 강아지·고양이 나이 계산기 — 계산기 공용 모양 위에 공유 카드 */
+:root { --ac: #c2410c; }
+.fm { display: grid; gap: 12px; margin-top: 16px; }
+.pa-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pa-two .cf { min-width: 0; }
+.pa-txt { width: 100%; height: 48px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 700 17px/1 var(--font-sans); box-sizing: border-box; }
+.pa-card { margin-top: 18px; padding: 26px 18px; border: 2.5px solid var(--ink); border-radius: 22px; background: var(--card); box-shadow: 6px 6px 0 var(--ac); text-align: center; animation: cc-up .45s backwards; }
+.pa-c1 { margin: 0; font: 800 18px/1.4 var(--font-sans); word-break: keep-all; }
+.pa-c2 { margin: 8px 0 0; }
+.pa-c2 b { font: 900 58px/1.05 var(--font-sans); letter-spacing: -0.04em; color: var(--ac); }
+.pa-c3 { margin: 10px 0 0; font: 700 13px/1.4 var(--font-sans); color: var(--sub); word-break: keep-all; }
+.cr .rr span { word-break: keep-all; }

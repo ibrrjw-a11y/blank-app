@@ -1,0 +1,28 @@
+/* 글자수 세기 — 계산기 공용 모양 위에 큰 숫자 두 개 + 목표 막대 */
+:root { --ac: #2a7d5f; }
+.ch-box { margin-top: 16px; }
+#txt { width: 100%; min-height: 220px; padding: 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 500 16px/1.65 var(--font-sans); box-sizing: border-box; resize: vertical; }
+.ch-tools { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.ch-keep { display: inline-flex; align-items: center; gap: 6px; font: 700 13.5px/1.3 var(--font-sans); color: var(--sub); cursor: pointer; }
+.ch-keep input { width: 18px; height: 18px; accent-color: var(--ac); }
+.ch-clear { min-height: 36px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--card); font: 800 13px/1 var(--font-sans); color: var(--ink); cursor: pointer; }
+.ch-res { margin-top: 14px; }
+.ch-big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ch-big > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 4px; }
+.ch-big .cr-h { flex-basis: 100%; }
+.ch-big b { font: 900 40px/1.05 var(--font-sans); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; word-break: break-all; }
+.ch-big small { font: 800 14px/1 var(--font-sans); color: var(--sub); }
+.ch-goal { display: grid; gap: 8px; margin-top: 16px; padding: 14px; border-radius: 14px; background: #f6f2ea; }
+.ch-goal-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.ch-seg { display: inline-flex; border: 1.5px solid var(--ink); border-radius: 10px; overflow: hidden; }
+.ch-seg button { min-height: 32px; padding: 0 10px; border: 0; background: #fff; font: 800 12.5px/1 var(--font-sans); color: var(--ink); cursor: pointer; }
+.ch-seg button.on { background: var(--ink); color: #fff; }
+.ch-goal .cf-chips button.on { border-color: var(--ink); background: var(--ink); color: #fff; }
+.ch-goal .cf-num input { height: 42px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 10px; background: #fff; font: 800 17px/1 var(--font-sans); width: 100%; box-sizing: border-box; }
+.ch-bar { height: 12px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.ch-bar i { display: block; height: 100%; width: 0; border-radius: 99px; background: var(--ac); transition: width .25s ease-out; }
+.ch-bar i.over { background: var(--red); }
+.ch-goal-t { margin: 0; font: 800 14px/1.4 var(--font-sans); font-variant-numeric: tabular-nums; }
+.ch-res .rr { animation: none; }
+.ch-res .cc-basis td:first-child { width: 30%; font-weight: 800; color: var(--ink); }
+@media (max-width: 380px) { .ch-big b { font-size: 34px; } }

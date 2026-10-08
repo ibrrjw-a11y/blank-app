@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>QR코드 만들기 | 무료 QR코드 생성기·와이파이 QR·연락처 QR</title>
+    <meta name="description" content="글·주소·와이파이·연락처를 넣으면 QR코드가 바로 나와요. 색·여백 바꾸고 PNG로 저장. 가입 없이 무료, 입력한 내용은 어디에도 안 보내요." />
+    <meta name="keywords" content="QR코드 만들기, QR코드 생성기, 무료 QR코드, 와이파이 QR코드, 연락처 QR코드, QR 이미지 저장" />
+    <link rel="canonical" href="https://guesswhat.co.kr/tools/qr/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="QR코드 만들기 — 와이파이·연락처까지" />
+    <meta property="og:description" content="넣으면 바로 QR, PNG 저장" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"QR코드 만들기","url":"https://guesswhat.co.kr/tools/qr/","description":"글·주소·와이파이·연락처를 QR코드 이미지로 만들고 PNG로 저장하는 도구.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v">
+        <span class="cc-kick">생활 도구 · QR코드</span>
+        <h1 class="cc-title">QR코드 만들기</h1>
+        <p class="cc-lead">넣으면 바로 QR코드가 나와요. PNG로 저장하세요.</p>
+
+        <div class="qr-tabs" role="tablist">
+          <button type="button" role="tab" class="on" aria-selected="true" data-kind="text">글·주소</button>
+          <button type="button" role="tab" aria-selected="false" data-kind="wifi">와이파이</button>
+          <button type="button" role="tab" aria-selected="false" data-kind="contact">연락처</button>
+        </div>
+
+        <form id="qform" autocomplete="off" novalidate>
+          <div class="qr-pane" data-pane="text">
+            <label class="cf"><span class="cf-l">글이나 주소</span><textarea id="text" rows="3" class="qr-ta" placeholder="https://guesswhat.co.kr">https://guesswhat.co.kr</textarea></label>
+          </div>
+          <div class="qr-pane" data-pane="wifi" hidden>
+            <label class="cf"><span class="cf-l">와이파이 이름</span><input id="ssid" class="qr-in" placeholder="예: 우리집_5G" /></label>
+            <label class="cf"><span class="cf-l">보안 방식</span><select id="wsec"><option value="WPA" selected>WPA/WPA2/WPA3 (대부분)</option><option value="WEP">WEP (오래된 공유기)</option><option value="nopass">비밀번호 없음</option></select></label>
+            <label class="cf" id="wpassBox"><span class="cf-l">비밀번호</span><input id="wpass" class="qr-in" placeholder="와이파이 비밀번호" /></label>
+            <label class="qr-chk"><input type="checkbox" id="whid" /> 숨긴 와이파이(이름이 목록에 안 보임)</label>
+          </div>
+          <div class="qr-pane" data-pane="contact" hidden>
+            <div class="qr-two">
+              <label class="cf"><span class="cf-l">성</span><input id="cLast" class="qr-in" placeholder="홍" /></label>
+              <label class="cf"><span class="cf-l">이름</span><input id="cFirst" class="qr-in" placeholder="길동" /></label>
+            </div>
+            <label class="cf"><span class="cf-l">전화번호</span><input id="cTel" class="qr-in" inputmode="tel" placeholder="010-1234-5678" /></label>
+            <label class="cf"><span class="cf-l">이메일 (선택)</span><input id="cMail" class="qr-in" inputmode="email" placeholder="name@example.com" /></label>
+            <label class="cf"><span class="cf-l">회사·소속 (선택)</span><input id="cOrg" class="qr-in" /></label>
+            <label class="cf"><span class="cf-l">누리집 주소 (선택)</span><input id="cUrl" class="qr-in" inputmode="url" /></label>
+          </div>
+
+          <details class="qr-style">
+            <summary>색·여백·크기</summary>
+            <div class="qr-style-grid">
+              <label class="cf"><span class="cf-l">무늬 색</span><input type="color" id="fg" value="#141414" /></label>
+              <label class="cf"><span class="cf-l">바탕 색</span><input type="color" id="bg" value="#ffffff" /></label>
+              <label class="cf"><span class="cf-l">여백 <b id="marginV">4</b>칸</span><input type="range" id="margin" min="0" max="10" value="4" /></label>
+              <label class="cf"><span class="cf-l">저장 크기</span><select id="size"><option value="256">작게 (약 256px)</option><option value="512" selected>보통 (약 512px)</option><option value="1024">크게 (약 1024px)</option><option value="2048">아주 크게 (약 2048px)</option></select></label>
+              <label class="cf qr-wide"><span class="cf-l">오류 복원</span><select id="ecl"><option value="L">낮음 (7%) · 무늬가 가장 단순</option><option value="M" selected>보통 (15%)</option><option value="Q">높음 (25%)</option><option value="H">아주 높음 (30%) · 인쇄·스티커용</option></select></label>
+            </div>
+            <p class="qr-ecl-info" data-info=".qr-style summary">오류 복원은 QR코드 일부가 더럽거나 가려져도 읽히게 하는 여유분이에요. 높일수록 무늬가 촘촘해져요. 여백(조용한 구역)은 QR 규격에서 무늬 둘레에 4칸 이상 비워 두도록 하고 있어서, 4칸보다 좁히면 못 읽는 카메라 앱이 있어요. 무늬는 바탕보다 어두워야 대부분의 앱이 읽어요.</p>
+          </details>
+        </form>
+      </section>
+
+      <section class="cc-v">
+        <div class="cr qr-out">
+          <p class="cr-h">미리 보기</p>
+          <div class="qr-canvas-wrap"><canvas id="qrc" width="512" height="512" aria-label="만든 QR코드"></canvas></div>
+          <p class="qr-meta" id="qmeta"></p>
+          <p class="cc-err" id="qerr" role="alert" hidden></p>
+          <ul class="qr-warn" id="qwarn"></ul>
+          <button class="cc-go" id="save" type="button">PNG로 저장</button>
+          <div class="cc-btns">
+            <button class="cc-go cc-go--sub" id="copyImg" type="button">이미지 복사</button>
+            <button class="cc-go cc-go--sub" id="copyTxt" type="button">담긴 글 복사</button>
+          </div>
+          <details class="cc-basis"><summary>QR에 담긴 글 그대로 보기</summary><pre class="qr-payload" id="payload"></pre></details>
+        </div>
+        <p class="qr-safe">입력한 내용은 이 화면 안에서만 QR로 바뀌고 어디에도 보내지 않아요.</p>
+      </section>
+
+      <article class="seo cc-doc">
+        <h2>QR코드 만드는 법</h2>
+        <p>글·주소 탭에 링크나 문장을 넣으면 바로 QR코드가 그려져요. 와이파이 탭에 이름과 비밀번호를 넣으면 손님이 카메라로 찍기만 해도 와이파이에 연결되는 QR이 나와요. 연락처 탭은 찍으면 연락처 저장 화면이 뜨는 명함용 QR이에요.</p>
+        <p>무늬 색과 바탕 색, 여백, 저장 크기를 바꿀 수 있어요. 인쇄할 거라면 '크게'나 '아주 크게'로 저장하고, 오류 복원을 높여 두면 조금 긁히거나 더러워져도 잘 읽혀요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>만든 QR코드에 기간 제한이 있나요?</summary><p>없어요. 이 QR코드는 글을 그대로 무늬로 바꾼 것이라 중간에 거치는 서버가 없어요. 그래서 기간이 끝나거나 광고 페이지로 바뀌는 일이 없어요. 대신 담긴 내용을 나중에 고칠 수도 없어요.</p></details>
+        <details><summary>와이파이 비밀번호가 어디로 가나요?</summary><p>아니요. 이 페이지는 서버 없이 화면 안에서만 QR을 그려요. 다만 QR 사진을 가진 사람은 누구나 비밀번호를 읽을 수 있으니 붙여 둘 곳을 골라 주세요.</p></details>
+        <details><summary>어떤 방식으로 만드나요?</summary><p>QR 무늬는 Kazuhiko Arase 님의 qrcode-generator(MIT 라이선스)로 그려요. 와이파이는 휴대폰 카메라가 읽는 WIFI: 형식, 연락처는 vCard 3.0 형식으로 담아요. 한글은 UTF-8로 담아요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 도구"></nav>
+      <footer class="site-footer">QR코드 만들기 · QR 부호화: qrcode-generator (MIT, © Kazuhiko Arase) · "QR Code"는 DENSO WAVE의 등록상표</footer>
+    </main>
+    <script src="qrcode.js"></script>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

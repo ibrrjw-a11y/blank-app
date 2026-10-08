@@ -1,0 +1,32 @@
+/* 시차 계산기 — 계산기 공용 모양 위에 모드 탭 + 도시 목록 + 하루 띠 그림 */
+:root { --ac: #3b5bdb; }
+.tb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 16px; }
+.tb button { min-height: 44px; padding: 6px 4px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 800 14px/1.2 var(--font-sans); cursor: pointer; word-break: keep-all; }
+.tb button.on { background: var(--ink); color: #fff; }
+.fm { display: grid; gap: 12px; margin-top: 12px; }
+.dt-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dt-two .cf { min-width: 0; }
+.tz-txt, .cf input[type="time"] { width: 100%; height: 48px; padding: 0 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 700 17px/1 var(--font-sans); box-sizing: border-box; }
+.tz-hr { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px; }
+.tz-hr select { padding: 0 6px; }
+.tz-clock { margin: 0; padding: 14px; border: 2.5px solid var(--ink); border-radius: 16px; background: var(--card); box-shadow: 5px 5px 0 var(--ac); font: 800 15px/1.4 var(--font-sans); }
+.tz-clock b { display: block; font: 900 40px/1.1 var(--font-sans); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.tz-list { display: grid; gap: 6px; }
+.tz-c { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); }
+.tz-c .nm { font: 800 15px/1.3 var(--font-sans); }
+.tz-c .tm { font: 900 22px/1.1 var(--font-sans); font-variant-numeric: tabular-nums; text-align: right; }
+.tz-c .of, .tz-c .dy { font: 600 12.5px/1.4 var(--font-sans); color: var(--sub); }
+.tz-c .dy { text-align: right; }
+.dot { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; font: 700 12px/1 var(--font-sans); color: #b45309; }
+.dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #f59f00; }
+.cr-sub { margin: 6px 0 0; font: 800 15px/1.4 var(--font-sans); color: var(--sub); word-break: keep-all; }
+.strip { margin-top: 14px; }
+.strip p { margin: 8px 0 4px; font: 700 12.5px/1.2 var(--font-sans); color: var(--sub); }
+.strip .bar { display: grid; grid-template-columns: repeat(48, 1fr); height: 18px; border-radius: 6px; overflow: hidden; background: var(--line); }
+.strip .bar i { display: block; }
+.strip .bar i.a { background: rgba(59, 91, 219, .35); }
+.strip .bar i.b { background: rgba(245, 159, 0, .45); }
+.strip .bar i.ab { background: var(--ac); }
+.strip .ax { display: flex; justify-content: space-between; font: 600 11px/1 var(--font-sans); color: var(--sub); }
+.lg { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; font: 700 12px/1 var(--font-sans); color: var(--sub); }
+.lg span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 3px; vertical-align: -1px; background: var(--c); }

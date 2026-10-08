@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>퍼센트 계산기 | 할인율·할인가, 증감률, %p 차이 한 번에</title>
+    <meta name="description" content="A의 B%는? A는 B의 몇 %? 증감률, 정가·할인율로 할인가, 정가·판매가로 할인율, %p 차이까지 한 화면에서 바로 계산해요." />
+    <meta name="keywords" content="퍼센트 계산기, 할인율 계산기, 할인가 계산, 증감률 계산, 백분율 계산, 퍼센트포인트 차이" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/percent/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="퍼센트 계산기 — 할인율·증감률·%p" />
+    <meta property="og:description" content="몇 %인지, 얼마 싸진 건지, 한 화면에서." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"퍼센트 계산기","url":"https://guesswhat.co.kr/calc/percent/","description":"A의 B%, A는 B의 몇 %, 증감률, 할인가, 할인율, %p 차이를 한 화면에서 계산하는 퍼센트 계산기.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 퍼센트</span>
+        <h1 class="cc-title">퍼센트 계산기</h1>
+        <p class="cc-lead">무엇을 알고 싶은지 고르고 숫자 두 개만 넣어요. 바로 나와요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <div class="pc-tabs" id="tabs" role="tablist" aria-label="계산 종류">
+          <button type="button" role="tab" data-m="of">A의 B%</button>
+          <button type="button" role="tab" data-m="ratio">A는 B의 몇 %</button>
+          <button type="button" role="tab" data-m="change">증감률</button>
+          <button type="button" role="tab" data-m="disc">할인가</button>
+          <button type="button" role="tab" data-m="rate">할인율</button>
+          <button type="button" role="tab" data-m="pp">%p 차이</button>
+        </div>
+        <div class="pc-form">
+          <label class="cf" for="a"><span class="cf-l" id="la"></span>
+            <div class="cf-num"><input id="a" inputmode="decimal" autocomplete="off" /><span id="ua"></span><button type="button" class="pc-sign" data-for="a" aria-label="부호 바꾸기">±</button></div>
+          </label>
+          <label class="cf" for="b"><span class="cf-l" id="lb"></span>
+            <div class="cf-num"><input id="b" inputmode="decimal" autocomplete="off" /><span id="ub"></span><button type="button" class="pc-sign" data-for="b" aria-label="부호 바꾸기">±</button></div>
+          </label>
+        </div>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <div class="cr pc-res" aria-live="polite">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v"><span id="out">—</span><small id="outu"></small></p>
+          <p class="pc-sent" id="sent"></p>
+          <div id="rrows"></div>
+          <details class="cc-basis"><summary>계산식</summary><p id="formula"></p><p>소수 셋째 자리에서 반올림해 둘째 자리까지 보여 줘요. 1,000조가 넘는 결과는 10의 거듭제곱으로 줄여 보여 줘요.</p></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="copy" type="button">결과 복사</button>
+          <button class="cc-go cc-go--sub" id="shareBtn" type="button">이 계산 링크 보내기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>퍼센트 계산 방법</h2>
+        <p>A의 B% 는 A × B ÷ 100, A가 B의 몇 %인지는 A ÷ B × 100 이에요. 증감률은 (나중 값 − 처음 값) ÷ 처음 값 × 100 이고, 처음 값이 음수면 크기(절댓값)로 나눠서 늘었는지 줄었는지 방향이 뒤집히지 않게 해요.</p>
+        <p>할인가는 정가 × (100 − 할인율) ÷ 100, 할인율은 (정가 − 판매가) ÷ 정가 × 100 이에요. 판매가가 정가보다 비싸면 할인이 아니라 몇 % 비싼지 알려 줘요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>%와 %p(퍼센트포인트)는 뭐가 달라요?</summary><p>금리가 3%에서 4%가 되면 1%p 올랐다고 해요. 같은 변화를 %로 말하면 (4 − 3) ÷ 3 × 100 = 약 33.33% 오른 거예요. 비율끼리의 단순 차이가 %p, 처음 비율 대비 변화가 % 예요.</p></details>
+        <details><summary>20% 할인 뒤 10% 추가 할인은 30% 할인인가요?</summary><p>아니요. 할인가 탭에서 정가에 20%를 넣어 나온 값에 다시 10%를 넣어 보세요. 정가의 72%가 되니 모두 28% 할인이에요.</p></details>
+        <details><summary>입력한 숫자가 저장되나요?</summary><p>아니요. 어디에도 저장하지 않아요. '이 계산 링크 보내기'를 누를 때만 숫자 두 개가 링크 안에 들어가요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">퍼센트 계산기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

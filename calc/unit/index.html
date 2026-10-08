@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>단위 변환기 | 인치 센치, 파운드 kg, 화씨 섭씨, 갤런 리터, 근·돈·평</title>
+    <meta name="description" content="인치↔센치, 파운드↔kg, 화씨↔섭씨, 갤런↔리터, 에이커↔평, 근·돈까지. 환산값마다 NIST SP 811 등 근거를 함께 보여 줘요." />
+    <meta name="keywords" content="단위 변환기, 인치 센치 변환, 파운드 kg 변환, 화씨 섭씨 변환, 갤런 리터, 근 그램, 돈 그램, 단위 환산" />
+    <link rel="canonical" href="https://guesswhat.co.kr/calc/unit/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="단위 변환기 — 인치·파운드·화씨·갤런·근·돈" />
+    <meta property="og:description" content="해외 직구 사이즈부터 고기 한 근까지." />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"단위 변환기","url":"https://guesswhat.co.kr/calc/unit/","description":"길이·무게·넓이·온도·부피 단위를 바꾸는 변환기. 인치·피트·마일, 파운드·온스·근·돈, 평·에이커, 화씨·섭씨, 갤런·컵.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="cin">
+        <span class="cc-kick">생활 계산기 · 단위</span>
+        <h1 class="cc-title">단위 변환기</h1>
+        <p class="cc-lead">종류를 고르고 숫자를 넣어요. 다른 단위로는 얼마인지도 한꺼번에 보여 줘요.</p>
+        <div class="cc-chal" id="cchal" hidden></div>
+        <div class="un-cats" id="cats" role="tablist" aria-label="단위 종류">
+          <button type="button" role="tab" data-c="len">길이</button><button type="button" role="tab" data-c="wt">무게</button><button type="button" role="tab" data-c="area">넓이</button><button type="button" role="tab" data-c="temp">온도</button><button type="button" role="tab" data-c="vol">부피</button>
+        </div>
+        <label class="cf un-in" for="v"><span class="cf-l">값</span>
+          <div class="cf-num"><input id="v" inputmode="decimal" autocomplete="off" /><button type="button" class="un-sign" id="sign" aria-label="부호 바꾸기" hidden>±</button></div>
+        </label>
+        <div class="un-pick">
+          <label class="cf" for="from"><span class="cf-l">이 단위에서</span><select id="from"></select></label>
+          <button type="button" class="un-swap" id="swap" aria-label="단위 서로 바꾸기">⇄</button>
+          <label class="cf" for="to"><span class="cf-l">이 단위로</span><select id="to"></select></label>
+        </div>
+        <p class="cc-err" id="cerr" role="alert" hidden></p>
+        <div class="cr un-res" aria-live="polite">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v"><span id="out">—</span><small id="outu"></small></p>
+          <p class="un-sub">다른 단위로는</p>
+          <div id="all"></div>
+          <details class="cc-basis" id="basis"></details>
+        </div>
+        <div class="cc-btns">
+          <button class="cc-go" id="copy" type="button">결과 복사</button>
+          <button class="cc-go cc-go--sub" id="shareBtn" type="button">이 변환 링크 보내기</button>
+        </div>
+      </section>
+      <article class="seo cc-doc">
+        <h2>단위 변환 방법</h2>
+        <p>길이는 미터, 무게는 그램, 넓이는 제곱미터, 부피는 밀리리터로 한 번 바꾼 뒤 원하는 단위로 다시 나눠요. 1인치 = 2.54cm, 1피트 = 30.48cm, 1마일 = 1.609344km, 1파운드 = 453.59237g, 1온스 = 28.349523125g 이에요.</p>
+        <p>온도는 비율이 아니라 식으로 바꿔요. 화씨 = 섭씨 × 9/5 + 32, 섭씨 = (화씨 − 32) × 5/9, 켈빈 = 섭씨 + 273.15. 결과는 소수 넷째 자리까지, 0.01보다 작거나 1,000조보다 큰 값은 10의 거듭제곱으로 보여 줘요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>고기 한 근과 채소 한 근이 왜 달라요?</summary><p>표준국어대사전에 따르면 고기·한약재 한 근은 600g, 과일·채소 한 근은 한 관의 10분의 1인 375g 이에요. 그래서 두 가지로 나눠 두었어요.</p></details>
+        <details><summary>금 한 돈은 몇 g 이에요?</summary><p>3.75g 으로 계산해요. 귀금속 거래에서 널리 쓰는 값이지만 이 값을 정한 법령 원문은 찾지 못했어요.</p></details>
+        <details><summary>컵은 왜 두 가지예요?</summary><p>미국 레시피의 1컵은 236.6mL(미국 갤런의 1/16), 한국 요리책의 1컵은 보통 200mL 예요. 한국 200mL 는 공식 근거를 찾지 못한 관행 값이에요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 계산기"></nav>
+      <footer class="site-footer">단위 변환기 · 입력한 숫자는 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

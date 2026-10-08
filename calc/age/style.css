@@ -1,0 +1,6 @@
+/* 만 나이 계산기 — 계산기 공용 모양 위에 작은 보탬만 */
+:root { --ac: #d6336c; }
+.fm { display: grid; gap: 12px; margin-top: 16px; }
+.cr-sub { margin: 6px 0 0; font: 800 15px/1.4 var(--font-sans); color: var(--sub); word-break: keep-all; }
+.cf-chips { margin-top: 4px; }
+.rr span { word-break: keep-all; }

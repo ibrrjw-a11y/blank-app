@@ -1,0 +1,24 @@
+/* 비밀번호 생성기 — 결과를 맨 위에 크게, 강도 막대 4칸 */
+:root { --ac: #3b3bb3; }
+.pw-safe { margin: 12px 0 0; padding: 10px 12px; border-left: 4px solid var(--ac); background: var(--card); font: 600 13.5px/1.5 var(--font-sans); word-break: keep-all; }
+.pw-safe b { font-weight: 900; }
+.pw-out { margin-top: 14px; }
+.pw-pw { display: block; margin: 10px 0 0; padding: 14px 12px; border: 2px dashed var(--line); border-radius: 12px; background: #fff; font: 800 26px/1.35 ui-monospace, "SF Mono", Consolas, "Roboto Mono", monospace; letter-spacing: .02em; overflow-wrap: anywhere; min-height: 1.35em; user-select: all; }
+.pw-pw.pw-long { font-size: 19px; }
+.pw-meter { position: relative; height: 10px; margin-top: 14px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.pw-meter i { position: absolute; inset: 0 auto 0 0; width: calc(var(--p, 0) * 100%); border-radius: inherit; background: var(--sub); transition: width .3s; }
+.pw-meter[data-level="1"] i { background: #d6402a; } .pw-meter[data-level="2"] i { background: #e0a020; }
+.pw-meter[data-level="3"] i { background: #2f9a57; } .pw-meter[data-level="4"] i { background: #1f6f40; }
+.pw-bits { margin: 8px 0 0; font: 800 15px/1.3 var(--font-sans); }
+.pw-bits b { font-size: 22px; font-weight: 900; }
+.pw-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 22px; padding: 4px; border: 2px solid var(--ink); border-radius: 14px; background: var(--card); }
+.pw-tabs button { min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 800 15px/1 var(--font-sans); cursor: pointer; }
+.pw-tabs button.on { background: var(--ink); color: #fff; }
+.pw-opts { display: grid; gap: 10px; margin-top: 12px; }
+.pw-opts input[type="range"] { width: 100%; height: 34px; accent-color: var(--ac); }
+.pw-opts .cf-l b { font-size: 18px; color: var(--ac); }
+.pw-checks { grid-template-columns: 1fr 1fr; gap: 10px 8px; }
+.pw-checks label { display: flex; align-items: center; gap: 8px; min-height: 40px; font: 700 14.5px/1.3 var(--font-sans); cursor: pointer; }
+.pw-checks input { width: 22px; height: 22px; accent-color: var(--ac); flex: none; }
+.pw-wide { grid-column: 1 / -1; }
+@media (max-width: 380px) { .cc-title { font-size: 32px; } .pw-pw { font-size: 22px; } .pw-checks { grid-template-columns: 1fr; } }

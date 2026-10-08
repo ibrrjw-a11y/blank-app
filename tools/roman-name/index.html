@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>영문 이름 변환기 | 한글 이름 로마자 표기·여권 영문 이름</title>
+    <meta name="description" content="한글 이름을 국어의 로마자 표기법(인명 규정)대로 영문으로 바꿔요. 붙임표 넣은 표기·대문자 표기까지 후보로 보여 주고 바로 복사." />
+    <meta name="keywords" content="영문 이름 변환기, 한글 이름 영어로, 이름 로마자 표기, 여권 영문 이름, 로마자 표기법 변환기, 영문 성명" />
+    <link rel="canonical" href="https://guesswhat.co.kr/tools/roman-name/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="영문 이름 변환기 — 내 이름, 로마자로 어떻게 써?" />
+    <meta property="og:description" content="국어의 로마자 표기법 인명 규정대로 바꾸고 바로 복사" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"영문 이름 변환기","url":"https://guesswhat.co.kr/tools/roman-name/","description":"한글 이름을 국어의 로마자 표기법 인명 규정에 따라 로마자로 바꾸는 도구.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v" id="rin">
+        <span class="cc-kick">생활 도구 · 로마자 표기</span>
+        <h1 class="cc-title">영문 이름 변환기</h1>
+        <p class="cc-lead">성과 이름을 따로 넣으면 로마자 표기법대로 바꿔 드려요.</p>
+        <p class="rn-rule" data-info=".cc-title">문화체육관광부 고시 「국어의 로마자 표기법」(2000년 제정, 2014년 일부 개정) 제3장 제4항의 인명 규정을 따라요. 성과 이름은 띄어 쓰고, 이름은 붙여 쓰는 것이 원칙이며 음절 사이에 붙임표(-)를 넣는 것도 허용돼요. 이름 안에서 일어나는 소리 변화(예: 한복남을 [한봉남]으로 읽는 것)는 표기에 반영하지 않아요. 그래서 이 도구는 이름을 글자(음절)마다 따로 바꿔 이어 붙여요.</p>
+        <form id="rform" class="rn-form" autocomplete="off" novalidate>
+          <div class="rn-two">
+            <label class="cf"><span class="cf-l">성</span><input id="sur" class="rn-in" maxlength="2" placeholder="예: 민" value="민" /></label>
+            <label class="cf"><span class="cf-l">이름</span><input id="given" class="rn-in" maxlength="4" placeholder="예: 용하" value="용하" /></label>
+          </div>
+          <p class="cc-err" id="rerr" role="alert" hidden></p>
+          <button class="cc-go" id="go" type="submit">로마자로 바꾸기</button>
+        </form>
+      </section>
+
+      <section class="cc-v" id="rres" hidden>
+        <div class="cr">
+          <p class="cr-h" id="rhead"></p>
+          <p class="cr-v rn-main" id="rmain"></p>
+          <button class="rn-copy rn-copy--main" type="button" data-copy-main>복사</button>
+          <ul class="rn-list" id="rlist"></ul>
+          <details class="cc-basis"><summary>글자별로 보기</summary><table id="rsyl"></table></details>
+          <p class="rn-sur" id="rsur"></p>
+        </div>
+        <p class="rn-pass"><b>여권 영문 이름은 신청 전에 외교부 안내를 꼭 확인하세요.</b> <a href="https://www.passport.go.kr/" target="_blank" rel="noopener">외교부 여권안내</a></p>
+        <p class="rn-pass-more" data-info=".rn-pass b">여권의 로마자 성명은 외교부가 여권법령에 따라 정해요. 한 번 여권에 올린 영문 이름은 바꾸기가 매우 어렵고(정해진 사유가 있을 때만 바뀌어요), 이미 여권이 있다면 예전 여권과 같은 표기를 쓰는 것이 기본이에요. 가족과 성 표기를 맞추는 문제, 이미 쓰던 표기가 있는 경우 등은 이 도구가 판단하지 않아요. 이 화면의 결과는 표기법 글자 대응을 그대로 적용한 '참고용 후보'예요.</p>
+        <div class="cc-btns">
+          <button class="cc-go cc-go--sub" id="back" type="button">다른 이름</button>
+          <button class="cc-go cc-go--sub" id="shareBtn" type="button">링크 보내기</button>
+        </div>
+      </section>
+
+      <article class="seo cc-doc">
+        <h2>한글 이름을 로마자로 쓰는 법</h2>
+        <p>기준은 문화체육관광부 고시 「국어의 로마자 표기법」이에요. 인명은 제3장 제4항에 따로 정해져 있어요. 성과 이름의 순서로 띄어 쓰고(민용하 → Min Yongha), 이름은 붙여 쓰는 것이 원칙이지만 음절 사이에 붙임표를 넣어도 돼요(Min Yong-ha).</p>
+        <p>이름 안에서 소리가 바뀌어도 표기에는 반영하지 않아요. 한복남은 [한봉남]으로 소리 나지만 Han Boknam, 홍빛나는 Hong Bitna로 적어요. 그래서 이름은 글자 하나하나를 따로 바꿔 이어 붙이면 돼요.</p>
+        <h2>글자 대응표 (제2장)</h2>
+        <p>모음: ㅏ a, ㅓ eo, ㅗ o, ㅜ u, ㅡ eu, ㅣ i, ㅐ ae, ㅔ e, ㅚ oe, ㅟ wi, ㅑ ya, ㅕ yeo, ㅛ yo, ㅠ yu, ㅒ yae, ㅖ ye, ㅘ wa, ㅙ wae, ㅝ wo, ㅞ we, ㅢ ui.</p>
+        <p>자음: ㄱ g·k, ㄲ kk, ㅋ k, ㄷ d·t, ㄸ tt, ㅌ t, ㅂ b·p, ㅃ pp, ㅍ p, ㅈ j, ㅉ jj, ㅊ ch, ㅅ s, ㅆ ss, ㅎ h, ㄴ n, ㅁ m, ㅇ ng, ㄹ r·l. ㄱ·ㄷ·ㅂ은 모음 앞에서 g·d·b, 받침에서는 k·t·p로 적고, ㄹ은 모음 앞에서 r, 받침에서 l, ㄹㄹ은 ll로 적어요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>성은 어떻게 적나요?</summary><p>표기법 제3장 제4항 (2)는 "성의 표기는 따로 정한다"고만 되어 있고, 아직 따로 정해진 공식 성씨 표기는 없어요. 이 도구는 성도 글자 대응표대로 적어요. 집안이나 예전 여권에서 이미 쓰는 성 표기가 있다면 그 표기를 쓰는 경우가 많아요. 표기법 제7항도 인명은 그동안 써 온 표기를 쓸 수 있다고 해요.</p></details>
+        <details><summary>여권 영문 이름도 이대로 쓰면 되나요?</summary><p>여권 영문 이름은 외교부가 여권법령에 따라 정하고, 한 번 정하면 바꾸기 어려워요. 신청하기 전에 외교부 여권안내 누리집에서 기준을 확인하세요. 이 도구 결과는 참고용 후보예요.</p></details>
+        <details><summary>입력한 이름이 어디로 가나요?</summary><p>아니요. 바꾸는 계산은 이 화면 안에서만 일어나고, 이름은 어디에도 보내거나 저장하지 않아요. 링크 보내기에도 이름은 들어가지 않아요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 도구"></nav>
+      <footer class="site-footer">영문 이름 변환기 · 국어의 로마자 표기법(문화체육관광부 고시) 기준 · 참고용</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+// 외우기 쉬운 단어 조합용 영어 단어 512개(2026-10-08).
+// 출처: 이 사이트(게스왓)에서 직접 고른 흔한 영어 낱말 목록 — 외부 단어장(EFF·Diceware 등)을 복사하지 않음.
+// 흔한 영어 낱말을 하나씩 직접 적어 만든 목록이라 다른 단어장의 저작권 문제가 없음.
+// 512개 = 2의 9제곱이라 단어 하나가 정확히 9비트. 모두 소문자 a~z, 3~8글자, 중복 없음(검사에서 확인).
+export const WORDS = [
+  "acid", "acorn", "acrobat", "actor", "adult", "agent", "air", "album", "alley", "amber", "anchor", "angle", "ankle", "arena", "arm", "arrow",
+  "art", "atlas", "attic", "aunt", "award", "axis", "baby", "bacon", "badge", "baker", "bamboo", "banana", "band", "bank", "barn", "basin",
+  "basket", "bath", "beam", "bean", "bear", "beard", "bed", "beef", "bell", "belt", "berry", "bike", "bird", "birth", "blade", "blank",
+  "blaze", "blend", "bloom", "blue", "board", "boat", "bolt", "bone", "bonus", "boot", "border", "bottle", "bow", "bowl", "box", "brain",
+  "branch", "brave", "bride", "bridge", "brook", "broom", "brush", "bucket", "buddy", "bulb", "butter", "button", "cactus", "calm", "camel", "camera",
+  "camp", "canal", "candle", "cap", "card", "cargo", "carrot", "cashew", "cave", "cedar", "cello", "chalk", "charm", "chart", "cheek", "cheese",
+  "cherry", "chess", "chick", "chief", "child", "chin", "chip", "choir", "cinema", "circle", "city", "class", "climb", "clock", "clown", "coach",
+  "cobalt", "cobra", "coffee", "coin", "comet", "coral", "corn", "cotton", "couch", "cousin", "cove", "cow", "crab", "craft", "crate", "crayon",
+  "creek", "crew", "cricket", "cube", "cup", "cycle", "dance", "dawn", "delta", "denim", "desert", "dew", "dice", "dinner", "disk", "doctor",
+  "dog", "doll", "dolphin", "donkey", "door", "dream", "dress", "dune", "dust", "eagle", "easel", "echo", "edge", "egg", "elbow", "elk",
+  "ember", "energy", "engine", "equal", "event", "fabric", "face", "fair", "falcon", "fan", "farm", "feast", "feather", "fence", "fern", "fever",
+  "field", "film", "finch", "finger", "fire", "fish", "fjord", "flame", "flannel", "flash", "fleet", "focus", "fog", "folk", "forest", "fork",
+  "frog", "frost", "fruit", "fudge", "game", "garden", "garlic", "gate", "gecko", "genius", "ghost", "giant", "gift", "ginger", "giraffe", "gizmo",
+  "globe", "glove", "glow", "golf", "goose", "gravel", "green", "grid", "grill", "guard", "guest", "guitar", "gull", "hamster", "harbor", "harp",
+  "hat", "hatch", "hawk", "hazel", "heart", "hedge", "helmet", "herb", "hero", "hill", "hobby", "honey", "hood", "hook", "hotel", "hug",
+  "humor", "hut", "ice", "icon", "igloo", "image", "ink", "insect", "iron", "island", "jacket", "jaguar", "jar", "jazz", "jeans", "jelly",
+  "jigsaw", "job", "judge", "jungle", "kernel", "kettle", "key", "kid", "kind", "king", "kitten", "kiwi", "koala", "lab", "label", "ladder",
+  "lagoon", "lamb", "land", "lane", "laser", "lasso", "lawn", "leaf", "lemon", "level", "lily", "lime", "linen", "lion", "lizard", "llama",
+  "lobby", "lock", "lotus", "lucky", "lunar", "lunch", "mango", "map", "maple", "mask", "meadow", "medal", "melon", "menu", "merit", "mill",
+  "mint", "mirror", "mitten", "mixer", "model", "monkey", "month", "moon", "moose", "moss", "motor", "mouse", "mouth", "movie", "mud", "mug",
+  "mural", "music", "nail", "name", "napkin", "navy", "neck", "nest", "night", "nimbus", "noble", "noodle", "nose", "note", "nugget", "nut",
+  "oak", "omega", "onion", "otter", "oven", "owl", "pace", "paddle", "page", "paint", "palace", "palm", "panda", "paper", "parade", "park",
+  "parrot", "party", "pasta", "path", "peak", "pearl", "pebble", "pecan", "pepper", "piano", "picnic", "pie", "pilot", "pink", "pizza", "plaid",
+  "plant", "plate", "plaza", "plum", "poem", "polar", "pond", "pool", "poppy", "porch", "prism", "puzzle", "quartz", "queen", "quest", "rabbit",
+  "radio", "rain", "rattle", "raven", "recipe", "relic", "rhino", "rice", "riddle", "river", "road", "robin", "robot", "rocket", "root", "rope",
+  "rose", "rug", "ruler", "safari", "salad", "salt", "sand", "satin", "scarf", "school", "sea", "seal", "season", "seed", "shark", "sheep",
+  "shell", "ship", "shirt", "shoe", "shore", "shovel", "sister", "sled", "smile", "snail", "snake", "snow", "sock", "solar", "song", "soup",
+  "space", "spark", "spice", "spider", "spoon", "spring", "spruce", "stage", "star", "stork", "stove", "straw", "stream", "street", "sugar", "summer",
+  "sun", "sunset", "table", "tail", "talent", "tango", "taxi", "tea", "teacher", "tennis", "thistle", "thunder", "tiger", "timber", "token", "tomato",
+  "tool", "topaz", "tower", "track", "train", "tribe", "trophy", "truck", "trumpet", "tulip", "tuna", "tundra", "ukulele", "umbrella", "uncle", "unicorn",
+  "union", "vase", "violin", "visit", "vista", "voice", "volcano", "vortex", "waffle", "wagon", "walnut", "walrus", "wand", "water", "wave", "whale",
+  "wheat", "whisk", "wing", "winter", "wizard", "wolf", "wombat", "wood", "wool", "yeti", "yoga", "zebra", "zero", "zigzag", "zipper", "zone",
+];

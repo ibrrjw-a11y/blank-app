@@ -1,0 +1,16 @@
+/* 퍼센트 계산기 — 탭 6개(2줄×3칸) + 실시간 결과 카드 */
+:root { --ac: #6a4bc4; }
+.pc-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 16px; }
+.pc-tabs button { min-height: 44px; padding: 6px 4px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; color: var(--ink); font: 800 14px/1.2 var(--font-sans); word-break: keep-all; cursor: pointer; }
+.pc-tabs button.on { background: var(--ink); color: #fff; }
+.pc-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.pc-form .cf { padding: 10px 12px; }
+.pc-form .cf-num { gap: 6px; }
+.pc-form .cf-num input { padding: 0 10px; font-size: 19px; }
+.pc-sign { flex: none; width: 32px; height: 32px; border: 1.5px solid var(--line); border-radius: 8px; background: #fff; font: 900 15px/1 var(--font-sans); color: var(--ink); cursor: pointer; }
+.pc-res { margin-top: 14px; }
+.pc-res .cr-v { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; font-variant-numeric: tabular-nums; word-break: break-all; }
+.pc-res .cr-v small { font: 900 22px/1 var(--font-sans); color: var(--sub); }
+.pc-sent { margin: 8px 0 0; font: 800 15.5px/1.5 var(--font-sans); word-break: keep-all; }
+.pc-res .rr { animation: none; }
+@media (max-width: 380px) { .pc-form { grid-template-columns: 1fr; } .pc-res .cr-v { font-size: 38px; } }

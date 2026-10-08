@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>비밀번호 생성기 | 안전한 랜덤 비밀번호 만들기·외우기 쉬운 비밀번호</title>
+    <meta name="description" content="길이·대소문자·숫자·기호를 골라 안전한 랜덤 비밀번호를 만들어요. 헷갈리는 글자 빼기, 외우기 쉬운 단어 조합, 강도(비트) 표시. 어디에도 안 보내요." />
+    <meta name="keywords" content="비밀번호 생성기, 랜덤 비밀번호, 비밀번호 만들기, 안전한 비밀번호, 패스워드 생성기, 외우기 쉬운 비밀번호" />
+    <link rel="canonical" href="https://guesswhat.co.kr/tools/password/" />
+    <meta name="theme-color" content="#f2efe8" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="비밀번호 생성기 — 안전하게, 이 화면 안에서만" />
+    <meta property="og:description" content="길이·글자 종류 골라 랜덤 비밀번호, 강도까지" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../shared/components.css" />
+    <link rel="stylesheet" href="../../shared/calc.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"비밀번호 생성기","url":"https://guesswhat.co.kr/tools/password/","description":"브라우저 안에서 암호학적 난수로 랜덤 비밀번호와 외우기 쉬운 단어 조합 비밀번호를 만드는 도구.","applicationCategory":"SecurityApplication","operatingSystem":"Any","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"}}
+    </script>
+  </head>
+  <body>
+    <main class="cc">
+      <section class="cc-v">
+        <span class="cc-kick">생활 도구 · 보안</span>
+        <h1 class="cc-title">비밀번호 생성기</h1>
+        <p class="pw-safe" id="safe"><b>만든 비밀번호는 어디에도 보내거나 저장하지 않아요.</b> 이 화면 안에서만 만들어져요.</p>
+
+        <div class="cr pw-out">
+          <p class="cr-h">새 비밀번호</p>
+          <output class="pw-pw" id="pw" aria-live="polite"></output>
+          <div class="pw-meter" id="meter" data-level="0"><i></i></div>
+          <p class="pw-bits"><b id="bits">0</b> 비트 · <span id="level">-</span></p>
+          <p class="pw-bits-info" data-info=".pw-bits">비트는 이 설정으로 나올 수 있는 비밀번호 가짓수를 2의 몇 제곱인지로 나타낸 값이에요(엔트로피). 1비트가 늘 때마다 맞히기 위해 시도해야 할 수가 두 배가 돼요. 글자 종류마다 하나 이상 들어가게 만든 것까지 빼고 정확히 셌어요. 약함·보통·강함은 40·60·80비트를 나눈 대략의 눈금이에요(공식 기준이 아니라 이 사이트가 정한 구간). 이 값은 '무작위로 만든 경우'에만 맞고, 직접 고쳐 쓰면 달라져요.</p>
+          <div class="cc-btns">
+            <button class="cc-go" id="copy" type="button">복사</button>
+            <button class="cc-go cc-go--sub" id="again" type="button">다시 만들기</button>
+          </div>
+        </div>
+
+        <div class="pw-tabs" role="tablist">
+          <button type="button" role="tab" id="tabChars" class="on" aria-selected="true" data-mode="chars">랜덤 글자</button>
+          <button type="button" role="tab" id="tabWords" aria-selected="false" data-mode="words">외우기 쉬운 단어</button>
+        </div>
+
+        <div id="optChars" class="pw-opts">
+          <label class="cf"><span class="cf-l">길이 <b id="lenV">16</b>자</span><input type="range" id="len" min="4" max="64" value="16" /></label>
+          <div class="cf pw-checks">
+            <label><input type="checkbox" id="lower" checked /> 소문자 a–z</label>
+            <label><input type="checkbox" id="upper" checked /> 대문자 A–Z</label>
+            <label><input type="checkbox" id="digit" checked /> 숫자 0–9</label>
+            <label><input type="checkbox" id="symbol" checked /> 기호 !@#…</label>
+            <label class="pw-wide"><input type="checkbox" id="noconf" checked /> 헷갈리는 글자 빼기 (0 O 1 l I)</label>
+          </div>
+        </div>
+
+        <div id="optWords" class="pw-opts" hidden>
+          <label class="cf"><span class="cf-l">단어 <b id="wcV">6</b>개</span><input type="range" id="wc" min="3" max="8" value="6" /></label>
+          <label class="cf"><span class="cf-l">단어 사이</span>
+            <select id="sep"><option value="-" selected>붙임표 ( - )</option><option value=".">점 ( . )</option><option value="_">밑줄 ( _ )</option><option value=" ">띄어쓰기</option><option value="">붙여 쓰기</option></select></label>
+          <div class="cf pw-checks">
+            <label><input type="checkbox" id="cap" /> 단어 첫 글자 대문자</label>
+            <label><input type="checkbox" id="num" /> 끝에 숫자 하나</label>
+          </div>
+          <p class="pw-wl" data-info="#optWords .cf-l">단어는 흔한 영어 낱말 512개 가운데서 무작위로 골라요(단어 하나에 9비트). 단어장은 이 사이트가 직접 적은 목록이라 다른 단어장을 옮겨 오지 않았어요. 단어 첫 글자 대문자는 늘 같은 규칙이라 강도를 올리지 않고, 끝 숫자는 0~9 중 하나라 약 3.3비트를 더해요.</p>
+        </div>
+        <p class="cc-err" id="perr" role="alert" hidden></p>
+      </section>
+
+      <article class="seo cc-doc">
+        <h2>안전한 비밀번호 만드는 법</h2>
+        <p>사람이 떠올린 비밀번호는 생일·이름·키보드 줄처럼 남이 짐작하기 쉬운 모양이 섞여요. 무작위로 만든 비밀번호는 그런 틈이 없어요. 이 도구는 브라우저에 들어 있는 암호용 난수(crypto.getRandomValues)만 써서 글자를 고르고, 한쪽으로 치우치지 않게 골라요.</p>
+        <p>길게 만드는 것이 가장 효과가 커요. 글자 종류를 늘리는 것보다 길이를 몇 자 늘리는 쪽이 비트가 더 많이 올라가요. 외우기 쉬운 단어 조합은 단어 4개면 36비트, 6개면 54비트예요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>만든 비밀번호가 서버로 가나요?</summary><p>아니요. 이 페이지는 서버 없이 화면 안에서만 계산해요. 비밀번호를 어디에도 보내지 않고 저장하지도 않아요. 고른 설정(길이·글자 종류)만 이 기기에 기억해요.</p></details>
+        <details><summary>헷갈리는 글자 빼기는 왜 있나요?</summary><p>0(숫자 영)과 O(대문자 오), 1(숫자 일)과 l(소문자 엘)과 I(대문자 아이)는 글꼴에 따라 구분이 어려워요. 손으로 옮겨 적거나 읽어 줄 때 실수를 줄여요. 대신 고를 수 있는 글자가 줄어 강도가 조금 내려가요.</p></details>
+        <details><summary>강도 비트는 어떻게 세나요?</summary><p>이 설정으로 나올 수 있는 비밀번호 개수를 그대로 센 뒤 2를 밑으로 하는 로그를 취해요. 글자 종류마다 하나 이상 들어가야 하는 조건은 포함-배제 원리로 빼서 셌어요.</p></details>
+      </article>
+      <nav id="more" aria-label="다른 도구"></nav>
+      <footer class="site-footer">비밀번호 생성기 · 만든 비밀번호는 보내지도 저장하지도 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
