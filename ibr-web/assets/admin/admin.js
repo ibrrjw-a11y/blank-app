@@ -283,9 +283,80 @@
       return encode(c, .8, false);
     });
   }
-  /* 상세 이미지: 가로 860px, 세로 6000px 이하로 고르게 나눔. GIF 는 움직임을 살려 그대로 */
-  function detailImages(file) {
-    if (file.type === "image/gif") return Promise.resolve([{ blob: file, ext: "gif" }]);
+  /* 상세 이미지: 가로 860px, 세로 6000px 이하로 고르게 나눔.
+     움직이는 GIF 는 움직임을 살린 webp 로 바꿔 크기를 크게 줄입니다(크롬·엣지·파이어폭스). 안 되는 브라우저에서는 GIF 그대로 */
+  function detailImages(file, onStep) {
+    if (file.type === "image/gif") return gifToWebp(file, onStep).then(function (r) {
+      if (r === "still") return stillDetail(file);
+      return [r || { blob: file, ext: "gif", raw: true }];
+    }, function () { return [{ blob: file, ext: "gif", raw: true }]; });
+    return stillDetail(file);
+  }
+
+  /* ── 움직이는 GIF → 움직이는 webp ──
+     프레임을 하나씩 풀어(ImageDecoder) 가로 860px 로 줄이고 webp 로 저장한 뒤 애니메이션 webp 파일로 묶습니다.
+     너무 촘촘한 프레임(60ms 미만)은 이웃 프레임과 합쳐 초당 16장 정도로 맞춥니다. */
+  var webpEnc = null;
+  function canWebp() { if (webpEnc == null) { try { webpEnc = cv(2, 2).toDataURL("image/webp").indexOf("data:image/webp") === 0; } catch (e) { webpEnc = false; } } return webpEnc; }
+  function u24(a, o, v) { a[o] = v & 255; a[o + 1] = (v >> 8) & 255; a[o + 2] = (v >> 16) & 255; }
+  function chunk(tag, body) {
+    var n = body.length, c = new Uint8Array(8 + n + (n & 1));
+    for (var i = 0; i < 4; i++) c[i] = tag.charCodeAt(i);
+    new DataView(c.buffer).setUint32(4, n, true); c.set(body, 8);
+    return c;
+  }
+  /* 한 장짜리 webp 에서 그림 부분(ALPH·VP8·VP8L 조각)만 꺼냄 */
+  function webpParts(buf) {
+    var u = new Uint8Array(buf), dv = new DataView(buf), out = [], alpha = false, p = 12;
+    while (p + 8 <= u.length) {
+      var tag = String.fromCharCode(u[p], u[p + 1], u[p + 2], u[p + 3]), n = dv.getUint32(p + 4, true), end = p + 8 + n + (n & 1);
+      if (tag === "ALPH" || tag === "VP8 " || tag === "VP8L") { var c = u.slice(p, Math.min(end, u.length)); if (c.length & 1) { var c2 = new Uint8Array(c.length + 1); c2.set(c); c = c2; } out.push(c); if (tag !== "VP8 ") alpha = true; }
+      p = end;
+    }
+    return { parts: out, alpha: alpha };
+  }
+  function gifToWebp(file, onStep) {
+    if (!window.ImageDecoder || !canWebp()) return Promise.resolve(null);
+    var dec, frames = [], W, H, c, x, alpha = false;
+    return file.arrayBuffer().then(function (buf) {
+      dec = new ImageDecoder({ data: buf, type: "image/gif" });
+      return dec.completed.then(function () { return dec.tracks.ready; });
+    }).then(function () {
+      var n = dec.tracks.selectedTrack.frameCount;
+      if (n <= 1) { dec.close(); return "still"; }
+      var chain = Promise.resolve(), last = null;
+      for (var i = 0; i < n; i++) (function (i) {
+        chain = chain.then(function () { return dec.decode({ frameIndex: i }); }).then(function (r) {
+          var vf = r.image, d = vf.duration ? vf.duration / 1000 : 100;
+          if (d <= 10) d = 100;                       // 브라우저와 같게: 너무 짧은 값은 0.1초
+          if (!c) { W = Math.min(860, vf.displayWidth); H = Math.max(1, Math.round(vf.displayHeight * W / vf.displayWidth)); c = cv(W, H); x = c.getContext("2d"); }
+          if (last && last.d < 60) { last.d += d; vf.close(); return; }  // 이웃 프레임과 합치기
+          x.fillStyle = "#fff"; x.fillRect(0, 0, W, H); x.drawImage(vf, 0, 0, W, H); vf.close();
+          var f = { d: d }; frames.push(f); last = f;
+          if (onStep) onStep(i + 1, n);
+          return new Promise(function (res) { c.toBlob(res, "image/webp", .72); }).then(function (b) { return b.arrayBuffer(); }).then(function (ab) {
+            var w = webpParts(ab); f.parts = w.parts; if (w.alpha) alpha = true;
+          });
+        });
+      })(i);
+      return chain.then(function () {
+        dec.close();
+        var vp8x = new Uint8Array(10); vp8x[0] = 0x02 | (alpha ? 0x10 : 0); u24(vp8x, 4, W - 1); u24(vp8x, 7, H - 1);
+        var anim = new Uint8Array([255, 255, 255, 255, 0, 0]);
+        var body = [chunk("VP8X", vp8x), chunk("ANIM", anim)];
+        frames.forEach(function (f) {
+          var len = 16 + f.parts.reduce(function (a, q) { return a + q.length; }, 0), b = new Uint8Array(len), o = 16;
+          u24(b, 6, W - 1); u24(b, 9, H - 1); u24(b, 12, Math.min(0xFFFFFF, Math.round(f.d))); b[15] = 0x02;  // 겹치지 않고 통째로 바꿈
+          f.parts.forEach(function (q) { b.set(q, o); o += q.length; });
+          body.push(chunk("ANMF", b));
+        });
+        var size = 4 + body.reduce(function (a, q) { return a + q.length; }, 0), head = new Uint8Array(12);
+        head.set([82, 73, 70, 70]); new DataView(head.buffer).setUint32(4, size, true); head.set([87, 69, 66, 80], 8);
+        return { blob: new Blob([head].concat(body), { type: "image/webp" }), ext: "webp", frames: frames.length };
+      });
+    });
+  }
+  function stillDetail(file) {
     return decode(file).then(function (im) {
       var w = Math.min(860, im.width), s = w / im.width, H = Math.round(im.height * s), parts = [], chain = Promise.resolve();
       var step = Math.ceil(H / Math.ceil(H / 6000));
@@ -567,18 +638,26 @@
     function addDetail(files) {
       files = files.filter(function (x) { return /^image\//.test(x.type); });
       if (!files.length) return;
-      toast("상세 이미지를 처리하는 중… (" + files.length + "개)", "", 20000);
-      var chain = Promise.resolve(), added = 0;
-      files.forEach(function (f) {
-        chain = chain.then(function () { return detailImages(f); }).then(function (parts) {
+      toast("상세 이미지를 처리하는 중… (" + files.length + "개)", "", 60000);
+      var chain = Promise.resolve(), added = 0, big = [], raw = 0;
+      files.forEach(function (f, k) {
+        chain = chain.then(function () {
+          return detailImages(f, function (i, n) { toast("움직이는 GIF 줄이는 중… " + (k + 1) + "/" + files.length + "번째 파일, 프레임 " + i + "/" + n, "", 60000); });
+        }).then(function (parts) {
           parts.forEach(function (r) {
             var path = "assets/img/detail/" + p.id + "/" + rand() + "." + r.ext;
             addPending(path, r.blob); (p.detail = p.detail || []).push(path); added++;
+            if (r.raw) raw++;
+            if (r.blob.size > 6 * 1024 * 1024) big.push(f.name + " " + (r.blob.size / 1048576).toFixed(1) + "MB");
           });
         });
       });
-      chain.then(function () { toast("상세 이미지 " + added + "장을 넣었습니다. 저장해야 올라갑니다.", "ok"); markChange(); renderEditor(); })
-        .catch(function (e) { toast(e.message, "err"); });
+      chain.then(function () {
+        var msg = "상세 이미지 " + added + "장을 넣었습니다. 저장해야 올라갑니다.";
+        if (raw) msg += " (이 브라우저에서는 GIF 를 줄이지 못해 그대로 넣었습니다. 크롬에서 하면 크기가 훨씬 작아집니다.)";
+        if (big.length) msg += " 큰 파일이 있어 휴대폰에서 늦게 열릴 수 있습니다: " + big.join(", ");
+        toast(msg, big.length || raw ? "" : "ok", big.length || raw ? 12000 : 3200); markChange(); renderEditor();
+      }).catch(function (e) { toast(e.message, "err"); });
     }
     $("#upDetail", pane).onclick = function () { pickFiles("image/*", true).then(addDetail); };
     dropZone($("#dropDetail", pane), addDetail);
@@ -788,7 +867,7 @@
       var btn = this; btn.disabled = true; $("#mCancel", bg).disabled = true;
       var bar = $(".progress", bg); bar.hidden = false;
       commit(ch, $("#mMsg", bg).value.trim() || msg, function (r) { $("i", bar).style.width = Math.round(r * 100) + "%"; }).then(function () {
-        close(); toast("저장했습니다. 호스팅이 연결되어 있으면 1~2분 뒤 홈페이지에 반영됩니다.", "ok", 6000);
+        close(); toast("저장했습니다. 1~2분 뒤 홈페이지에 반영됩니다. 바로 안 보이면 잠시 뒤 새로고침해 주세요.", "ok", 8000);
       }).catch(function (e) {
         btn.disabled = false; $("#mCancel", bg).disabled = false;
         toast(e.cancel ? e.message : "저장하지 못했습니다: " + e.message, e.cancel ? "" : "err", 8000);
