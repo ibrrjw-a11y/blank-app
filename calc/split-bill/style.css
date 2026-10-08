@@ -1,0 +1,23 @@
+/* N빵 정산기 — 계산기 공용 모양 위에 영수증·정산표 느낌. 결과 막대가 사람마다 차례로 차오름 */
+:root { --ac: #e2581f; }
+.sb-names, .sb-item input, .sb-acc input { width: 100%; min-height: 44px; padding: 10px 12px; border: 2px solid var(--ink); border-radius: 12px; background: #fff; font: 700 16px/1.4 var(--font-sans); color: var(--ink); box-sizing: border-box; resize: vertical; }
+#items { display: grid; gap: 10px; margin-top: 12px; }
+.sb-row { display: grid; grid-template-columns: 1fr 1.2fr auto; gap: 8px; align-items: center; }
+.sb-row .cf-num input { height: 44px; font-size: 17px; }
+.sb-del { width: 36px; height: 36px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; font: 900 15px/1 var(--font-sans); cursor: pointer; }
+.sb-who { display: flex; flex-wrap: wrap; gap: 6px; }
+.sb-who button { padding: 7px 11px; border: 1.5px dashed var(--line); border-radius: 999px; background: transparent; color: var(--sub); font: 800 13px/1 var(--font-sans); text-decoration: line-through; cursor: pointer; }
+.sb-who button.on { border-style: solid; border-color: var(--ink); background: var(--ink); color: #fff; text-decoration: none; }
+.sb-add { min-height: 46px; margin-top: 10px; box-shadow: none; border-style: dashed; }
+.sb-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+#people { display: grid; gap: 8px; margin-top: 12px; }
+.sb-p { position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 12px 14px; border-radius: 12px; background: #f6f2ea; overflow: hidden; animation: cc-up .4s backwards; animation-delay: calc(var(--k) * .08s); }
+.sb-p i { position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--w) * 100%); background: rgba(226, 88, 31, .14); transform-origin: left; animation: sb-fill .8s cubic-bezier(.2, .8, .2, 1) backwards; animation-delay: calc(var(--k) * .08s + .1s); }
+@keyframes sb-fill { from { transform: scaleX(0); } }
+.sb-p span, .sb-p b { position: relative; font: 800 16px/1.2 var(--font-sans); }
+.sb-p b { font-size: 20px; font-weight: 900; }
+.sb-p em { margin-left: 6px; padding: 2px 6px; border-radius: 6px; background: var(--ac); color: #fff; font: 800 11px/1 var(--font-sans); font-style: normal; vertical-align: 2px; }
+.sb-payer { margin: 12px 0 0; font: 800 14.5px/1.5 var(--font-sans); word-break: keep-all; }
+#breakdown p { margin: 6px 0; } #breakdown small { color: var(--sub); }
+.sb-acc { margin-top: 14px; }
+.sb-copy { margin: 10px 0 0; padding: 12px; border: 1.5px dashed var(--line); border-radius: 12px; background: #fff; white-space: pre-wrap; font: 600 13.5px/1.6 var(--font-sans); }

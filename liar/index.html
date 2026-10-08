@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>라이어 게임 제시어 나눠 주기 | 링크 하나로 각자 폰에 - 무료 진행 도구</title>
+    <meta name="description" content="모임에서 하는 라이어 게임을 진행해 주는 무료 도구. 인원·주제·라이어 수만 고르면 링크 하나로 각자 폰에 제시어 또는 '당신은 라이어'가 떠요. 스파이 모드, 한 폰 돌려보기, 설명 순서, 3분 토론 타이머, 정답 공개까지. 가입·설치 없음." />
+    <meta name="keywords" content="라이어 게임, 라이어게임 제시어, 라이어 게임 앱, 라이어 게임 주제, 스파이 모드, 모임 게임, 술자리 게임, MT 게임" />
+    <link rel="canonical" href="https://guesswhat.co.kr/liar/" />
+    <meta name="theme-color" content="#14161c" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="라이어 게임 - 링크 하나로 제시어 나눠 주기" />
+    <meta property="og:description" content="내 번호를 누르면 내 폰에만 제시어가. 라이어는 누구?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "라이어 게임 진행 도구",
+        "url": "https://guesswhat.co.kr/liar/",
+        "description": "인원·주제·라이어 수를 고르면 링크 하나로 각자 폰에 제시어를 나눠 주는 라이어 게임 진행 도구. 스파이 모드, 한 폰 돌려보기, 토론 타이머, 정답 공개.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="lr">
+      <!-- 판 만들기 -->
+      <section class="lr-v" id="setup" data-view="setup">
+        <div class="hero" aria-hidden="true">
+          <div class="hero__light"></div>
+          <div class="env env--hero">
+            <div class="env__back"></div>
+            <div class="env__paper"><span>제시어</span><b>? ? ?</b></div>
+            <div class="env__front"></div>
+            <div class="env__flap"></div>
+            <span class="env__stamp">TOP SECRET</span>
+          </div>
+        </div>
+        <h1 class="lr-title">라이어 게임</h1>
+        <p class="lr-lead">한 명만 제시어를 몰라요. 각자 폰으로 자기 번호를 눌러 확인하고, 말로 라이어를 찾아요.</p>
+
+        <form class="dossier" id="form" onsubmit="return false">
+          <div class="lf">
+            <span class="lf__k">인원</span>
+            <div class="step">
+              <button type="button" class="step__b" id="nMinus" aria-label="인원 줄이기">−</button>
+              <output class="step__v" id="nVal">6</output>
+              <button type="button" class="step__b" id="nPlus" aria-label="인원 늘리기">+</button>
+            </div>
+          </div>
+          <div class="lf lf--col">
+            <span class="lf__k" id="topicHead">주제</span>
+            <div class="lchips" id="topics" role="radiogroup" aria-labelledby="topicHead"></div>
+          </div>
+          <div class="lf">
+            <span class="lf__k" id="liarHead">라이어</span>
+            <div class="seg" id="liarSeg" role="radiogroup" aria-labelledby="liarHead">
+              <button type="button" data-l="1" role="radio">1명</button>
+              <button type="button" data-l="2" role="radio">2명</button>
+            </div>
+          </div>
+          <p class="lf__help" data-noinfo>라이어 두 명은 6명부터 고를 수 있어요.</p>
+          <p class="lf__help" data-info="#liarHead">5명 이하에서 라이어가 두 명이면 시민 쪽이 너무 불리해져서, 두 명은 6명 이상일 때만 고를 수 있게 막아 두었어요.</p>
+          <label class="lf lf--tog">
+            <span class="lf__k" id="spyHead">스파이 모드</span>
+            <input type="checkbox" id="spy" class="tog" />
+          </label>
+          <p class="lf__help" data-info="#spyHead">스파이 모드에서는 라이어도 제시어를 받아요. 다만 시민과 비슷하지만 다른 말이에요(예: 시민은 '짜장면', 라이어는 '짬뽕'). 라이어 화면에도 평범한 제시어처럼 떠서, 라이어는 자기가 라이어인 줄 모른 채 설명하게 돼요. 설명이 조금씩 어긋나는 사람을 찾는 게 재미예요.</p>
+        </form>
+
+        <div class="lr-btns">
+          <button class="lr-go" id="start" type="button"><span class="lr-go__k">링크</span><span>각자 폰으로 받기</span></button>
+          <button class="lr-go lr-go--sub" id="passBtn" type="button"><span class="lr-go__k">한 폰</span><span>폰 하나 돌려가며 보기</span></button>
+        </div>
+      </section>
+
+      <!-- 번호 고르기(링크를 연 모든 사람) -->
+      <section class="lr-v" id="lobby" data-view="lobby" hidden>
+        <div class="file">
+          <div class="file__tab">CASE <b id="caseNo"></b></div>
+          <dl class="file__meta" id="meta"></dl>
+          <div class="round">
+            <button type="button" class="round__b" id="rPrev" aria-label="이전 판">‹</button>
+            <span class="round__v" id="roundVal">1판</span>
+            <button type="button" class="round__b" id="rNext" aria-label="다음 판">›</button>
+          </div>
+          <p class="lf__help" data-info=".round">한 링크로 여러 판을 할 수 있어요. 진행자가 "2판 갑니다" 하면 모두 › 를 눌러 같은 판으로 맞추고 다시 자기 번호를 누르면 돼요. 판마다 라이어와 제시어가 새로 정해져요.</p>
+        </div>
+        <h2 class="lr-h" id="pickHead">내 번호 누르기</h2>
+        <p class="warn" id="pickWarn">남의 번호는 누르지 마세요. 누르면 그 사람 제시어가 보여요.</p>
+        <div class="nums" id="nums"></div>
+        <div class="lr-btns">
+          <button class="lr-go" id="shareBtn" type="button"><span class="lr-go__k">보내기</span><span>이 판 링크 보내기</span></button>
+          <button class="lr-go lr-go--sub" id="hostBtn" type="button"><span class="lr-go__k">진행</span><span>진행자 화면(순서·타이머·정답)</span></button>
+          <button class="lr-go lr-go--sub" id="lobbyPass" type="button"><span class="lr-go__k">한 폰</span><span>이 판을 폰 하나로 돌려보기</span></button>
+          <button class="lr-go lr-go--ghost" id="resetBtn" type="button"><span class="lr-go__k">새로</span><span>설정 바꿔서 새 판 만들기</span></button>
+        </div>
+      </section>
+
+      <!-- 제시어 카드(링크 모드·한 폰 모드 같이 씀) -->
+      <section class="lr-v" id="card" data-view="card" hidden>
+        <p class="pass-k" id="passStep" hidden></p>
+        <div class="peek" id="peekWarn" hidden>
+          <b id="peekText"></b>
+          <div class="peek__btns"><button type="button" class="lr-go lr-go--sub" id="peekBack"><span>돌아가기</span></button><button type="button" class="lr-go" id="peekGo"><span>그래도 열기</span></button></div>
+        </div>
+        <button type="button" class="flip" id="flip" aria-live="polite">
+          <span class="flip__in">
+            <span class="flip__face flip__front">
+              <span class="env env--card">
+                <span class="env__back"></span>
+                <span class="env__front"></span>
+                <span class="env__flap"></span>
+                <span class="env__seal" id="sealNo">3</span>
+              </span>
+              <span class="flip__hint" id="flipHint">눌러서 열기</span>
+            </span>
+            <span class="flip__face flip__back" id="cardBack">
+              <span class="paper">
+                <span class="paper__top"><span id="cardWho">3번</span><span id="cardTopic">주제</span></span>
+                <span class="paper__k" id="cardK">제시어</span>
+                <b class="paper__w" id="cardWord"></b>
+                <span class="paper__s" id="cardSub"></span>
+                <span class="stamp" id="cardStamp" hidden>LIAR</span>
+              </span>
+            </span>
+          </span>
+        </button>
+        <div class="lr-btns">
+          <button class="lr-go" id="hideBtn" type="button" disabled><span class="lr-go__k">가리기</span><span id="hideTxt">봤어요, 가리기</span></button>
+        </div>
+      </section>
+
+      <!-- 진행자 화면 -->
+      <section class="lr-v" id="host" data-view="host" hidden>
+        <div class="file">
+          <div class="file__tab">CASE <b id="hostCase"></b></div>
+          <h2 class="lr-h lr-h--in" id="orderHead">설명하는 차례</h2>
+          <p class="lf__help" data-info="#orderHead">이 차례대로 한 사람씩 제시어를 한 마디로 설명해요. 너무 쉽게 말하면 라이어가 제시어를 눈치채고, 너무 어렵게 말하면 라이어로 의심받아요. 차례는 판마다 무작위로 정해지고 모두에게 같아요.</p>
+          <ol class="order" id="order"></ol>
+        </div>
+        <div class="timer">
+          <svg class="timer__ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" class="timer__bg" /><circle cx="60" cy="60" r="52" class="timer__fg" id="ring" /></svg>
+          <div class="timer__c"><span class="timer__k">토론</span><b class="timer__v" id="tVal">3:00</b></div>
+        </div>
+        <div class="tbtns">
+          <button type="button" class="lr-go" id="tGo"><span id="tGoTxt">토론 시작</span></button>
+          <button type="button" class="lr-go lr-go--sub" id="tAdd"><span>+30초</span></button>
+          <button type="button" class="lr-go lr-go--sub" id="tReset"><span>처음부터</span></button>
+        </div>
+        <h2 class="lr-h" id="revealHead">투표 끝나면</h2>
+        <p class="lf__help" data-info="#revealHead">토론이 끝나면 동시에 라이어라고 생각하는 사람을 손가락으로 가리켜요. 가장 많이 지목된 사람이 라이어가 맞으면, 라이어에게 제시어를 맞힐 기회를 한 번 줘요. 맞히면 라이어 승, 못 맞히면 시민 승. 지목된 사람이 라이어가 아니면 라이어 승이에요.</p>
+        <div class="lr-btns" id="revealBtns">
+          <button type="button" class="lr-go lr-go--red" id="revealAsk"><span class="lr-go__k">공개</span><span>정답 공개</span></button>
+        </div>
+        <div class="confirm" id="revealConfirm" hidden>
+          <b>투표 끝났나요? 공개하면 모두가 봐요.</b>
+          <div class="peek__btns"><button type="button" class="lr-go lr-go--sub" id="revealNo"><span>아직</span></button><button type="button" class="lr-go lr-go--red" id="revealYes"><span>공개</span></button></div>
+        </div>
+        <div class="reveal" id="reveal" hidden></div>
+        <div class="lr-btns">
+          <button class="lr-go lr-go--sub" id="nextRound" type="button"><span class="lr-go__k">다음 판</span><span id="nextTxt">2판으로</span></button>
+          <button class="lr-go lr-go--ghost" id="hostBack" type="button"><span class="lr-go__k">번호</span><span>번호 고르는 화면으로</span></button>
+        </div>
+      </section>
+
+      <article class="seo lr-doc">
+        <h2>라이어 게임 하는 법</h2>
+        <p>모두에게 같은 주제가 공개되고, 라이어를 뺀 나머지는 같은 제시어를 받아요. 라이어는 제시어를 몰라요. 정해진 차례대로 한 사람씩 제시어를 한 마디로 설명하고, 토론한 뒤 라이어라고 생각하는 사람을 동시에 지목해요.</p>
+        <p>지목된 사람이 라이어면 라이어에게 제시어를 맞힐 기회를 한 번 줘요. 맞히면 라이어가 이기고, 못 맞히면 시민이 이겨요. 엉뚱한 사람이 지목되면 라이어가 이겨요.</p>
+        <h2>이 도구로 진행하는 법</h2>
+        <p>진행자가 인원·주제·라이어 수를 고르고 링크를 단톡방에 보내요. 각자 링크를 열어 자기 번호를 누르면 자기 폰에만 제시어나 '당신은 라이어'가 떠요. 폰이 하나뿐이면 '폰 하나 돌려가며 보기'로 차례대로 넘기면 돼요. 진행자 화면에는 설명 차례, 3분 토론 타이머, 정답 공개가 있어요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>서버도 없는데 어떻게 모두 같은 판을 봐요?</summary><p>링크 안에 인원·주제·라이어 수와 판 번호가 들어 있어요. 이 값으로 라이어와 제시어를 계산하기 때문에 같은 링크를 연 사람은 누구나 같은 결과를 봐요. 같은 번호를 두 번 열어도 같은 제시어가 나와요.</p></details>
+        <details><summary>남의 번호를 누르면 보이나요?</summary><p>보여요. 그래서 자기 번호만 누르기로 약속하고 해요. 한 폰에서 두 번째 다른 번호를 누르면 한 번 더 묻는 안내가 떠요.</p></details>
+        <details><summary>스파이 모드는 뭐예요?</summary><p>라이어도 제시어를 받는데, 시민과 비슷하지만 다른 말이에요. 라이어 본인도 자기가 라이어인 줄 모르고 설명하게 돼요. 미묘하게 어긋나는 설명을 찾아내는 게 핵심이에요.</p></details>
+        <details><summary>한 링크로 여러 판 할 수 있어요?</summary><p>돼요. 번호 고르는 화면의 판 차례(1판, 2판…)를 모두 같이 넘기면 라이어와 제시어가 새로 정해져요.</p></details>
+        <details><summary>몇 명부터 할 수 있어요?</summary><p>3명부터 12명까지 돼요. 5~8명일 때 가장 재밌어요. 라이어 두 명은 6명 이상일 때 고를 수 있어요.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">라이어 게임 · 판 결과는 링크로만 정해지고 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

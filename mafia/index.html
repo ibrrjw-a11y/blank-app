@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>마피아 게임 역할 나눠 주기 | 링크 하나로 각자 폰에 - 사회자 진행표·타이머</title>
+    <meta name="description" content="모임에서 하는 마피아 게임 역할을 나눠 주는 무료 도구. 인원·마피아 수·의사·경찰만 고르면 링크 하나로 각자 폰에 자기 역할만 떠요. 마피아는 동료 번호까지. 한 폰 돌려보기, 사회자용 밤·낮 진행 순서와 타이머, 마지막 전체 역할 공개. 가입·설치 없음." />
+    <meta name="keywords" content="마피아 게임, 마피아게임 역할, 마피아 게임 앱, 마피아 사회자, 마피아 역할 배정, 모임 게임, 술자리 게임, MT 게임" />
+    <link rel="canonical" href="https://guesswhat.co.kr/mafia/" />
+    <meta name="theme-color" content="#0c0d16" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:title" content="마피아 게임 - 링크 하나로 역할 나눠 주기" />
+    <meta property="og:description" content="내 번호를 누르면 내 폰에만 역할이. 오늘 밤 마피아는 누구?" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../shared/components.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "마피아 게임 역할 나눠 주기",
+        "url": "https://guesswhat.co.kr/mafia/",
+        "description": "인원·마피아 수·의사·경찰을 고르면 링크 하나로 각자 폰에 역할을 나눠 주는 마피아 게임 진행 도구. 한 폰 돌려보기, 사회자 진행 순서, 타이머, 전체 역할 공개.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "inLanguage": "ko",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="mf">
+      <!-- 판 만들기 -->
+      <section class="mf-v" id="setup" data-view="setup">
+        <div class="alley" aria-hidden="true">
+          <div class="alley__moon"></div>
+          <div class="alley__wall"></div>
+          <div class="alley__lamp"><i></i></div>
+          <div class="alley__cone"></div>
+          <div class="fan">
+            <span class="pc pc--a"><span class="pc__in"><span class="pc__f pc__back"></span><span class="pc__f pc__face">시민</span></span></span>
+            <span class="pc pc--b"><span class="pc__in"><span class="pc__f pc__back"></span><span class="pc__f pc__face pc__face--m">마피아</span></span></span>
+            <span class="pc pc--c"><span class="pc__in"><span class="pc__f pc__back"></span><span class="pc__f pc__face">경찰</span></span></span>
+          </div>
+          <div class="alley__fog"></div>
+        </div>
+        <h1 class="mf-title">마피아 게임</h1>
+        <p class="mf-lead">각자 폰으로 자기 번호를 눌러 역할을 받아요. 사회자는 진행 순서 화면을 보며 밤과 낮을 이끌어요.</p>
+
+        <form class="panel" id="form" onsubmit="return false">
+          <div class="mrow">
+            <span class="mrow__k" id="nHead">인원</span>
+            <div class="mstep">
+              <button type="button" class="mstep__b" id="nMinus" aria-label="인원 줄이기">−</button>
+              <output class="mstep__v" id="nVal">8</output>
+              <button type="button" class="mstep__b" id="nPlus" aria-label="인원 늘리기">+</button>
+            </div>
+          </div>
+          <p class="mrow__help" data-info="#nHead">사회자를 뺀, 역할을 받을 사람 수예요(4~16명). 사회자 한 명은 게임에 끼지 않고 진행 순서 화면을 보며 밤과 낮을 이끌어요. 밤에 사회자만 눈을 뜨고 있으니 누가 마피아인지는 자연스럽게 알게 돼요.</p>
+          <div class="mrow">
+            <span class="mrow__k" id="mHead">마피아</span>
+            <div class="mstep">
+              <button type="button" class="mstep__b" id="mMinus" aria-label="마피아 줄이기">−</button>
+              <output class="mstep__v" id="mVal">2</output>
+              <button type="button" class="mstep__b" id="mPlus" aria-label="마피아 늘리기">+</button>
+            </div>
+          </div>
+          <p class="mrec" id="mRec">추천 2명</p>
+          <p class="mrow__help" data-info="#mHead">추천 수는 4~5명 1명, 6~8명 2명, 9~12명 3명, 13~16명 4명이에요. 인원을 바꾸면 추천 수로 다시 맞춰져요. 마피아는 나머지 사람보다 적어야 해서 인원의 절반 미만까지만 고를 수 있어요.</p>
+          <label class="mrow mrow--tog"><span class="mrow__k">의사 넣기</span><input type="checkbox" id="doc" class="mtog" checked /></label>
+          <label class="mrow mrow--tog"><span class="mrow__k">경찰 넣기</span><input type="checkbox" id="pol" class="mtog" checked /></label>
+          <div class="mix" id="mix" aria-live="polite"></div>
+        </form>
+
+        <div class="mf-btns">
+          <button class="mf-go" id="start" type="button"><span class="mf-go__k">링크</span><span>각자 폰으로 받기</span></button>
+          <button class="mf-go mf-go--sub" id="passBtn" type="button"><span class="mf-go__k">한 폰</span><span>폰 하나 돌려가며 보기</span></button>
+        </div>
+      </section>
+
+      <!-- 번호 고르기 -->
+      <section class="mf-v" id="lobby" data-view="lobby" hidden>
+        <div class="panel panel--lobby">
+          <div class="panel__top"><span>판 번호</span><b id="caseNo"></b></div>
+          <div class="mix" id="lobbyMix"></div>
+          <div class="round">
+            <button type="button" class="round__b" id="rPrev" aria-label="이전 판">‹</button>
+            <span class="round__v" id="roundVal">1판</span>
+            <button type="button" class="round__b" id="rNext" aria-label="다음 판">›</button>
+          </div>
+          <p class="mrow__help" data-info=".round">한 링크로 여러 판을 할 수 있어요. 사회자가 "2판 갑니다" 하면 모두 › 를 눌러 같은 판으로 맞추고 다시 자기 번호를 누르면 돼요. 판마다 역할이 새로 정해져요.</p>
+        </div>
+        <h2 class="mf-h">내 번호 누르기</h2>
+        <p class="warn">남의 번호는 누르지 마세요. 누르면 그 사람 역할이 보여요.</p>
+        <div class="nums" id="nums"></div>
+        <div class="mf-btns">
+          <button class="mf-go" id="shareBtn" type="button"><span class="mf-go__k">보내기</span><span>이 판 링크 보내기</span></button>
+          <button class="mf-go mf-go--sub" id="hostBtn" type="button"><span class="mf-go__k">사회자</span><span>진행 순서·타이머·역할 공개</span></button>
+          <button class="mf-go mf-go--sub" id="lobbyPass" type="button"><span class="mf-go__k">한 폰</span><span>이 판을 폰 하나로 돌려보기</span></button>
+          <button class="mf-go mf-go--ghost" id="resetBtn" type="button"><span class="mf-go__k">새로</span><span>설정 바꿔서 새 판 만들기</span></button>
+        </div>
+      </section>
+
+      <!-- 역할 카드 -->
+      <section class="mf-v" id="card" data-view="card" hidden>
+        <p class="pass-k" id="passStep" hidden></p>
+        <div class="peek" id="peekWarn" hidden>
+          <b id="peekText"></b>
+          <div class="peek__btns"><button type="button" class="mf-go mf-go--sub" id="peekBack"><span>돌아가기</span></button><button type="button" class="mf-go" id="peekGo"><span>그래도 열기</span></button></div>
+        </div>
+        <button type="button" class="flip" id="flip" aria-live="polite">
+          <span class="flip__in">
+            <span class="flip__face flip__front">
+              <span class="cback"><span class="cback__no" id="backNo">3</span></span>
+              <span class="flip__hint" id="flipHint">눌러서 뒤집기</span>
+            </span>
+            <span class="flip__face flip__back">
+              <span class="cface" id="cface">
+                <span class="cface__top"><span id="cardWho">3번</span><span id="cardTeam"></span></span>
+                <span class="cface__icon" id="cardIcon"></span>
+                <b class="cface__role" id="cardRole"></b>
+                <span class="cface__mates" id="cardMates"></span>
+                <span class="cface__desc" id="cardDesc"></span>
+              </span>
+            </span>
+          </span>
+        </button>
+        <div class="mf-btns">
+          <button class="mf-go" id="hideBtn" type="button" disabled><span class="mf-go__k">가리기</span><span id="hideTxt">봤어요, 가리기</span></button>
+        </div>
+      </section>
+
+      <!-- 사회자 -->
+      <section class="mf-v" id="host" data-view="host" hidden>
+        <div class="guide">
+          <div class="guide__top"><span id="dayLabel">1일째 밤</span><span id="stepNo">1 / 10</span></div>
+          <div class="guide__dots" id="dots"></div>
+          <h2 class="guide__t" id="stepTitle" data-nofit></h2>
+          <p class="guide__say" id="stepSay"></p>
+          <p class="guide__tip" id="stepTip"></p>
+          <div class="gtimer" id="gtimer" hidden>
+            <b class="gtimer__v" id="tVal">0:30</b>
+            <div class="gtimer__bar"><i id="tBar"></i></div>
+            <div class="tbtns">
+              <button type="button" class="mf-go" id="tGo"><span id="tGoTxt">시작</span></button>
+              <button type="button" class="mf-go mf-go--sub" id="tAdd"><span>+30초</span></button>
+              <button type="button" class="mf-go mf-go--sub" id="tReset"><span>처음부터</span></button>
+            </div>
+          </div>
+          <div class="guide__nav">
+            <button type="button" class="mf-go mf-go--sub" id="stepPrev"><span>‹ 이전</span></button>
+            <button type="button" class="mf-go" id="stepNext"><span id="stepNextTxt">다음 ›</span></button>
+          </div>
+        </div>
+        <h2 class="mf-h" id="revealHead">게임이 끝나면</h2>
+        <p class="mrow__help" data-info="#revealHead">한쪽이 이기면 전체 역할을 공개해요. 누가 마피아였는지, 의사와 경찰은 누구였는지 모두 함께 확인해요. 공개는 이 화면을 보는 사람 모두에게 보이니 게임이 끝났을 때만 누르세요.</p>
+        <div class="mf-btns" id="revealBtns">
+          <button type="button" class="mf-go mf-go--red" id="revealAsk"><span class="mf-go__k">공개</span><span>전체 역할 공개</span></button>
+        </div>
+        <div class="peek" id="revealConfirm" hidden>
+          <b>게임 끝났나요? 공개하면 모두가 봐요.</b>
+          <div class="peek__btns"><button type="button" class="mf-go mf-go--sub" id="revealNo"><span>아직</span></button><button type="button" class="mf-go mf-go--red" id="revealYes"><span>공개</span></button></div>
+        </div>
+        <div class="reveal" id="reveal" hidden></div>
+        <div class="mf-btns">
+          <button class="mf-go mf-go--sub" id="nextRound" type="button"><span class="mf-go__k">다음 판</span><span id="nextTxt">2판으로</span></button>
+          <button class="mf-go mf-go--ghost" id="hostBack" type="button"><span class="mf-go__k">번호</span><span>번호 고르는 화면으로</span></button>
+        </div>
+      </section>
+
+      <article class="seo mf-doc">
+        <h2>마피아 게임 하는 법</h2>
+        <p>사회자 한 명과 플레이어가 있어요. 플레이어는 몰래 마피아·의사·경찰·시민 중 하나를 받아요. 밤에는 모두 눈을 감고, 사회자가 부르는 역할만 눈을 떠 능력을 써요. 낮에는 모두 눈을 뜨고 토론한 뒤 투표로 한 명을 처형해요.</p>
+        <p>마피아를 모두 찾아내면 시민 편이 이기고, 마피아 수가 남은 시민 수와 같아지면 마피아가 이겨요.</p>
+        <h2>이 도구로 진행하는 법</h2>
+        <p>사회자가 인원·마피아 수·의사·경찰을 고르고 링크를 단톡방에 보내요. 각자 링크를 열어 자기 번호를 누르면 자기 폰에만 역할이 떠요. 마피아에게는 동료 마피아 번호도 보여요. 폰이 하나뿐이면 '폰 하나 돌려가며 보기'로 차례대로 넘기면 돼요. 사회자는 진행 순서 화면에서 밤·낮 대사와 타이머를 보며 진행하고, 끝나면 전체 역할을 공개해요.</p>
+        <h2>자주 묻는 질문</h2>
+        <details><summary>서버도 없는데 어떻게 모두 같은 판을 봐요?</summary><p>링크 안에 인원·마피아 수·의사·경찰 여부와 판 번호가 들어 있어요. 이 값으로 역할을 계산하기 때문에 같은 링크를 연 사람은 누구나 같은 결과를 봐요. 같은 번호를 두 번 열어도 같은 역할이 나와요.</p></details>
+        <details><summary>마피아는 몇 명이 좋아요?</summary><p>추천은 4~5명이면 1명, 6~8명이면 2명, 9~12명이면 3명, 13~16명이면 4명이에요. 처음 하는 모임이면 추천 수보다 하나 적게 해도 좋아요.</p></details>
+        <details><summary>사회자도 역할을 받아요?</summary><p>아니요. 인원에는 사회자를 빼고 넣어요. 사회자는 밤에 눈을 뜨고 마피아·의사·경찰이 누구를 고르는지 보고 아침에 결과를 알려 줘요.</p></details>
+        <details><summary>남의 번호를 누르면 보이나요?</summary><p>보여요. 그래서 자기 번호만 누르기로 약속하고 해요. 한 폰에서 두 번째 다른 번호를 누르면 한 번 더 묻는 안내가 떠요.</p></details>
+        <details><summary>한 링크로 여러 판 할 수 있어요?</summary><p>돼요. 번호 고르는 화면의 판 차례(1판, 2판…)를 모두 같이 넘기면 역할이 새로 정해져요.</p></details>
+      </article>
+
+      <nav id="more" aria-label="다른 놀이"></nav>
+      <footer class="site-footer">마피아 게임 · 판 결과는 링크로만 정해지고 어디에도 저장되지 않아요</footer>
+    </main>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

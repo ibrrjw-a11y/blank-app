@@ -27,6 +27,9 @@ export const TOOLS = [
   { path: "random/winner", cat: "pick", name: "당첨자 추첨기", desc: "명단 붙여 넣고 N명, 예비 당첨까지" },
   { path: "random/number", cat: "pick", name: "번호 추첨기", desc: "범위·개수·뺄 번호 정하고 랜덤 번호" },
   { path: "random", cat: "pick", name: "랜덤 추첨기 모음", desc: "상황에 맞는 추첨 14가지" },
+  { path: "liar", cat: "pick", name: "라이어 게임", desc: "링크 하나로 각자 폰에 제시어, 라이어는 누구?" },
+  { path: "mafia", cat: "pick", name: "마피아 역할 나눠 주기", desc: "사회자 없이 각자 폰으로 역할 확인" },
+  { path: "nickname", cat: "together", name: "랜덤 닉네임 생성기", desc: "분위기·글자 수 골라 10개, 친구한테 맞혀 봐" },
 
   // 심리테스트
   { path: "others-mbti", cat: "test", name: "남이 정해주는 MBTI", desc: "친구 3명이 답하는 나의 MBTI" },
@@ -52,6 +55,10 @@ export const TOOLS = [
   { path: "flappy", cat: "game", name: "날개 퍼덕", desc: "기둥 틈 지나가기, 갈수록 좁아짐" },
   { path: "stick", cat: "game", name: "막대 다리", desc: "막대 늘려서 딱 맞게 건너기" },
   { path: "bricks", cat: "game", name: "벽돌깨기", desc: "공 하나로, 칠수록 빨라짐" },
+  { path: "aim", cat: "game", name: "에임 연습", desc: "30초 과녁 맞히기, 정확도·반응속도" },
+  { path: "cps", cat: "game", name: "클릭 속도 측정", desc: "10초 연타, 초당 몇 번?" },
+  { path: "typing", cat: "game", name: "타자 속도 측정", desc: "한글 타수·정확도, 오늘의 문장" },
+  { path: "calc/split-bill", cat: "calc", name: "N빵 정산기", desc: "술 안 마신 사람 빼고 차등 정산" },
   { path: "merge-2048", cat: "game", name: "2048", desc: "나무 타일 숫자 합치기" },
   { path: "one-to-fifty", cat: "game", name: "1 to 50", desc: "1부터 50까지 순서대로 누르기" },
   { path: "stack-tower", cat: "game", name: "탑 쌓기", desc: "크레인 블록, 몇 층까지" },

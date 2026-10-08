@@ -1,0 +1,13 @@
+/* 에임 연습 — 장르: 사격장 조준경 · 짙은 회색 · 형광 초록 · 빨간 과녁
+ * 움직임: 첫 화면 과녁이 이곳저곳 튀어나오고 조준점이 따라감 */
+:root {
+  --ar-bg: #0d1117; --ar-fg: #e6edf3; --ar-sub: #9aa6b2; --ar-panel: #161b22; --ar-line: #50fab4; --ar-edge: #000;
+  --ar-accent: #50fab4; --ar-accent-ink: #062b1d; --ar-bad: #ff8a95; --ar-veil: rgba(13, 17, 23, 0.92);
+  --ar-hero: #0d1117; --ar-ratio: 360 / 560;
+  --color-bg: var(--ar-bg); --color-text: var(--ar-fg); --color-text-secondary: var(--ar-sub); color-scheme: dark;
+}
+.hero { position: absolute; inset: 0; background-image: linear-gradient(rgba(80,250,180,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(80,250,180,.08) 1px, transparent 1px); background-size: 30px 30px; }
+.hero::before { content: ""; position: absolute; width: 54px; height: 54px; margin: -27px; border-radius: 50%; background: radial-gradient(circle, #ff4b5c 0 18%, #fff 19% 36%, #ff4b5c 37% 100%); animation: aim-pop 2.4s steps(1) infinite; }
+@keyframes aim-pop { 0% { left: 20%; top: 30%; } 25% { left: 72%; top: 62%; } 50% { left: 40%; top: 72%; } 75% { left: 80%; top: 24%; } }
+.hero::after { content: ""; position: absolute; width: 40px; height: 40px; margin: -20px; border: 2px solid #50fab4; border-radius: 50%; box-shadow: 0 0 0 1px #0d1117, inset 0 0 0 8px transparent; animation: aim-chase 2.4s cubic-bezier(.3,.9,.3,1) infinite; }
+@keyframes aim-chase { 0% { left: 50%; top: 50%; } 12%, 25% { left: 20%; top: 30%; } 37%, 50% { left: 72%; top: 62%; } 62%, 75% { left: 40%; top: 72%; } 87%, 100% { left: 80%; top: 24%; } }

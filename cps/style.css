@@ -1,0 +1,12 @@
+/* 클릭 속도 — 장르: 오락실 연타 단추 · 보라 노을 · 빨간 큰 단추
+ * 움직임: 첫 화면 단추가 쿵쿵 눌리고 숫자가 올라감 */
+:root {
+  --ar-bg: #1d0c3a; --ar-fg: #f4f1ff; --ar-sub: #c3b8e6; --ar-panel: #2b1055; --ar-line: #ffd23f; --ar-edge: #000;
+  --ar-accent: #ffd23f; --ar-accent-ink: #2b1d06; --ar-bad: #ff8a95; --ar-veil: rgba(29, 12, 58, 0.92);
+  --ar-hero: linear-gradient(#2b1055, #7597de); --ar-ratio: 360 / 560;
+  --color-bg: var(--ar-bg); --color-text: var(--ar-fg); --color-text-secondary: var(--ar-sub); color-scheme: dark;
+}
+.hero { position: absolute; inset: 0; }
+.hero::before { content: ""; position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px; border-radius: 50%; background: #ff4b5c; box-shadow: 0 10px 0 rgba(0,0,0,.3); animation: cps-press .18s ease-out infinite alternate; }
+@keyframes cps-press { to { transform: translateY(8px) scale(.94); box-shadow: 0 2px 0 rgba(0,0,0,.3); } }
+.hero::after { content: "×10초"; position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; font: 900 22px/1 var(--font-sans); color: #fff; }

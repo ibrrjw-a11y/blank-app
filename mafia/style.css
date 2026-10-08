@@ -1,0 +1,209 @@
+/* 마피아 게임 — 장르: 밤 골목. 벽돌 담 · 깜빡이는 가로등 불빛 · 안개 · 트럼프 카드 뒤집기
+ * 움직임: 첫 화면 가로등이 깜빡이고 불빛 아래 카드 세 장이 차례로 뒤집힘(마피아 한 장 섞임), 안개가 흘러감
+ *         번호 단추가 카드처럼 던져져 놓임 / 역할 카드는 카드 뒷면→앞면 3D 뒤집기, 마피아면 붉은 빛 / 전체 공개 때 카드가 차례로 뒤집힘
+ *         사회자 화면은 밤(남색)·낮(새벽빛)으로 판 색이 바뀜 */
+:root {
+  --night: #0c0d16;
+  --night-2: #161827;
+  --night-3: #23263a;
+  --brick: #2b1e24;
+  --brick-l: #3a2930;
+  --lamp: #ffc35c;
+  --blood: #c43d36;
+  --card: #f1ead9;
+  --ink: #17151c;
+  --ink-2: #5e5866;
+  --moon: #e9e3cf;
+  --dawn: #f0b27a;
+  --color-bg: var(--night);
+  --color-text: #ece8f2;
+  --color-text-secondary: #a5a2b4;
+  --color-border: var(--night-3);
+  color-scheme: dark;
+}
+html, body { background: var(--night); color: var(--color-text); }
+body { background-image: linear-gradient(180deg, #0e1020 0%, var(--night) 40%); }
+.mf { max-width: 980px; margin: 0 auto; padding: 0 16px 40px; }
+.mf-v { max-width: 480px; margin: 0 auto; padding-top: 14px; }
+
+/* ---------- 첫 화면 골목 ---------- */
+.alley { position: relative; overflow: hidden; height: 250px; margin: 0 -16px; border-bottom: 1px solid var(--night-3); }
+.alley__moon { position: absolute; right: 14%; top: 18px; width: 34px; height: 34px; border-radius: 50%; box-shadow: inset -9px -3px 0 0 var(--moon); opacity: 0.85; }
+.alley__wall { position: absolute; left: 0; right: 0; bottom: 0; height: 62%; background-color: var(--brick); background-image: linear-gradient(var(--night) 2px, transparent 2px), linear-gradient(90deg, var(--night) 2px, transparent 2px), linear-gradient(90deg, var(--night) 2px, transparent 2px); background-size: 100% 22px, 48px 44px, 48px 44px; background-position: 0 0, 0 0, 24px 22px; opacity: 0.9; mask-image: linear-gradient(90deg, rgba(0,0,0,.9), rgba(0,0,0,.35) 50%, rgba(0,0,0,.9)); -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,.9), rgba(0,0,0,.35) 50%, rgba(0,0,0,.9)); }
+.alley__lamp { position: absolute; left: 50%; top: 0; width: 4px; height: 44px; margin-left: -2px; background: #333548; }
+.alley__lamp i { position: absolute; left: -16px; bottom: -10px; width: 36px; height: 14px; border-radius: 18px 18px 4px 4px; background: #2c2e40; }
+.alley__lamp i::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -4px; height: 6px; border-radius: 0 0 6px 6px; background: var(--lamp); box-shadow: 0 0 18px 6px rgba(255, 195, 92, 0.6); animation: mf-flicker 4.2s steps(1) infinite; }
+.alley__cone { position: absolute; left: 50%; top: 52px; width: 300px; height: 200px; margin-left: -150px; background: radial-gradient(ellipse 50% 100% at 50% 0%, rgba(255, 195, 92, 0.26), transparent 75%); clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%); animation: mf-flicker 4.2s steps(1) infinite; }
+@keyframes mf-flicker { 0%, 100% { opacity: 1; } 31% { opacity: 0.35; } 33% { opacity: 1; } 35% { opacity: 0.5; } 37% { opacity: 1; } 78% { opacity: 0.7; } 79% { opacity: 1; } }
+.alley__fog { position: absolute; left: -50%; bottom: -20px; width: 200%; height: 70px; background: radial-gradient(ellipse at 25% 60%, rgba(200, 200, 230, 0.12), transparent 45%), radial-gradient(ellipse at 70% 50%, rgba(200, 200, 230, 0.1), transparent 40%); animation: mf-fog 14s linear infinite; pointer-events: none; }
+@keyframes mf-fog { to { transform: translateX(25%); } }
+.fan { position: absolute; left: 50%; bottom: 26px; width: 0; height: 120px; }
+.pc { position: absolute; bottom: 0; width: 76px; height: 108px; margin-left: -38px; perspective: 600px; transform-origin: 50% 120%; }
+.pc--a { transform: rotate(-16deg) translateX(-30px); }
+.pc--b { transform: translateY(-8px); z-index: 2; }
+.pc--c { transform: rotate(16deg) translateX(30px); }
+.pc__in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; animation: mf-fan 6s cubic-bezier(.3, 1.3, .5, 1) infinite; }
+.pc--a .pc__in { animation-delay: 0s; }
+.pc--b .pc__in { animation-delay: 0.5s; }
+.pc--c .pc__in { animation-delay: 1s; }
+@keyframes mf-fan { 0%, 10% { transform: none; } 22%, 62% { transform: rotateY(180deg); } 74%, 100% { transform: none; } }
+.pc__f { position: absolute; inset: 0; border-radius: 8px; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.55); }
+.pc__back, .cback { background-color: #6d1f22; background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.09) 0 2px, transparent 2px 9px), repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.09) 0 2px, transparent 2px 9px); box-shadow: inset 0 0 0 4px var(--card), inset 0 0 0 6px #6d1f22, inset 0 0 0 7px rgba(255, 255, 255, 0.4), 0 8px 16px rgba(0, 0, 0, 0.55); }
+.pc__face { display: grid; place-items: center; transform: rotateY(180deg); background: var(--card); color: var(--ink); font: 900 15px/1 var(--font-sans); }
+.pc__face--m { color: #fff; background: radial-gradient(circle at 50% 40%, #e0574f, var(--blood) 60%, #7a1f1b); }
+
+.mf-title { margin: 18px 0 0; font: 900 44px/1.05 var(--font-sans); letter-spacing: -0.04em; color: var(--moon); }
+.mf-lead { margin: 8px 0 0; font: 600 15px/23px var(--font-sans); color: var(--color-text-secondary); word-break: keep-all; }
+.mf-h { display: flex; align-items: center; margin: 24px 0 0; font: 900 19px/1.3 var(--font-sans); color: var(--moon); }
+
+/* ---------- 판 설정 ---------- */
+.panel { display: grid; gap: 12px; margin-top: 18px; padding: 16px; border: 1px solid var(--night-3); border-radius: 16px; background: linear-gradient(180deg, var(--night-2), #11131f); box-shadow: 0 18px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+.mrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.mrow--tog { cursor: pointer; }
+.mrow__k { display: inline-flex; align-items: center; font: 800 15px/1.2 var(--font-sans); }
+.mrow__help { margin: 4px 0 0; font: 600 13px/19px var(--font-sans); color: var(--color-text-secondary); }
+.mstep { display: flex; align-items: center; gap: 6px; }
+.mstep__b { width: 44px; height: 44px; border: 1.5px solid var(--lamp); border-radius: 50%; background: transparent; color: var(--lamp); font: 800 22px/1 var(--font-sans); cursor: pointer; }
+.mstep__b:disabled { opacity: 0.25; cursor: default; }
+.mstep__v { min-width: 64px; text-align: center; font: 900 24px/1 var(--font-sans); color: var(--moon); }
+.mrec { margin: -6px 0 0; text-align: right; font: 700 13px/1.3 var(--font-sans); color: var(--lamp); }
+.mrec.is-off { color: var(--color-text-secondary); }
+.mtog { appearance: none; position: relative; width: 52px; height: 30px; margin: 0; border: 1.5px solid var(--night-3); border-radius: 99px; background: var(--night-3); cursor: pointer; flex: none; }
+.mtog::after { content: ""; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #6d6a7c; transition: transform 0.2s cubic-bezier(.34, 1.56, .64, 1); }
+.mtog:checked { background: rgba(255, 195, 92, 0.25); border-color: var(--lamp); }
+.mtog:checked::after { transform: translateX(22px); background: var(--lamp); }
+.mix { display: flex; flex-wrap: wrap; gap: 6px; }
+.mix__i { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px 6px 8px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); font: 700 13px/1 var(--font-sans); }
+.mix__i svg { width: 18px; height: 18px; color: var(--color-text-secondary); }
+.mix__i em { font: 900 15px/1 var(--font-sans); font-style: normal; color: var(--moon); }
+.mix__i--mafia svg, .mix__i--mafia em { color: #ff7a70; }
+
+/* ---------- 단추 ---------- */
+.mf-btns { display: grid; gap: 10px; margin-top: 18px; }
+.mf-go { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 56px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--lamp); color: #1c1305; box-shadow: 0 5px 0 #6b4a12, 0 10px 22px rgba(255, 195, 92, 0.12); font: 800 16px/1.2 var(--font-sans); cursor: pointer; transition: transform 0.12s cubic-bezier(.34, 1.56, .64, 1), box-shadow 0.12s; }
+.mf-btns .mf-go { justify-content: flex-start; text-align: left; }
+.mf-go:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 0 0 #000; }
+.mf-go:disabled { opacity: 0.4; cursor: default; }
+.mf-go__k { padding: 6px 9px; border-radius: 6px; background: rgba(0, 0, 0, 0.14); font: 900 13px/1 var(--font-sans); white-space: nowrap; }
+.mf-go--sub { background: var(--night-2); color: var(--color-text); box-shadow: 0 5px 0 #05060b; border: 1px solid var(--night-3); }
+.mf-go--sub .mf-go__k { background: rgba(255, 255, 255, 0.07); color: var(--lamp); }
+.mf-go--ghost { background: transparent; color: var(--color-text-secondary); box-shadow: none; border: 1.5px dashed var(--night-3); }
+.mf-go--red { background: var(--blood); color: #fff; box-shadow: 0 5px 0 #5c1612; }
+.mf-go--red .mf-go__k { background: rgba(0, 0, 0, 0.2); }
+
+/* ---------- 번호 고르기 ---------- */
+.panel--lobby { margin-top: 16px; }
+.panel__top { display: flex; align-items: baseline; justify-content: space-between; font: 700 13px/1 var(--font-sans); color: var(--color-text-secondary); }
+.panel__top b { font: 900 24px/1 ui-monospace, "Consolas", monospace; letter-spacing: 0.12em; color: var(--lamp); }
+.round { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.round__b { width: 44px; height: 40px; border: 1.5px solid var(--night-3); border-radius: 10px; background: transparent; color: var(--moon); font: 900 22px/1 var(--font-sans); cursor: pointer; }
+.round__b:disabled { opacity: 0.25; cursor: default; }
+.round__v { min-width: 72px; text-align: center; font: 900 22px/1 var(--font-sans); color: var(--moon); }
+.warn { margin: 6px 0 0; padding: 10px 12px; border: 1.5px solid rgba(196, 61, 54, 0.55); border-radius: 10px; background: rgba(196, 61, 54, 0.12); font: 700 14px/20px var(--font-sans); color: #f2c3bf; }
+.nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+.num { position: relative; display: grid; place-items: center; aspect-ratio: 5 / 7; border: 0; border-radius: 10px; color: var(--card); cursor: pointer; background-color: #6d1f22; background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 8px), repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 8px); box-shadow: inset 0 0 0 3px var(--card), inset 0 0 0 5px #6d1f22, 0 6px 12px rgba(0, 0, 0, 0.5); animation: mf-deal 0.45s cubic-bezier(.3, 1.3, .5, 1) backwards; animation-delay: calc(var(--k) * 0.04s); }
+.num b { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--night); box-shadow: 0 0 0 2px var(--card); font: 900 20px/1 var(--font-sans); }
+.num i { position: absolute; bottom: -8px; padding: 3px 6px; border-radius: 4px; background: var(--lamp); color: var(--ink); font: 800 10px/1 var(--font-sans); font-style: normal; white-space: nowrap; }
+.num.is-mine { outline: 3px solid var(--lamp); outline-offset: 3px; }
+.num:active { transform: translateY(3px) scale(0.97); }
+@keyframes mf-deal { from { transform: translate(-30px, -60px) rotate(-25deg); opacity: 0; } }
+
+/* ---------- 카드 ---------- */
+.pass-k { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; margin: 10px 0 0; font: 700 16px/1.4 var(--font-sans); }
+.pass-k b { font: 900 26px/1 var(--font-sans); color: var(--lamp); }
+.pass-k span { margin-left: auto; font: 700 13px/1 var(--font-sans); color: var(--color-text-secondary); }
+.peek { display: grid; gap: 12px; margin-top: 14px; padding: 14px; border: 1.5px solid var(--blood); border-radius: 12px; background: rgba(196, 61, 54, 0.12); font: 700 15px/22px var(--font-sans); }
+.peek__btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.flip { display: block; width: 100%; height: 400px; margin: 16px 0 0; padding: 0; border: 0; background: none; color: inherit; perspective: 1400px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.flip[hidden] { display: none; }
+.flip__in { position: relative; display: block; width: min(280px, 80vw); height: 100%; margin: 0 auto; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(.3, 1.35, .5, 1); }
+.flip.is-open .flip__in { transform: rotateY(180deg); }
+.flip__face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.flip__front { display: grid; grid-template-rows: 1fr auto; gap: 14px; }
+.cback { position: relative; display: grid; place-items: center; border-radius: 16px; animation: mf-bob 2.8s ease-in-out infinite; }
+@keyframes mf-bob { 50% { transform: translateY(-6px) rotate(1deg); } }
+.cback__no { display: grid; place-items: center; width: 92px; height: 92px; border-radius: 50%; background: var(--night); box-shadow: 0 0 0 3px var(--card), 0 0 0 7px #6d1f22, 0 0 0 9px rgba(255, 255, 255, 0.4); color: var(--card); font: 900 40px/1 var(--font-sans); }
+.flip__hint { text-align: center; font: 800 15px/1 var(--font-sans); color: var(--lamp); animation: mf-blink 1.4s ease-in-out infinite; }
+@keyframes mf-blink { 50% { opacity: 0.45; } }
+.flip__back { transform: rotateY(180deg); }
+.cface { position: relative; display: grid; align-content: center; justify-items: center; gap: 8px; height: 100%; padding: 44px 18px 22px; border-radius: 16px; background: var(--card); color: var(--ink); box-shadow: inset 0 0 0 6px var(--card), inset 0 0 0 7px rgba(23, 21, 28, 0.25), 0 18px 34px rgba(0, 0, 0, 0.6); text-align: center; }
+.cface__top { position: absolute; left: 18px; right: 18px; top: 16px; display: flex; justify-content: space-between; font: 800 13px/1 var(--font-sans); color: var(--ink-2); }
+.cface__icon svg { width: 76px; height: 76px; color: var(--ink); }
+.cface__role { font: 900 48px/1.05 var(--font-sans); letter-spacing: -0.03em; }
+.cface__mates { font: 800 16px/1.3 var(--font-sans); color: var(--blood); }
+.cface__mates:empty { display: none; }
+.cface__desc { font: 600 14px/21px var(--font-sans); color: var(--ink-2); word-break: keep-all; }
+.flip.is-mafia .cface { background: radial-gradient(circle at 50% 30%, #3a1618, #170b0d 70%); color: #fff; box-shadow: inset 0 0 0 6px #170b0d, inset 0 0 0 7px rgba(196, 61, 54, 0.6), 0 0 40px rgba(196, 61, 54, 0.35), 0 18px 34px rgba(0, 0, 0, 0.6); }
+.flip.is-mafia .cface__icon svg { color: #f1ead9; }
+.flip.is-mafia .cface__role { color: #ff6f65; }
+.flip.is-mafia .cface__mates { color: var(--lamp); }
+.flip.is-mafia .cface__desc, .flip.is-mafia .cface__top { color: #c9b9bb; }
+.flip.is-doctor .cface__icon svg { color: #2f9e6e; }
+.flip.is-police .cface__icon svg { color: #3866c9; }
+.flip.is-open .cface__icon { animation: mf-pop 0.5s 0.55s cubic-bezier(.34, 1.56, .64, 1) backwards; }
+@keyframes mf-pop { from { transform: scale(0.3) rotate(-20deg); opacity: 0; } }
+
+/* ---------- 사회자 ---------- */
+.guide { position: relative; margin-top: 12px; padding: 16px; border-radius: 18px; background: linear-gradient(180deg, #1a1d36, #10121f); border: 1px solid var(--night-3); transition: background 0.6s; overflow: hidden; }
+.guide::before { content: ""; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; box-shadow: inset -22px -8px 0 0 rgba(233, 227, 207, 0.12); transition: box-shadow 0.6s, background 0.6s; }
+.guide.is-day { background: linear-gradient(180deg, #3b2a2a, #1c1520); }
+.guide.is-day::before { background: radial-gradient(circle, rgba(240, 178, 122, 0.4), transparent 70%); box-shadow: none; }
+.guide__top { position: relative; display: flex; justify-content: space-between; font: 800 14px/1 var(--font-sans); color: var(--lamp); }
+.guide.is-day .guide__top { color: var(--dawn); }
+.guide__dots { position: relative; display: flex; gap: 4px; margin-top: 10px; }
+.guide__dots i { flex: 1; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); }
+.guide__dots i.done { background: rgba(255, 255, 255, 0.35); }
+.guide__dots i.on { background: var(--lamp); }
+.guide__dots i.on.d { background: var(--dawn); }
+.guide__t { position: relative; margin: 16px 0 0; font: 900 28px/1.2 var(--font-sans); color: var(--moon); }
+.guide__t.is-in { animation: mf-in 0.35s cubic-bezier(.3, 1.3, .5, 1); }
+@keyframes mf-in { from { transform: translateX(18px); opacity: 0; } }
+.guide__say { position: relative; margin: 10px 0 0; font: 700 18px/1.55 var(--font-sans); color: #fff; word-break: keep-all; }
+.guide__tip { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); font: 600 14px/21px var(--font-sans); color: var(--color-text-secondary); word-break: keep-all; }
+.gtimer { margin-top: 14px; }
+.gtimer__v { display: block; text-align: center; font: 900 52px/1 ui-monospace, "Consolas", monospace; color: var(--moon); }
+.gtimer__bar { height: 8px; margin-top: 10px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); overflow: hidden; }
+.gtimer__bar i { display: block; height: 100%; background: var(--lamp); transform-origin: left; transition: transform 0.25s linear; }
+.gtimer.is-low .gtimer__v { color: #ff6f65; animation: mf-blink 0.6s ease-in-out infinite; }
+.gtimer.is-low .gtimer__bar i { background: var(--blood); }
+.tbtns { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-top: 12px; }
+.tbtns .mf-go, .guide__nav .mf-go, .peek__btns .mf-go { justify-content: center; padding: 0 8px; font-size: 15px; }
+.guide__nav { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 16px; }
+.reveal { margin-top: 16px; }
+.reveal__t { margin: 0; text-align: center; font: 700 16px/1.4 var(--font-sans); color: var(--color-text-secondary); }
+.reveal__t b { color: #ff6f65; font-weight: 900; }
+.rv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.rv { aspect-ratio: 5 / 7; perspective: 600px; }
+.rv__in { position: relative; display: block; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateY(180deg); animation: mf-rv 0.6s cubic-bezier(.3, 1.3, .5, 1) backwards; animation-delay: calc(0.2s + var(--k) * 0.12s); }
+@keyframes mf-rv { from { transform: rotateY(0); } }
+.rv__f { position: absolute; inset: 0; border-radius: 8px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.rv__back { background-color: #6d1f22; background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 7px); box-shadow: inset 0 0 0 3px var(--card); }
+.rv__face { display: grid; place-items: center; align-content: center; gap: 4px; padding: 4px; transform: rotateY(180deg); background: var(--card); color: var(--ink); }
+.rv__face em { font: 800 12px/1 var(--font-sans); font-style: normal; color: var(--ink-2); }
+.rv__face svg { width: 30px; height: 30px; }
+.rv__face b { font: 900 14px/1 var(--font-sans); }
+.rv--mafia .rv__face { background: #2a1214; color: #ff6f65; }
+.rv--mafia .rv__face em { color: #c9b9bb; }
+.rv--doctor .rv__face svg { color: #2f9e6e; }
+.rv--police .rv__face svg { color: #3866c9; }
+
+/* ---------- 설명 글 ---------- */
+.mf-doc { max-width: 640px; margin: 44px auto 0; color: var(--color-text); }
+.mf-doc h2 { font: 900 20px/1.3 var(--font-sans); }
+.mf-doc p, .mf-doc summary { font: 500 14.5px/23px var(--font-sans); color: var(--color-text-secondary); }
+.mf-doc summary { color: var(--color-text); font-weight: 700; cursor: pointer; }
+
+.rm *, .rm *::before, .rm *::after { animation: none !important; transition: none !important; }
+@media (max-width: 380px) {
+  .mf-title { font-size: 38px; }
+  .panel { padding: 14px 12px; }
+  .mstep__b { width: 40px; height: 40px; }
+  .nums { gap: 8px; }
+  .flip { height: 380px; }
+  .cface__role { font-size: 42px; }
+  .guide__t { font-size: 24px; }
+  .guide__say { font-size: 17px; }
+  .gtimer__v { font-size: 46px; }
+  .rv-grid { gap: 6px; }
+  .rv__face b { font-size: 12px; }
+}
