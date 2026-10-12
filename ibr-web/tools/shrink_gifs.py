@@ -45,7 +45,7 @@ def main():
         convert(src, out)
         a, b = os.path.getsize(src), os.path.getsize(out)
         before += a; after += b
-        data = data.replace('"%s"' % rel, '"%s"' % rel[:-4] + '.webp"')
+        data = data.replace('"%s"' % rel, '"%s.webp"' % rel[:-4])
         subprocess.run(["git", "rm", "-q", src], check=True, cwd=HERE)
         print("%s  %.1fMB -> %.1fMB" % (rel, a / 1e6, b / 1e6))
     open(DATA, "w", encoding="utf-8").write(data)
