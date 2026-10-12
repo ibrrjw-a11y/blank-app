@@ -131,7 +131,7 @@ window.IBR_PRODUCTS = [
   /* 드리아데 */
   {"id":"driade-1","b":"driade","n":"롤리폴리 암체어","cat":"living","form":"chair","img":"assets/img/products/driade-1-t475l.webp","full":true,"opts":[["1인",null]],"vars":["Charcoal","Flesh","Ochre Yellow"],"detail":["assets/img/detail/driade-1/7tfb0.webp","assets/img/detail/driade-1/h4e92.webp","assets/img/detail/driade-1/0dwte.webp"]},
   /* 크베트나 */
-  {"id":"kvetna-1","b":"kvetna","n":"아우리가 유니버셜 와인잔","cat":"living","form":"glass","opts":[["1개",null]],"vars":["레드","블루","옐로우","오렌지"]},
+  {"id":"kvetna-1","b":"kvetna","n":"아우리가 유니버셜 와인잔","cat":"living","form":"glass","img":"assets/img/products/kvetna-1-3q4b1.webp","full":true,"opts":[["1개",null]],"vars":["레드","블루","옐로우","오렌지"],"detail":["assets/img/detail/kvetna-1/bfq0k.webp","assets/img/detail/kvetna-1/oiiqc.webp","assets/img/detail/kvetna-1/ini8j.webp"]},
   /* 앳플리 */
   {"id":"atply-1","b":"atply","n":"T8 스마트 체중계","cat":"living","form":"scale","opts":[["1대",null]]},
   /* 오트 */
