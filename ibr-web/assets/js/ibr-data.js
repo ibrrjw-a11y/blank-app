@@ -126,8 +126,8 @@ window.IBR_PRODUCTS = [
   /* 김국산 */
   {"id":"kimguksan-1","b":"kimguksan","n":"핫팩 핫칠공","cat":"living","form":"pack","img":"assets/img/products/kimguksan-hotpack.webp","opts":[["150g × 10개",null],["100g × 20개",null]],"detail":["assets/img/detail/kimguksan-hotpack/01.webp","assets/img/detail/kimguksan-hotpack/02.webp","assets/img/detail/kimguksan-hotpack/03.webp","assets/img/detail/kimguksan-hotpack/04.webp","assets/img/detail/kimguksan-hotpack/05.webp","assets/img/detail/kimguksan-hotpack/06.webp","assets/img/detail/kimguksan-hotpack/07.webp","assets/img/detail/kimguksan-hotpack/08.webp","assets/img/detail/kimguksan-hotpack/09.webp","assets/img/detail/kimguksan-hotpack/10.webp","assets/img/detail/kimguksan-hotpack/11.webp","assets/img/detail/kimguksan-hotpack/12.webp"]},
   /* 마지스 */
-  {"id":"magis-1","b":"magis","n":"360 컨테이너 5단 수납장","cat":"living","form":"cabinet","opts":[["5단",null]],"vars":["블랙","화이트","그레이","레드","블루","그린","옐로우","핑크"]},
-  {"id":"magis-2","b":"magis","n":"퍼피 체어 M","cat":"living","form":"chair","opts":[["M",null]],"vars":["화이트","오렌지","달마시안 화이트"]},
+  {"id":"magis-1","b":"magis","n":"360 컨테이너 5단 수납장","cat":"living","form":"cabinet","img":"assets/img/products/magis-1-tuci2.webp","opts":[["5단",null]],"vars":["블랙","화이트","그레이","레드","블루","그린","옐로우","핑크"],"detail":["assets/img/detail/magis-1/i08qp.webp","assets/img/detail/magis-1/btyuq.webp","assets/img/detail/magis-1/mbufe.webp"]},
+  {"id":"magis-2","b":"magis","n":"퍼피 체어 M","cat":"living","form":"chair","img":"assets/img/products/magis-2-imzsg.webp","full":true,"opts":[["M",null]],"vars":["화이트","오렌지","달마시안 화이트"],"detail":["assets/img/detail/magis-2/sken4.webp","assets/img/detail/magis-2/g1htg.webp","assets/img/detail/magis-2/4asfy.webp"]},
   /* 드리아데 */
   {"id":"driade-1","b":"driade","n":"롤리폴리 암체어","cat":"living","form":"chair","opts":[["1인",null]],"vars":["Charcoal","Flesh","Ochre Yellow"]},
   /* 크베트나 */
