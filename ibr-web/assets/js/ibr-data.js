@@ -87,7 +87,7 @@ window.IBR_PRODUCTS = [
   /* 츌립 */
   {"id":"choolip-1","b":"choolip","n":"비타스틱","cat":"pet","form":"stick","img":"assets/img/products/choolip-1-8cj6r.webp","full":true,"opts":[["15g × 7개",null]],"vars":["연어&대구 · 스킨","연어&랍스터 · 간","참치&대구 · 신장","참치&연어 · 심장","치킨&비프 · 두뇌","치킨&연어 · 관절","치킨&참치 · 눈","버라이어티"],"top":1,"detail":["assets/img/detail/choolip-1/t8zny.webp","assets/img/detail/choolip-1/n88mk.webp","assets/img/detail/choolip-1/px439.webp","assets/img/detail/choolip-1/2xxac.webp"]},
   /* 마이베프 */
-  {"id":"myvef-1","b":"myvef","n":"마이데일리 덴탈 츄","cat":"pet","form":"pouch","opts":[["13g × 50개",null]]},
+  {"id":"myvef-1","b":"myvef","n":"마이데일리 덴탈 츄","cat":"pet","form":"pouch","img":"assets/img/products/myvef-1-v8hgl.webp","opts":[["13g × 50개",null]]},
   {"id":"myvef-2","b":"myvef","n":"마이데일리 퓨레스틱","cat":"pet","form":"stick","img":"assets/img/products/myvef-puree.webp","opts":[["11g × 48개",null]]},
   /* 드노아 */
   {"id":"denoah-1","b":"denoah","n":"클리어 리커버리 크림","cat":"skin","form":"jar","img":"assets/img/products/denoah-recovery.webp","opts":[["65ml",35000]],"detail":["assets/img/detail/denoah-recovery/01.webp","assets/img/detail/denoah-recovery/02.webp","assets/img/detail/denoah-recovery/03.webp","assets/img/detail/denoah-recovery/04.webp","assets/img/detail/denoah-recovery/05.webp","assets/img/detail/denoah-recovery/06.webp"]},
