@@ -25,16 +25,18 @@
 - **색·글꼴**: `assets/css/ibr.css` 맨 위 `:root` 블록.
 - **세계 지도 점**: `tools/make_world.py` (보통은 손댈 일 없음).
 
-## 배포 (GitHub Pages)
+## 배포 (GitHub Pages · ibrgrp.com)
 
-- 저장소 `ibrrjw-a11y/blank-app` 의 `main` 브랜치를 GitHub Pages 로 그대로 내보냅니다(빌드 과정 없음).
-  - 주소: `https://ibrrjw-a11y.github.io/blank-app/` → 홈페이지(`ibr-web/`)로 바로 넘어갑니다.
-  - 관리자: `https://ibrrjw-a11y.github.io/blank-app/ibr-web/admin.html` (홈페이지 맨 아래 '관리자' 링크)
-- 처음 한 번 켜기: 저장소 **Settings → Pages → Build and deployment** → Source **Deploy from a branch** → Branch **main** · **/ (root)** → Save.
-- `main` 에 저장(관리자 화면 저장 포함)하면 1~2분 뒤 자동으로 다시 올라갑니다.
-  GitHub Pages 는 파일을 10분쯤 기억해 두므로, 데이터 파일(`ibr-data.js` 등)은 주소 뒤에 1분마다 바뀌는 번호를 붙여 읽습니다(`_build.py` 의 `DATA_JS`). 진행 상황은 저장소 **Actions** 탭의 *pages build and deployment* 에서 봅니다.
-- 저장소 맨 위의 `index.html`(홈페이지로 넘기기)과 `.nojekyll`(파일을 그대로 내보내기)은 배포용이니 지우지 마세요.
-- 도메인이 정해지면 Settings → Pages → Custom domain 에 넣고, 도메인 회사에서 DNS 를 GitHub Pages 로 연결합니다.
+- `main` 브랜치에 저장되면 `.github/workflows/pages.yml` 이 `ibr-web` 폴더만 GitHub Pages 로 올립니다(1~2분).
+  - 주소: `https://ibrgrp.com/` (도메인 연결 전에는 `https://ibrrjw-a11y.github.io/blank-app/`)
+  - 관리자: `https://ibrgrp.com/admin.html` (홈페이지 맨 아래 '관리자' 링크)
+- 저장소 Settings → Pages: Source **GitHub Actions**, Custom domain **ibrgrp.com**, **Enforce HTTPS** 켜기.
+- 도메인 DNS(도메인을 산 회사에서):
+  - `@`(ibrgrp.com) A 레코드 4개: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
+  - `www` CNAME: `ibrrjw-a11y.github.io`
+- 진행 상황은 저장소 **Actions** 탭의 *Deploy homepage* 에서 봅니다.
+- GitHub Pages 는 파일을 10분쯤 기억해 두므로, 데이터 파일(`ibr-data.js` 등)은 주소 뒤에 1분마다 바뀌는 번호를 붙여 읽습니다(`_build.py` 의 `DATA_JS`).
+- 큰 GIF 가 쌓이면 `python3 ibr-web/tools/shrink_gifs.py` 로 움직이는 webp 로 줄입니다(관리자 화면은 크롬에서 올릴 때 자동으로 줄임).
 
 ## 관리자 화면 (`admin.html`)
 

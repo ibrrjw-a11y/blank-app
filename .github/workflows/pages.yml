@@ -1,0 +1,36 @@
+# 홈페이지(ibr-web 폴더)를 GitHub Pages 로 올립니다. main 에 저장될 때마다 자동으로 실행됩니다.
+# 저장소 Settings → Pages → Source 를 "GitHub Actions" 로 두어야 이 방식이 쓰입니다.
+name: Deploy homepage
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep only the homepage files
+        run: |
+          rm -rf ibr-web/tools ibr-web/_src ibr-web/_build.py
+          touch ibr-web/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ibr-web
+      - id: deployment
+        uses: actions/deploy-pages@v4
