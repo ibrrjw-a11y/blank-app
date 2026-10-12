@@ -129,7 +129,7 @@ window.IBR_PRODUCTS = [
   {"id":"magis-1","b":"magis","n":"360 컨테이너 5단 수납장","cat":"living","form":"cabinet","img":"assets/img/products/magis-1-tuci2.webp","full":true,"opts":[["5단",null]],"vars":["블랙","화이트","그레이","레드","블루","그린","옐로우","핑크"],"detail":["assets/img/detail/magis-1/i08qp.webp","assets/img/detail/magis-1/btyuq.webp","assets/img/detail/magis-1/mbufe.webp"]},
   {"id":"magis-2","b":"magis","n":"퍼피 체어 M","cat":"living","form":"chair","img":"assets/img/products/magis-2-imzsg.webp","full":true,"opts":[["M",null]],"vars":["화이트","오렌지","달마시안 화이트"],"detail":["assets/img/detail/magis-2/sken4.webp","assets/img/detail/magis-2/g1htg.webp","assets/img/detail/magis-2/4asfy.webp"]},
   /* 드리아데 */
-  {"id":"driade-1","b":"driade","n":"롤리폴리 암체어","cat":"living","form":"chair","opts":[["1인",null]],"vars":["Charcoal","Flesh","Ochre Yellow"]},
+  {"id":"driade-1","b":"driade","n":"롤리폴리 암체어","cat":"living","form":"chair","img":"assets/img/products/driade-1-t475l.webp","full":true,"opts":[["1인",null]],"vars":["Charcoal","Flesh","Ochre Yellow"],"detail":["assets/img/detail/driade-1/7tfb0.webp","assets/img/detail/driade-1/h4e92.webp","assets/img/detail/driade-1/0dwte.webp"]},
   /* 크베트나 */
   {"id":"kvetna-1","b":"kvetna","n":"아우리가 유니버셜 와인잔","cat":"living","form":"glass","opts":[["1개",null]],"vars":["레드","블루","옐로우","오렌지"]},
   /* 앳플리 */
