@@ -140,4 +140,6 @@ window.IBR_PRODUCTS = [
   {"id":"atply-1","b":"atply","n":"T8 스마트 체중계","nEn":"T8 Smart Scale","cat":"living","form":"scale","opts":[["1대",null]],"optsEn":["1 unit"]},
   /* 오트 */
   {"id":"oat-1","b":"oat","n":"오트 스프레드","nEn":"OAT Spread","cat":"food","form":"stick","opts":[["32g × 10개",null]],"optsEn":["32g × 10"]},
+  /* TMS */
+  {"id":"tms-1","b":"tms","n":"기미상궁 스테비아 토마토","nEn":"GIMISANGUNG SWEET TOMATO","cat":"food","form":"box","img":"assets/img/products/tms-1-en98t.webp","full":true,"opts":[["500g",8800],["1000g",17600],["1500g",26400]],"top":true,"detail":["assets/img/detail/tms-1/3y6me.webp","assets/img/detail/tms-1/bn59i.webp","assets/img/detail/tms-1/sxgu8.webp","assets/img/detail/tms-1/bz7ft.webp","assets/img/detail/tms-1/11jg8.webp"]},
 ];
