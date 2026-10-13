@@ -176,3 +176,12 @@ input[type=color] { width: 44px; height: 34px; padding: 2px; border: 1px solid v
   .opt-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .opt-row .ctl { grid-column: 1 / -1; justify-content: flex-end; }
 }
+
+/* 비밀번호 화면 */
+body.locked .tabs, body.locked .acts { visibility: hidden; }
+.lockbox { max-width: 360px; margin: 12vh auto 0; padding: 28px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; display: grid; gap: 12px; }
+.lockbox h2 { margin: 0; font-size: 20px; }
+.lockbox h2 b { font-family: var(--f-d); background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; margin-right: 4px; }
+.lockbox p { margin: 0; color: var(--text-2); }
+.top .lockbtn { color: #9AB0A8; min-height: 32px; }
+.top .lockbtn:hover { color: #EAF2EE; border-color: rgba(234, 242, 238, .3); }

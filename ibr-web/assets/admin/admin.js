@@ -33,7 +33,88 @@
   var CFG_KEY = "ibr-admin";
   var cfg = { owner: "ibrrjw-a11y", repo: "blank-app", branch: "main", root: "ibr-web", token: "" };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_KEY) || "{}")); } catch (e) {}
-  function saveCfg() { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} }
+  function writeCfg(c) { try { localStorage.setItem(CFG_KEY, JSON.stringify(c)); } catch (e) {} }
+  /* 비밀번호가 있으면 토큰은 비밀번호로 잠근 값(tokenEnc)만 저장하고, 그대로의 토큰은 저장하지 않습니다 */
+  function saveCfg() {
+    var c = Object.assign({}, cfg);
+    if (!lock) { delete c.tokenEnc; return writeCfg(c); }
+    delete c.token;
+    if (!cfg.token) { delete c.tokenEnc; delete cfg.tokenEnc; return writeCfg(c); }
+    writeCfg(c);
+    if (lockKey) encToken(cfg.token).then(function (e) { cfg.tokenEnc = c.tokenEnc = e; writeCfg(c); });
+  }
+
+  /* ── 관리자 비밀번호 ─────────────────────────────
+     assets/admin/lock.json 에는 비밀번호를 확인하는 값(PBKDF2)만 저장합니다. 비밀번호 자체는 어디에도 저장하지 않습니다.
+     같은 비밀번호에서 만든 열쇠로 GitHub 토큰을 잠가(AES) 이 브라우저에 보관합니다.
+     비밀번호를 잊으면 GitHub 저장소에서 ibr-web/assets/admin/lock.json 을 지우고 다시 만들면 됩니다(토큰은 다시 넣기). */
+  var LOCK_PATH = "assets/admin/lock.json", LOCK_SS = "ibr-admin-key";
+  var lock = null, lockKey = null;
+  function b64e(buf) { var u = new Uint8Array(buf), s = ""; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
+  function b64d(t) { var s = atob(t), u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+  function derive(pw, salt, iter) {
+    return crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"]).then(function (k) {
+      return crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: salt, iterations: iter }, k, 512);
+    }).then(function (b) { return new Uint8Array(b); });
+  }
+  function encToken(t) {
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, lockKey, new TextEncoder().encode(t)).then(function (d) { return { iv: b64e(iv), data: b64e(d) }; });
+  }
+  function decToken(e) {
+    return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64d(e.iv) }, lockKey, b64d(e.data)).then(function (d) { return new TextDecoder().decode(d); });
+  }
+  /* 비밀번호에서 나온 64바이트: 앞 32 = 확인값(lock.json 의 hash), 뒤 32 = 토큰 잠금 열쇠 */
+  function useBits(bits) {
+    if (b64e(bits.slice(0, 32)) !== lock.hash) return Promise.reject(new Error("비밀번호가 맞지 않습니다."));
+    return crypto.subtle.importKey("raw", bits.slice(32, 64), "AES-GCM", false, ["encrypt", "decrypt"]).then(function (k) {
+      lockKey = k;
+      try { sessionStorage.setItem(LOCK_SS, b64e(bits)); } catch (e) {}
+      if (cfg.tokenEnc) return decToken(cfg.tokenEnc).then(function (t) { cfg.token = t; }, function () {
+        cfg.token = ""; delete cfg.tokenEnc; saveCfg(); toast("비밀번호가 바뀌어 저장된 토큰을 열 수 없습니다. 연결 · 설정에서 토큰을 다시 넣어 주세요.", "err", 8000);
+      });
+      if (cfg.token) saveCfg();   // 비밀번호를 만들기 전에 넣어 둔 토큰을 잠가서 다시 저장
+    });
+  }
+  function showLock() {
+    document.body.classList.add("locked");
+    $("#app").innerHTML = '<form class="lockbox" id="lockForm"><h2><b>IBR</b> 관리자</h2><p>관리자 비밀번호를 넣어 주세요.</p>' +
+      '<input type="password" id="lockPw" autocomplete="current-password" placeholder="비밀번호" required>' +
+      '<button class="btn primary" type="submit">들어가기</button><p class="status-line err" id="lockErr" hidden></p>' +
+      '<p class="help">비밀번호를 잊으면 GitHub 저장소에서 ibr-web/assets/admin/lock.json 파일을 지운 뒤 다시 만들면 됩니다.</p></form>';
+    var f = $("#lockForm"), err = $("#lockErr");
+    $("#lockPw").focus();
+    f.onsubmit = function (e) {
+      e.preventDefault();
+      var btn = $("button", f); btn.disabled = true; err.hidden = true;
+      derive($("#lockPw").value, b64d(lock.salt), lock.iter).then(useBits).then(function () {
+        document.body.classList.remove("locked"); start();
+      }).catch(function (x) { err.textContent = x.message; err.hidden = false; btn.disabled = false; $("#lockPw").select(); });
+    };
+  }
+  function lockNow() { try { sessionStorage.removeItem(LOCK_SS); } catch (e) {} location.reload(); }
+  /* 비밀번호 만들기·바꾸기: 저장소에 lock.json 을 올립니다(연결되어 있어야 함) */
+  function setPassword(pw) {
+    var salt = crypto.getRandomValues(new Uint8Array(16)), iter = 210000;
+    return derive(pw, salt, iter).then(function (bits) {
+      var L = { v: 1, salt: b64e(salt), iter: iter, hash: b64e(bits.slice(0, 32)) };
+      var text = JSON.stringify(L, null, 1) + "\n";
+      return putFile(LOCK_PATH, text, "관리자 화면: 관리자 비밀번호 " + (lock ? "변경" : "설정")).then(function () {
+        lock = L; delete cfg.tokenEnc;   // 토큰은 새 비밀번호로 다시 잠급니다
+        return useBits(bits);
+      });
+    });
+  }
+  function utf8b64(t) { return b64e(new TextEncoder().encode(t)); }
+  function putFile(path, text, message) {
+    var url = REPO() + "/contents/" + encPath(rp(path));
+    return gh("GET", url + "?ref=" + encodeURIComponent(cfg.branch)).then(function (r) { return r.sha; }, function (e) { if (e.status === 404) return null; throw e; })
+      .then(function (sha) {
+        var body = { message: message, content: utf8b64(text), branch: cfg.branch };
+        if (sha) body.sha = sha;
+        return gh("PUT", url, body);
+      });
+  }
   function connected() { return !!(cfg.token && cfg.owner && cfg.repo && cfg.branch); }
   function rp(p) { var r = (cfg.root || "").replace(/^\/+|\/+$/g, ""); return (r ? r + "/" : "") + p; }
   function encPath(p) { return p.split("/").map(encodeURIComponent).join("/"); }
@@ -849,6 +930,12 @@
       '<label class="f"><span>사이트 폴더</span><input type="text" id="cRoot" value="' + esc(cfg.root) + '"></label>' +
       '<label class="f span2"><span>GitHub 토큰 <small>(이 브라우저에만 저장됩니다)</small></span><input type="password" id="cToken" value="' + esc(cfg.token) + '" autocomplete="off" placeholder="github_pat_..."></label>' +
       '</div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" type="button" id="cSave">연결하고 불러오기</button><button class="btn" type="button" id="cTest">연결 확인만</button>' + (cfg.token ? '<button class="btn danger" type="button" id="cForget">이 브라우저에서 토큰 지우기</button>' : "") + '</div><p class="status-line" id="cStatus">' + (connected() ? "연결 정보가 있습니다. 불러온 곳: " + esc(loadedFrom || "-") : "아직 연결하지 않았습니다. 지금은 둘러보기만 할 수 있고 저장되지 않습니다.") + "</p></div>" +
+      '<div class="card"><h3>관리자 비밀번호</h3>' +
+      '<p class="help">' + (lock ? "비밀번호가 있습니다. 이 화면에 들어올 때마다(브라우저 창을 새로 열 때) 물어봅니다. 토큰도 이 비밀번호로 잠가 둡니다." : "<b style=\"color:var(--danger)\">아직 비밀번호가 없습니다.</b> 지금은 주소만 알면 누구나 이 화면을 열 수 있습니다(저장은 토큰이 있어야 됩니다).") + "</p>" +
+      (connected() ? '<div class="grid2"><label class="f"><span>' + (lock ? "새 비밀번호" : "비밀번호") + ' <small>(8자 이상)</small></span><input type="password" id="pw1" autocomplete="new-password"></label><label class="f"><span>한 번 더</span><input type="password" id="pw2" autocomplete="new-password"></label></div>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" type="button" id="pwSave">' + (lock ? "비밀번호 바꾸기" : "비밀번호 만들기") + '</button></div><p class="status-line" id="pwStatus" hidden></p>' +
+        '<p class="help">다른 컴퓨터에서도 같은 비밀번호로 들어갑니다. 잊으면 GitHub 저장소에서 ibr-web/assets/admin/lock.json 을 지우고 다시 만들면 됩니다.</p>'
+        : '<p class="help">비밀번호는 위에서 저장소에 연결한 뒤 만들 수 있습니다.</p>') + "</div>" +
       '<div class="card"><h3>토큰 만드는 법 (처음 한 번)</h3><ol class="steps">' +
       "<li>GitHub에 로그인 → 오른쪽 위 프로필 → <b>Settings</b> → 맨 아래 <b>Developer settings</b> → <b>Personal access tokens</b> → <b>Fine-grained tokens</b> → <b>Generate new token</b></li>" +
       "<li>Repository access: <b>Only select repositories</b> → <b>" + esc(cfg.owner + "/" + cfg.repo) + "</b> 하나만 고르기</li>" +
@@ -888,7 +975,18 @@
         saveCfg(); updateConn(); setTab("products"); load();
       });
     };
-    if ($("#cForget")) $("#cForget").onclick = function () { cfg.token = ""; saveCfg(); updateConn(); renderSettings(); toast("이 브라우저에서 토큰을 지웠습니다."); };
+    if ($("#cForget")) $("#cForget").onclick = function () { cfg.token = ""; delete cfg.tokenEnc; saveCfg(); updateConn(); renderSettings(); toast("이 브라우저에서 토큰을 지웠습니다."); };
+    if ($("#pwSave")) $("#pwSave").onclick = function () {
+      var a = $("#pw1").value, b = $("#pw2").value, st = $("#pwStatus"), btn = this;
+      st.hidden = false; st.className = "status-line err";
+      if (a.length < 8) { st.textContent = "8자 이상으로 만들어 주세요."; return; }
+      if (a !== b) { st.textContent = "두 칸의 비밀번호가 다릅니다."; return; }
+      btn.disabled = true; st.className = "status-line"; st.textContent = "저장소에 올리는 중…";
+      setPassword(a).then(function () {
+        $("#pw1").value = $("#pw2").value = ""; updateConn(); renderSettings();
+        toast("관리자 비밀번호를 저장했습니다. 1~2분 뒤부터 이 화면에 들어올 때 비밀번호를 물어봅니다.", "ok", 8000);
+      }).catch(function (e) { btn.disabled = false; st.className = "status-line err"; st.textContent = "저장하지 못했습니다: " + e.message; });
+    };
   }
 
   /* ── 저장 ─────────────────────────────── */
@@ -996,6 +1094,21 @@
   $("#saveBtn").onclick = openSave;
   addEventListener("beforeunload", function (e) { if (D && changes().count) { e.preventDefault(); e.returnValue = ""; } });
   window.IBRAdmin = { state: function () { return { D: D, cfg: cfg, pending: pending, removals: removals, changes: changes() }; } };
-  updateConn();
-  load();
+  $("#lockBtn").onclick = lockNow;
+  function start() {
+    $("#lockBtn").hidden = !lock;
+    updateConn(); load();
+    if (!lock && connected()) setTimeout(function () { toast("관리자 비밀번호가 아직 없습니다. 연결 · 설정 탭에서 만들어 주세요.", "", 7000); }, 1500);
+  }
+  if (!(window.crypto && crypto.subtle)) {
+    $("#app").innerHTML = '<div class="settings"><h2>보안 주소로 열어 주세요</h2><p class="lead">관리자 화면은 https:// 로 시작하는 주소에서만 열립니다.</p></div>';
+  } else {
+    fetch(LOCK_PATH + "?v=" + Date.now(), { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (l) {
+      lock = l && l.hash && l.salt ? l : null;
+      if (!lock) return start();
+      var saved = null; try { saved = sessionStorage.getItem(LOCK_SS); } catch (e) {}
+      if (!saved) return showLock();
+      useBits(b64d(saved)).then(start, function () { try { sessionStorage.removeItem(LOCK_SS); } catch (e) {} showLock(); });
+    });
+  }
 })();
