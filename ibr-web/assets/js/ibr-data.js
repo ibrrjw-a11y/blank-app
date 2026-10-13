@@ -25,7 +25,6 @@ window.IBR_BRANDS = [
   {"id":"marybee","ko":"메리비","en":"Mary B.","group":"own","origin":"AU","cat":["food"],"mark":"script","tint":"#F2E3C4","ink":"#5B3A0A","line":"호주 최대 마누카꿀 제조사 하이브웰니스와 공동 소유한 브랜드. 세계 최초 마누카 허니콤.","lineEn":"Co-owned with Hive & Wellness, Australia's largest Manuka honey producer, and maker of the world's first Manuka honeycomb."},
   {"id":"kimguksan","ko":"김국산","en":"KIM GUKSAN","group":"own","origin":"KR","cat":["living"],"mark":"caps","tint":"#E9E3E3","ink":"#3B2525","line":"100% 한국산 위생·생활용품 브랜드.","lineEn":"A hygiene and household goods brand, 100% made in Korea."},
   {"id":"ooha","ko":"OOHA","en":"OOHA","group":"own","origin":"KR","cat":["skin"],"mark":"heavy","tint":"#E9E1F0","ink":"#3E2457","line":"한국·동남아·일본에 동시 출시한 저자극 컬러 콘택트렌즈. 일본 Qoo10 렌즈 카테고리 1위.","lineEn":"Low-irritation color contact lenses launched simultaneously in Korea, Southeast Asia and Japan, ranked No. 1 in the lens category on Qoo10 Japan."},
-  {"id":"tms","ko":"TMS","en":"TMS","group":"own","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330"},
   /* ── 글로벌 소싱 ── */
   {"id":"attiki","ko":"아티키","en":"Attiki","group":"global","origin":"GR","cat":["food"],"mark":"serif","tint":"#DCE4EE","ink":"#183766","line":"그리스 No.1 꿀. 한국·일본·대만 브랜드 독점, 홈쇼핑 22회 연속 매진.","lineEn":"Greece's No. 1 honey, with exclusive brand rights in Korea, Japan and Taiwan and 22 consecutive home-shopping sell-outs."},
   {"id":"botanist","ko":"보타니스트","en":"BOTANIST","group":"global","origin":"JP","cat":["hair","body"],"mark":"caps","tint":"#E6EBDF","ink":"#2E3B22","line":"식물 유래 성분으로 만든 일본 헤어·바디케어.","lineEn":"Japanese hair and body care made with plant-derived ingredients."},
@@ -45,6 +44,7 @@ window.IBR_BRANDS = [
   {"id":"claraco","ko":"클라라앤코","en":"Clara & Co.","group":"dist","origin":"KR","cat":["health"],"mark":"serif","tint":"#F2E1E4","ink":"#5A2330","line":"먹는 뷰티 콜라겐.","lineEn":"Beauty collagen you can drink."},
   {"id":"oat","ko":"오트","en":"OAT","group":"dist","cat":["food"],"mark":"caps","tint":"#EEE7DA","ink":"#4A3A1E","line":"간편하게 바르는 스프레드.","lineEn":"Easy-to-spread spreads."},
   {"id":"atply","ko":"앳플리","en":"atply","group":"dist","cat":["living"],"mark":"round","tint":"#E3E7EA","ink":"#24303A","line":"스마트 헬스 디바이스.","lineEn":"Smart health devices."},
+  {"id":"tms","ko":"TMS","en":"TMS","group":"dist","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330"},
 ];
 
 window.IBR_PRODUCTS = [
