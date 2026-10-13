@@ -36,6 +36,7 @@
     kvetna:    { motif: "glass", bg: "#E3EAEF", ink: "#20323E", acc: ["#C8323C", "#2D5DB8", "#E8B81C", "#E8742A"], words: ["Czech glass", "Handmade", "Auriga"] },
     claraco:   { bg: "#F7D6DC", ink: "#8A1028", acc: ["#E8344E", "#F7A8B8", "#FFFFFF"], logo: "logo", logoH: 34, under: "pearls", words: ["Collagen", "Glow", "20g × 15"] },
     oat:       { motif: "nuts", opt: { kind: "oat" }, bg: "#EFE8D9", ink: "#4A3A1E", acc: ["#E6D3A8", "#C9A86A", "#8A6A3A"], words: ["Oat", "Spread", "Easy morning"] },
+    tms:       { bg: "#FFF3EC", ink: "#B3121A", acc: ["#E1251B", "#3E8E3A", "#FFFFFF"], logo: "logo", logoH: 78, words: ["Taste-tested first", "Fresh & sweet", "Stevia tomato"] },
     atply:     { motif: "pulse", bg: "#E2E7EA", ink: "#24303A", acc: ["#2FB3C8", "#24303A"], words: ["Smart", "Scale", "T8"] }
   };
   IBR.FILMS = FILMS;
@@ -990,6 +991,43 @@
     });
     var box = S.L({ img: "box", cls: "ct drop", rbox: S.m ? [4, 40, 36, 58] : [4, 38, 32, 60] });
     S.go(box, .95, 1.1, { s: [0, 1], r: [-12, 0], o: [0, 1] }, "spring");
+  };
+
+  /* 기미상궁: 수라상에 올리기 전 먼저 맛보는 상궁처럼 — 붉은 도장이 찍히듯 창이 열리고,
+     물방울 맺힌 토마토가 통통 튀어 들어온 뒤 제품 팩이 올라옵니다. 창 안에서는 토마토·스테비아 사진이 바뀝니다 */
+  SCENES.tms = function (S) {
+    S.th.region = S.th.region || { d: [40, 0, 60, 100], m: [0, 0, 100, 62] };
+    /* 1) 붉은 도장: 살짝 기울어진 채 '쿵' 찍힘 */
+    var seal = S.L({ rbox: S.m ? [30, 4, 62, 92] : [36, 8, 52, 84], css: "background:#E1251B;border-radius:6px;box-shadow:0 18px 40px rgba(179,18,26,.25);", org: "50% 50%" });
+    S.go(seal, .1, .9, { s: [1.6, 1], o: [0, 1], r: [-14, -4] }, "back");
+    /* 2) 도장 안쪽에 둥근 창이 열리며 토마토 사진 */
+    var win = S.L({ slides: ["pile", "hero", "stevia"], rbox: S.m ? [33, 7, 56, 86] : [38.5, 11, 47, 78], pos: "50% 50%" });
+    S.slides(win, { at: 1, every: 5.4, fade: 1.4, kb: [1.14, 1.0] });
+    S.go(win, 1, 1.2, { cc: [[0, 50, 50], [50, 50, 50]], r: [-4, -4] }, "spring");
+    S.go(win, 4.6, 1.4, { cc: [[50, 50, 50], [72, 50, 50]] }, "io");
+    S.go(seal, 4.6, 1.4, { s: [1, 1.04], r: [-4, -2] }, "io");
+    /* 3) 물방울 맺힌 토마토가 위에서 떨어져 통통 튐 */
+    var T = S.m ? [[2, 50, 26], [80, 8, 18], [86, 62, 14]] : [[14, 46, 20], [84, 4, 15], [88, 62, 11]];
+    T.forEach(function (t, i) {
+      var h = S.L({ img: "tomato", cls: "ct drop", rbox: [t[0], t[1], t[2], t[2] * (S.m ? 1.1 : 1.6)], org: "50% 100%", z: 4 });
+      var at = 1.5 + i * .22;
+      S.go(h, at, 1.3, { y: [-180, 0], o: [0, 1], r: [i % 2 ? 30 : -30, i % 2 ? 6 : -8] }, "spring");
+      S.osc(h, "y", 2.2, 3.6 + i * .7, at + 1.4, i * 1.7);
+      S.osc(h, "r", 2.5, 5 + i, at + 1.4, i);
+    });
+    /* 4) 반짝이는 물방울(작은 하얀 빛)이 창 둘레에서 톡톡 */
+    for (var k = 0; k < 7; k++) (function (k) {
+      var a = k / 7 * Math.PI * 2, cx = S.m ? 61 : 62, cy = 50, R = S.m ? 30 : 26;
+      var d = S.L({ rbox: [cx + Math.cos(a) * R - 1.2, cy + Math.sin(a) * R * 1.5 - 1.6, 2.4, 3.2], z: 5, css: "border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0 30%,rgba(255,255,255,.35) 60%,rgba(255,255,255,0) 72%);" });
+      var at = 2 + k * .18;
+      S.go(d, at, .7, { s: [0, 1.25], o: [0, 1] }, "back");
+      S.osc(d, "o", .45, 1.6 + k * .23, at + .7, k);
+      S.osc(d, "s", .25, 2.2 + k * .3, at + .7, k * 2);
+    })(k);
+    /* 5) 제품 팩이 아래에서 올라와 자리 잡음 */
+    var pack = S.L({ img: "pack", cls: "ct drop", rbox: S.m ? [6, 42, 28, 40] : [2, 50, 26, 46], z: 6, org: "50% 100%" });
+    S.go(pack, 2.6, 1.3, { y: [70, 0], o: [0, 1], r: [8, -3] }, "spring");
+    S.osc(pack, "y", 1.2, 5.6, 4.2);
   };
 
   /* 제품 사진만 있는 브랜드: 코드 모션 위에 제품이 올라옵니다 */
