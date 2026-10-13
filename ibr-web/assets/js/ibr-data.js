@@ -44,7 +44,7 @@ window.IBR_BRANDS = [
   {"id":"claraco","ko":"클라라앤코","en":"Clara & Co.","group":"dist","origin":"KR","cat":["health"],"mark":"serif","tint":"#F2E1E4","ink":"#5A2330","line":"먹는 뷰티 콜라겐.","lineEn":"Beauty collagen you can drink."},
   {"id":"oat","ko":"오트","en":"OAT","group":"dist","cat":["food"],"mark":"caps","tint":"#EEE7DA","ink":"#4A3A1E","line":"간편하게 바르는 스프레드.","lineEn":"Easy-to-spread spreads.","hidden":true},
   {"id":"atply","ko":"앳플리","en":"atply","group":"dist","cat":["living"],"mark":"round","tint":"#E3E7EA","ink":"#24303A","line":"스마트 헬스 디바이스.","lineEn":"Smart health devices.","hidden":true},
-  {"id":"tms","ko":"TMS 기미상궁","en":"TMS","group":"dist","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330"},
+  {"id":"tms","ko":"기미상궁","en":"GIMISANGUNG","group":"dist","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330"},
 ];
 
 window.IBR_PRODUCTS = [
@@ -140,6 +140,6 @@ window.IBR_PRODUCTS = [
   {"id":"atply-1","b":"atply","n":"T8 스마트 체중계","nEn":"T8 Smart Scale","cat":"living","form":"scale","opts":[["1대",null]],"optsEn":["1 unit"]},
   /* 오트 */
   {"id":"oat-1","b":"oat","n":"오트 스프레드","nEn":"OAT Spread","cat":"food","form":"stick","opts":[["32g × 10개",null]],"optsEn":["32g × 10"]},
-  /* TMS 기미상궁 */
+  /* 기미상궁 */
   {"id":"tms-1","b":"tms","n":"기미상궁 스테비아 토마토","nEn":"GIMISANGUNG SWEET TOMATO","cat":"food","form":"box","img":"assets/img/products/tms-1-en98t.webp","full":true,"opts":[["500g",8800],["1000g",17600],["1500g",26400]],"top":true,"detail":["assets/img/detail/tms-1/3y6me.webp","assets/img/detail/tms-1/bn59i.webp","assets/img/detail/tms-1/sxgu8.webp","assets/img/detail/tms-1/bz7ft.webp","assets/img/detail/tms-1/11jg8.webp"]},
 ];
