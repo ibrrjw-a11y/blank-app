@@ -101,9 +101,9 @@ input[type=color] { width: 44px; height: 34px; padding: 2px; border: 1px solid v
 
 /* 용량·가격 표 */
 .opts { display: grid; gap: 6px; }
-.opt-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.opt-row { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1fr) auto; gap: 6px; align-items: center; }
 .opt-row .ctl { display: flex; gap: 4px; }
-.opt-head { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 96px; gap: 6px; font-size: 12px; color: var(--text-3); }
+.opt-head { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1fr) 96px; gap: 6px; font-size: 12px; color: var(--text-3); }
 
 /* 사진 */
 .photo { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 16px; align-items: start; }

@@ -7,6 +7,34 @@
   IBR.reduce = reduce;
   doc.classList.add("js");
 
+  /* 언어: <html lang="en"> 인 페이지(…-en.html)는 영문. 화면 문구는 IBR.t("한글", "English") 로 고릅니다 */
+  IBR.lang = doc.lang === "en" ? "en" : "ko";
+  IBR.t = function (ko, en) { return IBR.lang === "en" ? en : ko; };
+  IBR.page = function (name) { return IBR.lang === "en" ? name.replace(/\.html/, "-en.html") : name; };
+  /* 값 + 통화: 30,000원 / 30,000 KRW */
+  IBR.priceHTML = function (v) { return IBR.won(v) + (IBR.lang === "en" ? "<small> KRW</small>" : "<small>원</small>"); };
+
+  /* 영문 페이지: 데이터의 영문 값(…En)으로 바꿔 둡니다. 영문 값이 없으면 한글 그대로 */
+  if (IBR.lang === "en") (function () {
+    var CAT_EN = { hair: "Hair", body: "Body", skin: "Skin", food: "Food", health: "Health", pet: "Pet", living: "Living" };
+    if (window.IBR_CATS) Object.keys(window.IBR_CATS).forEach(function (k) { if (CAT_EN[k]) window.IBR_CATS[k] = CAT_EN[k]; });
+    (window.IBR_BRANDS || []).forEach(function (b) { b.ko = b.en || b.ko; if (b.lineEn) b.line = b.lineEn; });
+    (window.IBR_PRODUCTS || []).forEach(function (p) {
+      p.nKo = p.n;
+      if (p.nEn) p.n = p.nEn;
+      if (p.optsEn && p.opts && p.optsEn.length === p.opts.length) p.opts = p.opts.map(function (o, i) { return [p.optsEn[i] || o[0], o[1]]; });
+      if (p.varsEn && p.varsEn.length) p.vars = p.varsEn;
+      if (p.noteEn) p.note = p.noteEn;
+      delete p.check; /* '가격 확인 필요' 같은 내부 확인 표시는 영문 화면에 보이지 않게 */
+    });
+    (window.IBR_IR || []).forEach(function (x) {
+      if (x.titleEn) x.title = x.titleEn;
+      if (x.summaryEn) x.summary = x.summaryEn;
+      if (x.sourceEn) x.source = x.sourceEn;
+      if (x.bodyEn) x.body = x.bodyEn;
+    });
+  })();
+
   /* 제품 id 부여 + 사진·상세 이미지(ibr-media.js, 자동 생성) 합치기 */
   (function () {
     var MEDIA = window.IBR_MEDIA || {}, n = {};
@@ -14,13 +42,13 @@
       n[p.b] = (n[p.b] || 0) + 1;
       if (!p.id) p.id = p.b + "-" + n[p.b];
       if (p.full) p.imgFull = true; /* 관리자 화면에서 '배경 있는 사진'으로 넣은 사진 */
-      var m = MEDIA[p.b + "|" + p.n];
+      var m = MEDIA[p.b + "|" + (p.nKo || p.n)];
       if (m) {
         if (m.img) { p.img = m.img; p.imgFull = !!m.full; }
         if (m.detail && m.detail.length) p.detail = m.detail;
       }
       /* 모든 제품 카드는 제품 화면(사진·용량별 소비자가·구매처·상세)으로 이어집니다 */
-      if (!p.url) p.url = "product.html#p-" + p.id;
+      if (!p.url) p.url = IBR.page("product.html") + "#p-" + p.id;
     });
   })();
   if (reduce) doc.classList.add("no-motion");
@@ -47,7 +75,7 @@
       var open = !doc.classList.contains("menu-open");
       doc.classList.toggle("menu-open", open);
       toggle.setAttribute("aria-expanded", String(open));
-      toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+      toggle.setAttribute("aria-label", open ? IBR.t("메뉴 닫기", "Close menu") : IBR.t("메뉴 열기", "Open menu"));
     });
     document.querySelectorAll(".mobile-nav a").forEach(function (a) {
       a.addEventListener("click", function () {
@@ -164,6 +192,14 @@
     document.addEventListener("DOMContentLoaded", function () { [].forEach.call(document.querySelectorAll("main > section"), function (sec) { offIo.observe(sec); }); });
   }
 
+  /* ── 언어 전환: 보던 위치(#제품·#브랜드 등)를 그대로 가지고 이동 ── */
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest(".lang-sw a, .m-lang a");
+    if (!a || a.getAttribute("aria-current") || !location.hash) return;
+    e.preventDefault();
+    location.href = a.getAttribute("href").split("#")[0] + location.hash;
+  });
+
   /* ── copy buttons ─────────────────────────────── */
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-copy]");
@@ -171,7 +207,7 @@
     var text = b.getAttribute("data-copy");
     function done(ok) {
       var label = b.textContent;
-      b.textContent = ok ? "복사했습니다" : "직접 선택해 복사하세요";
+      b.textContent = ok ? IBR.t("복사했습니다", "Copied") : IBR.t("직접 선택해 복사하세요", "Select and copy manually");
       setTimeout(function () { b.textContent = label; }, 1800);
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -272,23 +308,23 @@
     var meta = '<div class="meta"><p class="brand"><b>' + b.ko + "</b>" + (b.en !== b.ko ? b.en : "") + "</p><h3>" + p.n + "</h3>";
     if (p.vars && p.vars.length) {
       if (p.vars.length === 1) meta += '<p class="vars">' + p.vars[0] + "</p>";
-      else meta += '<details class="vars"><summary>' + p.vars.length + "가지 타입</summary><ul>" + p.vars.map(function (v) { return "<li>" + v + "</li>"; }).join("") + "</ul></details>";
+      else meta += '<details class="vars"><summary>' + IBR.t(p.vars.length + "가지 타입", p.vars.length + " types") + "</summary><ul>" + p.vars.map(function (v) { return "<li>" + v + "</li>"; }).join("") + "</ul></details>";
     }
     if (p.opts.length > 1) {
-      meta += '<div class="opts" role="group" aria-label="용량">' + p.opts.map(function (o, i) {
+      meta += '<div class="opts" role="group" aria-label="' + IBR.t("용량", "Size") + '">' + p.opts.map(function (o, i) {
         return '<button type="button" aria-pressed="' + (i === 0) + '" data-i="' + i + '">' + o[0] + "</button>";
       }).join("") + "</div>";
     } else {
       meta += '<div class="opts"><span class="one">' + p.opts[0][0] + "</span></div>";
     }
-    meta += '<div class="price"><span class="lbl">소비자가</span><span class="pv"></span></div>';
+    meta += '<div class="price"><span class="lbl">' + IBR.t("소비자가", "Retail price") + '</span><span class="pv"></span></div>';
     if (p.note) meta += '<p class="note">' + p.note + "</p>";
     meta += "</div>";
-    el.innerHTML = art + meta + (p.url ? '<a class="cover" href="' + p.url + '" aria-label="' + p.n + ' 자세히 보기"></a>' : "");
+    el.innerHTML = art + meta + (p.url ? '<a class="cover" href="' + p.url + '" aria-label="' + IBR.t(p.n + " 자세히 보기", "View " + p.n) + '"></a>' : "");
     var pv = el.querySelector(".pv");
     function show(i) {
       var v = p.opts[i][1];
-      pv.innerHTML = v == null ? '<span class="tbd">준비 중</span>' : '<b>' + IBR.won(v) + "<small>원</small></b>";
+      pv.innerHTML = v == null ? '<span class="tbd">' + IBR.t("준비 중", "Coming soon") + '</span>' : "<b>" + IBR.priceHTML(v) + "</b>";
     }
     show(0);
     el.querySelectorAll(".opts button").forEach(function (btn) {

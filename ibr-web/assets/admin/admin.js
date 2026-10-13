@@ -124,18 +124,24 @@
     return r;
   }
   function cleanProduct(p) {
-    var c = pick(p, ["id", "b", "n", "cat", "form", "img", "full", "opts", "vars", "note", "check", "top", "detail", "url"]);
+    var c = pick(p, ["id", "b", "n", "nEn", "cat", "form", "img", "full", "opts", "optsEn", "vars", "varsEn", "note", "noteEn", "check", "top", "detail", "url"]);
     c.opts = (p.opts || []).map(function (o) { return [String(o[0] || ""), o[1] === "" || o[1] == null || isNaN(o[1]) ? null : Number(o[1])]; });
+    /* 영문 용량: 한 칸이라도 있으면 용량 줄 수에 맞춰 저장, 모두 비면 뺌 */
+    var oe = (p.optsEn || []).slice(0, c.opts.length);
+    if (oe.some(function (x) { return x; })) { while (oe.length < c.opts.length) oe.push(""); c.optsEn = oe.map(function (x) { return String(x || ""); }); }
+    else delete c.optsEn;
+    if (c.optsEn) { var o2 = {}; Object.keys(c).forEach(function (k) { if (k !== "optsEn") { o2[k] = c[k]; if (k === "opts") o2.optsEn = c.optsEn; } }); c = o2; }
     return c;
   }
-  function cleanBrand(b) { return pick(b, ["id", "ko", "en", "group", "origin", "cat", "mark", "tint", "ink", "line"]); }
-  function cleanIr(x) { return pick(x, ["id", "date", "type", "title", "source", "url", "summary", "brand", "img", "body", "file"]); }
+  function cleanBrand(b) { return pick(b, ["id", "ko", "en", "group", "origin", "cat", "mark", "tint", "ink", "line", "lineEn"]); }
+  function cleanIr(x) { return pick(x, ["id", "date", "type", "title", "titleEn", "source", "sourceEn", "url", "summary", "summaryEn", "brand", "img", "body", "bodyEn", "file"]); }
 
   var DATA_HEAD = "/*\n" +
     "  IBR 브랜드·제품 데이터 — 홈페이지의 브랜드 목록과 제품 페이지가 모두 이 파일 하나를 읽습니다.\n" +
     "  관리자 화면(admin.html)에서 고치면 이 파일을 새로 씁니다. 직접 고쳐도 됩니다.\n\n" +
     "  ■ 제품: { id, b: 브랜드 id, n: 제품명, cat: 분류, form: 그림 모양, img: 대표 사진, full: 배경 있는 사진,\n" +
     "           opts: [[용량, 소비자가], ...], vars: [종류], note: 안내, check: 확인 표시, top: 메인 대표 제품, detail: [상세 이미지] }\n" +
+    "    - 영문 페이지(…-en.html)용: nEn 제품명 · optsEn [용량] · varsEn [종류] · noteEn 안내 / 브랜드 lineEn 소개. 비어 있으면 한글이 보입니다.\n" +
     "    - 가격은 소비자가(숫자, 원). 모르면 null → \"소비자가 준비 중\".\n" +
     "  ■ 분류(cat): hair 헤어 · body 바디 · skin 스킨 · food 푸드 · health 헬스 · pet 펫 · living 리빙\n" +
     "  ■ 그림 모양(form): oil pump tube jar honey stick box bar bottle spray pouch towel pack chair cabinet glass scale\n" +
@@ -546,15 +552,18 @@
       '<a class="btn sm" href="product.html#p-' + encodeURIComponent(p.id) + '" target="_blank" rel="noopener">사이트에서 보기 ↗</a><button class="btn sm danger" type="button" id="del">삭제</button></div></div>' +
       '<div class="card"><h3>기본 정보</h3><div class="grid2">' +
       '<label class="f span2"><span>제품명</span><input type="text" data-k="n" value="' + esc(p.n) + '" placeholder="예: 07 플로럴 선샤인 헤어오일"></label>' +
+      '<label class="f span2"><span>영문 제품명 <small>(영문 페이지에 보입니다. 비우면 한글 이름)</small></span><input type="text" data-k="nEn" value="' + esc(p.nEn || "") + '" placeholder="예: 07 Floral Sunshine Hair Oil"></label>' +
       '<label class="f"><span>브랜드</span><select data-k="b">' + brandOptions(p.b) + "</select></label>" +
       '<label class="f"><span>분류</span><select data-k="cat">' + opts(catOpts, p.cat) + "</select></label>" +
       '<label class="f"><span>사진이 없을 때 그림 모양</span><select data-k="form">' + opts(FORMS, p.form) + "</select></label>" +
       '<label class="f"><span>가격 옆 표시 <small>(예: 가격 확인 필요)</small></span><input type="text" data-k="check" value="' + esc(p.check || "") + '"></label>' +
       '<label class="f span2"><span>종류 <small>(향·컬러처럼 가격이 같은 종류, 한 줄에 하나)</small></span><textarea data-k="vars" data-t="lines" rows="3">' + esc((p.vars || []).join("\n")) + "</textarea></label>" +
+      '<label class="f span2"><span>종류 · 영문 <small>(위와 같은 순서로 한 줄에 하나)</small></span><textarea data-k="varsEn" data-t="lines" rows="2">' + esc((p.varsEn || []).join("\n")) + "</textarea></label>" +
       '<label class="f span2"><span>안내 문구 <small>(카드 아래 작은 글씨)</small></span><input type="text" data-k="note" value="' + esc(p.note || "") + '"></label>' +
+      '<label class="f span2"><span>안내 문구 · 영문</span><input type="text" data-k="noteEn" value="' + esc(p.noteEn || "") + '"></label>' +
       '<label class="chk span2"><input type="checkbox" data-k="top"' + (p.top ? " checked" : "") + "> 메인 화면 '대표 제품'에 보이기 <small class=\"help\">(소비자가가 있어야 보입니다)</small></label>" +
       "</div></div>" +
-      '<div class="card"><h3>용량 · 소비자가 <button class="btn sm" type="button" id="addOpt">+ 줄 추가</button></h3><div class="opt-head"><span>용량·구성</span><span>소비자가(원) — 비우면 "준비 중"</span><span></span></div><div class="opts" id="opts"></div></div>' +
+      '<div class="card"><h3>용량 · 소비자가 <button class="btn sm" type="button" id="addOpt">+ 줄 추가</button></h3><div class="opt-head"><span>용량·구성</span><span>영문 <small>(선택)</small></span><span>소비자가(원) — 비우면 "준비 중"</span><span></span></div><div class="opts" id="opts"></div></div>' +
       '<div class="card"><h3>대표 사진</h3><div class="photo"><div class="pv' + (p.full ? " full" : "") + '" style="background:' + esc(b.tint || "#E8ECE8") + '">' + (p.img ? '<img src="' + esc(src(p.img)) + '" alt="">' : '<span class="no">사진이 없으면<br>그림 모양으로 보입니다</span>') + "</div>" +
       '<div class="ops"><div class="drop" id="dropMain">여기로 사진을 끌어 놓거나 <button class="btn sm" type="button" id="upMain">사진 고르기</button></div>' +
       '<div class="row"><label class="chk"><input type="checkbox" id="knock"> 흰 배경 지우기</label><label class="chk"><input type="checkbox" data-k="full"' + (p.full ? " checked" : "") + "> 배경 있는 사진(카드를 꽉 채움)</label></div>" +
@@ -573,16 +582,23 @@
     function drawOpts() {
       var box = $("#opts", pane);
       box.innerHTML = (p.opts || []).map(function (o, i) {
-        return '<div class="opt-row" data-i="' + i + '"><input type="text" data-f="0" value="' + esc(o[0]) + '" placeholder="예: 100ml"><input type="number" data-f="1" min="0" step="100" value="' + (o[1] == null ? "" : o[1]) + '" placeholder="준비 중">' +
+        return '<div class="opt-row" data-i="' + i + '"><input type="text" data-f="0" value="' + esc(o[0]) + '" placeholder="예: 100ml"><input type="text" data-f="en" value="' + esc((p.optsEn || [])[i] || "") + '" placeholder="예: Jar 250g"><input type="number" data-f="1" min="0" step="100" value="' + (o[1] == null ? "" : o[1]) + '" placeholder="준비 중">' +
           '<span class="ctl"><button class="icon-btn" type="button" data-a="up"' + (i === 0 ? " disabled" : "") + '>↑</button><button class="icon-btn" type="button" data-a="down"' + (i === p.opts.length - 1 ? " disabled" : "") + '>↓</button><button class="icon-btn" type="button" data-a="rm"' + (p.opts.length <= 1 ? " disabled" : "") + '>✕</button></span></div>';
       }).join("");
       $$(".opt-row", box).forEach(function (row) {
         var i = +row.dataset.i;
-        $$("input", row).forEach(function (inp) { inp.oninput = function () { var f = +inp.dataset.f; p.opts[i][f] = f ? (inp.value === "" ? null : Number(inp.value)) : inp.value; markChange(); }; });
+        $$("input", row).forEach(function (inp) {
+          inp.oninput = function () {
+            if (inp.dataset.f === "en") { p.optsEn = p.optsEn || []; while (p.optsEn.length < p.opts.length) p.optsEn.push(""); p.optsEn[i] = inp.value; markChange(); return; }
+            var f = +inp.dataset.f; p.opts[i][f] = f ? (inp.value === "" ? null : Number(inp.value)) : inp.value; markChange();
+          };
+        });
         $$("button", row).forEach(function (btn) {
           btn.onclick = function () {
-            var a = btn.dataset.a, o = p.opts;
-            if (a === "rm") o.splice(i, 1); else { var j = a === "up" ? i - 1 : i + 1; var t = o[i]; o[i] = o[j]; o[j] = t; }
+            var a = btn.dataset.a, o = p.opts, e = p.optsEn = p.optsEn || [];
+            while (e.length < o.length) e.push("");
+            if (a === "rm") { o.splice(i, 1); e.splice(i, 1); }
+            else { var j = a === "up" ? i - 1 : i + 1; var t = o[i]; o[i] = o[j]; o[j] = t; t = e[i]; e[i] = e[j]; e[j] = t; }
             drawOpts(); markChange();
           };
         });
@@ -590,7 +606,7 @@
     }
     if (!p.opts || !p.opts.length) p.opts = [["", null]];
     drawOpts();
-    $("#addOpt", pane).onclick = function () { p.opts.push(["", null]); drawOpts(); markChange(); };
+    $("#addOpt", pane).onclick = function () { p.opts.push(["", null]); if (p.optsEn) { while (p.optsEn.length < p.opts.length) p.optsEn.push(""); } drawOpts(); markChange(); };
     /* 순서·삭제 */
     function move(dir) {
       var j = D.products.indexOf(same[pos + dir]); if (j < 0) return;
@@ -686,6 +702,7 @@
       '<label class="f"><span>구분</span><select data-k="group">' + opts(GROUPS, b.group) + "</select></label>" +
       '<label class="f"><span>원산지</span><select data-k="origin">' + opts(ORIGINS, b.origin) + "</select></label>" +
       '<label class="f span2"><span>한 줄 소개</span><textarea data-k="line" rows="2">' + esc(b.line || "") + "</textarea></label>" +
+      '<label class="f span2"><span>한 줄 소개 · 영문 <small>(영문 페이지에 보입니다)</small></span><textarea data-k="lineEn" rows="2">' + esc(b.lineEn || "") + "</textarea></label>" +
       '<div class="f span2"><span class="f-label">분류</span><div class="cats">' + Object.keys(D.cats).map(function (k) { return '<label class="chk"><input type="checkbox" data-cat="' + k + '"' + ((b.cat || []).indexOf(k) > -1 ? " checked" : "") + "> " + esc(D.cats[k]) + "</label>"; }).join("") + "</div></div>" +
       "</div></div>" +
       '<div class="card"><h3>로고 글자 · 색</h3><div class="grid2"><label class="f"><span>글꼴</span><select data-k="mark">' + opts(MARKS, b.mark) + '</select></label><div class="colors"><label><input type="color" data-k="tint" value="' + esc(b.tint || "#E8ECE8") + '"> 바탕색</label><label><input type="color" data-k="ink" value="' + esc(b.ink || "#2A3330") + '"> 글자색</label></div></div>' +
@@ -740,13 +757,17 @@
       '<label class="f"><span>분류</span><select data-k="type">' + opts(IR_TYPES, x.type) + "</select></label>" +
       '<label class="f"><span>날짜 <small>(정렬에만 쓰고 화면에는 안 보입니다)</small></span><input type="date" data-k="date" value="' + esc(x.date || "") + '"></label>' +
       '<label class="f span2"><span>제목</span><input type="text" data-k="title" value="' + esc(x.title || "") + '"></label>' +
+      '<label class="f span2"><span>제목 · 영문 <small>(영문 페이지에 보입니다. 비우면 한글 제목)</small></span><input type="text" data-k="titleEn" value="' + esc(x.titleEn || "") + '"></label>' +
       '<label class="f"><span>매체명 <small>(언론 보도일 때)</small></span><input type="text" data-k="source" value="' + esc(x.source || "") + '"></label>' +
+      '<label class="f"><span>매체명 · 영문</span><input type="text" data-k="sourceEn" value="' + esc(x.sourceEn || "") + '"></label>' +
       '<label class="f"><span>관련 브랜드 <small>(사진이 없을 때 썸네일)</small></span><select data-k="brand">' + brandOptions(x.brand, true) + "</select></label>" +
       '<label class="f span2"><span>기사 주소 <small>(있으면 누를 때 새 창으로 기사가 열립니다)</small></span><input type="url" data-k="url" value="' + esc(x.url || "") + '" placeholder="https://"></label>' +
       '<label class="f span2"><span>요약 <small>(목록에 보이는 두세 줄)</small></span><textarea data-k="summary" rows="3">' + esc(x.summary || "") + "</textarea></label>" +
+      '<label class="f span2"><span>요약 · 영문</span><textarea data-k="summaryEn" rows="3">' + esc(x.summaryEn || "") + "</textarea></label>" +
       "</div></div>" +
       '<div class="card"><h3>대표 이미지</h3><div class="photo"><div class="pv full" style="background:var(--paper-2)">' + (x.img ? '<img src="' + esc(src(x.img)) + '" alt="">' : '<span class="no">없으면 브랜드 이름이<br>썸네일로 보입니다</span>') + '</div><div class="ops"><div class="drop" id="dropIr">이미지를 끌어 놓거나 <button class="btn sm" type="button" id="upIr">사진 고르기</button></div>' + (x.img ? '<div class="row"><button class="btn sm danger" type="button" id="rmIr">이미지 빼기</button></div>' : "") + "</div></div></div>" +
-      '<div class="card"><h3>본문 <small class="help">(보도자료·공지처럼 사이트 안에서 보여 줄 글. 빈 줄로 문단을 나누고, "## "로 시작하면 소제목)</small></h3><textarea class="tall" data-k="body">' + esc(x.body || "") + "</textarea></div>" +
+      '<div class="card"><h3>본문 <small class="help">(보도자료·공지처럼 사이트 안에서 보여 줄 글. 빈 줄로 문단을 나누고, "## "로 시작하면 소제목)</small></h3><textarea class="tall" data-k="body">' + esc(x.body || "") + "</textarea>" +
+      '<label class="f"><span>본문 · 영문 <small>(영문 페이지에 보입니다. 비우면 한글 본문)</small></span><textarea class="tall" data-k="bodyEn">' + esc(x.bodyEn || "") + "</textarea></label></div>" +
       '<div class="card"><h3>내려받을 자료</h3><div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn sm" type="button" id="upFile">파일 올리기</button>' + (x.file ? '<span class="help">' + esc(x.file) + '</span><button class="btn sm danger" type="button" id="rmFile">빼기</button>' : '<span class="help">PDF 등 IR 자료·보도자료 원문</span>') + "</div></div>";
     wireBack(pane);
     bind(pane, x, function (k) { if (k === "title") $("h2", pane).textContent = x.title || "새 글"; if (k === "date" || k === "title" || k === "brand" || k === "type") renderList(); });

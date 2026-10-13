@@ -211,7 +211,7 @@
   }
 
   /* ── ⑦ 브랜드 ─────────────────────────────── */
-  var GROUPS = [["own", "자사 브랜드"], ["global", "글로벌 소싱"], ["dist", "유통 브랜드"], ["all", "전체"]];
+  var GROUPS = [["own", IBR.t("자사 브랜드", "Own brands")], ["global", IBR.t("글로벌 소싱", "Global sourcing")], ["dist", IBR.t("유통 브랜드", "Distribution")], ["all", IBR.t("전체", "All")]];
   var ORIGIN = { KR: "KOREA", US: "USA", AU: "AUSTRALIA", GR: "GREECE", JP: "JAPAN", FR: "FRANCE", UK: "UK", NZ: "NEW ZEALAND", IT: "ITALY", CZ: "CZECH", AT: "AUSTRIA", DE: "GERMANY", CH: "SWITZERLAND", CA: "CANADA", CN: "CHINA", ES: "SPAIN" };
   function brandCard(b, count) {
     var el = document.createElement("article");
@@ -222,7 +222,7 @@
       '<span class="origin">' + (ORIGIN[b.origin] || "") + "</span></div>" +
       '<div class="cats">' + cats + "</div>" +
       "<p>" + b.line + "</p>" +
-      '<div class="foot">' + (count ? '<a href="products.html#b-' + b.id + '">제품 ' + count + "종 " + IBR.ARROW + "</a>" : '<span class="none">제품 정보 준비 중</span>') +
+      '<div class="foot">' + (count ? '<a href="' + IBR.page("products.html") + '#b-' + b.id + '">' + IBR.t("제품 " + count + "종 ", count + " products ") + IBR.ARROW + "</a>" : '<span class="none">' + IBR.t("제품 정보 준비 중", "Product info coming soon") + "</span>") +
       "</div>";
     return el;
   }
@@ -255,7 +255,7 @@
     if (!rail || !window.IBR_PRODUCTS) return;
     window.IBR_PRODUCTS.filter(function (p) { return p.top && p.opts[0][1] != null; }).forEach(function (p) { rail.appendChild(IBR.productCard(p)); });
     var all = $("#allProducts");
-    if (all) all.firstChild.textContent = "전체 제품 " + window.IBR_PRODUCTS.length + "종 보기 ";
+    if (all) all.firstChild.textContent = IBR.t("전체 제품 " + window.IBR_PRODUCTS.length + "종 보기 ", "View all " + window.IBR_PRODUCTS.length + " products ");
   }
 
   /* ── ④ 차트 ─────────────────────────────── */

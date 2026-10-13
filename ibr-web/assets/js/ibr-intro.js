@@ -120,8 +120,8 @@
     lx = Math.max(16, Math.min(W - 16, lx));
     ly = Math.max(70, Math.min(H - 70, ly));
     var t = el("text", { class: "ch-label", x: lx, y: ly, "text-anchor": anchor }, labels);
-    var t1 = el("tspan", { x: lx, dy: 0 }, t); t1.textContent = c[0];
-    var t2 = el("tspan", { class: "en", x: lx, dy: 18 }, t); t2.textContent = c[1];
+    var t1 = el("tspan", { x: lx, dy: 0 }, t); t1.textContent = IBR.lang === "en" ? c[1] : c[0];
+    var t2 = el("tspan", { class: "en", x: lx, dy: 18 }, t); t2.textContent = IBR.lang === "en" ? "" : c[1];
     A(t, [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 520, delay: start - 120, easing: OUT });
     A(t, [{ opacity: 1 }, { opacity: 0 }], { duration: 420, delay: ARRIVE - 520 + i * 25, fill: "forwards", composite: "replace" });
   });

@@ -1,0 +1,34 @@
+<!-- title: IBR IR · News -->
+<!-- desc: Press coverage, press releases, notices and IR materials from IBR. -->
+<!-- nav: ir -->
+<!-- header: solid -->
+<!-- scripts: ibr-data.js ibr-ir-data.js ibr.js ibr-ir.js -->
+<main id="main">
+  <section class="p-hero ink ir-hero">
+    <div class="wrap row">
+      <div style="display:grid;gap:22px">
+        <p class="eyebrow">IR · News</p>
+        <h1>IR · News</h1>
+        <p class="lead">IBR's press coverage, press releases, notices and investor materials, all in one place.</p>
+      </div>
+      <div class="facts" id="irFacts" hidden></div>
+    </div>
+    <span class="line" aria-hidden="true"></span>
+  </section>
+
+  <section class="ir paper">
+    <div class="wrap">
+      <div class="ir-list-view" id="irListView">
+        <div class="ir-tabs" role="group" aria-label="Category" id="irTabs"></div>
+        <div class="ir-list" id="irList"></div>
+        <div class="ir-more"><button class="link-arrow" type="button" id="irMore" hidden>Load more {{ARROW}}</button></div>
+        <div class="empty ir-empty" id="irEmpty" hidden>
+          <p class="t">Our first update is on its way.</p>
+          <p>Press coverage, press releases and IR materials will be posted here as they are released.</p>
+          <a class="link-arrow" href="index-en.html#contact">Partnership &amp; IR inquiries {{ARROW}}</a>
+        </div>
+      </div>
+      <article class="ir-post" id="irPost" hidden></article>
+    </div>
+  </section>
+</main>
