@@ -410,6 +410,7 @@ h1, h2, h3 { text-wrap: balance; }
 /* ── product cards (home rail + products page) ─────────────────────────────── */
 .rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 18px; scrollbar-width: thin; }
 .rail > * { scroll-snap-align: start; }
+@media (hover: hover) and (pointer: fine) { .rail, .brandbar, .toolbar .cats { cursor: grab; } .dragging { cursor: grabbing; user-select: none; } .dragging a, .dragging button { pointer-events: none; } }
 .rail-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; margin-bottom: 36px; }
 .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
 .pcard { background: var(--card); border: 1px solid var(--line-paper); border-radius: 3px; display: grid; grid-template-rows: auto 1fr; overflow: hidden; position: relative; }
@@ -421,7 +422,8 @@ h1, h2, h3 { text-wrap: balance; }
 .pcard .sil .lb { fill: var(--tint); opacity: .9; }
 .pcard .art .bn { position: absolute; left: 14px; top: 14px; z-index: 2; font: 500 10px/1 var(--f-display); letter-spacing: .16em; text-transform: uppercase; color: var(--bink, #333); opacity: .7; }
 .pcard .art .flag { position: absolute; right: 12px; top: 12px; z-index: 2; font-size: 11px; font-weight: 600; padding: 5px 7px; border-radius: 2px; background: rgba(255, 255, 255, .78); color: #8A3A12; }
-.pcard .meta { padding: 16px 16px 18px; display: grid; gap: 8px; align-content: start; }
+.pcard .meta { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.pcard .meta > * { margin-block: 0; }
 .pcard .brand { font: 500 11px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); }
 .pcard .brand b { font: 600 12px/1 var(--f-body); letter-spacing: -0.01em; text-transform: none; color: var(--text-2); margin-right: 6px; }
 .pcard h3 { font: 700 16px/1.42 var(--f-body); letter-spacing: -0.025em; }
@@ -436,7 +438,7 @@ h1, h2, h3 { text-wrap: balance; }
 .pcard .opts button { font: 500 12px/1 var(--f-body); padding: 7px 9px; border: 1px solid var(--line-paper); border-radius: 2px; color: var(--text-2); transition: border-color .2s, color .2s, background .2s; }
 .pcard .opts button[aria-pressed="true"] { border-color: var(--ink); color: var(--text); background: var(--paper); }
 .pcard .opts .one { font-size: 12.5px; color: var(--text-2); }
-.pcard .price { margin-top: 4px; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line-paper); }
+.pcard .price { margin-top: auto; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line-paper); }
 .pcard .price .lbl { font-size: 11.5px; color: var(--text-3); }
 .pcard .price b { font: 600 19px/1 var(--f-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .pcard .price b small { font: 600 13px/1 var(--f-body); margin-left: 2px; }

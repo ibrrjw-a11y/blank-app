@@ -675,7 +675,7 @@
       '<label class="f"><span>브랜드</span><select data-k="b">' + brandOptions(p.b) + "</select></label>" +
       '<label class="f"><span>분류</span><select data-k="cat">' + opts(catOpts, p.cat) + "</select></label>" +
       '<label class="f"><span>사진이 없을 때 그림 모양</span><select data-k="form">' + opts(FORMS, p.form) + "</select></label>" +
-      '<label class="f"><span>가격 옆 표시 <small>(예: 가격 확인 필요)</small></span><input type="text" data-k="check" value="' + esc(p.check || "") + '"></label>' +
+      '<label class="f"><span>내부 메모 <small>(홈페이지에는 보이지 않음)</small></span><input type="text" data-k="check" value="' + esc(p.check || "") + '"></label>' +
       '<label class="f span2"><span>종류 <small>(향·컬러처럼 가격이 같은 종류, 한 줄에 하나)</small></span><textarea data-k="vars" data-t="lines" rows="3">' + esc((p.vars || []).join("\n")) + "</textarea></label>" +
       '<label class="f span2"><span>종류 · 영문 <small>(위와 같은 순서로 한 줄에 하나)</small></span><textarea data-k="varsEn" data-t="lines" rows="2">' + esc((p.varsEn || []).join("\n")) + "</textarea></label>" +
       '<label class="f span2"><span>안내 문구 <small>(카드 아래 작은 글씨)</small></span><input type="text" data-k="note" value="' + esc(p.note || "") + '"></label>' +
@@ -1033,13 +1033,38 @@
       var btn = this; btn.disabled = true; $("#mCancel", bg).disabled = true;
       var bar = $(".progress", bg); bar.hidden = false;
       commit(ch, $("#mMsg", bg).value.trim() || msg, function (r) { $("i", bar).style.width = Math.round(r * 100) + "%"; }).then(function () {
-        close(); toast("저장했습니다. 1~2분 뒤 홈페이지에 반영됩니다. 바로 안 보이면 잠시 뒤 새로고침해 주세요.", "ok", 8000);
+        close(); toast("저장했습니다. 홈페이지에 반영되면 위에 '반영 완료'로 알려 드립니다(보통 1분 안팎).", "ok", 8000);
+        watchLive(ch);
       }).catch(function (e) {
         btn.disabled = false; $("#mCancel", bg).disabled = false;
         toast(e.cancel ? e.message : "저장하지 못했습니다: " + e.message, e.cancel ? "" : "err", 8000);
       });
     };
   }
+  /* 저장 뒤 홈페이지(이 사이트)에 새 내용이 올라왔는지 15초마다 확인해 위쪽에 알려 줍니다 */
+  var liveT = null;
+  function watchLive(ch) {
+    var el = $("#live"); if (!el) return;
+    clearTimeout(liveT);
+    var f = ch.files[0], up = ch.uploads[0], start = Date.now();
+    if (!f && !up) return;
+    el.hidden = false; el.className = "live wait"; el.textContent = "홈페이지 반영 중…";
+    function check() {
+      var url = (f ? f.path : up) + "?v=" + Date.now();
+      fetch(url, { cache: "no-store" }).then(function (r) { return r.ok ? (f ? r.text() : "") : null; }).catch(function () { return null; }).then(function (t) {
+        if (t != null && (!f || t === f.text)) {
+          el.className = "live ok"; el.textContent = "✓ 홈페이지 반영 완료";
+          toast("홈페이지에 반영되었습니다. 열려 있는 홈페이지 창은 새로고침해 주세요.", "ok", 6000);
+          liveT = setTimeout(function () { el.hidden = true; }, 20000);
+          return;
+        }
+        if (Date.now() - start > 6 * 60 * 1000) { el.className = "live"; el.textContent = "반영 확인이 늦어지고 있습니다"; el.title = "GitHub 저장소의 Actions 탭에서 배포 상태를 볼 수 있습니다."; return; }
+        liveT = setTimeout(check, 15000);
+      });
+    }
+    liveT = setTimeout(check, 20000);
+  }
+
   function commit(ch, message, progress) {
     var base, tree = [], total = ch.files.length + ch.uploads.length + 3, done = 0;
     function step() { done++; progress(done / total); }

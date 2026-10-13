@@ -208,6 +208,40 @@
     document.addEventListener("DOMContentLoaded", function () { [].forEach.call(document.querySelectorAll("main > section"), function (sec) { offIo.observe(sec); }); });
   }
 
+  /* ── 가로로 넘기는 줄: 마우스로 끌어서 넘기기 (터치는 원래대로) ── */
+  IBR.dragScroll = function (sel) {
+    document.querySelectorAll(sel).forEach(function (el) {
+      if (el.dataset.drag) return;
+      el.dataset.drag = "1";
+      var down = false, moved = false, x0 = 0, s0 = 0, snap = "";
+      el.addEventListener("pointerdown", function (e) {
+        if (e.pointerType !== "mouse" || e.button !== 0 || el.scrollWidth <= el.clientWidth) return;
+        down = true; moved = false; x0 = e.clientX; s0 = el.scrollLeft;
+      });
+      addEventListener("pointermove", function (e) {
+        if (!down) return;
+        var dx = e.clientX - x0;
+        if (!moved && Math.abs(dx) < 6) return;
+        if (!moved) { moved = true; snap = el.style.scrollSnapType; el.style.scrollSnapType = "none"; el.classList.add("dragging"); }
+        el.scrollLeft = s0 - dx;
+        e.preventDefault();
+      });
+      addEventListener("pointerup", function () {
+        if (!down) return;
+        down = false;
+        if (moved) {
+          el.classList.remove("dragging");
+          /* 놓은 자리에서 가장 가까운 카드로 부드럽게 맞춤 */
+          var keep = el.scrollLeft; el.style.scrollSnapType = snap; el.scrollLeft = keep;
+          setTimeout(function () { moved = false; }, 0);
+        }
+      });
+      /* 끌기를 마친 뒤의 클릭은 링크로 넘어가지 않게 */
+      el.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+      el.addEventListener("dragstart", function (e) { e.preventDefault(); });
+    });
+  };
+
   /* ── 언어 전환: 보던 위치(#제품·#브랜드 등)를 그대로 가지고 이동 ── */
   document.addEventListener("click", function (e) {
     var a = e.target.closest(".lang-sw a, .m-lang a");
@@ -317,7 +351,6 @@
     el.style.setProperty("--tint", b.tint || "#E8ECE8");
     el.style.setProperty("--bink", b.ink || "#2A3330");
     var art = '<div class="art">' + '<span class="bn">' + b.en + "</span>";
-    if (p.check) art += '<span class="flag">' + p.check + "</span>";
     if (p.img) art += '<img' + (p.imgFull ? ' class="full"' : "") + ' src="' + p.img + '" alt="' + b.ko + " " + p.n + '" loading="lazy" decoding="async">';
     else art += '<svg class="sil" viewBox="0 0 120 150" aria-hidden="true"><g fill="currentColor" opacity=".86">' + (SIL[p.form] || SIL.box) + '</g></svg>';
     art += "</div>";
@@ -333,8 +366,9 @@
     } else {
       meta += '<div class="opts"><span class="one">' + p.opts[0][0] + "</span></div>";
     }
-    meta += '<div class="price"><span class="lbl">' + IBR.t("소비자가", "Retail price") + '</span><span class="pv"></span></div>';
     if (p.note) meta += '<p class="note">' + p.note + "</p>";
+    /* 소비자가는 카드 맨 아래에 맞춰 둡니다 */
+    meta += '<div class="price"><span class="lbl">' + IBR.t("소비자가", "Retail price") + '</span><span class="pv"></span></div>';
     meta += "</div>";
     el.innerHTML = art + meta + (p.url ? '<a class="cover" href="' + p.url + '" aria-label="' + IBR.t(p.n + " 자세히 보기", "View " + p.n) + '"></a>' : "");
     var pv = el.querySelector(".pv");
@@ -356,6 +390,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     IBR.reveal();
+    IBR.dragScroll(".rail, .brandbar, .toolbar .cats");
     IBR.counters();
     IBR.marquees();
   });
