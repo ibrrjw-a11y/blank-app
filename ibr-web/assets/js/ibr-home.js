@@ -215,14 +215,14 @@
   var ORIGIN = { KR: "KOREA", US: "USA", AU: "AUSTRALIA", GR: "GREECE", JP: "JAPAN", FR: "FRANCE", UK: "UK", NZ: "NEW ZEALAND", IT: "ITALY", CZ: "CZECH", AT: "AUSTRIA", DE: "GERMANY", CH: "SWITZERLAND", CA: "CANADA", CN: "CHINA", ES: "SPAIN" };
   function brandCard(b, count) {
     var el = document.createElement("article");
-    el.className = "bcard" + (count ? " link" : "");
+    el.className = "bcard link";
     var cats = (b.cat || []).map(function (c) { return "<span>" + (window.IBR_CATS[c] || c) + "</span>"; }).join("");
     el.innerHTML =
       '<div class="top"><div><p class="wm ' + (b.mark || "") + '">' + b.en + "</p>" + (b.ko !== b.en ? '<p class="ko">' + b.ko + "</p>" : "") + "</div>" +
       '<span class="origin">' + (ORIGIN[b.origin] || "") + "</span></div>" +
       '<div class="cats">' + cats + "</div>" +
       "<p>" + b.line + "</p>" +
-      '<div class="foot">' + (count ? '<a href="' + IBR.page("products.html") + '#b-' + b.id + '">' + IBR.t("제품 " + count + "종 ", count + " products ") + IBR.ARROW + "</a>" : '<span class="none">' + IBR.t("제품 정보 준비 중", "Product info coming soon") + "</span>") +
+      '<div class="foot">' + (count ? '<a href="' + IBR.page("products.html") + '#b-' + b.id + '">' + IBR.t("제품 " + count + "종 ", count + " products ") + IBR.ARROW + "</a>" : '<a href="' + IBR.page("products.html") + '#b-' + b.id + '" class="none">' + IBR.t("브랜드 보기 · 제품 준비 중 ", "View brand · products soon ") + IBR.ARROW + "</a>") +
       "</div>";
     return el;
   }
