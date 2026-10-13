@@ -37,7 +37,7 @@
       (b.origin && b.origin !== "KR" ? link(L.global, IBR.t("해외 공식몰", "Global official store"), "global") : "") + "</div>";
     var opts = info.querySelector(".pd-opts");
     opts.innerHTML = '<table><tbody>' + p.opts.map(function (o) {
-      return "<tr><th>" + o[0] + "</th><td>" + (o[1] == null ? '<span class="tbd">' + IBR.t("소비자가 준비 중", "Price coming soon") + "</span>" : IBR.lang === "en" ? "<b>" + IBR.won(o[1]) + "</b> KRW" : "<b>" + IBR.won(o[1]) + "</b>원") + "</td></tr>";
+      return "<tr><th>" + o[0] + "</th><td>" + (o[1] == null ? '<span class="tbd">' + IBR.t("소비자가 준비 중", "Price coming soon") + "</span>" : p.cur === "USD" ? "<b>$" + IBR.usd(o[1]) + "</b>" : IBR.lang === "en" ? "<b>" + IBR.won(o[1]) + "</b> KRW" : "<b>" + IBR.won(o[1]) + "</b>원") + "</td></tr>";
     }).join("") + "</tbody></table>";
     top.innerHTML = "";
     top.style.setProperty("--tint", b.tint || "#E8ECE8");

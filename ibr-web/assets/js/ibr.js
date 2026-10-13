@@ -11,8 +11,12 @@
   IBR.lang = doc.lang === "en" ? "en" : "ko";
   IBR.t = function (ko, en) { return IBR.lang === "en" ? en : ko; };
   IBR.page = function (name) { return IBR.lang === "en" ? name.replace(/\.html/, "-en.html") : name; };
-  /* 값 + 통화: 30,000원 / 30,000 KRW */
-  IBR.priceHTML = function (v) { return IBR.won(v) + (IBR.lang === "en" ? "<small> KRW</small>" : "<small>원</small>"); };
+  /* 값 + 통화: 30,000원 / 30,000 KRW / $24.99 (영문 페이지에서 달러 가격(usd)을 넣은 제품) */
+  IBR.usd = function (v) { return v.toLocaleString("en-US", { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
+  IBR.priceHTML = function (v, cur) {
+    if (cur === "USD") return "<small>$</small>" + IBR.usd(v);
+    return IBR.won(v) + (IBR.lang === "en" ? "<small> KRW</small>" : "<small>원</small>");
+  };
 
   /* 영문 페이지: 데이터의 영문 값(…En)으로 바꿔 둡니다. 영문 값이 없으면 한글 그대로 */
   if (IBR.lang === "en") (function () {
@@ -23,6 +27,8 @@
       p.nKo = p.n;
       if (p.nEn) p.n = p.nEn;
       if (p.optsEn && p.opts && p.optsEn.length === p.opts.length) p.opts = p.opts.map(function (o, i) { return [p.optsEn[i] || o[0], o[1]]; });
+      /* 달러 가격이 있으면 달러로(빈 칸은 '준비 중'), 없으면 원화(KRW) 그대로 */
+      if (p.usd && p.usd.some(function (v) { return v != null; })) { p.opts = p.opts.map(function (o, i) { return [o[0], p.usd[i] == null ? null : p.usd[i]]; }); p.cur = "USD"; }
       if (p.varsEn && p.varsEn.length) p.vars = p.varsEn;
       if (p.noteEn) p.note = p.noteEn;
       delete p.check; /* '가격 확인 필요' 같은 내부 확인 표시는 영문 화면에 보이지 않게 */
@@ -48,6 +54,7 @@
         if (m.detail && m.detail.length) p.detail = m.detail;
       }
       /* 모든 제품 카드는 제품 화면(사진·용량별 소비자가·구매처·상세)으로 이어집니다 */
+      if (IBR.lang === "en" && p.detailEn && p.detailEn.length) p.detail = p.detailEn; /* 영문 상세 이미지 */
       if (!p.url) p.url = IBR.page("product.html") + "#p-" + p.id;
     });
   })();
@@ -324,7 +331,7 @@
     var pv = el.querySelector(".pv");
     function show(i) {
       var v = p.opts[i][1];
-      pv.innerHTML = v == null ? '<span class="tbd">' + IBR.t("준비 중", "Coming soon") + '</span>' : "<b>" + IBR.priceHTML(v) + "</b>";
+      pv.innerHTML = v == null ? '<span class="tbd">' + IBR.t("준비 중", "Coming soon") + '</span>' : "<b>" + IBR.priceHTML(v, p.cur) + "</b>";
     }
     show(0);
     el.querySelectorAll(".opts button").forEach(function (btn) {
@@ -335,7 +342,8 @@
     });
     return el;
   };
-  IBR.priceOf = function (p) { return p.opts[0][1]; };
+  /* 정렬용 가격(첫 용량). 달러 가격은 원화와 비교할 수 있게 대략 환산(1달러 ≈ 1,400원) */
+  IBR.priceOf = function (p) { var v = p.opts[0][1]; return v == null ? null : p.cur === "USD" ? v * 1400 : v; };
 
   document.addEventListener("DOMContentLoaded", function () {
     IBR.reveal();
