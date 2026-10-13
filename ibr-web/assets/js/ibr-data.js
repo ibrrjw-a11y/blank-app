@@ -45,6 +45,7 @@ window.IBR_BRANDS = [
   {"id":"oat","ko":"오트","en":"OAT","group":"dist","cat":["food"],"mark":"caps","tint":"#EEE7DA","ink":"#4A3A1E","line":"간편하게 바르는 스프레드.","lineEn":"Easy-to-spread spreads.","hidden":true},
   {"id":"atply","ko":"앳플리","en":"atply","group":"dist","cat":["living"],"mark":"round","tint":"#E3E7EA","ink":"#24303A","line":"스마트 헬스 디바이스.","lineEn":"Smart health devices.","hidden":true},
   {"id":"tms","ko":"기미상궁","en":"GIMISANGUNG","group":"dist","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330","line":"먼저 맛보고, 좋은 것만 올립니다.","lineEn":"Premium Food Curator"},
+  {"id":"anssil","ko":"앤씰","en":"ANSSIL","group":"own","origin":"KR","cat":["living"],"mark":"caps","tint":"#E6EBF2","ink":"#1F3A68","line":"스프링 대신 실로 만든 3D 스트링으로 받쳐 주는 하이브리드 매트리스. 뒤척이지 않는 숙면을 위해.","lineEn":"A hybrid mattress supported by 3D string instead of springs, made for sleep without tossing and turning."},
 ];
 
 window.IBR_PRODUCTS = [
