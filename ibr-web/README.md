@@ -38,6 +38,14 @@
 - GitHub Pages 는 파일을 10분쯤 기억해 두므로, 데이터 파일(`ibr-data.js` 등)은 주소 뒤에 1분마다 바뀌는 번호를 붙여 읽습니다(`_build.py` 의 `DATA_JS`).
 - 큰 GIF 가 쌓이면 `python3 ibr-web/tools/shrink_gifs.py` 로 움직이는 webp 로 줄입니다(관리자 화면은 크롬에서 올릴 때 자동으로 줄임).
 
+## 영문 페이지 (KR · EN)
+
+- 머리말 오른쪽(휴대폰은 메뉴 안)의 **KR · EN** 으로 바꿉니다. 영문 페이지는 같은 폴더의 `index-en.html`, `products-en.html`, `product-en.html`, `ir-en.html` 이고 `/en/` 은 영문 첫 화면으로 넘어갑니다.
+- 페이지 문구: `_src/en/` 의 같은 이름 파일(한글 `_src/*.html` 과 구조가 같음). 한글 문구를 고치면 영문 파일도 같이 고친 뒤 `python3 ibr-web/_build.py`.
+- 스크립트가 만드는 문구: `IBR.t("한글", "English")`. 링크는 `IBR.page("products.html")` 가 영문 페이지에서 `-en` 을 붙입니다.
+- 데이터: 제품 `nEn`(이름)·`optsEn`(용량)·`varsEn`(종류)·`noteEn`(안내), 브랜드 `lineEn`(소개), IR `titleEn`·`summaryEn`·`sourceEn`·`bodyEn`. 관리자 화면에 '· 영문' 칸으로 있고, 비어 있으면 한글이 그대로 보입니다.
+- 영문 화면에서는 '가격 확인 필요' 같은 확인 표시(`check`)를 숨기고, 가격은 `30,000 KRW` 로 보입니다.
+
 ## 관리자 화면 (`admin.html`)
 
 홈페이지 주소 뒤에 `/admin.html` 을 붙여 엽니다(메뉴에는 링크하지 않았습니다).
