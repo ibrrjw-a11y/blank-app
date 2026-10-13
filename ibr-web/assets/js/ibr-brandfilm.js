@@ -37,6 +37,7 @@
     claraco:   { bg: "#F7D6DC", ink: "#8A1028", acc: ["#E8344E", "#F7A8B8", "#FFFFFF"], logo: "logo", logoH: 34, under: "pearls", words: ["Collagen", "Glow", "20g × 15"] },
     oat:       { motif: "nuts", opt: { kind: "oat" }, bg: "#EFE8D9", ink: "#4A3A1E", acc: ["#E6D3A8", "#C9A86A", "#8A6A3A"], words: ["Oat", "Spread", "Easy morning"] },
     tms:       { bg: "#FFF3EC", ink: "#B3121A", acc: ["#E1251B", "#3E8E3A", "#FFFFFF"], logo: "logo", logoH: 78, words: ["Taste-tested first", "Fresh & sweet", "Fruits of Korea"] },
+    anssil:    { bg: "#EEF1F5", ink: "#1F3A68", acc: ["#1F3A68", "#8A96A8", "#FFFFFF"], words: ["3D String", "Hybrid comfort", "Sleep without tossing"] },
     atply:     { motif: "pulse", bg: "#E2E7EA", ink: "#24303A", acc: ["#2FB3C8", "#24303A"], words: ["Smart", "Scale", "T8"] }
   };
   IBR.FILMS = FILMS;
@@ -1048,6 +1049,71 @@
       S.osc(sp, "s", .45, 1.8 + k * .21, at + .6, k);
       S.osc(sp, "r", 90, 6 + k, at + .6, 0, "spin");
     })(k);
+  };
+
+  /* 앤씰: 남색 선 일러스트. 매트리스 층(헤링본 커버·패드·3D 스트링·받침)이 위에서 하나씩 내려와 쌓이고,
+     침대·스탠드가 그려진 뒤 달과 별이 뜨며 'Zz' 가 떠오릅니다(뒤척이지 않는 숙면). 사진 없이 SVG 만 씁니다 */
+  var NAVY = "#1F3A68";
+  function slabSvg(h, inner) {
+    /* 납작한 상자(아이소메트릭): 윗면 + 앞 두 면. h = 두께(0~30) */
+    var t = "20,30 110,8 190,30 100,52", fl = "20,30 100,52 100," + (52 + h) + " 20," + (30 + h), fr = "100,52 190,30 190," + (30 + h) + " 100," + (52 + h);
+    return '<svg viewBox="0 0 210 ' + (60 + h) + '" width="100%" height="100%" style="display:block;overflow:visible" fill="none" stroke="' + NAVY + '" stroke-width="1.6" stroke-linejoin="round">' +
+      '<polygon points="' + fl + '" fill="#F7F9FC"/><polygon points="' + fr + '" fill="#E9EEF5"/><polygon points="' + t + '" fill="#FFFFFF"/>' + (inner || "") + "</svg>";
+  }
+  function hatch(h, step) { var s = ""; for (var x = 24; x < 100; x += step) s += '<line x1="' + x + '" y1="' + (31 + (x - 20) * .275) + '" x2="' + x + '" y2="' + (31 + (x - 20) * .275 + h - 2) + '" stroke-width="1"/>'; for (var x2 = 104; x2 < 190; x2 += step) s += '<line x1="' + x2 + '" y1="' + (51 - (x2 - 100) * .244) + '" x2="' + x2 + '" y2="' + (51 - (x2 - 100) * .244 + h - 2) + '" stroke-width="1"/>'; return s; }
+  function herring() { var s = ""; for (var k = 0; k < 9; k++) { var x = 40 + k * 15, y = 20 + k * 2.5; s += '<path d="M' + x + " " + (y + 4) + "l6 -4 6 4 6 -4 6 4" + '" stroke="' + "#8A96A8" + '" stroke-width="1.1"/>'; } return s; }
+  SCENES.anssil = function (S) {
+    S.th.region = S.th.region || { d: [40, 0, 60, 100], m: [0, 0, 100, 62] };
+    var W = S.film.clientWidth || 1200, H = S.film.clientHeight || 420, ar = W / H;
+    var mw = S.m ? 64 : Math.min(30, 70 / ar);          /* 매트리스 너비(필름 %) */
+    var cx = S.m ? 50 : 72, base = S.m ? 50 : 70;           /* 매트리스 아래 기준선(필름 %) */
+    /* 바탕 격자(도면 느낌) */
+    var grid = S.L({ box: [0, 0, 100, 100], css: "background-image:linear-gradient(" + rgba(NAVY, .05) + " 1px,transparent 1px),linear-gradient(90deg," + rgba(NAVY, .05) + " 1px,transparent 1px);background-size:28px 28px;" });
+    S.go(grid, 0, 1.4, { o: [0, 1] }, "out");
+    /* 매트리스 층: 받침 → 3D 스트링 → 패드 → 헤링본 커버 (위에서 내려와 쌓임) */
+    var L = [[22, hatch(22, 4), "Base"], [26, hatch(26, 2.2), "3D String"], [10, "", "Comfort pad"], [8, herring(), "Herringbone cover"]];
+    var u = mw / 210 * ar;                                  /* svg 1단위의 세로 길이(필름 %) */
+    var T = base - (52 + L[0][0]) * u, tops = [];
+    L.forEach(function (l, i) {
+      if (i) T -= l[0] * u;                                 /* 윗층 바닥 모서리 = 아래층 윗면 모서리 */
+      tops.push(T);
+      var hh = (60 + l[0]) * u;
+      var pillow = i === L.length - 1 ? '<path d="M44 26c8-8 34-14 46-12 6 4 6 10 2 14-12 4-36 8-46 6-4-2-5-5-2-8z" fill="#fff"/><path d="M98 18c8-6 32-10 44-8 6 4 6 10 2 13-12 4-34 7-44 5-4-2-5-6-2-10z" fill="#fff"/>' : "";
+      var h = S.L({ html: slabSvg(l[0], l[1] + pillow), box: [cx - mw / 2, T, mw, hh], z: 2 + i });
+      var at = .35 + i * .42;
+      S.go(h, at, 1, { y: [-160 - i * 30, 0], o: [0, 1] }, "spring");
+      /* 잠깐 위아래로 벌어졌다 다시 붙음(층 구조 보여 주기) */
+      S.go(h, 2.2, .8, { y: [0, -(i * 34)] }, "io");
+      S.go(h, 4.4, .9, { y: [-(i * 34), 0] }, "io");
+      var lab = S.L({ box: [cx + mw * .52, T + hh * .45, S.m ? 30 : 14, 6], z: 8, css: "font:600 11px/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:" + NAVY + ";white-space:nowrap;", html: '<span style="display:inline-block;width:18px;height:1px;background:' + NAVY + ';vertical-align:middle;margin-right:6px"></span>' + l[2] });
+      S.go(lab, 2.5 + i * .12, .6, { o: [0, 1], x: [-10, 0] }, "out");
+      S.go(lab, 4.2, .4, { o: [1, 0] }, "in");
+    });
+    /* 침대 머리판(매트리스 뒤 왼쪽 모서리에서 솟음) + 협탁·스탠드: 선이 그려지듯 나타남 */
+    var Tt = tops[tops.length - 1];
+    var head = S.L({ box: [cx - mw / 2, Tt - 46 * u, mw, 80 * u], z: 1,
+      html: '<svg viewBox="0 -46 210 80" width="100%" height="100%" fill="none" stroke="' + NAVY + '" stroke-width="1.6" stroke-linejoin="round" style="display:block;overflow:visible"><polygon points="14,32 110,6 110,-40 14,-14" fill="#fff"/><polygon points="110,6 118,8 118,-38 110,-40" fill="#E9EEF5"/></svg>' });
+    S.go(head, 4.9, 1.2, { ci: [[0, 0, 100, 0], [0, 0, 0, 0]], o: [0, 1] }, "io");
+    var nsW = mw * .3;
+    var stand = S.L({ box: [cx - mw / 2 - nsW * 1.05, base - nsW * ar * 1.25, nsW, nsW * ar * 1.25], z: 1,
+      html: '<svg viewBox="0 0 60 75" width="100%" height="100%" fill="none" stroke="' + NAVY + '" stroke-width="1.6" stroke-linejoin="round" style="display:block;overflow:visible"><path d="M6 46l26-7 22 6-26 7z" fill="#fff"/><path d="M6 46v22l22 6V52M28 52l26-7v22l-26 7"/><path d="M10 58l14 4M32 60l18-5"/><path d="M30 42V18"/><path d="M20 18l6-16h8l6 16z" fill="#fff"/><ellipse cx="30" cy="43" rx="6" ry="1.8"/></svg>' });
+    S.go(stand, 5.1, 1.1, { ci: [[100, 0, 0, 0], [0, 0, 0, 0]], o: [0, 1] }, "io");
+    /* 달·별·Zz: 숙면 */
+    var moon = S.L({ box: [cx + mw * .45, S.m ? 4 : 8, mw * .16, mw * .16 * ar], z: 1, html: '<svg viewBox="0 0 40 40" width="100%" height="100%"><path d="M27 4a16 16 0 1 0 9 26A14 14 0 1 1 27 4z" fill="#FFFFFF" stroke="' + NAVY + '" stroke-width="1.6"/></svg>' });
+    S.go(moon, 4.6, 1.2, { o: [0, 1], y: [30, 0], r: [-30, 0] }, "out");
+    S.osc(moon, "r", 4, 7, 5.8);
+    [[.2, 14], [.32, 30], [-.1, 20], [.6, 26]].forEach(function (p, i) {
+      var st = S.L({ box: [cx + mw * p[0], p[1] - (S.m ? 8 : 0), 1.6, 1.6 * ar], z: 1, html: '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M10 0l2 8 8 2-8 2-2 8-2-8-8-2 8-2z" fill="' + NAVY + '"/></svg>' });
+      S.go(st, 5 + i * .2, .6, { s: [0, 1], o: [0, 1] }, "back");
+      S.osc(st, "o", .5, 1.8 + i * .4, 5.6 + i * .2, i);
+    });
+    ["Z", "z", "z"].forEach(function (z, i) {
+      var zz = S.L({ box: [cx + mw * .12 + i * 2.4, Tt - 30 * u - i * 7, 4, 9], z: 9, css: "font:700 " + (26 - i * 6) + "px/1 var(--f-display);color:" + NAVY + ";", html: z });
+      var at = 5.4 + i * .5;
+      S.go(zz, at, 1.6, { o: [0, 1], y: [40, 0] }, "out");
+      S.osc(zz, "y", 18, 3.6, at + 1.6, i);
+      S.osc(zz, "o", .35, 3.6, at + 1.6, i);
+    });
   };
 
   /* 제품 사진만 있는 브랜드: 코드 모션 위에 제품이 올라옵니다 */
