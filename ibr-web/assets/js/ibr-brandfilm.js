@@ -36,7 +36,7 @@
     kvetna:    { motif: "glass", bg: "#E3EAEF", ink: "#20323E", acc: ["#C8323C", "#2D5DB8", "#E8B81C", "#E8742A"], words: ["Czech glass", "Handmade", "Auriga"] },
     claraco:   { bg: "#F7D6DC", ink: "#8A1028", acc: ["#E8344E", "#F7A8B8", "#FFFFFF"], logo: "logo", logoH: 34, under: "pearls", words: ["Collagen", "Glow", "20g × 15"] },
     oat:       { motif: "nuts", opt: { kind: "oat" }, bg: "#EFE8D9", ink: "#4A3A1E", acc: ["#E6D3A8", "#C9A86A", "#8A6A3A"], words: ["Oat", "Spread", "Easy morning"] },
-    tms:       { bg: "#FFF3EC", ink: "#B3121A", acc: ["#E1251B", "#3E8E3A", "#FFFFFF"], logo: "logo", logoH: 78, words: ["Taste-tested first", "Fresh & sweet", "Stevia tomato"] },
+    tms:       { bg: "#FFF3EC", ink: "#B3121A", acc: ["#E1251B", "#3E8E3A", "#FFFFFF"], logo: "logo", logoH: 78, words: ["Taste-tested first", "Fresh & sweet", "Fruits of Korea"] },
     atply:     { motif: "pulse", bg: "#E2E7EA", ink: "#24303A", acc: ["#2FB3C8", "#24303A"], words: ["Smart", "Scale", "T8"] }
   };
   IBR.FILMS = FILMS;
@@ -993,41 +993,61 @@
     S.go(box, .95, 1.1, { s: [0, 1], r: [-12, 0], o: [0, 1] }, "spring");
   };
 
-  /* 기미상궁: 수라상에 올리기 전 먼저 맛보는 상궁처럼 — 붉은 도장이 찍히듯 창이 열리고,
-     물방울 맺힌 토마토가 통통 튀어 들어온 뒤 제품 팩이 올라옵니다. 창 안에서는 토마토·스테비아 사진이 바뀝니다 */
+  /* 기미상궁: 로고 도장이 '쿵' 찍히면 그 자리에서 과일 일러스트가 톡톡 튀어나와 로고 둘레를 돕니다.
+     사진 없이 그림(SVG)만 씁니다. 과일 그림은 아래 FRUIT 에서 고칩니다. */
+  var FRUIT = {
+    tomato: '<circle cx="50" cy="56" r="34" fill="#E8352B"/><ellipse cx="38" cy="44" rx="9" ry="6" fill="#fff" opacity=".35"/><path d="M50 26l5 9 10-3-6 9 9 6-11 1-1 10-6-8-6 8-1-10-11-1 9-6-6-9 10 3z" fill="#3E8E3A"/>',
+    strawberry: '<path d="M50 90C28 76 16 56 22 42c5-12 20-14 28-8 8-6 23-4 28 8 6 14-6 34-28 48z" fill="#E7314A"/><g fill="#FFE07A"><circle cx="38" cy="50" r="2"/><circle cx="50" cy="46" r="2"/><circle cx="62" cy="50" r="2"/><circle cx="44" cy="62" r="2"/><circle cx="56" cy="62" r="2"/><circle cx="50" cy="75" r="2"/></g><path d="M50 36c-6-10-16-10-22-6 8 2 12 6 14 8-8 0-12 3-14 8 8-4 14-4 22-2 8-2 14-2 22 2-2-5-6-8-14-8 2-2 6-6 14-8-6-4-16-4-22 6z" fill="#3E8E3A"/>',
+    peach: '<circle cx="50" cy="56" r="33" fill="#FFB38A"/><path d="M50 24c-6 12-6 50 0 64" stroke="#F08A6A" stroke-width="3" fill="none"/><ellipse cx="62" cy="48" rx="12" ry="16" fill="#FF8F7A" opacity=".55"/><path d="M50 24c4-10 14-14 24-10-4 9-14 13-24 10z" fill="#5FA34B"/>',
+    apple: '<path d="M50 32c-10-8-32-6-34 20-2 22 14 40 26 40 4 0 6-2 8-2s4 2 8 2c12 0 28-18 26-40-2-26-24-28-34-20z" fill="#D9262E"/><ellipse cx="34" cy="50" rx="6" ry="10" fill="#fff" opacity=".3"/><path d="M50 32c0-8 2-14 6-18" stroke="#6B3E1E" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M56 22c6-8 16-8 20-4-6 6-14 8-20 4z" fill="#5FA34B"/>',
+    grape: '<g fill="#7A3E9D"><circle cx="38" cy="40" r="10"/><circle cx="58" cy="40" r="10"/><circle cx="48" cy="56" r="10"/><circle cx="28" cy="56" r="9"/><circle cx="68" cy="56" r="9"/><circle cx="38" cy="72" r="9"/><circle cx="58" cy="72" r="9"/><circle cx="48" cy="86" r="8"/></g><g fill="#fff" opacity=".35"><circle cx="35" cy="37" r="3"/><circle cx="55" cy="37" r="3"/><circle cx="45" cy="53" r="3"/></g><path d="M48 30c0-8 4-14 10-16" stroke="#6B3E1E" stroke-width="3" fill="none"/><path d="M50 22c-10-8-22-4-24 4 10 2 18 0 24-4z" fill="#5FA34B"/>',
+    tangerine: '<circle cx="50" cy="56" r="33" fill="#FF9A1F"/><g fill="#FFC060" opacity=".7"><circle cx="38" cy="46" r="2"/><circle cx="60" cy="40" r="2"/><circle cx="66" cy="60" r="2"/><circle cx="44" cy="70" r="2"/><circle cx="56" cy="78" r="2"/></g><path d="M50 24c2-8 10-12 18-10-2 8-10 12-18 10z" fill="#3E8E3A"/><circle cx="50" cy="25" r="3" fill="#6B3E1E"/>',
+    melon: '<path d="M10 40a40 40 0 0 0 80 0z" fill="#3E8E3A"/><path d="M16 40a34 34 0 0 0 68 0z" fill="#F4F1C9"/><path d="M20 40a30 30 0 0 0 60 0z" fill="#F24B4B"/><g fill="#2A1A14"><ellipse cx="38" cy="50" rx="2" ry="3.2"/><ellipse cx="50" cy="56" rx="2" ry="3.2"/><ellipse cx="62" cy="50" rx="2" ry="3.2"/><ellipse cx="44" cy="62" rx="2" ry="3.2"/><ellipse cx="56" cy="62" rx="2" ry="3.2"/></g>'
+  };
+  function fruitSvg(k) { return '<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;overflow:visible">' + FRUIT[k] + "</svg>"; }
   SCENES.tms = function (S) {
     S.th.region = S.th.region || { d: [40, 0, 60, 100], m: [0, 0, 100, 62] };
-    /* 1) 붉은 도장: 살짝 기울어진 채 '쿵' 찍힘 */
-    var seal = S.L({ rbox: S.m ? [30, 4, 62, 92] : [36, 8, 52, 84], css: "background:#E1251B;border-radius:6px;box-shadow:0 18px 40px rgba(179,18,26,.25);", org: "50% 50%" });
-    S.go(seal, .1, .9, { s: [1.6, 1], o: [0, 1], r: [-14, -4] }, "back");
-    /* 2) 도장 안쪽에 둥근 창이 열리며 토마토 사진 */
-    var win = S.L({ slides: ["pile", "hero", "stevia"], rbox: S.m ? [33, 7, 56, 86] : [38.5, 11, 47, 78], pos: "50% 50%" });
-    S.slides(win, { at: 1, every: 5.4, fade: 1.4, kb: [1.14, 1.0] });
-    S.go(win, 1, 1.2, { cc: [[0, 50, 50], [50, 50, 50]], r: [-4, -4] }, "spring");
-    S.go(win, 4.6, 1.4, { cc: [[50, 50, 50], [72, 50, 50]] }, "io");
-    S.go(seal, 4.6, 1.4, { s: [1, 1.04], r: [-4, -2] }, "io");
-    /* 3) 물방울 맺힌 토마토가 위에서 떨어져 통통 튐 */
-    var T = S.m ? [[2, 50, 26], [80, 8, 18], [86, 62, 14]] : [[14, 46, 20], [84, 4, 15], [88, 62, 11]];
-    T.forEach(function (t, i) {
-      var h = S.L({ img: "tomato", cls: "ct drop", rbox: [t[0], t[1], t[2], t[2] * (S.m ? 1.1 : 1.6)], org: "50% 100%", z: 4 });
-      var at = 1.5 + i * .22;
-      S.go(h, at, 1.3, { y: [-180, 0], o: [0, 1], r: [i % 2 ? 30 : -30, i % 2 ? 6 : -8] }, "spring");
-      S.osc(h, "y", 2.2, 3.6 + i * .7, at + 1.4, i * 1.7);
-      S.osc(h, "r", 2.5, 5 + i, at + 1.4, i);
+    var cx = S.m ? 50 : 70, cy = S.m ? 30 : 50;            /* 로고 중심(필름 기준 %) */
+    var W = S.film.clientWidth || 1200, H = S.film.clientHeight || 420, ar = W / H;   /* 가로/세로 비율 보정 */
+    function box(x, y, w) { var h = w * ar; return [x - w / 2, y - h / 2, w, h]; }
+    /* 바탕: 옅은 점무늬가 천천히 흐름 */
+    var dots = S.L({ box: [0, 0, 100, 100], css: "background-image:radial-gradient(" + rgba(S.th.acc[0], .1) + " 1.4px,transparent 1.6px);background-size:22px 22px;" });
+    S.go(dots, 0, 1.6, { o: [0, 1] }, "out");
+    S.osc(dots, "bx", 100, 30, 0, 0, "saw");
+    /* 도장 자국: 붉은 링이 퍼짐 */
+    var lw = S.m ? 30 : Math.min(17, 40 / ar);
+    [0, 1].forEach(function (i) {
+      var ring = S.L({ box: box(cx, cy, lw * 1.25), css: "border-radius:50%;border:3px solid " + rgba(S.th.acc[0], .5) + ";" });
+      S.go(ring, .95 + i * .18, 1.4, { s: [.6, 1.9 + i * .5], o: [.9, 0] }, "out");
     });
-    /* 4) 반짝이는 물방울(작은 하얀 빛)이 창 둘레에서 톡톡 */
-    for (var k = 0; k < 7; k++) (function (k) {
-      var a = k / 7 * Math.PI * 2, cx = S.m ? 61 : 62, cy = 50, R = S.m ? 30 : 26;
-      var d = S.L({ rbox: [cx + Math.cos(a) * R - 1.2, cy + Math.sin(a) * R * 1.5 - 1.6, 2.4, 3.2], z: 5, css: "border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff 0 30%,rgba(255,255,255,.35) 60%,rgba(255,255,255,0) 72%);" });
-      var at = 2 + k * .18;
-      S.go(d, at, .7, { s: [0, 1.25], o: [0, 1] }, "back");
-      S.osc(d, "o", .45, 1.6 + k * .23, at + .7, k);
-      S.osc(d, "s", .25, 2.2 + k * .3, at + .7, k * 2);
+    /* 로고 도장: 크게 떠 있다가 '쿵' */
+    var logo = S.L({ img: "logo", cls: "ct", box: box(cx, cy, lw), z: 4, css: "filter:drop-shadow(0 14px 24px rgba(179,18,26,.28));" });
+    S.go(logo, .2, .8, { s: [2.2, 1], o: [0, 1], r: [-16, -4] }, "back");
+    S.osc(logo, "r", 2.5, 6, 2.2);
+    S.osc(logo, "s", .03, 3.2, 2.2);
+    /* 과일: 로고 뒤에서 튀어나와 둘레를 천천히 돎 */
+    var K = ["tomato", "strawberry", "peach", "grape", "apple", "tangerine", "melon"];
+    var R = S.m ? 26 : Math.min(19, 34 / ar), fw = S.m ? 12 : Math.min(7.5, 19 / ar);
+    K.forEach(function (k, i) {
+      var a = -Math.PI / 2 + i / K.length * Math.PI * 2, x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R * ar;
+      var size = fw * (i % 2 ? .9 : 1.08);
+      var f = S.L({ html: fruitSvg(k), box: box(x, y, size), z: 3 });
+      var dx = (cx - x) / size * 100, dy = (cy - y) / (size * ar) * 100;   /* 로고 중심에서 출발 */
+      var at = 1.15 + i * .1;
+      S.go(f, at, 1.2, { x: [dx, 0], y: [dy, 0], s: [.2, 1], o: [0, 1], r: [i % 2 ? -120 : 120, i % 2 ? -8 : 8] }, "spring");
+      S.osc(f, "y", 7, 3.8 + i * .45, at + 1.2, i * .9);
+      S.osc(f, "x", 5, 5.2 + i * .5, at + 1.2, i * 1.3);
+      S.osc(f, "r", 8, 4.6 + i * .6, at + 1.2, i);
+    });
+    /* 반짝이: 과일 사이에서 톡톡 */
+    for (var k = 0; k < 9; k++) (function (k) {
+      var a = k / 9 * Math.PI * 2 + .3, rr = R * (k % 2 ? 1.45 : .62), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * ar;
+      var sp = S.L({ html: '<svg viewBox="0 0 20 20" width="100%" height="100%"><path d="M10 0l2.4 7.6L20 10l-7.6 2.4L10 20l-2.4-7.6L0 10l7.6-2.4z" fill="' + (k % 3 ? "#FFC23D" : S.th.acc[0]) + '"/></svg>', box: box(x, y, S.m ? 3.4 : 1.8), z: 2 });
+      var at = 2 + k * .16;
+      S.go(sp, at, .6, { s: [0, 1], o: [0, 1] }, "back");
+      S.osc(sp, "s", .45, 1.8 + k * .21, at + .6, k);
+      S.osc(sp, "r", 90, 6 + k, at + .6, 0, "spin");
     })(k);
-    /* 5) 제품 팩이 아래에서 올라와 자리 잡음 */
-    var pack = S.L({ img: "pack", cls: "ct drop", rbox: S.m ? [6, 42, 28, 40] : [2, 50, 26, 46], z: 6, org: "50% 100%" });
-    S.go(pack, 2.6, 1.3, { y: [70, 0], o: [0, 1], r: [8, -3] }, "spring");
-    S.osc(pack, "y", 1.2, 5.6, 4.2);
   };
 
   /* 제품 사진만 있는 브랜드: 코드 모션 위에 제품이 올라옵니다 */
