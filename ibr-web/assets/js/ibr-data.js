@@ -24,7 +24,7 @@ window.IBR_BRANDS = [
   {"id":"zeroguide","ko":"제로가이드","en":"ZERO GUIDE","group":"own","origin":"KR","cat":["health","hair"],"mark":"heavy","tint":"#E6E6E6","ink":"#111111","line":"콤플렉스를 Zero로. 구강 유산균, 코골이 방지 스프레이처럼 개인의 고민을 푸는 카테고리 1위 제품.","lineEn":"Taking complexes to zero. Category-leading solutions for personal concerns, from oral probiotics to anti-snoring spray."},
   {"id":"marybee","ko":"메리비","en":"Mary B.","group":"own","origin":"AU","cat":["food"],"mark":"script","tint":"#F2E3C4","ink":"#5B3A0A","line":"호주 최대 마누카꿀 제조사 하이브웰니스와 공동 소유한 브랜드. 세계 최초 마누카 허니콤.","lineEn":"Co-owned with Hive & Wellness, Australia's largest Manuka honey producer, and maker of the world's first Manuka honeycomb."},
   {"id":"kimguksan","ko":"김국산","en":"KIM GUKSAN","group":"own","origin":"KR","cat":["living"],"mark":"caps","tint":"#E9E3E3","ink":"#3B2525","line":"100% 한국산 위생·생활용품 브랜드.","lineEn":"A hygiene and household goods brand, 100% made in Korea."},
-  {"id":"ooha","ko":"OOHA","en":"OOHA","group":"own","origin":"KR","cat":["skin"],"mark":"heavy","tint":"#E9E1F0","ink":"#3E2457","line":"한국·동남아·일본에 동시 출시한 저자극 컬러 콘택트렌즈. 일본 Qoo10 렌즈 카테고리 1위.","lineEn":"Low-irritation color contact lenses launched simultaneously in Korea, Southeast Asia and Japan, ranked No. 1 in the lens category on Qoo10 Japan."},
+  {"id":"ooha","ko":"OOHA","en":"OOHA","group":"own","origin":"KR","cat":["skin"],"mark":"heavy","tint":"#E9E1F0","ink":"#3E2457","line":"한국·동남아·일본에 동시 출시한 저자극 컬러 콘택트렌즈. 일본 Qoo10 렌즈 카테고리 1위.","lineEn":"Low-irritation color contact lenses launched simultaneously in Korea, Southeast Asia and Japan, ranked No. 1 in the lens category on Qoo10 Japan.","hidden":true},
   /* ── 글로벌 소싱 ── */
   {"id":"attiki","ko":"아티키","en":"Attiki","group":"global","origin":"GR","cat":["food"],"mark":"serif","tint":"#DCE4EE","ink":"#183766","line":"그리스 No.1 꿀. 한국·일본·대만 브랜드 독점, 홈쇼핑 22회 연속 매진.","lineEn":"Greece's No. 1 honey, with exclusive brand rights in Korea, Japan and Taiwan and 22 consecutive home-shopping sell-outs."},
   {"id":"botanist","ko":"보타니스트","en":"BOTANIST","group":"global","origin":"JP","cat":["hair","body"],"mark":"caps","tint":"#E6EBDF","ink":"#2E3B22","line":"식물 유래 성분으로 만든 일본 헤어·바디케어.","lineEn":"Japanese hair and body care made with plant-derived ingredients."},
@@ -35,15 +35,15 @@ window.IBR_BRANDS = [
   {"id":"magis","ko":"마지스","en":"MAGIS","group":"global","origin":"IT","cat":["living"],"mark":"heavy","tint":"#E8E8E3","ink":"#1A1A1A","line":"이탈리아 디자인 가구. 세계적인 디자이너와 만든 의자와 수납.","lineEn":"Italian design furniture: chairs and storage created with world-renowned designers."},
   {"id":"driade","ko":"드리아데","en":"Driade","group":"global","origin":"IT","cat":["living"],"mark":"serif","tint":"#EFE7DD","ink":"#3D2C1C","line":"예술적인 가구를 만드는 이탈리아 디자인 회사.","lineEn":"An Italian design company creating artistic furniture."},
   {"id":"kvetna","ko":"크베트나","en":"Květná","group":"global","origin":"CZ","cat":["living"],"mark":"serif","tint":"#E2E9EE","ink":"#20323E","line":"체코 핸드메이드 글라스. 컬러 와인잔 아우리가 컬렉션.","lineEn":"Handmade Czech glassware, home of the Auriga collection of colored wine glasses."},
-  {"id":"salonia","ko":"살로니아","en":"SALONIA","group":"global","origin":"JP","cat":["hair"],"mark":"caps","line":"살롱급 결과를 집에서. 일본 헤어 스타일링 기기 브랜드.","lineEn":"Salon-quality results at home. A Japanese brand of hair styling tools."},
-  {"id":"yolu","ko":"요루","en":"YOLU","group":"global","origin":"JP","cat":["hair"],"mark":"caps","line":"자는 동안 모발을 케어하는 일본 나이트 헤어케어.","lineEn":"Japanese night hair care that cares for your hair while you sleep."},
-  {"id":"nutworks","ko":"넛웍스","en":"Nutworks","group":"global","origin":"AU","cat":["food"],"mark":"caps","line":"호주 마카다미아 전문 가공·공급 회사.","lineEn":"An Australian macadamia specialist in processing and supply."},
-  {"id":"hefel","ko":"헤펠","en":"Hefel","group":"global","origin":"AT","cat":["living"],"mark":"caps","line":"오스트리아 프리미엄 침구.","lineEn":"Premium Austrian bedding."},
-  {"id":"wedderspoon","ko":"웨더스푼","en":"Wedderspoon","group":"global","origin":"NZ","cat":["food"],"mark":"serif","line":"뉴질랜드 마누카 허니.","lineEn":"Manuka honey from New Zealand."},
+  {"id":"salonia","ko":"살로니아","en":"SALONIA","group":"global","origin":"JP","cat":["hair"],"mark":"caps","line":"살롱급 결과를 집에서. 일본 헤어 스타일링 기기 브랜드.","lineEn":"Salon-quality results at home. A Japanese brand of hair styling tools.","hidden":true},
+  {"id":"yolu","ko":"요루","en":"YOLU","group":"global","origin":"JP","cat":["hair"],"mark":"caps","line":"자는 동안 모발을 케어하는 일본 나이트 헤어케어.","lineEn":"Japanese night hair care that cares for your hair while you sleep.","hidden":true},
+  {"id":"nutworks","ko":"넛웍스","en":"Nutworks","group":"global","origin":"AU","cat":["food"],"mark":"caps","line":"호주 마카다미아 전문 가공·공급 회사.","lineEn":"An Australian macadamia specialist in processing and supply.","hidden":true},
+  {"id":"hefel","ko":"헤펠","en":"Hefel","group":"global","origin":"AT","cat":["living"],"mark":"caps","line":"오스트리아 프리미엄 침구.","lineEn":"Premium Austrian bedding.","hidden":true},
+  {"id":"wedderspoon","ko":"웨더스푼","en":"Wedderspoon","group":"global","origin":"NZ","cat":["food"],"mark":"serif","line":"뉴질랜드 마누카 허니.","lineEn":"Manuka honey from New Zealand.","hidden":true},
   /* ── 유통 브랜드 ── */
   {"id":"claraco","ko":"클라라앤코","en":"Clara & Co.","group":"dist","origin":"KR","cat":["health"],"mark":"serif","tint":"#F2E1E4","ink":"#5A2330","line":"먹는 뷰티 콜라겐.","lineEn":"Beauty collagen you can drink."},
-  {"id":"oat","ko":"오트","en":"OAT","group":"dist","cat":["food"],"mark":"caps","tint":"#EEE7DA","ink":"#4A3A1E","line":"간편하게 바르는 스프레드.","lineEn":"Easy-to-spread spreads."},
-  {"id":"atply","ko":"앳플리","en":"atply","group":"dist","cat":["living"],"mark":"round","tint":"#E3E7EA","ink":"#24303A","line":"스마트 헬스 디바이스.","lineEn":"Smart health devices."},
+  {"id":"oat","ko":"오트","en":"OAT","group":"dist","cat":["food"],"mark":"caps","tint":"#EEE7DA","ink":"#4A3A1E","line":"간편하게 바르는 스프레드.","lineEn":"Easy-to-spread spreads.","hidden":true},
+  {"id":"atply","ko":"앳플리","en":"atply","group":"dist","cat":["living"],"mark":"round","tint":"#E3E7EA","ink":"#24303A","line":"스마트 헬스 디바이스.","lineEn":"Smart health devices.","hidden":true},
   {"id":"tms","ko":"TMS 기미상궁","en":"TMS","group":"dist","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330"},
 ];
 
