@@ -18,6 +18,15 @@
     return IBR.won(v) + (IBR.lang === "en" ? "<small> KRW</small>" : "<small>원</small>");
   };
 
+  /* 숨긴 브랜드(관리자 화면의 '홈페이지에서 숨기기')와 그 제품은 사이트 어디에도 보이지 않게 뺍니다 */
+  (function () {
+    var B = window.IBR_BRANDS, P = window.IBR_PRODUCTS;
+    if (!B) return;
+    var off = {};
+    for (var i = B.length - 1; i >= 0; i--) if (B[i].hidden) { off[B[i].id] = 1; B.splice(i, 1); }
+    if (P) for (var j = P.length - 1; j >= 0; j--) if (off[P[j].b] || P[j].hidden) P.splice(j, 1);
+  })();
+
   /* 영문 페이지: 데이터의 영문 값(…En)으로 바꿔 둡니다. 영문 값이 없으면 한글 그대로 */
   if (IBR.lang === "en") (function () {
     var CAT_EN = { hair: "Hair", body: "Body", skin: "Skin", food: "Food", health: "Health", pet: "Pet", living: "Living" };

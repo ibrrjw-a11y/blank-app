@@ -250,7 +250,7 @@
     Object.keys(c).forEach(function (k) { if (k !== "optsEn" && k !== "usd") { o2[k] = c[k]; if (k === "opts") { if (c.optsEn) o2.optsEn = c.optsEn; if (c.usd) o2.usd = c.usd; } } });
     return o2;
   }
-  function cleanBrand(b) { return pick(b, ["id", "ko", "en", "group", "origin", "cat", "mark", "tint", "ink", "line", "lineEn"]); }
+  function cleanBrand(b) { return pick(b, ["id", "ko", "en", "group", "origin", "cat", "mark", "tint", "ink", "line", "lineEn", "hidden"]); }
   function cleanIr(x) { return pick(x, ["id", "date", "type", "title", "titleEn", "source", "sourceEn", "url", "summary", "summaryEn", "brand", "img", "body", "bodyEn", "file"]); }
 
   var DATA_HEAD = "/*\n" +
@@ -261,6 +261,7 @@
     "    - 영문 페이지(…-en.html)용: nEn 제품명 · optsEn [용량] · usd [달러 가격] · varsEn [종류] · noteEn 안내 · detailEn [영문 상세 이미지]\n" +
     "      / 브랜드 lineEn 소개. 비어 있으면 한글(가격은 원화, 상세는 한글 상세)이 보입니다.\n" +
     "    - 가격은 소비자가(숫자, 원). 모르면 null → \"소비자가 준비 중\".\n" +
+    "  ■ 브랜드 hidden: true → 그 브랜드와 제품을 홈페이지에서 숨김(지우지 않고 보관)\n" +
     "  ■ 분류(cat): hair 헤어 · body 바디 · skin 스킨 · food 푸드 · health 헬스 · pet 펫 · living 리빙\n" +
     "  ■ 그림 모양(form): oil pump tube jar honey stick box bar bottle spray pouch towel pack chair cabinet glass scale\n" +
     "*/\n";
@@ -564,7 +565,7 @@
         if (filt.brand && b.id !== filt.brand) return;
         var ps = D.products.filter(function (p) { return (b.id === "__none" ? !brandOf(p.b) : p.b === b.id) && (!q || (p.n || "").toLowerCase().indexOf(q) > -1); });
         if (!ps.length) return;
-        h += '<div class="group-h">' + esc(b.ko) + " · " + ps.length + "</div>";
+        h += '<div class="group-h">' + esc(b.ko) + " · " + ps.length + (b.hidden ? " · 숨김" : "") + "</div>";
         ps.forEach(function (p) {
           n++;
           var price = p.opts && p.opts[0] ? (p.opts[0][0] || "") + " · " + won(p.opts[0][1]) : "";
@@ -586,7 +587,7 @@
           var nl = ["smartstore", "mall", "global", "catalog"].filter(function (k) { return l[k]; }).length;
           h += '<button type="button" class="item" data-id="' + esc(b.id) + '"' + (sel.brands === b.id ? ' aria-current="true"' : "") + '>' +
             '<span class="th" style="background:' + esc(b.tint || "#E8ECE8") + ";color:" + esc(b.ink || "#333") + '">' + esc((b.en || "").slice(0, 3)) + "</span>" +
-            '<span><span class="nm">' + esc(b.ko) + ' <small style="color:var(--text-3);font-weight:500">' + esc(b.en) + '</small></span><span class="sub">제품 ' + cnt + "개 · 링크 " + nl + '/4</span><span class="tags">' + stateTag(itemState("brands", b.id, [cleanBrand(b), D.links[b.id]])) + "</span></span></button>";
+            '<span><span class="nm">' + esc(b.ko) + ' <small style="color:var(--text-3);font-weight:500">' + esc(b.en) + '</small></span><span class="sub">제품 ' + cnt + "개 · 링크 " + nl + '/4</span><span class="tags">' + stateTag(itemState("brands", b.id, [cleanBrand(b), D.links[b.id]])) + (b.hidden ? '<span class="tag hid">숨김</span>' : "") + "</span></span></button>";
         });
       });
       $("#lc").textContent = "브랜드 " + n + "개";
@@ -823,6 +824,7 @@
       (cnt ? '<a class="btn sm" href="products.html#b-' + encodeURIComponent(b.id) + '" target="_blank" rel="noopener">사이트에서 보기 ↗</a>' : "") + '<button class="btn sm danger" type="button" id="del">삭제</button></div></div>' +
       '<div class="card"><h3>기본 정보</h3><div class="grid2">' +
       (b._new ? '<label class="f span2"><span>브랜드 id <small>(영문 소문자·숫자, 주소에 쓰입니다. 저장 후에는 바꾸지 않는 것이 좋습니다)</small></span><input type="text" id="bid" value="' + esc(b.id) + '"></label>' : "") +
+      '<label class="chk span2 hide-row"><input type="checkbox" data-k="hidden"' + (b.hidden ? " checked" : "") + '> <b>홈페이지에서 숨기기</b> <small class="help">(브랜드와 제품 ' + cnt + '개가 사이트에서 안 보입니다. 지우지 않고 그대로 보관되며, 체크를 풀면 다시 보입니다)</small></label>' +
       '<label class="f"><span>한글 이름</span><input type="text" data-k="ko" value="' + esc(b.ko) + '"></label>' +
       '<label class="f"><span>영문 이름 <small>(로고 글자로 보입니다)</small></span><input type="text" data-k="en" value="' + esc(b.en) + '"></label>' +
       '<label class="f"><span>구분</span><select data-k="group">' + opts(GROUPS, b.group) + "</select></label>" +
