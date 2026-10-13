@@ -44,7 +44,7 @@ window.IBR_BRANDS = [
   {"id":"claraco","ko":"클라라앤코","en":"Clara & Co.","group":"dist","origin":"KR","cat":["health"],"mark":"serif","tint":"#F2E1E4","ink":"#5A2330","line":"먹는 뷰티 콜라겐.","lineEn":"Beauty collagen you can drink."},
   {"id":"oat","ko":"오트","en":"OAT","group":"dist","cat":["food"],"mark":"caps","tint":"#EEE7DA","ink":"#4A3A1E","line":"간편하게 바르는 스프레드.","lineEn":"Easy-to-spread spreads.","hidden":true},
   {"id":"atply","ko":"앳플리","en":"atply","group":"dist","cat":["living"],"mark":"round","tint":"#E3E7EA","ink":"#24303A","line":"스마트 헬스 디바이스.","lineEn":"Smart health devices.","hidden":true},
-  {"id":"tms","ko":"기미상궁","en":"GIMISANGUNG","group":"dist","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330"},
+  {"id":"tms","ko":"기미상궁","en":"GIMISANGUNG","group":"dist","origin":"KR","cat":["food"],"mark":"round","tint":"#E8ECE8","ink":"#2A3330","line":"먼저 맛보고, 좋은 것만 올립니다.","lineEn":"Premium Food Curator"},
 ];
 
 window.IBR_PRODUCTS = [
