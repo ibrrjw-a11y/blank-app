@@ -36,6 +36,7 @@
   - `www` CNAME: `ibrrjw-a11y.github.io`
 - 진행 상황은 저장소 **Actions** 탭의 *Deploy homepage* 에서 봅니다.
 - GitHub Pages 는 파일을 10분쯤 기억해 두므로, 데이터 파일(`ibr-data.js` 등)은 주소 뒤에 1분마다 바뀌는 번호를 붙여 읽습니다(`_build.py` 의 `DATA_JS`).
+- 스크립트·디자인 파일(css·js) 주소에는 `_build.py` 가 파일 내용 번호(`?v=…`)를 붙입니다. css·js 를 고친 뒤에는 꼭 `python3 ibr-web/_build.py` 를 다시 돌려야 방문자 브라우저가 새 파일을 받습니다.
 - 큰 GIF 가 쌓이면 `python3 ibr-web/tools/shrink_gifs.py` 로 움직이는 webp 로 줄입니다(관리자 화면은 크롬에서 올릴 때 자동으로 줄임).
 
 ## 영문 페이지 (KR · EN)
@@ -62,6 +63,9 @@
 - **저장**: 위의 '저장 (N)'을 누르면 바뀐 내용 요약을 보여 주고, 바뀐 데이터 파일과 새 사진을 **커밋 한 번**으로 저장소에 올립니다. 안 쓰게 된 사진(바꾸거나 뺀 사진, 지운 제품의 사진)은 같은 커밋에서 지웁니다.
   - 이 화면을 연 뒤 다른 곳(다른 창·다른 사람)에서 먼저 저장했으면, 저장소의 최신 내용에 이 화면에서 고친 항목만 얹어서 저장합니다(다른 항목을 예전 내용으로 덮어쓰지 않음).
   - 저장하지 않고 창을 닫으려 하면 브라우저가 한 번 더 묻습니다.
+- **관리자 비밀번호**: '연결 · 설정' 탭에서 만듭니다(저장소 연결 후). 이후 이 화면을 새 창으로 열 때마다 비밀번호를 묻고, 토큰도 이 비밀번호로 잠가서 브라우저에 보관합니다.
+  - 저장소에는 비밀번호가 아니라 확인값만 `ibr-web/assets/admin/lock.json` 으로 올라갑니다. 비밀번호를 잊으면 이 파일을 GitHub 에서 지우고 다시 만들면 됩니다(토큰은 다시 넣기).
+  - 정적 사이트라 화면 잠금이지 서버 보안은 아닙니다. 실제로 저장할 수 있는 열쇠는 GitHub 토큰이고, 그 토큰을 비밀번호로 잠가 둡니다.
 - **연결(처음 한 번)**: '연결 · 설정' 탭에 저장소(`ibrrjw-a11y/blank-app`), 브랜치, 사이트 폴더(`ibr-web`), GitHub 토큰을 넣고 '연결하고 불러오기'.
   - 토큰: GitHub → Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate new token →
     Repository access 는 **이 저장소 하나만**, Permissions 는 **Contents: Read and write** 만.

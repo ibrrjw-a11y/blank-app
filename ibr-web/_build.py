@@ -71,6 +71,23 @@ def fill(html):
 DATA_JS = {"ibr-data.js", "ibr-media.js", "ibr-links.js", "ibr-ir-data.js"}
 
 
+def ver(rel):
+    """파일 내용으로 만든 짧은 번호. 파일이 바뀌면 주소가 바뀌어 브라우저가 예전 파일을 쓰지 않습니다."""
+    import hashlib
+    with open(os.path.join(HERE, rel), "rb") as f:
+        return hashlib.sha1(f.read()).hexdigest()[:8]
+
+
+def versioned(html):
+    """assets/css·js 주소 뒤에 ?v=번호 를 붙입니다(데이터 파일은 script_tag 에서 따로)."""
+    def sub(m):
+        rel = m.group(2)
+        if os.path.basename(rel) in DATA_JS or not os.path.exists(os.path.join(HERE, rel)):
+            return m.group(0)
+        return '%s="%s?v=%s"' % (m.group(1), rel, ver(rel))
+    return re.sub(r'(href|src)="(assets/(?:css|js|admin)/[^"?]+\.(?:css|js))(?:\?v=[0-9a-f]+)?"', sub, html)
+
+
 def script_tag(name):
     if name in DATA_JS:
         return ("<script>document.write('<script src=\"assets/js/%s?v=' + Math.floor(Date.now() / 6e4) + '\"><\\/script>')</script>\n" % name)
@@ -97,6 +114,8 @@ def build(page, artifact_dir=None, lang="ko"):
 
     content = fill(gate + header + body + footer + scripts)
     full = ('<!doctype html>\n<html lang="%s">\n<head>\n' % lang) + fill(head) + "</head>\n<body>\n" + content + "</body>\n</html>\n"
+    full = versioned(full)
+    content = versioned(content)
     name = out_name(page, lang)
     with open(os.path.join(HERE, name), "w", encoding="utf-8") as f:
         f.write(full)
@@ -126,6 +145,12 @@ def main():
         build(p, art)
         if os.path.exists(os.path.join(SRC, "en", p)):
             build(p, art, "en")
+    # 관리자 화면(admin.html)의 css·js 주소에도 번호를 붙입니다
+    adm = os.path.join(HERE, "admin.html")
+    with open(adm, encoding="utf-8") as f:
+        a = f.read()
+    with open(adm, "w", encoding="utf-8") as f:
+        f.write(versioned(a))
     # 보기 좋은 영문 주소: /en/ → index-en.html
     os.makedirs(os.path.join(HERE, "en"), exist_ok=True)
     with open(os.path.join(HERE, "en", "index.html"), "w", encoding="utf-8") as f:
