@@ -14,12 +14,12 @@
     var m = location.hash.match(/^#p-([\w-]+)$/), p = m && PR.filter(function (x) { return x.id === m[1]; })[0];
     var top = $("#pdTop"), det = $("#pdDetail"), nav = $("#pdNav");
     if (!p) {
-      top.innerHTML = '<div class="empty"><p>제품을 찾을 수 없습니다.</p><a class="link-arrow" href="products.html">전체 제품 보기 ' + IBR.ARROW + "</a></div>";
+      top.innerHTML = '<div class="empty"><p>' + IBR.t("제품을 찾을 수 없습니다.", "Product not found.") + '</p><a class="link-arrow" href="' + IBR.page("products.html") + '">' + IBR.t("전체 제품 보기 ", "View all products ") + IBR.ARROW + "</a></div>";
       det.innerHTML = ""; nav.innerHTML = ""; return;
     }
     var b = IBR.brandMap()[p.b], L = (window.IBR_LINKS || {})[p.b] || {};
     document.title = b.ko + " " + p.n + " · IBR";
-    $("#pdBrandLink").textContent = b.ko; $("#pdBrandLink").href = "products.html#b-" + b.id;
+    $("#pdBrandLink").textContent = b.ko; $("#pdBrandLink").href = IBR.page("products.html") + "#b-" + b.id;
     $("#pdCrumb").textContent = p.n;
 
     var card = IBR.productCard(Object.assign({}, p, { url: "" }));
@@ -27,17 +27,17 @@
     var info = document.createElement("div");
     info.className = "pd-info";
     info.innerHTML =
-      '<p class="pd-brand"><a href="products.html#b-' + b.id + '"><span class="wm ' + (b.mark || "") + '">' + b.en + "</span></a> <span>" + b.ko + "</span></p>" +
+      '<p class="pd-brand"><a href="' + IBR.page("products.html") + '#b-' + b.id + '"><span class="wm ' + (b.mark || "") + '">' + b.en + "</span></a>" + (b.ko !== b.en ? " <span>" + b.ko + "</span>" : "") + "</p>" +
       "<h1>" + p.n + "</h1>" +
       (p.vars && p.vars.length ? '<ul class="pd-vars">' + p.vars.map(function (v) { return "<li>" + v + "</li>"; }).join("") + "</ul>" : "") +
       '<div class="pd-opts"></div>' +
       (p.note ? '<p class="pd-note">' + p.note + "</p>" : "") +
-      '<p class="pd-buy">구매는 공식 판매처에서 하실 수 있습니다.</p>' +
-      '<div class="bf-actions">' + link(L.smartstore, "네이버 스마트스토어", "naver", '<i class="n" aria-hidden="true">N</i>') + link(L.mall, "자사몰", "mall") +
-      (b.origin && b.origin !== "KR" ? link(L.global, "해외 공식몰", "global") : "") + "</div>";
+      '<p class="pd-buy">' + IBR.t("구매는 공식 판매처에서 하실 수 있습니다.", "Available at our official stores.") + '</p>' +
+      '<div class="bf-actions">' + link(L.smartstore, IBR.t("네이버 스마트스토어", "Naver Smart Store"), "naver", '<i class="n" aria-hidden="true">N</i>') + link(L.mall, IBR.t("자사몰", "Official store"), "mall") +
+      (b.origin && b.origin !== "KR" ? link(L.global, IBR.t("해외 공식몰", "Global official store"), "global") : "") + "</div>";
     var opts = info.querySelector(".pd-opts");
     opts.innerHTML = '<table><tbody>' + p.opts.map(function (o) {
-      return "<tr><th>" + o[0] + "</th><td>" + (o[1] == null ? '<span class="tbd">소비자가 준비 중</span>' : "<b>" + IBR.won(o[1]) + "</b>원") + "</td></tr>";
+      return "<tr><th>" + o[0] + "</th><td>" + (o[1] == null ? '<span class="tbd">' + IBR.t("소비자가 준비 중", "Price coming soon") + "</span>" : p.cur === "USD" ? "<b>$" + IBR.usd(o[1]) + "</b>" : IBR.lang === "en" ? "<b>" + IBR.won(o[1]) + "</b> KRW" : "<b>" + IBR.won(o[1]) + "</b>원") + "</td></tr>";
     }).join("") + "</tbody></table>";
     top.innerHTML = "";
     top.style.setProperty("--tint", b.tint || "#E8ECE8");
@@ -46,14 +46,14 @@
     top.appendChild(media); top.appendChild(info);
 
     det.innerHTML = (p.detail && p.detail.length)
-      ? p.detail.map(function (src, i) { return '<img src="' + src + '" alt="' + p.n + " 상세 " + (i + 1) + '" loading="' + (i < 2 ? "eager" : "lazy") + '" decoding="async">'; }).join("")
-      : '<p class="pd-wait">상세 정보는 준비 중입니다.</p>';
+      ? p.detail.map(function (src, i) { return '<img src="' + src + '" alt="' + p.n + IBR.t(" 상세 ", " detail ") + (i + 1) + '" loading="' + (i < 2 ? "eager" : "lazy") + '" decoding="async">'; }).join("")
+      : '<p class="pd-wait">' + IBR.t("상세 정보는 준비 중입니다.", "Details coming soon.") + '</p>';
 
     var same = PR.filter(function (x) { return x.b === p.b; }), i = same.indexOf(p);
     var prev = same[(i - 1 + same.length) % same.length], next = same[(i + 1) % same.length];
     nav.innerHTML = same.length > 1
-      ? '<a href="#p-' + prev.id + '"><small>이전 제품</small>' + prev.n + '</a><a href="products.html#b-' + b.id + '" class="all">' + b.ko + " 전체</a>" + '<a href="#p-' + next.id + '" class="nx"><small>다음 제품</small>' + next.n + "</a>"
-      : '<a href="products.html#b-' + b.id + '" class="all">' + b.ko + " 전체 보기</a>";
+      ? '<a href="#p-' + prev.id + '"><small>' + IBR.t("이전 제품", "Previous") + '</small>' + prev.n + '</a><a href="' + IBR.page("products.html") + '#b-' + b.id + '" class="all">' + IBR.t(b.ko + " 전체", "All " + b.ko) + "</a>" + '<a href="#p-' + next.id + '" class="nx"><small>' + IBR.t("다음 제품", "Next") + '</small>' + next.n + "</a>"
+      : '<a href="' + IBR.page("products.html") + '#b-' + b.id + '" class="all">' + IBR.t(b.ko + " 전체 보기", "View all " + b.ko) + "</a>";
     window.scrollTo(0, 0);
   }
   addEventListener("hashchange", render);

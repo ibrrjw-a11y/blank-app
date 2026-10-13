@@ -2,8 +2,8 @@
 (function () {
   "use strict";
   var IBR = window.IBR || {};
-  var TYPES = [["", "전체"], ["news", "언론 보도"], ["press", "보도자료"], ["notice", "공지"], ["ir", "IR 자료"]];
-  var LABEL = { news: "언론 보도", press: "보도자료", notice: "공지", ir: "IR 자료" };
+  var TYPES = [["", IBR.t("전체", "All")], ["news", IBR.t("언론 보도", "News")], ["press", IBR.t("보도자료", "Press release")], ["notice", IBR.t("공지", "Notice")], ["ir", IBR.t("IR 자료", "IR")]];
+  var LABEL = { news: IBR.t("언론 보도", "News"), press: IBR.t("보도자료", "Press release"), notice: IBR.t("공지", "Notice"), ir: IBR.t("IR 자료", "IR") };
   var PAGE = 12;
   /* 날짜 표시: 지금은 끔(정렬에는 계속 씁니다). 보이게 하려면 true 로 바꿉니다. */
   var SHOW_DATE = false;
@@ -17,9 +17,9 @@
   ALL.forEach(function (x, i) { if (!x.id) x.id = "n" + (i + 1); });
 
   function href(x) { return x.url ? x.url : x.body ? "#post-" + encodeURIComponent(x.id) : x.file || ""; }
-  function action(x) { return x.url ? "기사 보기" + OUT : x.body ? "자세히 " + (IBR.ARROW || "") : x.file ? "자료 받기" + DL : ""; }
+  function action(x) { return x.url ? IBR.t("기사 보기", "Read article") + OUT : x.body ? IBR.t("자세히 ", "Read more ") + (IBR.ARROW || "") : x.file ? IBR.t("자료 받기", "Download") + DL : ""; }
   var BR = {}; (window.IBR_BRANDS || []).forEach(function (b) { BR[b.id] = b; });
-  function meta(x) { var b = BR[x.brand]; return '<p class="ir-meta"><span class="tp tp-' + esc(x.type) + '">' + (LABEL[x.type] || "소식") + "</span>" + (SHOW_DATE && x.date ? "<time datetime=\"" + esc(x.date) + "\">" + fmt(x.date) + "</time>" : "") + (x.source ? "<span>" + esc(x.source) + "</span>" : "") + (b ? '<span class="br">' + esc(b.ko) + "</span>" : "") + "</p>"; }
+  function meta(x) { var b = BR[x.brand]; return '<p class="ir-meta"><span class="tp tp-' + esc(x.type) + '">' + (LABEL[x.type] || IBR.t("소식", "News")) + "</span>" + (SHOW_DATE && x.date ? "<time datetime=\"" + esc(x.date) + "\">" + fmt(x.date) + "</time>" : "") + (x.source ? "<span>" + esc(x.source) + "</span>" : "") + (b ? '<span class="br">' + esc(b.ko) + "</span>" : "") + "</p>"; }
   /* 사진이 없는 글은 브랜드 이름(없으면 IBR)을 썸네일로 씁니다 */
   function thumb(x) {
     if (x.img) return '<div class="ir-thumb"><img src="' + esc(x.img) + '" alt="" loading="lazy" decoding="async"></div>';
@@ -69,13 +69,13 @@
       return "<p>" + esc(para).replace(/\n/g, "<br>") + "</p>";
     }).join("");
     box.innerHTML =
-      '<a class="ir-back" href="#">← 목록으로</a>' + meta(x) + "<h1>" + esc(x.title) + "</h1>" +
+      '<a class="ir-back" href="#">' + IBR.t("← 목록으로", "← Back to list") + '</a>' + meta(x) + "<h1>" + esc(x.title) + "</h1>" +
       (x.img ? '<figure><img src="' + esc(x.img) + '" alt=""></figure>' : "") +
       '<div class="ir-text">' + body + "</div>" +
-      ((x.url || x.file) ? '<div class="ir-acts">' + (x.url ? '<a class="bf-btn" href="' + esc(x.url) + '" target="_blank" rel="noopener">원문 기사 보기' + OUT + "</a>" : "") +
-        (x.file ? '<a class="bf-btn catalog" href="' + esc(x.file) + '" download>자료 내려받기' + DL + "</a>" : "") + "</div>" : "") +
-      '<nav class="ir-pn" aria-label="다른 글">' + (prev ? '<a href="' + esc(href(prev)) + '"' + (prev.url ? ' target="_blank" rel="noopener"' : "") + "><small>이전 글</small>" + esc(prev.title) + "</a>" : "<span></span>") +
-      (next ? '<a class="nx" href="' + esc(href(next)) + '"' + (next.url ? ' target="_blank" rel="noopener"' : "") + "><small>다음 글</small>" + esc(next.title) + "</a>" : "<span></span>") + "</nav>";
+      ((x.url || x.file) ? '<div class="ir-acts">' + (x.url ? '<a class="bf-btn" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + IBR.t("원문 기사 보기", "Read original article") + OUT + "</a>" : "") +
+        (x.file ? '<a class="bf-btn catalog" href="' + esc(x.file) + '" download>' + IBR.t("자료 내려받기", "Download file") + DL + "</a>" : "") + "</div>" : "") +
+      '<nav class="ir-pn" aria-label="' + IBR.t("다른 글", "More posts") + '">' + (prev ? '<a href="' + esc(href(prev)) + '"' + (prev.url ? ' target="_blank" rel="noopener"' : "") + "><small>" + IBR.t("이전 글", "Previous") + "</small>" + esc(prev.title) + "</a>" : "<span></span>") +
+      (next ? '<a class="nx" href="' + esc(href(next)) + '"' + (next.url ? ' target="_blank" rel="noopener"' : "") + "><small>" + IBR.t("다음 글", "Next") + "</small>" + esc(next.title) + "</a>" : "<span></span>") + "</nav>";
     return true;
   }
 

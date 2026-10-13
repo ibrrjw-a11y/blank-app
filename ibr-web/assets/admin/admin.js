@@ -63,8 +63,8 @@
   var fresh = {};          // 방금 저장한 파일의 미리보기 주소(사이트 반영 전까지)
   var loadedFrom = "";
 
-  function readFile(p) {
-    if (connected()) return gh("GET", REPO() + "/contents/" + encPath(rp(p)) + "?ref=" + encodeURIComponent(cfg.branch), null, true);
+  function readFile(p, ref) {
+    if (connected()) return gh("GET", REPO() + "/contents/" + encPath(rp(p)) + "?ref=" + encodeURIComponent(ref || cfg.branch), null, true);
     return fetch(p + "?v=" + Date.now(), { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(p + " " + r.status); return r.text(); });
   }
   function run(text) { var w = {}; new Function("window", text)(w); return w; }
@@ -76,21 +76,7 @@
     return Promise.all([head].concat(keys.map(function (k) { return readFile(FILES[k]).catch(function (e) { if (k === "data") throw e; return ""; }); }))).then(function (res) {
       headSha = res[0];
       var t = {}; keys.forEach(function (k, i) { t[k] = res[i + 1]; });
-      var d = run(t.data), l = t.links ? run(t.links) : {}, ir = t.ir ? run(t.ir) : {}, m = t.media ? run(t.media) : {};
-      var media = m.IBR_MEDIA || {};
-      mediaHad = Object.keys(media).length > 0;
-      D = { cats: d.IBR_CATS || CAT_LABEL, brands: d.IBR_BRANDS || [], products: d.IBR_PRODUCTS || [], links: l.IBR_LINKS || {}, ir: ir.IBR_IR || [] };
-      /* 제품: 아이디를 고정하고, ibr-media.js 의 사진·상세 정보를 제품에 합칩니다 */
-      var n = {};
-      D.products.forEach(function (p) {
-        n[p.b] = (n[p.b] || 0) + 1;
-        if (!p.id) p.id = p.b + "-" + n[p.b];
-        var mm = media[p.b + "|" + p.n];
-        if (mm) { if (mm.img) { p.img = mm.img; if (mm.full) p.full = true; } if (mm.detail && mm.detail.length) p.detail = mm.detail.slice(); }
-        if (p.imgFull) { p.full = true; delete p.imgFull; }
-      });
-      D.ir.forEach(function (x, i) { if (!x.id) x.id = "n" + (i + 1); });
-      D.brands.forEach(function (b) { if (!D.links[b.id]) D.links[b.id] = { smartstore: "", mall: "", global: "", catalog: "" }; });
+      var r = parse(t); D = r.D; mediaHad = r.mediaHad;
       snapshot();
       pending = {}; removals = {};
       loadedFrom = connected() ? "GitHub " + cfg.owner + "/" + cfg.repo + " · " + cfg.branch : "이 사이트 파일(둘러보기)";
@@ -100,6 +86,52 @@
       updateConn();
     });
   }
+  /* 파일 내용 → 고칠 데이터. 제품 아이디를 고정하고, ibr-media.js 의 사진·상세 정보를 제품에 합칩니다 */
+  function parse(t) {
+    var d = run(t.data), l = t.links ? run(t.links) : {}, ir = t.ir ? run(t.ir) : {}, m = t.media ? run(t.media) : {};
+    var media = m.IBR_MEDIA || {};
+    var X = { cats: d.IBR_CATS || CAT_LABEL, brands: d.IBR_BRANDS || [], products: d.IBR_PRODUCTS || [], links: l.IBR_LINKS || {}, ir: ir.IBR_IR || [] };
+    var n = {};
+    X.products.forEach(function (p) {
+      n[p.b] = (n[p.b] || 0) + 1;
+      if (!p.id) p.id = p.b + "-" + n[p.b];
+      var mm = media[p.b + "|" + p.n];
+      if (mm) { if (mm.img) { p.img = mm.img; if (mm.full) p.full = true; } if (mm.detail && mm.detail.length) p.detail = mm.detail.slice(); }
+      if (p.imgFull) { p.full = true; delete p.imgFull; }
+    });
+    X.ir.forEach(function (x, i) { if (!x.id) x.id = "n" + (i + 1); });
+    X.brands.forEach(function (b) { if (!X.links[b.id]) X.links[b.id] = { smartstore: "", mall: "", global: "", catalog: "" }; });
+    return { D: X, mediaHad: Object.keys(media).length > 0 };
+  }
+
+  /* 이 화면을 연 뒤 다른 곳(다른 사람·다른 창)에서 먼저 저장했을 때:
+     저장소의 최신 내용을 바탕으로, 여기서 고치거나 추가·삭제한 항목만 얹습니다(다른 항목은 최신 내용 그대로). */
+  function mergeList(kind, remote, local, cur) {
+    var byId = {}; local.forEach(function (x) { byId[x.id] = x; });
+    var gone = Object.keys(ORIG_ITEMS[kind]).filter(function (id) { return !byId[id]; });
+    var out = remote.filter(function (x) { return gone.indexOf(x.id) < 0; }).map(function (x) {
+      var l = byId[x.id]; return l && itemState(kind, x.id, cur(l)) !== "" ? l : x;
+    });
+    local.forEach(function (x, i) {
+      if (out.some(function (y) { return y.id === x.id; }) || itemState(kind, x.id, cur(x)) === "") return;
+      var at = out.length;
+      for (var j = i - 1; j >= 0; j--) { var k = out.findIndex(function (y) { return y.id === local[j].id; }); if (k >= 0) { at = k + 1; break; } }
+      out.splice(at, 0, x);
+    });
+    return out;
+  }
+  function rebase(R) {
+    var links = {};
+    var brands = mergeList("brands", R.brands, D.brands, function (b) { return [cleanBrand(b), D.links[b.id]]; });
+    brands.forEach(function (b) {
+      var mine = D.brands.indexOf(b) > -1;
+      links[b.id] = (mine ? D.links[b.id] : R.links[b.id]) || { smartstore: "", mall: "", global: "", catalog: "" };
+    });
+    D = { cats: R.cats, brands: brands, links: links,
+      products: mergeList("products", R.products, D.products, cleanProduct),
+      ir: mergeList("ir", R.ir, D.ir, cleanIr) };
+  }
+
   function snapshot() {
     ORIG = { data: dataText(), links: linksText(), ir: irText() };
     ORIG_ITEMS = { products: {}, brands: {}, ir: {} };
@@ -124,18 +156,29 @@
     return r;
   }
   function cleanProduct(p) {
-    var c = pick(p, ["id", "b", "n", "cat", "form", "img", "full", "opts", "vars", "note", "check", "top", "detail", "url"]);
+    var c = pick(p, ["id", "b", "n", "nEn", "cat", "form", "img", "full", "opts", "optsEn", "usd", "vars", "varsEn", "note", "noteEn", "check", "top", "detail", "detailEn", "url"]);
     c.opts = (p.opts || []).map(function (o) { return [String(o[0] || ""), o[1] === "" || o[1] == null || isNaN(o[1]) ? null : Number(o[1])]; });
-    return c;
+    /* 영문 용량: 한 칸이라도 있으면 용량 줄 수에 맞춰 저장, 모두 비면 뺌 */
+    var oe = (p.optsEn || []).slice(0, c.opts.length);
+    if (oe.some(function (x) { return x; })) { while (oe.length < c.opts.length) oe.push(""); c.optsEn = oe.map(function (x) { return String(x || ""); }); }
+    else delete c.optsEn;
+    /* 달러 가격: 용량 줄 수에 맞춰 숫자(소수 둘째 자리)나 null, 하나도 없으면 뺌 */
+    var us = (p.usd || []).slice(0, c.opts.length).map(function (v) { return v === "" || v == null || isNaN(v) ? null : Math.round(Number(v) * 100) / 100; });
+    if (us.some(function (v) { return v != null; })) { while (us.length < c.opts.length) us.push(null); c.usd = us; } else delete c.usd;
+    var o2 = {};
+    Object.keys(c).forEach(function (k) { if (k !== "optsEn" && k !== "usd") { o2[k] = c[k]; if (k === "opts") { if (c.optsEn) o2.optsEn = c.optsEn; if (c.usd) o2.usd = c.usd; } } });
+    return o2;
   }
-  function cleanBrand(b) { return pick(b, ["id", "ko", "en", "group", "origin", "cat", "mark", "tint", "ink", "line"]); }
-  function cleanIr(x) { return pick(x, ["id", "date", "type", "title", "source", "url", "summary", "brand", "img", "body", "file"]); }
+  function cleanBrand(b) { return pick(b, ["id", "ko", "en", "group", "origin", "cat", "mark", "tint", "ink", "line", "lineEn"]); }
+  function cleanIr(x) { return pick(x, ["id", "date", "type", "title", "titleEn", "source", "sourceEn", "url", "summary", "summaryEn", "brand", "img", "body", "bodyEn", "file"]); }
 
   var DATA_HEAD = "/*\n" +
     "  IBR 브랜드·제품 데이터 — 홈페이지의 브랜드 목록과 제품 페이지가 모두 이 파일 하나를 읽습니다.\n" +
     "  관리자 화면(admin.html)에서 고치면 이 파일을 새로 씁니다. 직접 고쳐도 됩니다.\n\n" +
     "  ■ 제품: { id, b: 브랜드 id, n: 제품명, cat: 분류, form: 그림 모양, img: 대표 사진, full: 배경 있는 사진,\n" +
     "           opts: [[용량, 소비자가], ...], vars: [종류], note: 안내, check: 확인 표시, top: 메인 대표 제품, detail: [상세 이미지] }\n" +
+    "    - 영문 페이지(…-en.html)용: nEn 제품명 · optsEn [용량] · usd [달러 가격] · varsEn [종류] · noteEn 안내 · detailEn [영문 상세 이미지]\n" +
+    "      / 브랜드 lineEn 소개. 비어 있으면 한글(가격은 원화, 상세는 한글 상세)이 보입니다.\n" +
     "    - 가격은 소비자가(숫자, 원). 모르면 null → \"소비자가 준비 중\".\n" +
     "  ■ 분류(cat): hair 헤어 · body 바디 · skin 스킨 · food 푸드 · health 헬스 · pet 펫 · living 리빙\n" +
     "  ■ 그림 모양(form): oil pump tube jar honey stick box bar bottle spray pouch towel pack chair cabinet glass scale\n" +
@@ -215,7 +258,7 @@
   /* 파일이 아직 어딘가에서 쓰이는지 */
   function used(path) {
     if (!D) return false;
-    if (D.products.some(function (p) { return p.img === path || (p.detail || []).indexOf(path) > -1; })) return true;
+    if (D.products.some(function (p) { return p.img === path || (p.detail || []).indexOf(path) > -1 || (p.detailEn || []).indexOf(path) > -1; })) return true;
     if (D.ir.some(function (x) { return x.img === path || x.file === path; })) return true;
     return D.brands.some(function (b) { return (D.links[b.id] || {}).catalog === path; });
   }
@@ -447,7 +490,7 @@
           h += '<button type="button" class="item" data-id="' + esc(p.id) + '"' + (sel.products === p.id ? ' aria-current="true"' : "") + '>' +
             '<span class="th' + (p.full ? " cover" : "") + '" style="background:' + esc((brandOf(p.b) || {}).tint || "") + '">' + (p.img ? '<img src="' + esc(src(p.img)) + '" alt="" loading="lazy">' : "사진 없음") + "</span>" +
             '<span><span class="nm">' + esc(p.n || "(이름 없음)") + '</span><span class="sub">' + esc(price) + '</span><span class="tags">' + stateTag(itemState("products", p.id, cleanProduct(p))) +
-            ((p.detail || []).length ? '<span class="tag blue">상세 ' + p.detail.length + "</span>" : "") + (p.top ? '<span class="tag">메인</span>' : "") + "</span></span></button>";
+            ((p.detail || []).length ? '<span class="tag blue">상세 ' + p.detail.length + "</span>" : "") + ((p.detailEn || []).length ? '<span class="tag blue">영문 상세 ' + p.detailEn.length + "</span>" : "") + ((p.usd || []).some(function (v) { return v != null; }) ? '<span class="tag">$</span>' : "") + (p.top ? '<span class="tag">메인</span>' : "") + "</span></span></button>";
         });
       });
       $("#lc").textContent = "제품 " + n + "개" + (filt.brand || q ? " (전체 " + D.products.length + "개)" : "");
@@ -546,23 +589,29 @@
       '<a class="btn sm" href="product.html#p-' + encodeURIComponent(p.id) + '" target="_blank" rel="noopener">사이트에서 보기 ↗</a><button class="btn sm danger" type="button" id="del">삭제</button></div></div>' +
       '<div class="card"><h3>기본 정보</h3><div class="grid2">' +
       '<label class="f span2"><span>제품명</span><input type="text" data-k="n" value="' + esc(p.n) + '" placeholder="예: 07 플로럴 선샤인 헤어오일"></label>' +
+      '<label class="f span2"><span>영문 제품명 <small>(영문 페이지에 보입니다. 비우면 한글 이름)</small></span><input type="text" data-k="nEn" value="' + esc(p.nEn || "") + '" placeholder="예: 07 Floral Sunshine Hair Oil"></label>' +
       '<label class="f"><span>브랜드</span><select data-k="b">' + brandOptions(p.b) + "</select></label>" +
       '<label class="f"><span>분류</span><select data-k="cat">' + opts(catOpts, p.cat) + "</select></label>" +
       '<label class="f"><span>사진이 없을 때 그림 모양</span><select data-k="form">' + opts(FORMS, p.form) + "</select></label>" +
       '<label class="f"><span>가격 옆 표시 <small>(예: 가격 확인 필요)</small></span><input type="text" data-k="check" value="' + esc(p.check || "") + '"></label>' +
       '<label class="f span2"><span>종류 <small>(향·컬러처럼 가격이 같은 종류, 한 줄에 하나)</small></span><textarea data-k="vars" data-t="lines" rows="3">' + esc((p.vars || []).join("\n")) + "</textarea></label>" +
+      '<label class="f span2"><span>종류 · 영문 <small>(위와 같은 순서로 한 줄에 하나)</small></span><textarea data-k="varsEn" data-t="lines" rows="2">' + esc((p.varsEn || []).join("\n")) + "</textarea></label>" +
       '<label class="f span2"><span>안내 문구 <small>(카드 아래 작은 글씨)</small></span><input type="text" data-k="note" value="' + esc(p.note || "") + '"></label>' +
+      '<label class="f span2"><span>안내 문구 · 영문</span><input type="text" data-k="noteEn" value="' + esc(p.noteEn || "") + '"></label>' +
       '<label class="chk span2"><input type="checkbox" data-k="top"' + (p.top ? " checked" : "") + "> 메인 화면 '대표 제품'에 보이기 <small class=\"help\">(소비자가가 있어야 보입니다)</small></label>" +
       "</div></div>" +
-      '<div class="card"><h3>용량 · 소비자가 <button class="btn sm" type="button" id="addOpt">+ 줄 추가</button></h3><div class="opt-head"><span>용량·구성</span><span>소비자가(원) — 비우면 "준비 중"</span><span></span></div><div class="opts" id="opts"></div></div>' +
+      '<div class="card"><h3>용량 · 소비자가 <button class="btn sm" type="button" id="addOpt">+ 줄 추가</button></h3><div class="opt-head"><span>용량·구성</span><span>영문 <small>(선택)</small></span><span>소비자가(원)</span><span>달러 $ <small>(영문)</small></span><span></span></div><p class="help">원화를 비우면 "준비 중". 달러를 넣은 제품은 영문 페이지에 달러로, 안 넣은 제품은 원화(KRW)로 보입니다.</p><div class="opts" id="opts"></div></div>' +
       '<div class="card"><h3>대표 사진</h3><div class="photo"><div class="pv' + (p.full ? " full" : "") + '" style="background:' + esc(b.tint || "#E8ECE8") + '">' + (p.img ? '<img src="' + esc(src(p.img)) + '" alt="">' : '<span class="no">사진이 없으면<br>그림 모양으로 보입니다</span>') + "</div>" +
       '<div class="ops"><div class="drop" id="dropMain">여기로 사진을 끌어 놓거나 <button class="btn sm" type="button" id="upMain">사진 고르기</button></div>' +
       '<div class="row"><label class="chk"><input type="checkbox" id="knock"> 흰 배경 지우기</label><label class="chk"><input type="checkbox" data-k="full"' + (p.full ? " checked" : "") + "> 배경 있는 사진(카드를 꽉 채움)</label></div>" +
       (p.img ? '<div class="row"><button class="btn sm danger" type="button" id="rmMain">사진 빼기</button><span class="help">' + esc(p.img) + "</span></div>" : "") +
       '<p class="help">투명 배경 PNG(누끼)가 가장 좋습니다. 긴 쪽 1000px로 줄여 올립니다.</p></div></div></div>' +
-      '<div class="card"><h3>상세 이미지 <span><button class="btn sm" type="button" id="upDetail">+ 이미지 추가</button>' + ((p.detail || []).length ? ' <button class="btn sm danger" type="button" id="rmDetailAll">모두 빼기</button>' : "") + "</span></h3>" +
-      '<div class="drop" id="dropDetail">상세페이지 이미지(jpg·png·gif)를 순서대로 끌어 놓으세요. 긴 이미지는 자동으로 나눠 올리고, GIF 는 움직임 그대로 올립니다.</div>' +
-      '<div class="detail-list" id="dlist"></div></div>';
+      detailCard("detail", "상세 이미지", "상세페이지 이미지(jpg·png·gif)를 순서대로 끌어 놓으세요. 긴 이미지는 자동으로 나눠 올리고, 움직이는 GIF 는 크기를 줄여 올립니다.") +
+      detailCard("detailEn", "영문 상세 이미지", "영문 페이지에만 보이는 상세 이미지입니다. 비워 두면 영문 페이지에도 위의 한글 상세 이미지가 보입니다.");
+    function detailCard(key, title, hint) {
+      return '<div class="card" data-dk="' + key + '"><h3>' + title + ' <span><button class="btn sm" type="button" data-up>+ 이미지 추가</button>' + ((p[key] || []).length ? ' <button class="btn sm danger" type="button" data-rmall>모두 빼기</button>' : "") + "</span></h3>" +
+        '<div class="drop" data-drop>' + hint + '</div><div class="detail-list" data-list></div></div>';
+    }
     wireBack(pane);
     bind(pane, p, function (k, el) {
       if (k === "n") $("h2", pane).textContent = p.n || "새 제품";
@@ -573,16 +622,25 @@
     function drawOpts() {
       var box = $("#opts", pane);
       box.innerHTML = (p.opts || []).map(function (o, i) {
-        return '<div class="opt-row" data-i="' + i + '"><input type="text" data-f="0" value="' + esc(o[0]) + '" placeholder="예: 100ml"><input type="number" data-f="1" min="0" step="100" value="' + (o[1] == null ? "" : o[1]) + '" placeholder="준비 중">' +
+        return '<div class="opt-row" data-i="' + i + '"><input type="text" data-f="0" value="' + esc(o[0]) + '" placeholder="예: 100ml"><input type="text" data-f="en" value="' + esc((p.optsEn || [])[i] || "") + '" placeholder="예: Jar 250g"><input type="number" data-f="1" min="0" step="100" value="' + (o[1] == null ? "" : o[1]) + '" placeholder="원화 · 비우면 준비 중"><input type="number" data-f="usd" min="0" step="0.01" value="' + ((p.usd || [])[i] == null ? "" : p.usd[i]) + '" placeholder="$ 예: 24.99">' +
           '<span class="ctl"><button class="icon-btn" type="button" data-a="up"' + (i === 0 ? " disabled" : "") + '>↑</button><button class="icon-btn" type="button" data-a="down"' + (i === p.opts.length - 1 ? " disabled" : "") + '>↓</button><button class="icon-btn" type="button" data-a="rm"' + (p.opts.length <= 1 ? " disabled" : "") + '>✕</button></span></div>';
       }).join("");
       $$(".opt-row", box).forEach(function (row) {
         var i = +row.dataset.i;
-        $$("input", row).forEach(function (inp) { inp.oninput = function () { var f = +inp.dataset.f; p.opts[i][f] = f ? (inp.value === "" ? null : Number(inp.value)) : inp.value; markChange(); }; });
+        $$("input", row).forEach(function (inp) {
+          inp.oninput = function () {
+            if (inp.dataset.f === "en") { p.optsEn = p.optsEn || []; while (p.optsEn.length < p.opts.length) p.optsEn.push(""); p.optsEn[i] = inp.value; markChange(); return; }
+            if (inp.dataset.f === "usd") { p.usd = p.usd || []; while (p.usd.length < p.opts.length) p.usd.push(null); p.usd[i] = inp.value === "" ? null : Number(inp.value); markChange(); return; }
+            var f = +inp.dataset.f; p.opts[i][f] = f ? (inp.value === "" ? null : Number(inp.value)) : inp.value; markChange();
+          };
+        });
         $$("button", row).forEach(function (btn) {
           btn.onclick = function () {
-            var a = btn.dataset.a, o = p.opts;
-            if (a === "rm") o.splice(i, 1); else { var j = a === "up" ? i - 1 : i + 1; var t = o[i]; o[i] = o[j]; o[j] = t; }
+            var a = btn.dataset.a, o = p.opts, e = p.optsEn = p.optsEn || [], u = p.usd = p.usd || [];
+            while (e.length < o.length) e.push("");
+            while (u.length < o.length) u.push(null);
+            if (a === "rm") { o.splice(i, 1); e.splice(i, 1); u.splice(i, 1); }
+            else { var j = a === "up" ? i - 1 : i + 1; var t = o[i]; o[i] = o[j]; o[j] = t; t = e[i]; e[i] = e[j]; e[j] = t; t = u[i]; u[i] = u[j]; u[j] = t; }
             drawOpts(); markChange();
           };
         });
@@ -590,7 +648,7 @@
     }
     if (!p.opts || !p.opts.length) p.opts = [["", null]];
     drawOpts();
-    $("#addOpt", pane).onclick = function () { p.opts.push(["", null]); drawOpts(); markChange(); };
+    $("#addOpt", pane).onclick = function () { p.opts.push(["", null]); if (p.optsEn) { while (p.optsEn.length < p.opts.length) p.optsEn.push(""); } if (p.usd) { while (p.usd.length < p.opts.length) p.usd.push(null); } drawOpts(); markChange(); };
     /* 순서·삭제 */
     function move(dir) {
       var j = D.products.indexOf(same[pos + dir]); if (j < 0) return;
@@ -601,7 +659,7 @@
     $("#del", pane).onclick = function () {
       if (!confirm("'" + (p.n || "새 제품") + "' 제품을 삭제할까요? (저장해야 홈페이지에 반영됩니다)")) return;
       D.products.splice(D.products.indexOf(p), 1);
-      release(p.img); (p.detail || []).forEach(release);
+      release(p.img); (p.detail || []).forEach(release); (p.detailEn || []).forEach(release);
       sel.products = null; editing = false; markChange(); render();
     };
     /* 대표 사진 */
@@ -618,53 +676,56 @@
     $("#upMain", pane).onclick = function () { pickFiles("image/*").then(setMain); };
     dropZone($("#dropMain", pane), setMain);
     if ($("#rmMain", pane)) $("#rmMain", pane).onclick = function () { var old = p.img; delete p.img; delete p.full; release(old); markChange(); renderEditor(); };
-    /* 상세 이미지 */
-    function drawDetail() {
-      var box = $("#dlist", pane), d = p.detail || [];
-      box.innerHTML = d.map(function (path, i) {
-        return '<div class="dimg"><img src="' + esc(src(path)) + '" alt="" loading="lazy"><div class="bar"><span class="n">' + (i + 1) + '</span><span><button class="icon-btn" type="button" data-a="up" data-i="' + i + '"' + (i === 0 ? " disabled" : "") + '>↑</button><button class="icon-btn" type="button" data-a="down" data-i="' + i + '"' + (i === d.length - 1 ? " disabled" : "") + '>↓</button><button class="icon-btn" type="button" data-a="rm" data-i="' + i + '">✕</button></span></div></div>';
-      }).join("") || '<p class="help">아직 상세 이미지가 없습니다. 없으면 제품 화면에 "상세 정보는 준비 중입니다"로 나옵니다.</p>';
-      $$("button", box).forEach(function (btn) {
-        btn.onclick = function () {
-          var i = +btn.dataset.i, a = btn.dataset.a;
-          if (a === "rm") { var old = d.splice(i, 1)[0]; release(old); }
-          else { var j = a === "up" ? i - 1 : i + 1; var t = d[i]; d[i] = d[j]; d[j] = t; }
-          if (!d.length) delete p.detail;
-          markChange(); drawDetail();
-        };
-      });
-    }
-    drawDetail();
-    function addDetail(files) {
-      files = files.filter(function (x) { return /^image\//.test(x.type); });
-      if (!files.length) return;
-      toast("상세 이미지를 처리하는 중… (" + files.length + "개)", "", 60000);
-      var chain = Promise.resolve(), added = 0, big = [], raw = 0;
-      files.forEach(function (f, k) {
-        chain = chain.then(function () {
-          return detailImages(f, function (i, n) { toast("움직이는 GIF 줄이는 중… " + (k + 1) + "/" + files.length + "번째 파일, 프레임 " + i + "/" + n, "", 60000); });
-        }).then(function (parts) {
-          parts.forEach(function (r) {
-            var path = "assets/img/detail/" + p.id + "/" + rand() + "." + r.ext;
-            addPending(path, r.blob); (p.detail = p.detail || []).push(path); added++;
-            if (r.raw) raw++;
-            if (r.blob.size > 6 * 1024 * 1024) big.push(f.name + " " + (r.blob.size / 1048576).toFixed(1) + "MB");
+    /* 상세 이미지(한글 detail · 영문 detailEn) */
+    $$("[data-dk]", pane).forEach(function (card) {
+      var key = card.dataset.dk, label = key === "detailEn" ? "영문 상세 이미지" : "상세 이미지", folder = key === "detailEn" ? "en-" : "";
+      function draw() {
+        var box = $("[data-list]", card), d = p[key] || [];
+        box.innerHTML = d.map(function (path, i) {
+          return '<div class="dimg"><img src="' + esc(src(path)) + '" alt="" loading="lazy"><div class="bar"><span class="n">' + (i + 1) + '</span><span><button class="icon-btn" type="button" data-a="up" data-i="' + i + '"' + (i === 0 ? " disabled" : "") + '>↑</button><button class="icon-btn" type="button" data-a="down" data-i="' + i + '"' + (i === d.length - 1 ? " disabled" : "") + '>↓</button><button class="icon-btn" type="button" data-a="rm" data-i="' + i + '">✕</button></span></div></div>';
+        }).join("") || '<p class="help">' + (key === "detailEn" ? "아직 영문 상세 이미지가 없습니다." : "아직 상세 이미지가 없습니다. 없으면 제품 화면에 \"상세 정보는 준비 중입니다\"로 나옵니다.") + "</p>";
+        $$("button", box).forEach(function (btn) {
+          btn.onclick = function () {
+            var i = +btn.dataset.i, a = btn.dataset.a;
+            if (a === "rm") { var old = d.splice(i, 1)[0]; release(old); }
+            else { var j = a === "up" ? i - 1 : i + 1; var t = d[i]; d[i] = d[j]; d[j] = t; }
+            if (!d.length) delete p[key];
+            markChange(); draw();
+          };
+        });
+      }
+      draw();
+      function add(files) {
+        files = files.filter(function (x) { return /^image\//.test(x.type); });
+        if (!files.length) return;
+        toast(label + "를 처리하는 중… (" + files.length + "개)", "", 60000);
+        var chain = Promise.resolve(), added = 0, big = [], raw = 0;
+        files.forEach(function (f, k) {
+          chain = chain.then(function () {
+            return detailImages(f, function (i, n) { toast("움직이는 GIF 줄이는 중… " + (k + 1) + "/" + files.length + "번째 파일, 프레임 " + i + "/" + n, "", 60000); });
+          }).then(function (parts) {
+            parts.forEach(function (r) {
+              var path = "assets/img/detail/" + p.id + "/" + folder + rand() + "." + r.ext;
+              addPending(path, r.blob); (p[key] = p[key] || []).push(path); added++;
+              if (r.raw) raw++;
+              if (r.blob.size > 6 * 1024 * 1024) big.push(f.name + " " + (r.blob.size / 1048576).toFixed(1) + "MB");
+            });
           });
         });
-      });
-      chain.then(function () {
-        var msg = "상세 이미지 " + added + "장을 넣었습니다. 저장해야 올라갑니다.";
-        if (raw) msg += " (이 브라우저에서는 GIF 를 줄이지 못해 그대로 넣었습니다. 크롬에서 하면 크기가 훨씬 작아집니다.)";
-        if (big.length) msg += " 큰 파일이 있어 휴대폰에서 늦게 열릴 수 있습니다: " + big.join(", ");
-        toast(msg, big.length || raw ? "" : "ok", big.length || raw ? 12000 : 3200); markChange(); renderEditor();
-      }).catch(function (e) { toast(e.message, "err"); });
-    }
-    $("#upDetail", pane).onclick = function () { pickFiles("image/*", true).then(addDetail); };
-    dropZone($("#dropDetail", pane), addDetail);
-    if ($("#rmDetailAll", pane)) $("#rmDetailAll", pane).onclick = function () {
-      if (!confirm("상세 이미지를 모두 뺄까요?")) return;
-      var d = p.detail || []; delete p.detail; d.forEach(release); markChange(); renderEditor();
-    };
+        chain.then(function () {
+          var msg = label + " " + added + "장을 넣었습니다. 저장해야 올라갑니다.";
+          if (raw) msg += " (이 브라우저에서는 GIF 를 줄이지 못해 그대로 넣었습니다. 크롬에서 하면 크기가 훨씬 작아집니다.)";
+          if (big.length) msg += " 큰 파일이 있어 휴대폰에서 늦게 열릴 수 있습니다: " + big.join(", ");
+          toast(msg, big.length || raw ? "" : "ok", big.length || raw ? 12000 : 3200); markChange(); renderEditor();
+        }).catch(function (e) { toast(e.message, "err"); });
+      }
+      $("[data-up]", card).onclick = function () { pickFiles("image/*", true).then(add); };
+      dropZone($("[data-drop]", card), add);
+      if ($("[data-rmall]", card)) $("[data-rmall]", card).onclick = function () {
+        if (!confirm(label + "를 모두 뺄까요?")) return;
+        var d = p[key] || []; delete p[key]; d.forEach(release); markChange(); renderEditor();
+      };
+    });
   }
   function dropZone(el, cb) {
     if (!el) return;
@@ -686,6 +747,7 @@
       '<label class="f"><span>구분</span><select data-k="group">' + opts(GROUPS, b.group) + "</select></label>" +
       '<label class="f"><span>원산지</span><select data-k="origin">' + opts(ORIGINS, b.origin) + "</select></label>" +
       '<label class="f span2"><span>한 줄 소개</span><textarea data-k="line" rows="2">' + esc(b.line || "") + "</textarea></label>" +
+      '<label class="f span2"><span>한 줄 소개 · 영문 <small>(영문 페이지에 보입니다)</small></span><textarea data-k="lineEn" rows="2">' + esc(b.lineEn || "") + "</textarea></label>" +
       '<div class="f span2"><span class="f-label">분류</span><div class="cats">' + Object.keys(D.cats).map(function (k) { return '<label class="chk"><input type="checkbox" data-cat="' + k + '"' + ((b.cat || []).indexOf(k) > -1 ? " checked" : "") + "> " + esc(D.cats[k]) + "</label>"; }).join("") + "</div></div>" +
       "</div></div>" +
       '<div class="card"><h3>로고 글자 · 색</h3><div class="grid2"><label class="f"><span>글꼴</span><select data-k="mark">' + opts(MARKS, b.mark) + '</select></label><div class="colors"><label><input type="color" data-k="tint" value="' + esc(b.tint || "#E8ECE8") + '"> 바탕색</label><label><input type="color" data-k="ink" value="' + esc(b.ink || "#2A3330") + '"> 글자색</label></div></div>' +
@@ -740,13 +802,17 @@
       '<label class="f"><span>분류</span><select data-k="type">' + opts(IR_TYPES, x.type) + "</select></label>" +
       '<label class="f"><span>날짜 <small>(정렬에만 쓰고 화면에는 안 보입니다)</small></span><input type="date" data-k="date" value="' + esc(x.date || "") + '"></label>' +
       '<label class="f span2"><span>제목</span><input type="text" data-k="title" value="' + esc(x.title || "") + '"></label>' +
+      '<label class="f span2"><span>제목 · 영문 <small>(영문 페이지에 보입니다. 비우면 한글 제목)</small></span><input type="text" data-k="titleEn" value="' + esc(x.titleEn || "") + '"></label>' +
       '<label class="f"><span>매체명 <small>(언론 보도일 때)</small></span><input type="text" data-k="source" value="' + esc(x.source || "") + '"></label>' +
+      '<label class="f"><span>매체명 · 영문</span><input type="text" data-k="sourceEn" value="' + esc(x.sourceEn || "") + '"></label>' +
       '<label class="f"><span>관련 브랜드 <small>(사진이 없을 때 썸네일)</small></span><select data-k="brand">' + brandOptions(x.brand, true) + "</select></label>" +
       '<label class="f span2"><span>기사 주소 <small>(있으면 누를 때 새 창으로 기사가 열립니다)</small></span><input type="url" data-k="url" value="' + esc(x.url || "") + '" placeholder="https://"></label>' +
       '<label class="f span2"><span>요약 <small>(목록에 보이는 두세 줄)</small></span><textarea data-k="summary" rows="3">' + esc(x.summary || "") + "</textarea></label>" +
+      '<label class="f span2"><span>요약 · 영문</span><textarea data-k="summaryEn" rows="3">' + esc(x.summaryEn || "") + "</textarea></label>" +
       "</div></div>" +
       '<div class="card"><h3>대표 이미지</h3><div class="photo"><div class="pv full" style="background:var(--paper-2)">' + (x.img ? '<img src="' + esc(src(x.img)) + '" alt="">' : '<span class="no">없으면 브랜드 이름이<br>썸네일로 보입니다</span>') + '</div><div class="ops"><div class="drop" id="dropIr">이미지를 끌어 놓거나 <button class="btn sm" type="button" id="upIr">사진 고르기</button></div>' + (x.img ? '<div class="row"><button class="btn sm danger" type="button" id="rmIr">이미지 빼기</button></div>' : "") + "</div></div></div>" +
-      '<div class="card"><h3>본문 <small class="help">(보도자료·공지처럼 사이트 안에서 보여 줄 글. 빈 줄로 문단을 나누고, "## "로 시작하면 소제목)</small></h3><textarea class="tall" data-k="body">' + esc(x.body || "") + "</textarea></div>" +
+      '<div class="card"><h3>본문 <small class="help">(보도자료·공지처럼 사이트 안에서 보여 줄 글. 빈 줄로 문단을 나누고, "## "로 시작하면 소제목)</small></h3><textarea class="tall" data-k="body">' + esc(x.body || "") + "</textarea>" +
+      '<label class="f"><span>본문 · 영문 <small>(영문 페이지에 보입니다. 비우면 한글 본문)</small></span><textarea class="tall" data-k="bodyEn">' + esc(x.bodyEn || "") + "</textarea></label></div>" +
       '<div class="card"><h3>내려받을 자료</h3><div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn sm" type="button" id="upFile">파일 올리기</button>' + (x.file ? '<span class="help">' + esc(x.file) + '</span><button class="btn sm danger" type="button" id="rmFile">빼기</button>' : '<span class="help">PDF 등 IR 자료·보도자료 원문</span>') + "</div></div>";
     wireBack(pane);
     bind(pane, x, function (k) { if (k === "title") $("h2", pane).textContent = x.title || "새 글"; if (k === "date" || k === "title" || k === "brand" || k === "type") renderList(); });
@@ -879,7 +945,22 @@
     function step() { done++; progress(done / total); }
     return gh("GET", REPO() + "/git/ref/heads/" + encPath(cfg.branch)).then(function (r) {
       base = r.object.sha;
-      if (headSha && base !== headSha && !confirm("이 화면을 연 뒤에 다른 곳에서 먼저 저장된 내용이 있습니다.\n그대로 저장하면 그 사이 바뀐 제품·브랜드·IR 내용을 덮어쓸 수 있습니다.\n\n취소를 누르면 저장하지 않습니다(새로 불러온 뒤 다시 고치는 것을 권합니다). 그대로 저장할까요?")) { var ce = new Error("저장을 취소했습니다."); ce.cancel = true; throw ce; }
+      if (!headSha || base === headSha) return;
+      /* 그 사이 저장소가 바뀌었으면 최신 내용에 여기서 고친 항목만 얹어 다시 만듭니다 */
+      var keys = Object.keys(FILES);
+      return Promise.all(keys.map(function (k) { return readFile(FILES[k], base).catch(function (e) { if (k === "data") throw e; return ""; }); })).then(function (res) {
+        var t = {}; keys.forEach(function (k, i) { t[k] = res[i]; });
+        var R = parse(t);
+        rebase(R.D);
+        var files = [{ path: FILES.data, text: dataText(), old: t.data }, { path: FILES.links, text: linksText(), old: t.links }, { path: FILES.ir, text: irText(), old: t.ir }]
+          .filter(function (f) { return f.text !== f.old; });
+        if (R.mediaHad && files.some(function (f) { return f.path === FILES.data; })) files.push({ path: FILES.media, text: MEDIA_EMPTY });
+        ch.files = files;
+        ch.uploads = ch.uploads.filter(used);
+        ch.deletes = ch.deletes.filter(function (p) { return !used(p); });
+        mediaHad = R.mediaHad;
+      });
+    }).then(function () {
       return gh("GET", REPO() + "/git/commits/" + base);
     }).then(function (c) {
       step();

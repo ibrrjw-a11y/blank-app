@@ -130,6 +130,14 @@ h1, h2, h3 { text-wrap: balance; }
 .gnb .gnb-cta { color: var(--on-ink); border: 1px solid var(--line-ink); padding: 10px 16px; border-radius: 2px; }
 .gnb .gnb-cta::after { display: none; }
 .gnb .gnb-cta:hover { border-color: var(--on-ink); }
+/* 언어 전환 KR · EN */
+.lang-sw { display: flex; align-items: center; margin-left: -6px; font: 600 12px/1 var(--f-display); letter-spacing: .1em; }
+.lang-sw a { padding: 10px 7px; color: var(--on-ink-3); transition: color .25s; }
+.lang-sw a + a { border-left: 1px solid var(--line-ink); }
+.lang-sw a:hover, .lang-sw a[aria-current] { color: var(--on-ink); }
+.mobile-nav .m-lang { display: flex; gap: 18px; margin-top: 14px; }
+.mobile-nav .m-lang a { font: 600 14px/1 var(--f-display); letter-spacing: .12em; padding: 8px 0; border: 0; color: var(--on-ink-3); }
+.mobile-nav .m-lang a[aria-current] { color: var(--on-ink); border-bottom: 2px solid var(--on-ink); }
 .menu-toggle { display: none; width: 44px; height: 44px; position: relative; }
 .menu-toggle span { position: absolute; left: 11px; right: 11px; height: 2px; background: currentColor; transition: transform .35s var(--ease), opacity .2s; }
 .menu-toggle span:nth-child(1) { top: 16px; }
@@ -624,6 +632,7 @@ h1, h2, h3 { text-wrap: balance; }
 @media (max-width: 1080px) {
   .gnb { display: none; }
   .menu-toggle { display: block; }
+  .lang-sw { margin-left: auto; margin-right: -14px; }
   .hero .inner { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .hero .mark { order: -1; justify-self: start; width: min(56vw, 300px); }
   .hero .mark figcaption { text-align: left; margin-top: 14px; }

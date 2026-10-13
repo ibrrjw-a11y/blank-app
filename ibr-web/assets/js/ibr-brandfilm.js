@@ -18,7 +18,7 @@
   var FILMS = {
     arvo:      { tone: "dark", bg: "#141A15", ink: "#F2EDE3", acc: ["#E4A85C", "#E890C0", "#93B4D2"], logo: "logo_w", logoH: 58, fx: "fog", words: ["Wood", "Rhythm", "No.07 · 10 · 11"] },
     choolip:   { motif: "pet", bg: "#F6DDE3", ink: "#7A1E3A", acc: ["#E6476B", "#F49AB0", "#FFF4E6", "#B8264E"], words: ["Vet-made", "Human grade", "Amazon's Choice"] },
-    myvef:     { bg: "#DCEAF5", ink: "#0D4A6B", acc: ["#F28C28", "#0D4A6B", "#7FB6E0", "#FFFFFF"], logo: "logo", logoH: 40, under: "pops", words: ["수의사가 만든", "영양 간식", "HK · TW · SG · JP"] },
+    myvef:     { bg: "#DCEAF5", ink: "#0D4A6B", acc: ["#F28C28", "#0D4A6B", "#7FB6E0", "#FFFFFF"], logo: "logo", logoH: 40, under: "pops", words: IBR.lang === "en" ? ["Vet-made", "Nutritious treats", "HK · TW · SG · JP"] : ["수의사가 만든", "영양 간식", "HK · TW · SG · JP"] },
     denoah:    { photos: ["s01", "s02", "s03", "s04"], motif: "droplet", bg: "#EEE6E0", ink: "#4D3B33", acc: ["#D2B5A2", "#B99A86", "#F7EFE9"], logo: "logo", logoH: 46, words: ["Recover", "Calm", "Rest"] },
     drdaniel:  { photos: ["s01", "s02", "s03", "s04"], motif: "capsule", bg: "#EFE9DF", ink: "#2A2117", acc: ["#B08A4E", "#2A2117", "#FFFFFF"], logo: "logo", logoH: 44, words: ["Global ingredients", "Own formula", "Daily health"] },
     chungdam:  { motif: "water", bg: "#E1E8EF", ink: "#14284B", acc: ["#3E6FA8", "#9DB7D6"], logo: "logo", logoH: 46, words: ["淸潭", "Pure water", "Ph.D formula"] },
@@ -1051,12 +1051,12 @@
 
   /* ── 재생기 ─────────────────────────────── */
   var ORIGIN = { KR: "KOREA", US: "USA", AU: "AUSTRALIA", GR: "GREECE", JP: "JAPAN", FR: "FRANCE", UK: "UNITED KINGDOM", NZ: "NEW ZEALAND", IT: "ITALY", CZ: "CZECH", AT: "AUSTRIA" };
-  var GROUP = { own: "자사 브랜드", global: "글로벌 소싱", dist: "유통 브랜드" };
+  var GROUP = { own: IBR.t("자사 브랜드", "Own brand"), global: IBR.t("글로벌 소싱", "Global sourcing"), dist: IBR.t("유통 브랜드", "Distribution") };
   var OUT = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9l6-6M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
   var cur = null;
 
   function button(href, label, cls, icon) {
-    if (!href) return '<span class="bf-btn ' + cls + '" aria-disabled="true">' + icon + label + "<em>준비 중</em></span>";
+    if (!href) return '<span class="bf-btn ' + cls + '" aria-disabled="true">' + icon + label + "<em>" + IBR.t("준비 중", "Coming soon") + "</em></span>";
     return '<a class="bf-btn ' + cls + '" href="' + href + '" target="_blank" rel="noopener">' + icon + label + OUT + "</a>";
   }
 
@@ -1077,12 +1077,12 @@
       '<div class="bf-copy"><p class="bf-eyebrow">' + (ORIGIN[b.origin] ? ORIGIN[b.origin] + " · " : "") + (GROUP[b.group] || "") + "</p>" +
       wm + (b.ko !== b.en ? '<p class="bf-ko">' + b.ko + "</p>" : "") +
       '<p class="bf-words">' + th.words.map(function (x) { return "<span>" + x + "</span>"; }).join("") + "</p></div>" +
-      '<button class="bf-replay" type="button">↻ 다시 보기</button></div>' +
+      '<button class="bf-replay" type="button">' + IBR.t("↻ 다시 보기", "↻ Replay") + '</button></div>' +
       '<div class="bf-bar"><p>' + b.line + '</p><div class="bf-actions">' +
-      button(L.smartstore, "네이버 스마트스토어", "naver", '<i class="n" aria-hidden="true">N</i>') +
-      button(L.mall, "자사몰", "mall", "") +
-      (overseas ? button(L.global, "해외 공식몰", "global", "") : "") +
-      button(L.catalog, "브랜드 카탈로그 다운로드", "catalog", '<svg class="dl" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1v7M3 5l3 3 3-3M1.5 10.5h9" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>') +
+      button(L.smartstore, IBR.t("네이버 스마트스토어", "Naver Smart Store"), "naver", '<i class="n" aria-hidden="true">N</i>') +
+      button(L.mall, IBR.t("자사몰", "Official store"), "mall", "") +
+      (overseas ? button(L.global, IBR.t("해외 공식몰", "Global official store"), "global", "") : "") +
+      button(L.catalog, IBR.t("브랜드 카탈로그 다운로드", "Download brand catalog"), "catalog", '<svg class="dl" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1v7M3 5l3 3 3-3M1.5 10.5h9" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>') +
       "</div></div>";
 
     var film = host.querySelector(".bfilm"), stage = film.querySelector(".bf-stage");

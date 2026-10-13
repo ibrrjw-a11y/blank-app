@@ -1,0 +1,43 @@
+<!-- title: IBR Products -->
+<!-- desc: Products from IBR's own brands and globally sourced brands, shown with suggested retail prices. -->
+<!-- nav: products -->
+<!-- header: solid -->
+<!-- scripts: ibr-data.js ibr-media.js ibr-links.js ibr.js ibr-brandfilm.js ibr-products.js -->
+<main id="main">
+  <section class="p-hero ink">
+    <div class="wrap row">
+      <div style="display:grid;gap:22px">
+        <p class="eyebrow">Products · Catalog</p>
+        <h1>IBR Products</h1>
+        <p class="lead">Products from our own brands and globally sourced brands, all in one place. All prices shown are suggested retail prices; products cannot be purchased on this page.</p>
+      </div>
+      <div class="facts">
+        <div><b class="num" id="fBrands">–</b><span>Brands</span></div>
+        <div><b class="num" id="fProducts">–</b><span>Products</span></div>
+      </div>
+    </div>
+    <span class="line" aria-hidden="true"></span>
+  </section>
+
+  <div class="toolbar">
+    <div class="wrap">
+      <div class="row1">
+        <div class="cats" role="group" aria-label="Category" id="catBar"></div>
+        <div class="tools">
+          <label class="field" for="q"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 11l4 4" stroke="currentColor" stroke-width="1.5"/></svg><span class="sr-only">Search</span><input id="q" type="search" placeholder="Search products or brands" autocomplete="off"></label>
+          <label class="field" for="sort"><span class="sr-only">Sort</span><select id="sort"><option value="">By brand</option><option value="lo">Price: low to high</option><option value="hi">Price: high to low</option></select></label>
+        </div>
+      </div>
+      <div class="brandbar" role="group" aria-label="Brands" id="brandBar"></div>
+    </div>
+  </div>
+
+  <section class="catalog paper">
+    <div class="wrap">
+      <div id="brandFilm" hidden></div>
+      <div id="catalog"></div>
+      <div class="empty" id="empty" hidden><p>No products match your filters.</p><button class="link-arrow" type="button" id="reset">Clear filters</button></div>
+      <p class="disclaimer"><b>Note</b> · Prices shown are suggested retail prices and may vary by retailer and promotion. Products are available through each brand's official retailers. Product photos and details are being added progressively.</p>
+    </div>
+  </section>
+</main>

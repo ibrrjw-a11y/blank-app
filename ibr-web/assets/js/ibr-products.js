@@ -3,7 +3,7 @@
   "use strict";
   var IBR = window.IBR, CATS = window.IBR_CATS, BR = window.IBR_BRANDS, PR = window.IBR_PRODUCTS;
   function $(s) { return document.querySelector(s); }
-  var GROUP = { own: "자사 브랜드", global: "글로벌 소싱", dist: "유통 브랜드" };
+  var GROUP = { own: IBR.t("자사 브랜드", "Own brands"), global: IBR.t("글로벌 소싱", "Global sourcing"), dist: IBR.t("유통 브랜드", "Distribution") };
   var state = { cat: "", brand: "", q: "", sort: "" };
 
   function load() {
@@ -29,7 +29,7 @@
 
   function bars() {
     var cb = $("#catBar"); cb.innerHTML = "";
-    [["", "전체"]].concat(Object.keys(CATS).map(function (k) { return [k, CATS[k]]; })).forEach(function (c) {
+    [["", IBR.t("전체", "All")]].concat(Object.keys(CATS).map(function (k) { return [k, CATS[k]]; })).forEach(function (c) {
       var n = PR.filter(function (p) { return !c[0] || p.cat === c[0]; }).length;
       if (!n) return;
       var b = document.createElement("button");
@@ -39,7 +39,7 @@
       cb.appendChild(b);
     });
     var bb = $("#brandBar"); bb.innerHTML = "";
-    [{ id: "", ko: "모든 브랜드" }].concat(withProducts).forEach(function (br) {
+    [{ id: "", ko: IBR.t("모든 브랜드", "All brands") }].concat(withProducts).forEach(function (br) {
       var n = PR.filter(function (p) { return (!br.id || p.b === br.id) && (!state.cat || p.cat === state.cat); }).length;
       var b = document.createElement("button");
       b.type = "button"; b.setAttribute("aria-pressed", String(state.brand === br.id));

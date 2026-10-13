@@ -1,0 +1,7 @@
+<script>
+/* Shows the intro only on the first visit (once per session). Add #intro to the end of the URL to see it again. */
+(function(){var d=document.documentElement,seen=false;
+try{seen=sessionStorage.getItem("ibr-intro")==="1"}catch(e){}
+if(location.hash==="#intro")seen=false;
+if(!matchMedia("(prefers-reduced-motion: reduce)").matches&&!seen)d.classList.add("has-intro");})();
+</script>
