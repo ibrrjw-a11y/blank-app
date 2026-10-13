@@ -187,3 +187,9 @@ body.locked .tabs, body.locked .acts { visibility: hidden; }
 .lockbox p { margin: 0; color: var(--text-2); }
 .top .lockbtn { color: #9AB0A8; min-height: 32px; }
 .top .lockbtn:hover { color: #EAF2EE; border-color: rgba(234, 242, 238, .3); }
+
+/* 저장 뒤 홈페이지 반영 표시 */
+.live { font-size: 12px; padding: 5px 10px; border-radius: 999px; white-space: nowrap; color: #EAF2EE; background: rgba(234, 242, 238, .1); }
+.live.wait::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; border: 2px solid #9CCB5B; border-right-color: transparent; animation: livespin .8s linear infinite; vertical-align: -1px; }
+.live.ok { background: #145C3A; }
+@keyframes livespin { to { transform: rotate(360deg); } }
