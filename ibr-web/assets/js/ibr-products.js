@@ -39,12 +39,16 @@
       cb.appendChild(b);
     });
     var bb = $("#brandBar"); bb.innerHTML = "";
-    [{ id: "", ko: IBR.t("모든 브랜드", "All brands") }].concat(withProducts).forEach(function (br) {
+    /* 제품이 아직 없는 브랜드도 눌러서 브랜드 필름을 볼 수 있게 뒤쪽에 둡니다 */
+    var noProd = BR.filter(function (b) { return withProducts.indexOf(b) < 0; });
+    [{ id: "", ko: IBR.t("모든 브랜드", "All brands") }].concat(withProducts, noProd).forEach(function (br) {
       var n = PR.filter(function (p) { return (!br.id || p.b === br.id) && (!state.cat || p.cat === state.cat); }).length;
       var b = document.createElement("button");
       b.type = "button"; b.setAttribute("aria-pressed", String(state.brand === br.id));
       b.innerHTML = br.ko + ' <span class="c">' + n + "</span>";
-      b.disabled = br.id && !n;
+      var has = !br.id || PR.some(function (p) { return p.b === br.id; });
+      b.disabled = br.id && has && !n;
+      if (!has) b.innerHTML = br.ko + ' <span class="c">' + IBR.t("준비 중", "soon") + "</span>";
       if (b.disabled) b.style.opacity = ".35";
       b.addEventListener("click", function () {
         state.brand = br.id;
@@ -96,6 +100,8 @@
     var cat = $("#catalog"); cat.innerHTML = "";
     var list = PR.filter(match);
     $("#empty").hidden = list.length > 0;
+    var emp = $("#empty p"), bb0 = state.brand && !PR.some(function (p) { return p.b === state.brand; });
+    if (emp) emp.textContent = bb0 ? IBR.t("이 브랜드의 제품 정보는 준비 중입니다.", "Products for this brand are coming soon.") : IBR.t("조건에 맞는 제품이 없습니다.", "No products match your filters.");
     if (state.sort) {
       var sorted = list.slice().sort(function (a, b) {
         var x = IBR.priceOf(a), y = IBR.priceOf(b);
