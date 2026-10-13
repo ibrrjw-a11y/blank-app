@@ -82,6 +82,8 @@ input[type=color] { width: 44px; height: 34px; padding: 2px; border: 1px solid v
 .tag { font-size: 10.5px; font-weight: 600; padding: 2px 6px; border-radius: 2px; background: var(--paper-2); color: var(--text-2); }
 .tag.new { background: #E0F2EC; color: var(--ok); }
 .tag.chg { background: #FFF4DE; color: var(--warn); }
+.tag.hid { background: #3A4A45; color: #EAF2EE; }
+.hide-row { padding: 10px 12px; background: var(--paper); border-radius: 3px; }
 .tag.blue { background: #E2F0F9; color: #0B6FA3; }
 .group-h { padding: 10px 14px 6px; font: 600 11px/1 var(--f-d); letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); background: var(--paper); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 1; }
 
