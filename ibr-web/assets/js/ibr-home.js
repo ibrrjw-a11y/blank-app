@@ -107,7 +107,7 @@
       var x1 = 0, y1 = i * (th + gap);
       t.style.setProperty("--x", (x0 + (x1 - x0) * local).toFixed(1) + "px");
       t.style.setProperty("--y", (y0 + (y1 - y0) * local).toFixed(1) + "px");
-      t.style.setProperty("--r", (sc[2] * (1 - local)).toFixed(2) + "deg");
+      t.style.setProperty("--r", (sc[2] * (sw < 600 ? .5 : 1) * (1 - local)).toFixed(2) + "deg");   /* 좁은 화면은 덜 기울임 */
     });
     one.style.setProperty("--p", p.toFixed(3));
     stage.style.setProperty("--join", ease(clamp((p - .62) / .25, 0, 1)).toFixed(3));
